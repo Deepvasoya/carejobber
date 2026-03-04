@@ -1,0 +1,1149 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap');
+
+.df-shortcode-wrapper,
+.df-popupid-wrapper {
+    position: relative;
+}
+
+.df-shortcode-copy,
+.df-popupid-copy {
+    cursor: pointer;
+}
+
+.df-cpy-tooltip {
+    background: #636363;
+    color: #fff !important;
+    text-align: center;
+    position: absolute;
+    padding: 7px 14px;
+    border-radius: 4px;
+    line-height: 1em !important;
+    top: 0;
+    opacity: 0;
+    transform: translateX(-106%);
+    z-index: 999;
+}
+
+.df-shortcode-wrapper:hover .df-cpy-tooltip,
+.df-popupid-wrapper:hover .df-cpy-tooltip {
+    opacity: 1;
+    transition: all .2s ease;
+}
+
+.diviflash-module-control {
+    max-width: 90%;
+    margin: 50px auto 0;
+}
+
+.wrap-divi-flash {
+    background: #fff;
+    padding: 0 20px 0 20px;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.wrap-divi-flash h1 {
+    background-color: #661ff4;
+    line-height: 2.4em;
+    font-size: 29px;
+    font-weight: 700;
+    color: #fff;
+    padding-left: 30px;
+    margin: 0 -20px;
+    background-image: url('../../public/css/img/flash.png');
+    background-repeat: no-repeat;
+    background-position: 99.5% center;
+    background-size: 37px;
+}
+
+.all-module {
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 2% 0px 1px;
+    width: 100%;
+}
+
+/* @media only screen and (min-width: 640px) {
+flex-direction: column;
+} */
+.all-module .item {
+    flex-basis: 23%;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-bottom: 2%;
+    padding: 24px 24px;
+    border-radius: 5px;
+    color: #333;
+    font-weight: 500;
+    box-sizing: border-box;
+    overflow: hidden;
+    box-shadow: 0px 1px 3px 0px rgb(0 0 0 / 20%);
+    /* background-image: radial-gradient(circle at top left,rgb(162 153 181 / 6%) 19%,#ffffff 17%); */
+    background-color: #f1f5f9;
+}
+
+/* popup */
+.type-difl_popup .active_status .active,
+.type-difl_popup .active_status .inactive,
+.triggering_setting span {
+    padding: 3px 10px 5px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.type-difl_popup .active_status .active {
+    background: #299110;
+}
+
+.type-difl_popup .active_status .inactive {
+    background: #000;
+}
+
+.triggering_setting span.click {
+    background: #50575e;
+}
+
+.triggering_setting span.on_load {
+    background: #b659d5;
+}
+
+.triggering_setting span.on_scroll {
+    background: #618b8b;
+}
+
+.triggering_setting span.scroll_to_element {
+    background: #d7a32f;
+}
+
+.triggering_setting span.on_exit {
+    background: #1f8fc7;
+}
+
+.triggering_setting span.on_inactivity {
+    background: #620000;
+}
+
+/* .df-popupid-wrapper .df-cpy-tooltip{
+font-size: 10px !important;
+padding: 5px 5px !important;
+top: -20px !important;
+left: 80px !important;
+} */
+
+@media only screen and (max-width: 1500px) {
+    .all-module .item {
+        flex-basis: 31.33%;
+    }
+}
+
+@media only screen and (max-width: 1160px) {
+    .all-module .item {
+        flex-basis: 48%;
+    }
+}
+
+.all-module .item .field [type=checkbox].module_control {
+    display: none;
+}
+
+.all-module .item img {
+    width: 48px;
+    display: block;
+}
+
+.all-module .item .field {
+    display: relative;
+}
+
+.all-module .item .field label {
+    position: relative;
+    line-height: 32px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.all-module .item .field label span.title {
+    width: calc(100% - 44px);
+}
+
+.all-module .item .field label:before,
+.all-module .item .field label:after,
+.all-module .item .field label span.df-switch:before,
+.all-module .item .field label span.df-switch:after {
+    content: '';
+    display: block;
+    position: absolute;
+}
+
+.all-module .item .field label span.df-switch {
+    position: relative;
+    cursor: pointer;
+    display: block;
+}
+
+.check-round label span.df-switch {
+    border-radius: 16px;
+    height: 26px;
+    width: 44px;
+}
+
+.check-round label span.df-switch:before {
+    border-radius: 50%;
+    height: 22px;
+    width: 22px;
+    left: 2px;
+    top: 2px;
+}
+
+.check-round input:checked + label span.df-switch:before {
+    left: 20px;
+}
+
+.check-round.slide label span.df-switch {
+    background: #afafaf;
+    transition: background 0.2s ease-in;
+}
+
+.check-round.slide label span.df-switch:before {
+    background: #ECF0F1;
+    transition: left 0.2s ease-in;
+}
+
+.check-round.slide input:checked + label span.df-switch {
+    background: #661ff4;
+}
+
+.check-round.slide-inverse label span.df-switch {
+    background: #ECF0F1;
+    border: 1px solid #bdc3c7;
+}
+
+.check-round.slide-inverse label span.df-switch:before {
+    background: #e74c3c;
+    transition: left 0.4s ease-in, background 0.4s ease-in;
+}
+
+.check-round.slide-inverse input:checked + label span.df-switch:before {
+    background: #2ecc71;
+}
+
+.difl-module-btn-save.save-changes,
+.control-button {
+    background-color: #afafaf;
+    border-radius: 3px;
+    border: none;
+    display: inline-block;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: Arial;
+    font-size: 16px;
+    padding: 10px 19px;
+    text-decoration: none;
+    text-shadow: none;
+    transition: all 0.3s;
+    pointer-events: none;
+    margin: 24px 0;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+    position: relative;
+}
+
+.save-changes.changed.difl-module-btn-save {
+    background-color: #31ede6;
+    border: 1px solid #e9e9e9;
+    pointer-events: visible;
+}
+
+.save-changes.difl-module-btn-save:hover {
+    background-color: #661ff4;
+}
+
+.save-changes.difl-module-btn-save:active {
+    position: relative;
+    top: 1px;
+}
+
+button.difl-module-btn-save {
+    position: relative;
+}
+
+.control-button {
+    background: #661ff4;
+    float: right;
+    cursor: pointer;
+    margin-left: 20px;
+    pointer-events: all !important;
+}
+
+.control-button.selected {
+    background-color: #31ede6;
+}
+
+button.difl-module-btn-save:before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    border: 2px solid;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-radius: 50%;
+    opacity: 0;
+    animation: 0.8s linear infinite rotate;
+    color: #fff !important;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.5s, color 0.5s ease 0.3;
+}
+
+button.sending.difl-module-btn-save:before {
+    transition-delay: 0.2s;
+    transition-duration: 1s;
+    opacity: 1;
+}
+
+button.sending.difl-module-btn-save {
+    color: rgb(255 255 255 / 0%);
+}
+
+@keyframes rotate {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* menu page */
+.toplevel_page_diviflash-dashboard .wp-menu-image img {
+    width: 18px;
+}
+
+/* dashboard coming soon */
+p.dashboard-coming-soon {
+    padding: 35px 37px;
+    font-size: 45px;
+    font-weight: 700;
+    max-width: 550px;
+    background: white;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+    margin: 104px auto;
+    line-height: 1.3em;
+}
+
+/* license option */
+.diviflash-license {
+    background-color: #ffffff;
+    padding: 0 42px 15px;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+    border-radius: 3px;
+    margin-top: 52px;
+    overflow: hidden;
+}
+
+.diviflash-license .title {
+    background-color: #661ff4;
+    line-height: 2.4em;
+    font-size: 29px;
+    font-weight: 700;
+    color: #fff;
+    padding-left: 30px;
+    margin: 0 -42px;
+    background-image: url(../../public/css/img/flash.png);
+    background-repeat: no-repeat;
+    background-position: 99.5% center;
+    background-size: 37px;
+}
+
+.diviflash-license form {
+    padding-top: 16px;
+}
+
+.diviflash-license input[type="text"] {
+    background-color: #F1F5F9;
+    border-radius: 0;
+    border: 0;
+    margin-right: 10px;
+}
+
+.diviflash-license .form-table th {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.diviflash-license #submit,
+.diviflash-license input[type="submit"] {
+    background-color: #31ede6;
+    border-radius: 3px;
+    border: none;
+    display: inline-block;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: Arial;
+    font-size: 16px;
+    padding: 10px 19px;
+    text-decoration: none;
+    text-shadow: none;
+    transition: all 0.3s;
+    box-shadow: 0 5px 30px rgb(0 0 0 / 10%);
+    position: relative;
+    line-height: 1em;
+}
+
+.diviflash-license #submit:hover,
+.diviflash-license input[type="submit"]:hover {
+    background-color: #661ff4;
+    color: #ffffff;
+}
+
+span.df-license-status {
+    text-transform: uppercase;
+    font-weight: 800;
+    display: inline-block;
+    color: #661ff4 !important;
+    font-size: 20px;
+}
+
+#diviflash-plugin-dashboard .diviflash-plugin__title h1 {
+    background-image: url(../../public/css/img/flash.png);
+    background-repeat: no-repeat;
+    background-position: 99.5% center;
+    background-size: 37px;
+}
+
+@media only screen and (max-width: 840px) {
+    .diviflash-module-control .wrap-divi-flash h1 {
+        background-position: 96.5% center;
+    }
+
+    .diviflash-module-control .control-button {
+        float: none;
+    }
+
+    .difl-module-btn-save.save-changes {
+        display: block;
+    }
+
+    .difl-module-btn-save.save-changes,
+    .control-button {
+        margin: 5px 0;
+        padding: 10px 12px;
+    }
+
+    .save-changes.changed.difl-module-btn-save {
+        display: block;
+    }
+
+    .diviflash-module-control .wrap-divi-flash {
+        background: #fff;
+        padding: 0 10px 0 10px;
+    }
+
+    .diviflash-module-control .all-module .item .field label {
+        line-height: 24px;
+    }
+
+    .diviflash-module-control .menu-control {
+        margin-bottom: 5px;
+    }
+
+    .diviflash-module-control .all-module .item {
+        padding: 10px 5px;
+        margin-bottom: 4%;
+    }
+
+    .diviflash-module-control .all-module {
+        padding: 4% 0px 1px;
+    }
+
+}
+
+.diviflash-module-control .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+
+}
+
+.diviflash-module-control .overlay.open {
+    opacity: 1;
+    z-index: 9999;
+    transition: opacity .5s linear;
+}
+
+.diviflash-module-control .overlay.close {
+    opacity: 0;
+    transition: opacity .5s linear;
+}
+
+.diviflash-module-control .popup {
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px #000;
+    padding: 20px;
+    text-align: center;
+    max-width: 400px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.diviflash-module-control .success {
+    border: 2px solid #086fc3;
+}
+
+.diviflash-module-control .close-btn {
+    background-color: #086fc3;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 0px;
+}
+
+.popup .message.success p {
+    font-size: 24px;
+}
+
+.df_popup_export_import_title {
+    background-image: linear-gradient(165deg, #2a007f 0%, #6725f3 100%) !important;
+    margin: 10px 0 0px;
+    padding: 5px 0px;
+}
+
+.df_popup_export_import_title h2 {
+    font-size: 25px;
+    margin: 0;
+    font-weight: 500;
+    line-height: 1em;
+    color: #fff;
+    padding: 20px 0 20px 20px;
+    background-image: url(#);
+    background-repeat: no-repeat;
+    background-position: 99.5% center;
+    background-size: 37px;
+}
+
+.df_popup_export_import {
+    display: flex;
+    flex-direction: row;
+}
+
+.df_popup_export_import .wrap {
+    flex-basis: 50%;
+    margin: 0px;
+    border: 1px solid #e5dfdf;
+    padding: 20px 15px;
+    margin-top: 10px;
+}
+
+.df_popup_export_import .wrap:not(:last-child) {
+    margin-right: 24px;
+}
+
+.df_popup_export_import {
+    display: flex;
+}
+
+.df_popup_dashboard_wrapper {
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.df_popup_dashboard_wrapper h2 {
+    color: #fff;
+    margin-top: 0;
+    background-image: url(../../public/css/img/flash.png);
+    background-repeat: no-repeat;
+    background-position: 99.5% center;
+    background-size: 37px;
+}
+
+.df_popup_export_import {
+    display: flex;
+    justify-content: space-between;
+    /* margin: 20px; */
+}
+
+.df_popup_export_import.wrap {
+    flex-basis: 48%;
+}
+
+.df_popup_export_import h3 {
+    color: #3F0DA6;
+    margin-top: 0;
+}
+
+.df_popup_export_import table.wp-list-table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.df_popup_export_import table.wp-list-table th,
+.df_popup_export_import table.wp-list-table td {
+    padding: 8px;
+    font-weight: 600;
+}
+
+.df_popup_export_import table.wp-list-table td {
+    padding: 14px 8px;
+    /* font-size: 16px; */
+    font-weight: 500;
+}
+
+.df_popup_export_import table.wp-list-table tbody tr {
+    border-bottom: none;
+    padding: 20px;
+}
+
+.df_popup_export_import table.wp-list-table td:first-child {
+    padding-left: 16px;
+}
+
+.df_popup_dashboard_wrapper table.wp-list-table th:first-child,
+.df_popup_dashboard_wrapper table.wp-list-table td:first-child {
+    width: 2.2em;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.df_popup_export_import table.wp-list-table.widefat tbody > :nth-child(odd) {
+    background-color: #f0f0f1;
+}
+
+/* border style of Table */
+.df_popup_export_import table.wp-list-table.widefat {
+    border: 1px solid #e5dfdf;
+}
+
+.df_popup_export_import table.wp-list-table.widefat.widefat thead th {
+    border-bottom: 1px solid #e5dfdf;
+}
+
+.df_popup_export_import table.wp-list-table.widefat.widefat tfoot th {
+    border-top: 1px solid #e5dfdf;
+}
+
+.df_popup_export_import table.wp-list-table th input[type="checkbox"],
+.df_popup_export_import table.wp-list-table td input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.df_popup_export_import .wrap form input[type="submit"].button-primary {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    background: #3F0DA6;
+    transition: background-color 0.3s ease;
+}
+
+.df_popup_export_import .wrap form input[type="submit"].button-primary:hover {
+    background-color: #39226b;
+}
+
+/* Apply styles to the custom post type import section */
+
+.df_popup_export_import .wrap h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.df_popup_export_import .wrap form input[type="file"] {
+    margin-bottom: 20px;
+}
+
+.df_popup_export_import .wp-list-table span.post_status_title {
+    color: #333;
+    font-weight: 600;
+}
+
+#df_popup_export_import .wrap form input[type="submit"].button-primary:hover {
+    background-color: darken(var(--secondary-color), 10%);
+}
+
+.df_popup_export_import table.wp-list-table td a {
+    font-size: 14px;
+}
+
+.df-popup-setting-content .components-circular-option-picker .components-circular-option-picker__swatches {
+    z-index: 0;
+}
+
+/* Text highlighter */
+body.et-db .et-fb-modal .df_highlighter_row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    text-align: center;
+    align-items: center;
+    grid-gap: 5px;
+}
+
+body.et-db .et-fb-modal .df_highlighter_cell {
+    background: #F1F5F9;
+    transition: all .2s ease;
+    padding: 10px;
+    border: 1px solid transparent;
+    height: 45px;
+}
+
+body.et-db .et-fb-modal .df_text_highlighter_selector_wrapper svg {
+    overflow: visible;
+    width: 65%;
+}
+
+body.et-db .et-fb-modal .df_text_highlighter_selector_wrapper svg path {
+    stroke-width: 15px;
+    stroke: #91A7B6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+body.et-db .et-fb-modal .df_text_highlighter_selector_wrapper .strikethrough {
+    stroke-width: 6px;
+}
+
+
+.difl-license-notice {
+    font-family: "DM Sans", sans-serif;
+    height: 7.5rem;
+    background: #FFFBFB;
+    border-radius: .5rem;
+    border-color: #FB2B3A;
+    border-style: solid;
+    border-width: .5px;
+    border-left-width: 3px;
+}
+
+.difl-license-notice .notice-header {
+    font-size: 1.25rem;
+    margin-top: 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    color: #1D054E;
+    line-height: 1.5;
+    margin-block-end: .75rem;
+    position: relative;
+    width: fit-content;
+}
+
+.difl-license-notice .notice-header::before {
+    font-family: Dashicons;
+    font-size: 1.75rem;
+    color: #FB2B3A;
+    position: absolute;
+    left: -12%;
+}
+
+.difl-license-notice .notice-wrapper {
+    margin: 1.5rem 3.5rem;
+}
+
+.difl-license-notice .notice-link {
+    color: #474950;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+div.difl_cf_export button{
+    position: unset !important;
+}
+
+/*DIFL Contact Form Style --START*/
+.post-type-difl_contact_form {
+    --primary-color: #6a33d7;
+    --primary-color--light: #f0e9fe;
+    --gray-color: #475569;
+    --white: #fff;
+    --secondary-color: #191c24;
+    --light-gray-color: #6c6c6c;
+}
+
+.post-type-difl_contact_form * {
+    font-size: clamp(12px, calc(0.75rem + ((1vw - 3.7500799999999996px) * 0.2424)), 14px) !important;
+}
+
+.post-type-difl_contact_form  #submitdiv .misc-pub-section {
+    padding-bottom: 15px !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #misc-publishing-actions {
+    padding-top: 12px;
+}
+
+.post-type-difl_contact_form #wpbody {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.post-type-difl_contact_form div#wpcontent {
+    background: #f3f4fd;
+    min-height: 100vh;
+}
+
+.post-type-difl_contact_form div#wpcontent h1 {
+    color: var(--primary-color);
+    padding-top: 50px;
+    max-width: 1200px;
+    margin: auto;
+    font-size: clamp(16px, calc(1rem + ((1vw - 3.7500799999999996px) * 0.2424)), 18px) !important;
+    font-weight: 600 !important;
+}
+
+.post-type-difl_contact_form div#side-sortables {
+    width: unset !important;
+}
+
+.post-type-difl_contact_form #poststuff {
+    max-width: 1200px !important;
+    margin: auto !important;
+}
+
+.post-type-difl_contact_form #post-body {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    flex-direction: row-reverse;
+    margin-right: unset !important;
+    align-items: flex-start;
+    gap: 20px !important;
+}
+
+.post-type-difl_contact_form div #post-body-content {
+    display: none;
+}
+
+.post-type-difl_contact_form .handle-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.post-type-difl_contact_form .handle-actions .order-higher-indicator,
+.post-type-difl_contact_form .handle-actions .order-lower-indicator {
+    display: block;
+    background: var(--primary-color--light);
+    padding-bottom: 3px;
+    border-radius: 4px;
+    color: var(--gray-color);
+    padding: 5px 0;
+}
+
+.post-type-difl_contact_form .handle-actions .order-higher-indicator::before,
+.post-type-difl_contact_form .handle-actions .order-lower-indicator::before {
+    font-size: clamp(12px, calc(0.75rem + ((1vw - 3.7500799999999996px) * 0.2424)), 14px);
+    height: 14px;
+}
+
+.post-type-difl_contact_form .handle-actions .handlediv {
+    display: none;
+}
+
+.post-type-difl_contact_form #postbox-container-1 {
+    margin-right: unset !important;
+    width: unset !important;
+    float: unset !important;
+    order: 2;
+}
+
+.post-type-difl_contact_form #postbox-container-1 #side-sortables {
+    /* min-height: unset !important;
+     */
+}
+
+.post-type-difl_contact_form  #submitdiv {
+    background: white;
+    border-radius: 10px;
+    border: none;
+    padding: 24px;
+    border: none !important;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.0);
+    margin-bottom: 20px !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #minor-publishing a,
+.post-type-difl_contact_form  #submitdiv #minor-publishing a span {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+    padding: 0 3px !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #minor-publishing b {
+    color: var(--secondary-color) !important;
+    font-weight: 400 !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #minor-publishing span {
+    color: #191C24 !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #minor-publishing span#timestamp b {
+    font-weight: 600 !important;
+}
+
+.post-type-difl_contact_form  #submitdiv #major-publishing-actions {
+    background: unset;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+.post-type-difl_contact_form  #submitdiv #major-publishing-actions > div {
+    width: 100% !important;
+    display: flex;
+}
+
+.post-type-difl_contact_form  #submitdiv #major-publishing-actions .clear {
+    display: none;
+}
+
+.post-type-difl_contact_form  #submitdiv #major-publishing-actions #delete-action .submitdelete.deletion {
+    border-radius: 8px;
+    border: 1px solid #ffeaeb;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    color: #ff3838;
+    text-decoration: none !important;
+    padding: 9px 0;
+    line-height: 1em;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    align-items:center;
+}
+
+.post-type-difl_contact_form #submitdiv #major-publishing-actions input#publish {
+    background: var(--primary-color);
+    border-radius: 8px;
+    border: none;
+    border-radius: 8px;
+    /*width: 100%;*/
+    display: flex;
+    justify-content: center;
+    text-decoration: none !important;
+    padding: 9px 40px;
+    line-height: 1.4em;
+    color: var(--white) !important;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.post-type-difl_contact_form #form-submission-additional-details,
+.post-type-difl_contact_form #form-submission-details {
+    background: white;
+    border-radius: 10px;
+    border: none;
+    padding: 24px;
+}
+
+.post-type-difl_contact_form #form-submission-additional-details a,
+.post-type-difl_contact_form #form-submission-details a {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+}
+
+.post-type-difl_contact_form .postbox-header,
+.post-type-difl_contact_form .postbox-header {
+    padding-bottom: 15px !important;
+}
+
+.post-type-difl_contact_form .postbox-header .hndle.ui-sortable-handle,
+.post-type-difl_contact_form .postbox-header .hndle.ui-sortable-handle {
+    padding: 0 !important;
+    font-size: clamp(14px, calc(0.875rem + ((1vw - 3.7500799999999996px) * 0.2424)), 16px) !important;
+    font-weight: 500 !important;
+}
+
+.post-type-difl_contact_form #form-submission-additional-details table.wp-list-table.widefat.fixed.striped th,
+.post-type-difl_contact_form #form-submission-details table.wp-list-table.widefat.fixed.striped th {
+    display: none;
+}
+
+.post-type-difl_contact_form #form-submission-additional-details .inside,
+.post-type-difl_contact_form #form-submission-details .inside {
+    padding: 0;
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.post-type-difl_contact_form #form-submission-additional-details .inside a.button,
+.post-type-difl_contact_form #form-submission-details .inside a.button {
+    background: var(--primary-color);
+    border-radius: 8px;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    text-decoration: none !important;
+    padding: 9px 28.5px;
+    line-height: 1.4em;
+    color: #fff !important;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped {
+    border: unset;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td {
+    font-size: clamp(12px, calc(0.75rem + ((1vw - 3.7500799999999996px) * 0.2424)), 14px);
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped a {
+    color: black !important;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped th,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td {
+    border: 0;
+    background: var(--white);
+    padding: 10px 10px;
+    color: #191C24;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped th:last-child,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td:last-child {
+
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped th strong,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td strong {
+    font-weight: 400;
+    color: #6c6c6c !important;
+}
+
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped tfoot td,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped thead td,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped tfoot th,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped thead th {
+    background: var(--primary-color--light);
+    padding: 5px 10px;
+}
+
+.post-type-difl_contact_form select {
+    border: none;
+}
+
+.post-type-difl_contact_form input[type=submit] {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts {
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 30px 0;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts span,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts td.date.column-date,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts td.page_name.column-page_name,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts td.email.column-email {
+    color: #6c6c6c !important;
+    font-weight: 400;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts .row-title {
+    color: var(--primary-color) !important;
+    font-size: clamp(14px, calc(0.875rem + ((1vw - 3.7500799999999996px) * 0.2424)), 16px) !important;
+}
+
+.post-type-difl_contact_form .subsubsub * {
+    color: #6c6c6c;
+}
+
+.post-type-difl_contact_form input#search-submit {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 400;
+}
+
+.post-type-difl_contact_form input#post-search-input {
+    border-color: transparent;
+    margin: 0 !important;
+    margin-right: -5px !important;
+}
+
+.post-type-difl_contact_form div#wpcontent h1.wp-heading-inline {
+    color: #252525 !important;
+    font-size: 24px !important;
+    font-weight: 600;
+}
+
+.post-type-difl_contact_form p.search-box {
+    gap: 0 !important;
+}
+
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts th,
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped.table-view-list.posts th span {
+    color: #1D054E !important;
+}
+
+.post-type-difl_contact_form span.displaying-num {
+    font-size: clamp(14px, calc(0.875rem + ((1vw - 3.7500799999999996px) * 0.2424)), 16px);
+    font-weight: 500;
+}
+
+.post-type-difl_contact_form .misc-pub-post-status:before,
+.post-type-difl_contact_form .misc-pub-comment-status:before {
+    content: "\f537" !important;
+}
+
+.post-type-difl_contact_form *::before {
+    color: #6c6c6c !important;
+    font-size: clamp(14px, calc(0.875rem + ((1vw - 3.7500799999999996px) * 0.2424)), 16px) !important;
+}
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped th:last-child, .post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td:last-child{
+    text-align: right;
+}
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped th:last-child .inline-edit-wrapper *, .post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td:last-child .inline-edit-wrapper *{
+    text-align: left;
+}
+.post-type-difl_contact_form table.wp-list-table.widefat.fixed.striped td:last-child .inline-edit-wrapper select{
+    border: 1px solid;
+}
+.post-type-difl_contact_form #form-submission-details  table.wp-list-table.widefat.fixed.striped td:last-child{
+    text-align: left;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media screen and (max-width: 768px) {
+    .post-type-difl_contact_form #post-body {
+        display: grid;
+        grid-template-columns: unset;
+        flex-direction: row-reverse;
+        margin-right: unset !important;
+        align-items: flex-start;
+        gap: 20px !important;
+    }
+
+}
+
+/*DIFL Contact Form Style --END*/
+
+

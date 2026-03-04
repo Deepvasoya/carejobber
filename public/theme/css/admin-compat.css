@@ -1,0 +1,22 @@
+/* Compatibility for existing admin pages (portlet/panel -> card) */
+.portlet { background: #fff; border: 1px solid rgba(0,0,0,.08); border-radius: 0.375rem; margin-bottom: 1.5rem; }
+.portlet.portlet-light { border-color: #e9ecef; }
+.portlet.portlet-light.bordered { border: 1px solid #e9ecef; }
+.portlet .portlet-title { padding: 1rem 1.25rem; border-bottom: 1px solid #e9ecef; margin: 0; }
+.portlet .portlet-title .caption { font-size: 1rem; font-weight: 600; color: #2c3e50; }
+.portlet .portlet-body { padding: 1.25rem; }
+.page-bar { margin-bottom: 1rem; }
+.page-bar .page-breadcrumb { background: none; padding: 0; margin: 0; font-size: 0.875rem; }
+.page-bar .page-breadcrumb li { display: inline; color: #6c757d; }
+.page-bar .page-breadcrumb li a { color: #405189; text-decoration: none; }
+.page-content { padding: 1.25rem 0; }
+
+/* jQuery Filer widget image preview (admin home-page-content) */
+.jFiler-items-list.jFiler-items-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; margin: 0; }
+.jFiler-item .jFiler-item-thumb img { max-width: 100%; height: auto; display: block; }
+.jFiler-input-dragDrop { min-height: 120px; }
+.jFiler-input-choose-btn.btn { cursor: pointer; }
+.pull-left { float: left; }
+.pull-right { float: right; }
+.list-inline { padding-left: 0; list-style: none; }
+.list-inline > li { display: inline-block; }

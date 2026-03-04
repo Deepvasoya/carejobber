@@ -1,0 +1,24 @@
+<svg fill="none" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" style="fill:none !important">
+    <path d="m32 24h20" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <path d="m32 17h8" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <path d="m32 29h18" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <path d="m32 34h15" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <path d="m32 39h12" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <mask id="b" fill="white">
+        <rect x="25" y="4" width="35" height="56" rx="1.25"/>
+    </mask>
+    <rect x="25" y="4" width="35" height="56" rx="1.25" mask="url(#b)" stroke="#661FF4" stroke-width="3"/>
+    <mask id="a" fill="white">
+        <rect x="4" y="4" width="17" height="24" rx="1.25"/>
+    </mask>
+    <rect x="4" y="4" width="17" height="24" rx="1.25" mask="url(#a)" stroke="#661FF4" stroke-width="3"/>
+    <path d="m10.5 9.75h6" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <circle cx="8" cy="9.75" r=".75" fill="#661FF4"/>
+    <path d="m10.5 13.75h6" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <circle cx="8" cy="13.75" r=".75" fill="#661FF4"/>
+    <path d="m10.5 17.75h6" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <circle cx="8" cy="17.75" r=".75" fill="#661FF4"/>
+    <path d="m10.5 21.75h6" stroke="#661FF4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+    <circle cx="8" cy="21.75" r=".75" fill="#661FF4"/>
+    <path d="m9.3918 32.263c-0.26894-0.2163-0.66237-0.1737-0.87874 0.0952l-3.526 4.3827c-0.21638 0.2689-0.17376 0.6624 0.09518 0.8787 0.26895 0.2164 0.66237 0.1738 0.87875-0.0951l3.1342-3.8958 3.8957 3.1343c0.2689 0.2163 0.6624 0.1737 0.8787-0.0952 0.2164-0.269 0.1738-0.6624-0.0951-0.8788l-4.3827-3.526zm11.543 14.109c0.3433 0.0362 0.6509-0.2127 0.6872-0.556 0.0362-0.3433-0.2127-0.6509-0.556-0.6872l-0.1312 1.2432zm-12.556-13.554c0.22385 2.0665 1.1118 5.196 3.0581 7.939 1.9578 2.7591 5.0003 5.1407 9.4977 5.6153l0.1312-1.2432c-4.074-0.4298-6.8173-2.5698-8.6095-5.0955-1.8036-2.5419-2.63-5.4602-2.8347-7.3502l-1.2427 0.1346z" fill="#661FF4"/>
+</svg>

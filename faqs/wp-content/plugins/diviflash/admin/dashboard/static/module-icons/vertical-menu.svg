@@ -1,0 +1,24 @@
+<svg width="24" viewBox="0 0 64 64" fill="none" style="fill:none !important;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.5 4.75H20.5" stroke="#661FF4" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M29 24H51" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 29H49" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 34H46" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 39H42" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M20.75 59C20.75 59.4142 21.0858 59.75 21.5 59.75C21.9142 59.75 22.25 59.4142 22.25 59L20.75 59ZM22.25 59L22.25 5L20.75 5L20.75 59L22.25 59Z" fill="#661FF4"/>
+<mask id="path-7-inside-1_2113_12904" fill="white">
+<rect x="4" y="4" width="56" height="56" rx="1.25"/>
+</mask>
+<rect x="4" y="4" width="56" height="56" rx="1.25" stroke="#661FF4" stroke-width="3" mask="url(#path-7-inside-1_2113_12904)"/>
+<path d="M29 17H37" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11.25 8.75L17.25 8.75" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="8.75" cy="8.75" r="0.75" fill="#661FF4"/>
+<path d="M11.25 12.25L17.25 12.25" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11.25 15.75L17.25 15.75" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11.25 19.25L17.25 19.25" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11.25 23.5L17.25 23.5" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="8.75" cy="23.5" r="0.75" fill="#661FF4"/>
+<path d="M11.25 28L17.25 28" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="8.75" cy="28" r="0.75" fill="#661FF4"/>
+<path d="M11.25 32.5L17.25 32.5" stroke="#661FF4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="8.75" cy="32.5" r="0.75" fill="#661FF4"/>
+</svg>
