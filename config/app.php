@@ -106,6 +106,18 @@ return [
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
     /*
       |--------------------------------------------------------------------------
+      | Admin Panel URL Prefix
+      |--------------------------------------------------------------------------
+      | Set a custom prefix to obfuscate the admin panel URL (e.g. x7k9p2m-admin-panel-abc123).
+      | When set, requests to /admin will return 404. Default: admin
+      |
+     */
+    'admin_prefix' => env('ADMIN_PREFIX', 'admin'),
+
+    'resume_unlock_price' => env('RESUME_UNLOCK_PRICE', 10.00),
+    'resume_unlock_currency' => env('RESUME_UNLOCK_CURRENCY', 'CAD'),
+    /*
+      |--------------------------------------------------------------------------
       | Autoloaded Service Providers
       |--------------------------------------------------------------------------
       |

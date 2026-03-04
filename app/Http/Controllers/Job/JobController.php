@@ -405,6 +405,8 @@ class JobController extends Controller
         $jobApply->user_id = $user_id;
         $jobApply->job_id = $job->id;
         $jobApply->cv_id = $request->post('cv_id');
+        $jobApply->cover_letter = $request->post('cover_letter');
+        $jobApply->resume_source = $request->post('resume_source', 'existing_cv');
         $jobApply->current_salary = $request->post('current_salary');
         $jobApply->expected_salary = $request->post('expected_salary');
         $jobApply->salary_currency = $request->post('salary_currency');
@@ -424,30 +426,29 @@ class JobController extends Controller
             }
         }
 
-        /*         * ******************************* */
         if ((bool) config('jobseeker.is_jobseeker_package_active')) {
-            $user->availed_jobs_quota = $user->availed_jobs_quota + 1;
-            $user->update();
+            if ($user->jobs_quota > 0) {
+                $user->availed_jobs_quota = $user->availed_jobs_quota + 1;
+                $user->update();
+            }
         }
-        /*         * ******************************* */
-        $myCv = ProfileCv::findorFail($request->post('cv_id'));
+
+        $myCv = ProfileCv::find($request->post('cv_id'));
         
         if($job->external_job =='yes'){
-            $url = $job->job_link; // The URL you want to redirect to
+            $url = $job->job_link;
 
-            // Check if the URL has a valid protocol prefix
             if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-                // If not, add the default HTTP prefix
                 $url = "http://" . $url;
-
                 $request->session()->flash('message.url', $url);
             }
 
             return redirect()->away($url)->withHeaders(['target' => '_blank']);
         }
         
-        event(new JobApplied($job, $jobApply,$myCv));
-        
+        if ($myCv) {
+            event(new JobApplied($job, $jobApply, $myCv));
+        }
 
         flash(__('You have successfully applied for this job'))->success();
         return \Redirect::route('job.detail', $job_slug);

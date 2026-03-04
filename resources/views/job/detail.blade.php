@@ -45,7 +45,9 @@ $company = $job->getCompany();
                         @if($job->application_url != '')
                             <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
                         @else
-                            <a href="{{route('apply.job', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
+                            <button type="button" class="btn apply" onclick="Livewire.dispatch('openApplyModal', { jobSlug: '{{ $job->slug }}' })">
+                                <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
+                            </button>
                         @endif
                     @else
                         @php
@@ -59,7 +61,9 @@ $company = $job->getCompany();
                             @if($job->application_url != '')
                                 <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
                             @else
-                                <a href="{{route('apply.job', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
+                                <button type="button" class="btn apply" onclick="Livewire.dispatch('openApplyModal', { jobSlug: '{{ $job->slug }}' })">
+                                    <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
+                                </button>
                             @endif
                         @endif
                     @endif
@@ -349,5 +353,22 @@ $company = $job->getCompany();
 
 
     });
-</script> 
+</script>
+
+<!-- Apply Job Modal (Livewire) -->
+@auth
+    @if(!Auth::guard('company')->check())
+        @livewire('apply-job-modal')
+    @endif
+@endauth
+
+<script>
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('applicationSubmitted', () => {
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        });
+    });
+</script>
 @endpush

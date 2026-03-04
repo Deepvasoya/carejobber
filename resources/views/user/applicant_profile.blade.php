@@ -47,7 +47,11 @@ if(null!==($package)){
 <div class="userMaininfo">                
 <div class="userPic">{{$user->printUserImage()}} </div>					
     <div class="title">
-        <h3>{{$user->getName()}} <span>({{$user->getFunctionalArea('functional_area')}})</span></h3>
+        @if($true == TRUE)
+            <h3>{{$user->getName()}} <span>({{$user->getFunctionalArea('functional_area')}})</span></h3>
+        @else
+            <h3>{{__('Candidate')}} <span>({{$user->getFunctionalArea('functional_area')}})</span></h3>
+        @endif
         <div class="redyto">
             @if((bool)$user->is_immediate_available)
             <span><i class="fas fa-laptop"></i> {{__('Ready for Hire')}}</span>
@@ -68,20 +72,14 @@ if(null!==($package)){
 $true = FALSE; 
 $companyUser = Auth::guard('company')->user();
 
-// Check if the user's profile is complete (modify as needed)
+// Check if the user's profile is complete
 $isProfileComplete = !empty(optional($profileCv)->cv_file) && !empty($user->email) && !empty($user->phone);
 
 if ($companyUser) {
-    // Company user is logged in - only check if they've unlocked this profile
-    if (!empty($companyUser->availed_cvs_ids)) {
-        $array_ids = explode(',', trim($companyUser->availed_cvs_ids));
-        // Convert user ID to string for comparison since IDs in CSV might be strings
-        if (in_array((string)$user->id, $array_ids)) {
-            $true = TRUE;
-        }
-    }
+    // Check via Gate (includes new ResumeUnlock + old credits + CV package quota)
+    $true = Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
 } elseif (auth()->check() && !Auth::guard('company')->check()) {
-    // Regular user is logged in (NOT a company) and viewing their own profile
+    // Regular user viewing their own profile
     if (auth()->user()->id == $user->id) {
         $true = TRUE;
     }
@@ -144,10 +142,13 @@ if ($companyUser) {
             @if(!$isProfileComplete)
                 <p style="color: red;">{{ __('Candidate profile is not completed, so you can\'t unlock it.') }}</p>
             @else
-                <a href="{{ route('company.unlock', $user->id) }}" class="btn btn-default report">
-                    <i class="fa fa-lock" aria-hidden="true"></i> {{__('Profile Locked')}}
+                <button type="button" class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#resumeUnlockModal">
+                    <i class="fa fa-unlock-alt me-2" aria-hidden="true"></i> {{__('Unlock Full Profile')}}
+                </button>
+                <a href="{{ route('resume.unlock.page', $user->id) }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-info-circle me-2"></i> {{__('View Pricing')}}
                 </a>
-                <span>{{ __('Unlock profile to view candidate CV and contact details') }}</span>
+                <span class="text-muted d-block mt-2">{{ __('One-time payment • Lifetime access • Secure checkout') }}</span>
             @endif
         @endif
     @endif
@@ -162,42 +163,98 @@ if ($companyUser) {
 
 
                 
+                <!-- Unlock Pricing Card (Inline) -->
+                @if(Auth::guard('company')->user() && $true == FALSE && $isProfileComplete)
+                <div class="card shadow-lg border-0 mb-4" style="border-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="card-body p-5 text-white">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <h3 class="fw-bold mb-3">
+                                    <i class="fas fa-unlock-alt me-2"></i> {{__('Unlock This Resume')}}
+                                </h3>
+                                <p class="mb-3 opacity-90">{{__('Get instant access to complete candidate profile including:')}}</p>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2"><i class="fas fa-check-circle me-2"></i> {{__('Full contact details (email, phone)')}}</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle me-2"></i> {{__('Complete work experience & education')}}</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle me-2"></i> {{__('All skills, languages & certifications')}}</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle me-2"></i> {{__('CV download & lifetime access')}}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-5 text-center">
+                                <div class="bg-white text-dark p-4 rounded-3 shadow">
+                                    <div class="display-5 fw-bold text-primary mb-2">
+                                        {{ config('app.resume_unlock_currency', 'CAD') }}${{ number_format(config('app.resume_unlock_price', 10.00), 2) }}
+                                    </div>
+                                    <p class="text-muted small mb-3">{{__('One-time payment')}}</p>
+                                    <button type="button" class="btn btn-primary btn-lg w-100 mb-2" data-bs-toggle="modal" data-bs-target="#resumeUnlockModal" style="border-radius: 8px;">
+                                        <i class="fas fa-unlock-alt me-2"></i> {{__('Unlock Now')}}
+                                    </button>
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-shield-alt me-1"></i> {{__('Secure payment via Stripe')}}
+                                    </small>
+                                    
+                                    @if(Auth::guard('company')->user()->cvs_quota > Auth::guard('company')->user()->availed_cvs_quota)
+                                    <div class="mt-3 pt-3 border-top">
+                                        <small class="text-success">
+                                            <i class="fas fa-coins me-1"></i> 
+                                            {{__('Or use 1 of your')}} <strong>{{ Auth::guard('company')->user()->cvs_quota - Auth::guard('company')->user()->availed_cvs_quota }}</strong> {{__('credits')}}
+                                        </small>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- About Employee start -->
-                    <div class="userdetailbox">
-                        <h3>{{__('About me')}}</h3>
-                        <p>{{$user->getProfileSummary('summary')}}</p>
-						
-                    </div>
-					
-					<div class="userdetailbox">
-					<h3>{{__('Skills')}}</h3>
-                    <div id="skill_div"></div>
-					</div>
-				
+                    @if($true == TRUE)
+                        <div class="userdetailbox">
+                            <h3>{{__('About me')}}</h3>
+                            <p>{{$user->getProfileSummary('summary')}}</p>
+                        </div>
+                        
+                        <div class="userdetailbox">
+                            <h3>{{__('Skills')}}</h3>
+                            <div id="skill_div"></div>
+                        </div>
 
-                    <div class="userdetailbox">
-                        <h3>{{__('Languages')}}</h3>
-                        <div id="language_div"></div>  
-                    </div>
-				
+                        <div class="userdetailbox">
+                            <h3>{{__('Languages')}}</h3>
+                            <div id="language_div"></div>  
+                        </div>
+                    @endif
 
-                <!-- Experience start -->
+                <!-- Experience start (Always visible - partial data) -->
                 <div class="userdetailbox">
                         <h3>{{__('Experience')}}</h3>
+                        @if($true == FALSE)
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> {{__('Partial preview only. Unlock to view full details.')}}
+                            </div>
+                        @endif
                         <div class="" id="experience_div"></div>            
                 </div>
 
-                <!-- Education start -->
+                <!-- Education start (Always visible - partial data) -->
                 <div class="userdetailbox">
                         <h3>{{__('Education')}}</h3>
+                        @if($true == FALSE)
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> {{__('Partial preview only. Unlock to view full details.')}}
+                            </div>
+                        @endif
                         <div class="" id="education_div"></div>            
                 </div>
 
-                <!-- Portfolio start -->
-		<div class="userdetailbox profileproject">
-				<h3>{{__('Portfolio')}}</h3>
-				<div class="" id="projects_div"></div>            
-		</div>
+                <!-- Portfolio start (Only for unlocked) -->
+                @if($true == TRUE)
+                    <div class="userdetailbox profileproject">
+                            <h3>{{__('Portfolio')}}</h3>
+                            <div class="" id="projects_div"></div>            
+                    </div>
+                @endif
 		
 
                
@@ -572,3 +629,5 @@ if ($companyUser) {
     });
 </script> 
 @endpush
+
+@include('company.resume_unlock_modal', ['userId' => $user->id])

@@ -29,9 +29,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_reset_code', 'password_reset_code_expires_at',
         'gdpr_consent_date', 'data_export_requested_at', 'account_deletion_requested_at',
         'referral_code', 'referred_by_user_id', 'referral_featured_days', 'featured_until',
-        'incomplete_profile_reminder_sent_at'
+        'incomplete_profile_reminder_sent_at', 'partial_data'
     ];
     protected $dates = ['created_at', 'updated_at', 'date_of_birth', 'package_start_date', 'package_end_date', 'gdpr_consent_date', 'data_export_requested_at', 'account_deletion_requested_at', 'incomplete_profile_reminder_sent_at'];
+    
+    protected $casts = [
+        'partial_data' => 'array',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -522,5 +527,48 @@ class User extends Authenticatable implements MustVerifyEmail
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get partial resume data for employer preview (work history + education).
+     * Auto-generates from profile if partial_data is null.
+     */
+    public function getPartialData()
+    {
+        if ($this->partial_data) {
+            return $this->partial_data;
+        }
+
+        $history = $this->profileExperience()->get()->map(function ($exp) {
+            return [
+                'title' => $exp->title ?? '',
+                'company' => $exp->company ?? '',
+                'start_date' => $exp->date_start ?? '',
+                'end_date' => $exp->date_end ?? '',
+                'description' => $exp->description ?? '',
+            ];
+        })->toArray();
+
+        $education = $this->profileEducation()->get()->map(function ($edu) {
+            return [
+                'degree' => $edu->degree_level_id ?? '',
+                'institution' => $edu->institute ?? '',
+                'start_date' => $edu->date_start ?? '',
+                'end_date' => $edu->date_end ?? '',
+            ];
+        })->toArray();
+
+        return [
+            'work_history' => $history,
+            'education' => $education,
+        ];
+    }
+
+    /**
+     * Check if this user's full resume is unlocked by a company.
+     */
+    public function isUnlockedBy($companyId): bool
+    {
+        return \App\Models\ResumeUnlock::isUnlockedBy($this->id, $companyId);
     }
 }

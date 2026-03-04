@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\File;
 
 Route::get('make-login/{guard}', 'IndexController@login')->name('make.login');
 
+// Stripe webhook (public, no CSRF)
+Route::post('stripe/webhook', 'StripeWebhookController@handle')->name('stripe.webhook');
+
 // Theme translation file (app.js requests assets/data/translations/en.json)
 Route::get('assets/data/translations/{lang}.json', function ($lang) {
     $path = public_path("assets/data/translations/" . basename($lang) . ".json");
@@ -146,6 +149,8 @@ include_once($real_path . 'cms.php');
 include_once($real_path . 'job.php');
 /* * ******** ContactController ************ */
 include_once($real_path . 'contact.php');
+/* * ******** Company Auth (must be before company.php so /company/login is not caught by company/{slug}) ************ */
+include_once($real_path . 'company_auth.php');
 /* * ******** CompanyController ************ */
 include_once($real_path . 'company.php');
 /* * ******** AjaxController ************ */
@@ -154,8 +159,6 @@ include_once($real_path . 'ajax.php');
 include_once($real_path . 'site_user.php');
 /* * ******** User Auth ************ */
 Auth::routes(['verify' => true]);
-/* * ******** Company Auth ************ */
-include_once($real_path . 'company_auth.php');
 /* * ******** Admin Auth ************ */
 include_once($real_path . 'admin_auth.php');
 Route::get('blog', 'BlogController@index')->name('blogs');

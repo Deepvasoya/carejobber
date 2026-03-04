@@ -558,6 +558,12 @@ trait JobTrait
 
     // Set active status based on auto approval setting
     $job->is_active = ($settings->auto_approval_job == 1) ? 1 : 0;
+    
+    // Calculate display end date based on duration
+    $displayDuration = (int) $request->input('display_duration_days', 30);
+    $job->display_duration_days = $displayDuration;
+    $job->display_end_date = Carbon::now()->addDays($displayDuration);
+    
     $job->update();
 
     // Store skills and update search index
@@ -665,7 +671,12 @@ trait JobTrait
 
         /*         * ******************************* */
 
-
+        // Update display end date if duration changed
+        $displayDuration = (int) $request->input('display_duration_days', 30);
+        if ($job->display_duration_days != $displayDuration) {
+            $job->display_duration_days = $displayDuration;
+            $job->display_end_date = Carbon::now()->addDays($displayDuration);
+        }
 
         /*         * ************************************ */
 

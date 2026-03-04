@@ -76,7 +76,7 @@ if (!isset($seo)) {
 
     @stack('styles')
 
-
+    @livewireStyles
 
     {!! $siteSetting->ganalytics !!}
 
@@ -133,6 +133,8 @@ if (!isset($seo)) {
     {!! NoCaptcha::renderJs() !!}
 
     @stack('scripts')
+
+    @livewireScripts
 
     <!-- Custom js -->
 

@@ -26,9 +26,12 @@ use ResetsPasswords;
     /**
      * Where to redirect users after resetting their password.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = '/admin/home';
+    protected function redirectPath()
+    {
+        return route('admin.home');
+    }
 
     /**
      * Create a new controller instance.

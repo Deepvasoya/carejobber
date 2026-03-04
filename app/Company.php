@@ -61,7 +61,8 @@ class Company extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'slug', 'email_verified_at', 'verified',
         'cvs_package_id', 'cvs_package_start_date', 'cvs_package_end_date', 
-        'cvs_quota', 'availed_cvs_quota', 'referral_code', 'referred_by_company_id', 'referral_bonus_jobs'
+        'cvs_quota', 'availed_cvs_quota', 'referral_code', 'referred_by_company_id', 'referral_bonus_jobs',
+        'stripe_customer_id', 'stripe_subscription_id', 'stripe_subscription_status', 'stripe_subscription_ends_at'
     ];
     
     
@@ -109,6 +110,19 @@ class Company extends Authenticatable
     }
 
 
+
+    /**
+     * Remaining job post credits (for canPostJob gate).
+     */
+    public function getRemainingJobsQuota()
+    {
+        if ($this->package_end_date && \Carbon\Carbon::parse($this->package_end_date)->isPast()) {
+            return 0;
+        }
+        $quota = (int) $this->jobs_quota;
+        $availed = (int) $this->availed_jobs_quota;
+        return max(0, $quota - $availed);
+    }
 
     public function jobs()
 

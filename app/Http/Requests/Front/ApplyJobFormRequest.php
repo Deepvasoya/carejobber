@@ -28,10 +28,9 @@ class ApplyJobFormRequest extends Request
             case 'PUT':
             case 'POST': {
                     return [
-                        "cv_id" => "required",
-                        //"current_salary" => "required|max:11",
-                        //"expected_salary" => "required|max:11",
-                        //"salary_currency" => "required|max:5",
+                        "cv_id" => "nullable",
+                        "cover_letter" => "nullable|string|max:2000",
+                        "resume_source" => "nullable|string|in:existing_cv,uploaded",
                     ];
                 }
             default:break;
@@ -42,9 +41,7 @@ class ApplyJobFormRequest extends Request
     {
         return [
             'cv_id.required' => __('Please select CV'),
-            //'current_salary.required' => __('Please enter current salary'),
-            //'expected_salary.required' => __('Please enter expected salary'),
-            //'salary_currency.required' => __('Please enter salary currency'),
+            'cover_letter.max' => __('Cover letter must not exceed 2000 characters'),
         ];
     }
 

@@ -685,7 +685,7 @@ public function downloadReceipt($companyId)
 
             'to_id' => 'required',
 
-            'g-recaptcha-response' => 'required|captcha',
+            // 'g-recaptcha-response' => 'required|captcha',
 
         );
 
@@ -1241,88 +1241,75 @@ public function downloadReceipt($companyId)
 
 
     public function unlock($user_id)
-
     {
+        $company = Auth::guard('company')->user();
+        
+        // Check if already unlocked via new system (Stripe or credits)
+        if (\App\Models\ResumeUnlock::isUnlockedBy($user_id, $company->id)) {
+            return redirect()->back()->with('info', __('You have already unlocked this profile.'));
+        }
 
-        $cvsSearch = Auth::guard('company')->user();
-        //dd($cvsSearch);
-        if($cvsSearch->cvs_package_id && $cvsSearch->cvs_package_end_date>= date('Y-m-d') && ($cvsSearch->cvs_quota-$cvsSearch->availed_cvs_quota)>0){
-
-
-            if (null !== ($cvsSearch)) {
-
-            if ($cvsSearch->availed_cvs_ids != '') {
-
-
-
-                $newString = $this->addtoString($cvsSearch->availed_cvs_ids, $user_id);
-
+        // Check if company has CV package credits available
+        if ($company->cvs_package_id 
+            && $company->cvs_package_end_date >= date('Y-m-d') 
+            && ($company->cvs_quota - $company->availed_cvs_quota) > 0) {
+            
+            // Use credit to unlock
+            if ($company->availed_cvs_ids != '') {
+                $newString = $this->addtoString($company->availed_cvs_ids, $user_id);
             } else {
-
                 $newString = $user_id;
-
             }
 
+            $company->availed_cvs_ids = $newString;
+            $company->availed_cvs_quota += 1;
+            $company->update();
 
-
-            $cvsSearch->availed_cvs_ids  = $newString;
-
-            $cvsSearch->availed_cvs_quota += 1;
-
-            $cvsSearch->update();
-
-
-
-            $unlock = UnlockedUser::where('company_id', Auth::guard('company')->user()->id)->first();
-
-            if (null !== ($unlock)) {
-
-                $unlock->unlocked_users_ids  = $newString;
-
+            // Update old UnlockedUser table
+            $unlock = UnlockedUser::where('company_id', $company->id)->first();
+            if ($unlock) {
+                $unlock->unlocked_users_ids = $newString;
                 $unlock->update();
-
             } else {
-
                 $unlock = new UnlockedUser();
-
-
-
-                $unlock->company_id  = Auth::guard('company')->user()->id;
-
-                $unlock->unlocked_users_ids  = $newString;
-
+                $unlock->company_id = $company->id;
+                $unlock->unlocked_users_ids = $newString;
                 $unlock->save();
-
             }
+
+            // Create entry in new resume_unlocks table
+            \App\Models\ResumeUnlock::create([
+                'company_id' => $company->id,
+                'user_id' => $user_id,
+                'paid_amount' => 0,
+                'currency' => 'CAD',
+                'payment_method' => 'credits',
+                'unlocked_at' => now(),
+            ]);
 
             // Also create/update entry in unlocked_user_status table
             $unlockedUserStatus = UnlockedUserStatus::firstOrNew([
-                'company_id' => Auth::guard('company')->user()->id,
+                'company_id' => $company->id,
                 'user_id' => $user_id
             ]);
             $unlockedUserStatus->status = 'unlocked';
             $unlockedUserStatus->save();
 
-            return redirect()->back();
+            \Log::info('[Unlock] Via credits', [
+                'company_id' => $company->id,
+                'user_id' => $user_id,
+            ]);
 
+            return redirect()->back()->with('success', __('Profile unlocked successfully!'));
         } else {
-
-            return redirect('/company-packages');
-
+            // No credits available → redirect to Stripe payment
+            \Log::info('[Unlock] No credits; redirect to Stripe', [
+                'company_id' => $company->id,
+                'user_id' => $user_id,
+            ]);
+            return redirect()->route('resume.unlock.checkout', ['userId' => $user_id])
+                ->with('info', __('No credits available. Please purchase to unlock this profile.'));
         }
-
-
-            
-        }else{
-
-            flash(__('Your Package has been expired!'))->error();
-
-            return redirect('/company-packages');
-            
-        }
-
-        
-
     }
 
     function addtoString($str, $item)

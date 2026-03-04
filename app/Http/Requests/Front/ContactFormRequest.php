@@ -30,7 +30,7 @@ class ContactFormRequest extends Request
             'phone' => 'max:20',
             'subject' => 'required|max:200',
             'message_txt' => 'required',
-            'g-recaptcha-response' => 'required|captcha',
+            // 'g-recaptcha-response' => 'required|captcha',
         ];
     }
 

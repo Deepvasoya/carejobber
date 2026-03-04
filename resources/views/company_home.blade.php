@@ -54,7 +54,7 @@
                     <p class="text-muted" style="margin: 0; font-size: 14px;">{{__('Resume suggestions')}}</p>
                 </div>
                 
-                @if(isset($suggestedCandidates) && $suggestedCandidates->total() > 0)
+                @if(isset($suggestedCandidates) && $suggestedCandidates->count() > 0)
                 <ul class="userlisting row" style="margin: 0; list-style: none; padding: 0;">
                     @foreach($suggestedCandidates as $jobSeeker)
                         <li class="col-lg-4 col-md-6">
@@ -553,3 +553,4 @@ function checkPaymentGateway(gateway, isConfigured, redirectUrl) {
 
 @endpush
 
+@livewire('apply-job-modal')

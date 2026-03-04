@@ -22,7 +22,8 @@ class VerifyCsrfToken extends Middleware
         'paypal/order',
         'logout',
         //'api/users',
-        'admin/login'
+        'admin/login',
+        'stripe/webhook',
     ];
 
 }

@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\ProfileLanguageFormRequest;
 use App\Helpers\DataArrayHelper;
+use Illuminate\Support\Facades\Gate;
 
 trait ProfileLanguageTrait
 {
@@ -42,6 +43,17 @@ trait ProfileLanguageTrait
     public function showApplicantProfileLanguages(Request $request, $user_id)
     {
         $user = User::find($user_id);
+        $companyUser = Auth::guard('company')->user();
+        
+        // Check if company can view full resume (languages only for unlocked)
+        if ($companyUser && $user) {
+            $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
+            if (!$canViewFull) {
+                echo '<div class="alert alert-warning"><i class="fas fa-lock"></i> ' . __('Unlock profile to view languages') . '</div>';
+                return;
+            }
+        }
+        
         $html = '<div class="profilelang">';
         if (isset($user) && count($user->profileLanguages)):
             foreach ($user->profileLanguages as $language):

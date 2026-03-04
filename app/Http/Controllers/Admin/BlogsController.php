@@ -82,7 +82,7 @@ class BlogsController extends Base
             $request->session()->flash('message.added', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect('/admin/blog');
+        return redirect()->route('blog');
     }
 
     public function get_blog_by_id($id = '')
@@ -162,7 +162,7 @@ class BlogsController extends Base
             $request->session()->flash('message.updated', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect('/admin/blog');
+        return redirect()->route('blog');
     }
 
     public function destroy($id)

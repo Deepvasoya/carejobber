@@ -23,13 +23,6 @@ class LoginController extends Controller
 use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/admin/home';
-
-    /**
      * Create a new controller instance.
      *
      * @return void
@@ -37,6 +30,16 @@ use AuthenticatesUsers;
     public function __construct()
     {
         $this->middleware('admin.guest')->except('logout');
+    }
+
+    /**
+     * Where to redirect users after login.
+     *
+     * @return string
+     */
+    public function redirectPath()
+    {
+        return route('admin.home');
     }
 
     /**
@@ -59,7 +62,7 @@ use AuthenticatesUsers;
     {
         $this->guard('admin')->logout();
         $request->session()->invalidate();
-        return redirect('/admin/login');
+        return redirect()->route('admin.login');
     }
 
     /**

@@ -147,7 +147,7 @@ class AjaxController extends Controller
 
                         ->with('form_title', 'Contact ' . $user->getName());
                     }else{
-                        return redirect(url('admin/login'));
+                        return redirect()->route('admin.login');
                     }
         
 
@@ -177,7 +177,7 @@ class AjaxController extends Controller
 
                         ->with('ownershipTypes', $ownershipTypes);
                     }else{
-                        return redirect(url('admin/login'));
+                        return redirect()->route('admin.login');
                     }
 
     }
@@ -190,7 +190,7 @@ class AjaxController extends Controller
         return view('admin.job.detail')
                         ->with('job', $job);
                     }else{
-                        return redirect(url('admin/login'));
+                        return redirect()->route('admin.login');
                     }
     }
 

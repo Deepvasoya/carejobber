@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\ProfileExperienceFormRequest;
 use App\Helpers\DataArrayHelper;
+use Illuminate\Support\Facades\Gate;
 
 trait ProfileExperienceTrait
 {
@@ -85,6 +86,16 @@ trait ProfileExperienceTrait
     public function showApplicantProfileExperience(Request $request, $user_id)
 {
     $user = User::find($user_id);
+    $companyUser = Auth::guard('company')->user();
+    
+    // Check if company can view full resume
+    $canViewFull = false;
+    if ($companyUser && $user) {
+        $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
+    } elseif (auth()->check() && auth()->id() == $user_id) {
+        $canViewFull = true;
+    }
+    
     $html = '';
 
     if (isset($user) && $user->profileExperience->count() > 0) {

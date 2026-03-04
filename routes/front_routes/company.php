@@ -3,9 +3,23 @@ Route::get('admin/public-company/{id}','AjaxController@companyprofile')->name('p
 Route::get('company/{slug}', 'Company\CompanyController@companyDetail')->name('company.detail');
 Route::get('companies', 'Company\CompaniesController@company_listing')->name('company.listing');
 
+// Stripe success URLs are public so redirect from Stripe (cross-site) still runs fulfillment when session cookie may not be sent
+Route::get('recruiter/stripe/success', 'Company\RecruiterStripeCheckoutController@success')->name('recruiter.stripe.success');
+Route::get('resume/unlock/success', 'Company\ResumeUnlockController@success')->name('resume.unlock.success');
+
+// Resume unlock: pricing page and Stripe checkout
+Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.page');
+Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.checkout');
+
 Route::middleware(['auth:company', 'company.verified'])->group(function () {
 Route::get('company-documents', 'Company\CompanyController@company_documents')->name('company.documents');
 Route::get('company-packages', 'Company\CompanyController@resume_search_packages')->name('company.packages');
+
+// Recruiter posting: packages & subscriptions (Stripe)
+Route::get('recruiter/posting/packages', 'Company\RecruiterPostingController@packages')->name('recruiter.posting.packages');
+Route::get('recruiter/posting/subscriptions', 'Company\RecruiterPostingController@subscriptions')->name('recruiter.posting.subscriptions');
+Route::get('recruiter/checkout/package/{packageId}', 'Company\RecruiterStripeCheckoutController@redirectToCheckout')->name('recruiter.checkout.package');
+Route::get('recruiter/billing-information/new-client/{token}', 'Company\RecruiterStripeCheckoutController@createSession')->name('recruiter.stripe.checkout');
 Route::get('unloced-seekers', 'Company\CompanyController@UnlockedUser')->name('company.unloced-users');
 Route::get('unlock/{user}', 'Company\CompanyController@unlock')->name('company.unlock');
 Route::get('unlocked-users-change-status', 'Company\CompanyController@setUnlockedUserStatus')->name('unlocked.users.setStatus');

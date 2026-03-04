@@ -69,7 +69,18 @@
                 </div>                                
 
                 <div class="hmseekerinfo">
-                    <h3>{{$jobSeeker->getName()}}</h3>                
+                    @if(Auth::guard('company')->check())
+                        @php
+                            $isUnlocked = Gate::forUser(Auth::guard('company')->user(), 'company')->allows('view-full-resume', $jobSeeker);
+                        @endphp
+                        @if($isUnlocked)
+                            <h3>{{$jobSeeker->getName()}}</h3>
+                        @else
+                            <h3>{{__('Candidate')}} <i class="fas fa-lock text-muted small"></i></h3>
+                        @endif
+                    @else
+                        <h3>{{$jobSeeker->getName()}}</h3>
+                    @endif
                     <div class="hmcate justify-content-center" title="Functional Area">{{$jobSeeker->getFunctionalArea('functional_area')}}</div>
                     <div class="hmcate justify-content-center" title="Career Level"><i class="fas fa-chart-line"></i> {{$jobSeeker->getCareerLevel('career_level')}}</div>
                     <div class="hmcate justify-content-center"><i class="fas fa-map-marker-alt"></i> {{$jobSeeker->getCity('city')}}</div>  

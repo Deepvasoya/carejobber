@@ -26,9 +26,12 @@ use RegistersUsers;
     /**
      * Where to redirect users after registration.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = '/admin/home';
+    protected function redirectPath()
+    {
+        return route('admin.home');
+    }
 
     /**
      * Create a new controller instance.

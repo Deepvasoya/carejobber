@@ -1,6 +1,6 @@
 <?php
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix(config('app.admin_prefix', 'admin'))->name('admin.')->group(function () {
     Route::get('/', 'Admin\Auth\LoginController@showLoginForm');
     Route::get('/login', 'Admin\Auth\LoginController@showLoginForm')->name('login');
     Route::post('/login', 'Admin\Auth\LoginController@login');

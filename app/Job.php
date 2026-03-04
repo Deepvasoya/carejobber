@@ -22,7 +22,26 @@ class Job extends Model
     public $timestamps = true;
     protected $guarded = ['id'];
     //protected $dateFormat = 'U';
-    protected $dates = ['created_at', 'updated_at', 'expiry_date'];
+    protected $dates = ['created_at', 'updated_at', 'expiry_date', 'display_end_date'];
+    
+    /**
+     * Scope to filter jobs that are still within display duration.
+     */
+    public function scopeWithinDisplayDuration($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('display_end_date')
+              ->orWhere('display_end_date', '>=', now());
+        });
+    }
+    
+    /**
+     * Check if job display period has ended.
+     */
+    public function isDisplayExpired()
+    {
+        return $this->display_end_date && $this->display_end_date < now();
+    }
 
     public function company()
     {

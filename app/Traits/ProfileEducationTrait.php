@@ -18,6 +18,7 @@ use App\Country;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ProfileEducationFormRequest;
 use App\Helpers\DataArrayHelper;
 
@@ -82,6 +83,16 @@ trait ProfileEducationTrait
     public function showApplicantProfileEducation(Request $request, $user_id)
 {
     $user = User::find($user_id);
+    $companyUser = Auth::guard('company')->user();
+    
+    // Check if company can view full resume
+    $canViewFull = false;
+    if ($companyUser && $user) {
+        $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
+    } elseif (auth()->check() && auth()->id() == $user_id) {
+        $canViewFull = true;
+    }
+    
     $html = '';
 
     if (isset($user) && $user->profileEducation->count() > 0) {

@@ -24,7 +24,7 @@
 
         
 
-        <form action="{{route('job.list')}}" method="get">
+        <form action="{{route('job.list')}}" method="get" id="search-job-list">
 
             <!-- Search Result and sidebar start -->
 
@@ -370,3 +370,5 @@ $(document).on('click', '.swal-button--register', function() {
 @include('includes.country_state_city_js')
 
 @endpush
+
+@livewire('apply-job-modal')

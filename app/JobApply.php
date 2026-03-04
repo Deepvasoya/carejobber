@@ -7,11 +7,12 @@ class JobApply extends Model
 {
     protected $fillable = [
         'status',
+        'cover_letter',
+        'resume_source',
     ];
     protected $table = 'job_apply';
     public $timestamps = true;
     protected $guarded = ['id'];
-    //protected $dateFormat = 'U';
     protected $dates = ['created_at', 'updated_at'];
     public function user()
     {

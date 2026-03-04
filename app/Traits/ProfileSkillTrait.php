@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\ProfileSkillFormRequest;
 use App\Helpers\DataArrayHelper;
+use Illuminate\Support\Facades\Gate;
 
 trait ProfileSkillTrait
 {
@@ -42,6 +43,17 @@ trait ProfileSkillTrait
     public function showApplicantProfileSkills(Request $request, $user_id)
     {
         $user = User::find($user_id);
+        $companyUser = Auth::guard('company')->user();
+        
+        // Check if company can view full resume (skills only for unlocked)
+        if ($companyUser && $user) {
+            $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
+            if (!$canViewFull) {
+                echo '<div class="alert alert-warning"><i class="fas fa-lock"></i> ' . __('Unlock profile to view skills') . '</div>';
+                return;
+            }
+        }
+        
         $html = '<ul class="profileskills">';
         if (isset($user) && count($user->profileSkills)):
             foreach ($user->profileSkills as $skill):

@@ -38,6 +38,9 @@
 <!-- Testimonials End -->
 
 @include('includes.footer')
+
+@livewire('apply-job-modal')
+
 @endsection
 @push('scripts') 
 <script>
