@@ -101,6 +101,110 @@
         </div>
         {!! APFrmErrHelp::showErrors($errors, 'country_specific_site') !!}                                       
     </div>
+
+    <!-- Location Settings Section -->
+    <div class="card mb-4" style="border: 1px solid #ddd; border-radius: 8px;">
+        <div class="card-header" style="background: #f8f9fa; padding: 15px;">
+            <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Location Settings</h5>
+        </div>
+        <div class="card-body" style="padding: 20px;">
+            
+            <!-- Location Multiple Fields Toggle -->
+            <div class="form-group mb-4 {!! APFrmErrHelp::hasError($errors, 'location_multiple_fields') !!}">
+                {!! Form::label('location_multiple_fields', 'Location Multiple Fields', ['class' => 'bold']) !!}
+                <div class="radio-list">
+                    <label class="radio-inline">
+                        {!! Form::radio('location_multiple_fields', 1, null, ['id' => 'location_multiple_fields_yes', 'onchange' => 'toggleLocationFields()']) !!} Yes
+                    </label>
+                    <label class="radio-inline">
+                        {!! Form::radio('location_multiple_fields', 0, null, ['id' => 'location_multiple_fields_no', 'onchange' => 'toggleLocationFields()']) !!} No
+                    </label>
+                </div>
+                <small class="form-text text-muted">You can set 4 fields for regions like: Country, State, City, District</small>
+                {!! APFrmErrHelp::showErrors($errors, 'location_multiple_fields') !!}
+            </div>
+
+            <!-- Number of Location Fields -->
+            <div id="location_fields_container" style="display: none;">
+                <div class="form-group mb-4 {!! APFrmErrHelp::hasError($errors, 'location_levels') !!}">
+                    {!! Form::label('location_levels', 'Number Fields', ['class' => 'bold']) !!}
+                    {!! Form::select('location_levels', [
+                        1 => '1 Field',
+                        2 => '2 Fields', 
+                        3 => '3 Fields',
+                        4 => '4 Fields'
+                    ], null, ['class' => 'form-control', 'id' => 'location_levels', 'style' => 'max-width: 200px;', 'onchange' => 'updateLocationLabels()']) !!}
+                    <small class="form-text text-muted">You can set 4 fields for regions like: Country, State, City, District</small>
+                    {!! APFrmErrHelp::showErrors($errors, 'location_levels') !!}
+                </div>
+
+                <!-- Field Labels -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'location_field_1_label') !!}">
+                            {!! Form::label('location_field_1_label', 'First Field Label', ['class' => 'bold']) !!}
+                            {!! Form::text('location_field_1_label', null, ['class' => 'form-control', 'id' => 'location_field_1_label', 'placeholder' => 'country']) !!}
+                            <small class="form-text text-muted">Empty for translate multiple languages</small>
+                            {!! APFrmErrHelp::showErrors($errors, 'location_field_1_label') !!}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'location_field_2_label') !!}">
+                            {!! Form::label('location_field_2_label', 'Second Field Label', ['class' => 'bold']) !!}
+                            {!! Form::text('location_field_2_label', null, ['class' => 'form-control', 'id' => 'location_field_2_label', 'placeholder' => 'state']) !!}
+                            <small class="form-text text-muted">Empty for translate multiple languages</small>
+                            {!! APFrmErrHelp::showErrors($errors, 'location_field_2_label') !!}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'location_field_3_label') !!}">
+                            {!! Form::label('location_field_3_label', 'Third Field Label', ['class' => 'bold']) !!}
+                            {!! Form::text('location_field_3_label', null, ['class' => 'form-control', 'id' => 'location_field_3_label', 'placeholder' => 'city']) !!}
+                            <small class="form-text text-muted">Empty for translate multiple languages</small>
+                            {!! APFrmErrHelp::showErrors($errors, 'location_field_3_label') !!}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'location_field_4_label') !!}">
+                            {!! Form::label('location_field_4_label', 'Fourth Field Label', ['class' => 'bold']) !!}
+                            {!! Form::text('location_field_4_label', null, ['class' => 'form-control', 'id' => 'location_field_4_label', 'placeholder' => 'district']) !!}
+                            <small class="form-text text-muted">Empty for translate multiple languages</small>
+                            {!! APFrmErrHelp::showErrors($errors, 'location_field_4_label') !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleLocationFields() {
+            const isEnabled = document.getElementById('location_multiple_fields_yes').checked;
+            const container = document.getElementById('location_fields_container');
+            container.style.display = isEnabled ? 'block' : 'none';
+        }
+
+        function updateLocationLabels() {
+            const numFields = document.getElementById('location_levels').value;
+            // Show/hide label inputs based on number of fields selected
+            for (let i = 1; i <= 4; i++) {
+                const labelInput = document.querySelector(`[name="location_field_${i}_label"]`);
+                if (labelInput) {
+                    labelInput.closest('.form-group').style.display = i <= numFields ? 'block' : 'none';
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleLocationFields();
+            updateLocationLabels();
+        });
+    </script>
     <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'auto_approval_company') !!}">
         {!! Form::label('auto_approval_company', 'Auto approve company', ['class' => 'bold']) !!}        <div class="radio-list">
             <label class="radio-inline">{!! Form::radio('auto_approval_company', 1, true, ['id' => 'auto_approval_company']) !!} Yes </label>

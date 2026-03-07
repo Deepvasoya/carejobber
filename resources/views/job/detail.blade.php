@@ -42,29 +42,22 @@ $company = $job->getCompany();
                     <a href="javascript:;" class="btn apply applied"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Already Applied')}}</a>
                 @else
                     @if(!Auth::check())
-                        @if($job->application_url != '')
-                            <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
-                        @else
-                            <button type="button" class="btn apply" onclick="Livewire.dispatch('openApplyModal', { jobSlug: '{{ $job->slug }}' })">
-                                <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
-                            </button>
-                        @endif
+                        <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
                     @else
                         @php
                             $user = Auth::user();
-                            $profileIncomplete = count($user->getProfileCvsArray()) == 0;
+                            // Check if user has already applied for this job
+                            $hasApplied = \App\JobApply::where('job_id', $job->id)
+                                ->where('user_id', $user->id)
+                                ->exists();
                         @endphp
 
-                        @if($profileIncomplete)
-                            <a href="{{ route('my.profile') }}" class="btn apply"><i class="fas fa-exclamation-circle" aria-hidden="true"></i> {{__('Complete your profile to apply')}}</a>
+                        @if($hasApplied)
+                            <button type="button" class="btn apply" disabled style="background: #6c757d; cursor: not-allowed;">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i> {{__('Already Applied')}}
+                            </button>
                         @else
-                            @if($job->application_url != '')
-                                <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
-                            @else
-                                <button type="button" class="btn apply" onclick="Livewire.dispatch('openApplyModal', { jobSlug: '{{ $job->slug }}' })">
-                                    <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
-                                </button>
-                            @endif
+                            <a href="{{route('job.apply', $job->slug)}}" class="btn apply"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}</a>
                         @endif
                     @endif
                 @endif
@@ -355,20 +348,4 @@ $company = $job->getCompany();
     });
 </script>
 
-<!-- Apply Job Modal (Livewire) -->
-@auth
-    @if(!Auth::guard('company')->check())
-        @livewire('apply-job-modal')
-    @endif
-@endauth
-
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('applicationSubmitted', () => {
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        });
-    });
-</script>
 @endpush

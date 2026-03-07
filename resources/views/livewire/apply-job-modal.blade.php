@@ -1,17 +1,17 @@
-<div>
+<div id="apply-job-modal-wrapper">
     @if($isOpen)
     <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-briefcase"></i> {{__('Apply for')}} {{ $job->title }}
-                    </h5>
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="border-bottom: 1px solid #f0f0f0; padding: 25px 30px;">
+                    <h4 class="modal-title" style="font-weight: 600; color: #333; margin: 0;">
+                        {{__('Apply for this job')}}
+                    </h4>
                     <button type="button" class="btn-close" wire:click="close" aria-label="Close"></button>
                 </div>
                 
                 <form wire:submit.prevent="submit">
-                    <div class="modal-body">
+                    <div class="modal-body" style="padding: 30px;">
                         @if (session()->has('error'))
                             <div class="alert alert-danger alert-dismissible fade show">
                                 {{ session('error') }}
@@ -19,121 +19,105 @@
                             </div>
                         @endif
 
-                        <!-- Resume Selection -->
+                        <!-- Select a your CV -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold">{{__('Select Resume')}}</label>
-                            <div class="d-flex gap-3 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" wire:model.live="resumeSource" value="existing" id="resumeExisting">
-                                    <label class="form-check-label" for="resumeExisting">
-                                        {{__('Use Existing Resume')}}
-                                    </label>
+                            <label class="form-label" style="font-weight: 500; color: #666; font-size: 14px; margin-bottom: 15px;">
+                                {{__('Select a your CV')}}
+                            </label>
+                            
+                            <!-- Existing CVs as Cards -->
+                            @if($userCvs->isNotEmpty())
+                                <div class="row g-3 mb-3">
+                                    @foreach($userCvs as $cv)
+                                        <div class="col-md-6">
+                                            <div class="cv-card" wire:click="$set('selectedCvId', {{ $cv->id }})" 
+                                                 style="cursor: pointer; padding: 20px; border-radius: 8px; border: 2px solid {{ $selectedCvId == $cv->id ? '#2563eb' : '#e5e7eb' }}; background: {{ $selectedCvId == $cv->id ? '#eff6ff' : '#fff' }}; transition: all 0.2s;">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-3">
+                                                        <i class="fas fa-file-pdf" style="font-size: 32px; color: {{ $selectedCvId == $cv->id ? '#2563eb' : '#6b7280' }};"></i>
+                                                    </div>
+                                                    <div style="flex: 1;">
+                                                        <div style="font-weight: 600; color: #333; font-size: 15px;">
+                                                            {{ $cv->title ?: 'cv_candidate' }}
+                                                        </div>
+                                                        <div style="color: #6b7280; font-size: 13px;">PDF</div>
+                                                    </div>
+                                                    @if($selectedCvId == $cv->id)
+                                                        <i class="fas fa-check-circle" style="color: #2563eb; font-size: 20px;"></i>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" wire:model.live="resumeSource" value="upload" id="resumeUpload">
-                                    <label class="form-check-label" for="resumeUpload">
-                                        {{__('Upload New Resume')}}
-                                    </label>
-                                </div>
+                            @endif
+
+                            <!-- Or Upload New CV -->
+                            <div class="text-center my-3" style="color: #9ca3af; font-size: 14px;">
+                                {{__('or upload your CV')}}
                             </div>
 
-                            @if($resumeSource === 'existing')
-                                <select wire:model="selectedCvId" class="form-select @error('selectedCvId') is-invalid @enderror">
-                                    <option value="">{{__('-- Select a resume --')}}</option>
-                                    @foreach($userCvs as $cv)
-                                        <option value="{{ $cv->id }}">
-                                            {{ $cv->title ?: __('Resume') }} 
-                                            @if($cv->is_default) ({{__('Default')}}) @endif
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('selectedCvId') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                                
-                                @if($userCvs->isEmpty())
-                                    <small class="text-muted">
-                                        {{__('No resumes found.')}} <a href="{{ route('my.profile') }}">{{__('Upload one here')}}</a>
-                                    </small>
-                                @endif
-                            @else
-                                <input type="file" wire:model="uploadedResume" class="form-control @error('uploadedResume') is-invalid @enderror" accept=".pdf,.doc,.docx">
-                                @error('uploadedResume') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                <small class="text-muted">{{__('Accepted formats: PDF, DOC, DOCX (max 10MB)')}}</small>
+                            <!-- Upload Area -->
+                            <div class="upload-area" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 30px; text-align: center; background: #f9fafb; cursor: pointer;" 
+                                 onclick="document.getElementById('fileUpload').click()">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: #9ca3af; margin-bottom: 10px;"></i>
+                                <div style="color: #6b7280; font-size: 14px; margin-bottom: 5px;">
+                                    {{__('Upload CV (doc, docx, pdf)')}}
+                                </div>
+                                <input type="file" id="fileUpload" wire:model="uploadedResume" class="d-none" accept=".pdf,.doc,.docx">
                                 
                                 @if($uploadedResume)
-                                    <div class="mt-2">
-                                        <i class="fas fa-file-alt"></i> {{ $uploadedResume->getClientOriginalName() }}
+                                    <div class="mt-3 p-3" style="background: #fff; border-radius: 6px; display: inline-block;">
+                                        <i class="fas fa-file-alt text-primary"></i> 
+                                        <strong>{{ $uploadedResume->getClientOriginalName() }}</strong>
                                         <span wire:loading wire:target="uploadedResume" class="spinner-border spinner-border-sm ms-2"></span>
                                     </div>
                                 @endif
-                            @endif
+                                
+                                @error('uploadedResume') 
+                                    <div class="text-danger small mt-2">{{ $message }}</div> 
+                                @enderror
+                            </div>
                         </div>
 
-                        <!-- Cover Letter -->
-                        <div class="mb-3">
-                            <label for="coverLetter" class="form-label fw-bold">
-                                {{__('Cover Letter')}} <span class="text-muted">({{__('Optional')}})</span>
+                        <!-- Message / Cover Letter -->
+                        <div class="mb-4">
+                            <label for="coverLetter" class="form-label" style="font-weight: 500; color: #666; font-size: 14px;">
+                                {{__('Message')}}
                             </label>
                             <textarea wire:model="coverLetter" 
                                       id="coverLetter" 
                                       class="form-control @error('coverLetter') is-invalid @enderror" 
                                       rows="6" 
                                       maxlength="2000"
+                                      style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; font-size: 14px; resize: none;"
                                       placeholder="{{__('Tell the employer why you\'re a great fit for this position...')}}"></textarea>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mt-2">
                                 <div>@error('coverLetter') <span class="text-danger small">{{ $message }}</span> @enderror</div>
                                 <small class="text-muted">{{ strlen($coverLetter) }}/2000</small>
                             </div>
                         </div>
 
-                        <!-- Salary -->
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">{{__('Current Salary')}}</label>
-                                <input type="number" wire:model="currentSalary" class="form-control" placeholder="0">
+                        <!-- Terms and Conditions -->
+                        <div class="mb-0">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" wire:model="acceptTerms" id="acceptTerms" style="margin-top: 4px;">
+                                <label class="form-check-label" for="acceptTerms" style="font-size: 14px; color: #666;">
+                                    {{__('You accept our')}} 
+                                    <a href="{{ url('/page/terms-of-use') }}" target="_blank" style="color: #2563eb; text-decoration: none;">{{__('Terms and Conditions')}}</a> 
+                                    {{__('and')}} 
+                                    <a href="{{ url('/page/privacy-policy') }}" target="_blank" style="color: #2563eb; text-decoration: none;">{{__('Privacy Policy')}}</a>
+                                </label>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">{{__('Expected Salary')}}</label>
-                                <input type="number" wire:model="expectedSalary" class="form-control" placeholder="0">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">{{__('Currency')}}</label>
-                                <select wire:model="salaryCurrency" class="form-select">
-                                    <option value="CAD">CAD</option>
-                                    <option value="USD">USD</option>
-                                    <option value="EUR">EUR</option>
-                                    <option value="GBP">GBP</option>
-                                </select>
-                            </div>
+                            @error('acceptTerms') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
-
-                        <!-- Job Questions -->
-                        @if($job->jobQuestions && $job->jobQuestions->count() > 0)
-                            <div class="mb-3">
-                                <h6 class="fw-bold">{{__('Additional Questions')}}</h6>
-                                @foreach($job->jobQuestions as $question)
-                                    <div class="mb-3">
-                                        <label class="form-label">
-                                            {{ $question->question }}
-                                            @if($question->is_required) <span class="text-danger">*</span> @endif
-                                        </label>
-                                        <textarea wire:model="questionAnswers.{{ $question->id }}" 
-                                                  class="form-control" 
-                                                  rows="3"
-                                                  maxlength="1000"
-                                                  @if($question->is_required) required @endif></textarea>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" wire:click="close">
-                            {{__('Cancel')}}
-                        </button>
-                        <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                    <div class="modal-footer" style="border-top: 1px solid #f0f0f0; padding: 20px 30px;">
+                        <button type="submit" class="btn btn-primary w-100" wire:loading.attr="disabled" 
+                                style="background: #2563eb; border: none; padding: 14px; font-size: 16px; font-weight: 600; border-radius: 8px;">
                             <span wire:loading.remove wire:target="submit">
-                                <i class="fas fa-paper-plane"></i> {{__('Submit Application')}}
+                                {{__('Apply Job')}}
                             </span>
                             <span wire:loading wire:target="submit">
                                 <span class="spinner-border spinner-border-sm me-1"></span> {{__('Submitting...')}}
@@ -145,4 +129,18 @@
         </div>
     </div>
     @endif
+    
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('component.init', ({ component, cleanup }) => {
+                if (component.name === 'apply-job-modal') {
+                    console.log('Apply modal component initialized');
+                    window.openApplyJobModal = function(jobSlug) {
+                        console.log('Opening modal for job:', jobSlug);
+                        component.call('open', jobSlug);
+                    };
+                }
+            });
+        });
+    </script>
 </div>

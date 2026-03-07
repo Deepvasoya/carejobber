@@ -1,3 +1,46 @@
+@php
+    $company = Auth::guard('company')->user();
+    $hasActivePackage = $company->package_id && $company->package_end_date && \Carbon\Carbon::parse($company->package_end_date)->isFuture();
+    $remainingCredits = $hasActivePackage ? ($company->jobs_quota - $company->availed_jobs_quota) : 0;
+    $packageName = $hasActivePackage ? ($company->getPackage('package_title') ?? __('Active Package')) : __('No Package');
+    $packageExpiry = $hasActivePackage ? \Carbon\Carbon::parse($company->package_end_date)->format('M d, Y') : null;
+@endphp
+
+@if($hasActivePackage)
+<div class="alert alert-success mb-4" style="border-radius: 12px; border-left: 4px solid #28a745; background: #d4edda;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h5 style="margin: 0 0 8px 0; color: #155724; font-weight: 600;">
+                <i class="fas fa-check-circle"></i> {{ $packageName }}
+            </h5>
+            <p style="margin: 0; color: #155724; font-size: 14px;">
+                <strong>{{ $remainingCredits }}</strong> {{ __('job posting credits remaining') }} • 
+                {{ __('Expires') }}: {{ $packageExpiry }}
+            </p>
+        </div>
+        <a href="{{ route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']) }}" class="btn btn-sm" style="background: #28a745; color: #fff; border-radius: 8px; padding: 8px 20px;">
+            <i class="fas fa-arrow-up"></i> {{ __('Upgrade') }}
+        </a>
+    </div>
+</div>
+@else
+<div class="alert alert-warning mb-4" style="border-radius: 12px; border-left: 4px solid #ffc107; background: #fff3cd;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h5 style="margin: 0 0 8px 0; color: #856404; font-weight: 600;">
+                <i class="fas fa-exclamation-triangle"></i> {{ __('No Active Package') }}
+            </h5>
+            <p style="margin: 0; color: #856404; font-size: 14px;">
+                {{ __('Purchase a package to start posting jobs') }}
+            </p>
+        </div>
+        <a href="{{ route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']) }}" class="btn btn-sm" style="background: #ffc107; color: #000; border-radius: 8px; padding: 8px 20px; font-weight: 600;">
+            <i class="fas fa-shopping-cart"></i> {{ __('Buy Package') }}
+        </a>
+    </div>
+</div>
+@endif
+
 <h5>{{__('Job Details')}}</h5>
 @if(isset($job))
 {!! Form::model($job, array('method' => 'put', 'route' => array('update.front.job', $job->id), 'class' => 'form')) !!}

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\On;
 use App\Job;
 use App\JobApply;
 use App\JobQuestionAnswer;
@@ -26,12 +27,11 @@ class ApplyJobModal extends Component
     public $selectedCvId = null;
     public $uploadedResume = null;
     public $coverLetter = '';
+    public $acceptTerms = false;
     public $currentSalary = '';
     public $expectedSalary = '';
     public $salaryCurrency = 'CAD';
     public $questionAnswers = [];
-
-    protected $listeners = ['openApplyModal' => 'open'];
 
     public function mount($jobSlug = null)
     {
@@ -41,6 +41,7 @@ class ApplyJobModal extends Component
         }
     }
 
+    #[On('openApplyModal')]
     public function open($jobSlug = null)
     {
         if ($jobSlug) {
@@ -59,13 +60,14 @@ class ApplyJobModal extends Component
     public function close()
     {
         $this->isOpen = false;
-        $this->reset(['resumeSource', 'selectedCvId', 'uploadedResume', 'coverLetter', 'currentSalary', 'expectedSalary', 'questionAnswers']);
+        $this->reset(['resumeSource', 'selectedCvId', 'uploadedResume', 'coverLetter', 'acceptTerms', 'currentSalary', 'expectedSalary', 'questionAnswers']);
     }
 
     public function rules()
     {
         $rules = [
             'coverLetter' => 'nullable|string|max:2000',
+            'acceptTerms' => 'accepted',
             'currentSalary' => 'nullable|integer',
             'expectedSalary' => 'nullable|integer',
             'salaryCurrency' => 'nullable|string|max:5',

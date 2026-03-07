@@ -75,9 +75,35 @@ class JobController extends Controller
         $job_skill_ids = $request->query('job_skill_id', array());
         $functional_area_ids = $request->query('functional_area_id', array());
         $functionalAreaName = $request->input('functional_area_name');
+        
+        // Handle text-based location search
+        $locationSearch = $request->query('location_search', '');
         $country_ids = $request->query('country_id', array());
         $state_ids = $request->query('state_id', array());
         $city_ids = $request->query('city_id', array());
+        
+        // If location_search is provided, find matching cities and states
+        if (!empty($locationSearch)) {
+            $locationTerm = trim($locationSearch);
+            
+            // Search for matching cities
+            $matchingCities = \App\City::where('city', 'like', "%{$locationTerm}%")
+                ->pluck('id')
+                ->toArray();
+            
+            // Search for matching states
+            $matchingStates = \App\State::where('state', 'like', "%{$locationTerm}%")
+                ->pluck('id')
+                ->toArray();
+            
+            // Merge with existing filters
+            if (!empty($matchingCities)) {
+                $city_ids = array_merge((array)$city_ids, $matchingCities);
+            }
+            if (!empty($matchingStates)) {
+                $state_ids = array_merge((array)$state_ids, $matchingStates);
+            }
+        }
         $is_freelance = $request->query('is_freelance', array());
         $career_level_ids = $request->query('career_level_id', array());
         $job_type_ids = $request->query('job_type_id', array());
@@ -331,31 +357,88 @@ class JobController extends Controller
     {
         $job = Job::where('slug', 'like', $job_slug)->first();
 
-        $jobApply = new External_applied();
+        if (!$job) {
+            flash(__('Job not found'))->error();
+            return redirect()->back();
+        }
+
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            flash(__('Please login to apply for this job'))->error();
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+
+        // Check if user has already applied
+        $existingApplication = \App\JobApply::where('job_id', $job->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if ($existingApplication) {
+            flash(__('You have already applied for this job'))->warning();
+            return redirect()->route('job.detail', $job_slug);
+        }
+
+        // Create new job application
+        $jobApply = new \App\JobApply();
         $jobApply->job_id = $job->id;
-        $jobApply->name = $request->name;
-        $jobApply->email = $request->email;
-        $jobApply->phone = $request->phone;
-        $resume = $request->file('cv');
-
-        // Generate a unique name for the file
-        $fileName = $request->name.time() . '_' . $resume->getClientOriginalName();
-
-        // Move the file to the public/cvs folder
-        $resume->move(public_path('unprocessed'), $fileName);
-        $jobApply->cv = $fileName;
+        $jobApply->user_id = $user->id;
+        
+        // Handle CV - either from existing profile CV or new upload
+        if ($request->selected_cv_id) {
+            // User selected an existing CV from their profile
+            $profileCv = \App\ProfileCv::find($request->selected_cv_id);
+            if ($profileCv && $profileCv->user_id == $user->id) {
+                $jobApply->cv_id = $profileCv->id;
+                $jobApply->resume_source = 'existing';
+            } else {
+                flash(__('Invalid CV selected'))->error();
+                return redirect()->back()->withInput();
+            }
+        } elseif ($request->hasFile('cv')) {
+            // User uploaded a new CV - save it to their profile first
+            $resume = $request->file('cv');
+            
+            // Generate a unique name for the file
+            $fileName = time() . '_' . $resume->getClientOriginalName();
+            
+            // Move the file to the public/cvs folder
+            $resume->move(public_path('cvs'), $fileName);
+            
+            // Create a new ProfileCv record
+            $profileCv = new \App\ProfileCv();
+            $profileCv->user_id = $user->id;
+            $profileCv->cv_file = $fileName;
+            $profileCv->cv_title = 'Application CV - ' . $job->title;
+            $profileCv->is_default = 0;
+            $profileCv->save();
+            
+            $jobApply->cv_id = $profileCv->id;
+            $jobApply->resume_source = 'upload';
+        } else {
+            flash(__('Please select or upload a CV'))->error();
+            return redirect()->back()->withInput();
+        }
+        
+        // Save cover letter if provided
+        if ($request->cover_letter) {
+            $jobApply->cover_letter = $request->cover_letter;
+        }
+        
+        $jobApply->status = 'applied';
         $jobApply->save();
 
-        flash(__('You have successfully applied for this job'))->success();
-        $url = $job->application_url; // The URL you want to redirect to
-
-        // Check if the URL has a valid protocol prefix
-        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-            // If not, add the default HTTP prefix
-            $url = "http://" . $url;
+        // Fire JobApplied event if it exists
+        try {
+            event(new \App\Events\JobApplied($job));
+        } catch (\Exception $e) {
+            // Event doesn't exist or failed, continue anyway
         }
-        $request->session()->flash('message.url', $url);
-        return redirect()->back();
+
+        flash(__('You have successfully applied for this job'))->success();
+        
+        return redirect()->route('job.detail', $job_slug);
     }
 
     public function applyJob(Request $request, $job_slug)

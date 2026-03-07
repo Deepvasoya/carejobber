@@ -1,0 +1,23 @@
+The only task completed is the admin URL change. (1) The subscription package is created on a new URL; it does not synchronize with the employer dashboard, where the package needs to be bought. (2) Resume is not in list format, when clicked on 'search resume', it is like before, nothing changed, I want it look like the image. (3) job application page is not done, the apply button is disabled, why? Which was not like that before. (4). Location setting not done, please see the MP4 attached. (5). An option for candidates to promote their CVs is still not available; it is part of the requirements. (6). The job form on the front page is wrong; I want it like the attached image in the PDF. Please log in as a company and pretend to post a job or buy subscrption to test it out. Log in as a candidate to test, apply for a job, and promote a resume.
+
+
+Here is my original request: I have a PHP Laravel job board website that needs modifications.
+The site is: https://carejobber.com/. I need a PHP and Laravel expert who can be my developer.
+I need to change a lot of the core functionality to my taste.
+(1). I need a custom job for the subscription sections. I need a monthly subscriptions and
+pay-per-post options for employers to buy a package and for job seekers to promote their
+resumes.
+(2) A registered employer will need to have access to a partial resume of job seekers. The
+partial info to be displayed will be their job history and education. No details will be revealed
+unless the employer pays to see full details, like the name and contact information of the job
+seeker.
+(3). I want resumes in list format to display the partial view like the above.
+(4). I need to customize the job application page. When a job seeker clicks on a button to apply
+for a job, I want an option to add the resume that is on file in their account, or upload a new
+resume from their computer, and I need a text box to paste a cover letter within the pop-up.(5). I need a coded URL for the admin section to avoid hackers.
+(6). I want to design multi-level locations for the website. For example, if I chose 1 level in admin
+settings, location will only display only cities throughout the site; if I chose 2 levels, location willchange to state>city; if I chose 3 levels, location will change to country>state>city. (See
+attached video).
+(7). On the homepage, the form that is their currently allows you to search by job title and job
+category. But I want the homepage form to ask for job title and job location.
+This is the start. I need to change some more stuff later.

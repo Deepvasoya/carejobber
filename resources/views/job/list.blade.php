@@ -64,8 +64,21 @@
                                 
 
 
+              @php
+                  $hasApplied = false;
+                  if(Auth::check()) {
+                      $hasApplied = \App\JobApply::where('job_id', $job->id)
+                          ->where('user_id', Auth::user()->id)
+                          ->exists();
+                  }
+              @endphp
               <li class="col-lg-4 col-md-6 @if($job->is_featured == 1) featured @endif">
-                <div class="jobint">
+                <div class="jobint" style="@if($hasApplied) border: 3px solid #28a745; background: #f0fff4; @endif">
+                @if($hasApplied) 
+                    <span class="promotepof-badge" style="background: #28a745; right: auto; left: 10px;">
+                        <i class="fa fa-check-circle" title="{{__('Already Applied')}}"></i>
+                    </span> 
+                @endif
                 @if($job->is_featured == 1) <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('This Job is Featured')}}"></i></span> @endif
                 
 

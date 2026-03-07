@@ -4,6 +4,11 @@
 Route::get('my-profile', 'UserController@myProfile')->name('my.profile');
 Route::put('my-profile', 'UserController@updateMyProfile')->name('my.profile');
 Route::get('build-resume', 'UserController@buildResume')->name('build.resume');
+
+// Resume Promotion Routes
+Route::get('resume-promotion-packages', 'ResumePromotionController@showPackages')->name('resume.promotion.packages');
+Route::get('resume-promotion-checkout/{packageId}', 'ResumePromotionController@createCheckout')->name('resume.promotion.checkout');
+Route::get('resume-promotion-success', 'ResumePromotionController@success')->name('resume.promotion.success');
 Route::get('view-public-profile/{id}', 'UserController@viewPublicProfile')->name('view.public.profile');
 Route::post('update-front-profile-summary/{id}', 'UserController@updateProfileSummary')->name('update.front.profile.summary');
 Route::post('update-immediate-available-status', 'UserController@updateImmediateAvailableStatus')->name('update.immediate.available.status');

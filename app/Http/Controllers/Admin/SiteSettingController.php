@@ -154,6 +154,14 @@ class SiteSettingController extends Controller
 
         $siteSetting->country_specific_site = $request->input('country_specific_site');
 
+        // Location settings
+        $siteSetting->location_multiple_fields = $request->input('location_multiple_fields', 0);
+        $siteSetting->location_levels = $request->input('location_levels', 3);
+        $siteSetting->location_field_1_label = $request->input('location_field_1_label');
+        $siteSetting->location_field_2_label = $request->input('location_field_2_label');
+        $siteSetting->location_field_3_label = $request->input('location_field_3_label');
+        $siteSetting->location_field_4_label = $request->input('location_field_4_label');
+
         $siteSetting->default_currency_code = $request->input('default_currency_code');
 
         $siteSetting->site_street_address = $request->input('site_street_address');
