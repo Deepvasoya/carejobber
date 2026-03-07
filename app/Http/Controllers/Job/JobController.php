@@ -431,7 +431,7 @@ class JobController extends Controller
 
         // Fire JobApplied event if it exists
         try {
-            event(new \App\Events\JobApplied($job));
+            event(new \App\Events\JobApplied($job, $jobApply));
         } catch (\Exception $e) {
             // Event doesn't exist or failed, continue anyway
         }

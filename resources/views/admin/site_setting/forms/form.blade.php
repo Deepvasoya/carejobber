@@ -127,14 +127,14 @@
             <!-- Number of Location Fields -->
             <div id="location_fields_container" style="display: none;">
                 <div class="form-group mb-4 {!! APFrmErrHelp::hasError($errors, 'location_levels') !!}">
-                    {!! Form::label('location_levels', 'Number Fields', ['class' => 'bold']) !!}
+                    {!! Form::label('location_levels', 'Number of Location Levels', ['class' => 'bold']) !!}
                     {!! Form::select('location_levels', [
-                        1 => '1 Field',
-                        2 => '2 Fields', 
-                        3 => '3 Fields',
-                        4 => '4 Fields'
-                    ], null, ['class' => 'form-control', 'id' => 'location_levels', 'style' => 'max-width: 200px;', 'onchange' => 'updateLocationLabels()']) !!}
-                    <small class="form-text text-muted">You can set 4 fields for regions like: Country, State, City, District</small>
+                        1 => '1 Level (City only)',
+                        2 => '2 Levels (State + City)', 
+                        3 => '3 Levels (Country + State + City)',
+                        4 => '4 Levels (Country + State + City + District)'
+                    ], null, ['class' => 'form-control', 'id' => 'location_levels', 'style' => 'max-width: 300px;', 'onchange' => 'updateLocationLabels()']) !!}
+                    <small class="form-text text-muted">Level 1: City only | Level 2: State+City | Level 3: Country+State+City</small>
                     {!! APFrmErrHelp::showErrors($errors, 'location_levels') !!}
                 </div>
 

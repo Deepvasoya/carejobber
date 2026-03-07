@@ -138,22 +138,30 @@
 			{!! Form::text('pinterest', null, array('class'=>'form-control', 'id'=>'pinterest', 'placeholder'=>__('Pinterest'))) !!}
             {!! APFrmErrHelp::showErrors($errors, 'pinterest') !!} </div>
     </div>
+    @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}">
 			<label>{{__('Country')}} <span>*</span></label>
 			{!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($company))? $company->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'country_id') !!} </div>
     </div>
+    @endif
+    
+    @if(\App\Helpers\LocationHelper::showState())
     <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'state_id') !!}">
 			<label>{{__('State')}} <span>*</span></label>
 			<span id="default_state_dd"> {!! Form::select('state_id', ['' => __('Select State')], null, array('class'=>'form-control', 'id'=>'state_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'state_id') !!} </div>
     </div>
+    @endif
+    
+    @if(\App\Helpers\LocationHelper::showCity())
     <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}">
 			<label>{{__('City')}} <span>*</span></label>
 			<span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
     </div>
+    @endif
     <div class="col-md-12">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'map') !!}">
 			<label>{{__('Company Address')}} <span>*</span></label>

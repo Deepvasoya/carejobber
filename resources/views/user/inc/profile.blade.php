@@ -92,6 +92,7 @@
 			{!! Form::select('marital_status_id', [''=>__('Select Marital Status')]+$maritalStatuses, null, array('class'=>'form-control', 'id'=>'marital_status_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'marital_status_id') !!} </div>
     </div>
+    @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}">
 			<label for="">{{__('Country')}} <span>*</span></label>
@@ -99,16 +100,23 @@
             {!! Form::select('country_id', [''=>__('Select Country')]+$countries, $country_id, array('class'=>'form-control', 'id'=>'country_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'country_id') !!} </div>
     </div>
+    @endif
+    
+    @if(\App\Helpers\LocationHelper::showState())
     <div class="col-md-3">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'state_id') !!}">
 			<label for="">{{__('State')}} <span>*</span></label>
 			<span id="state_dd"> {!! Form::select('state_id', [''=>__('Select State')], null, array('class'=>'form-control', 'id'=>'state_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'state_id') !!} </div>
     </div>
+    @endif
+    
+    @if(\App\Helpers\LocationHelper::showCity())
     <div class="col-md-3">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}">
 			<label for="">{{__('City')}} <span>*</span></label>
 			<span id="city_dd"> {!! Form::select('city_id', [''=>__('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
     </div>
+    @endif
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'nationality_id') !!}">
 			<label for="">{{__('Nationality')}} <span>*</span></label>

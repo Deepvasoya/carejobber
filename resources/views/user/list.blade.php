@@ -111,15 +111,29 @@
                                                     @if (Auth::guard('company')->check() && !$isUnlocked)
                                                         {{-- Show detailed partial data for locked profiles --}}
                                                         @php
-                                                            $experiences = $jobSeeker
-                                                                ->profileExperience()
-                                                                ->orderBy('date_start', 'desc')
-                                                                ->get();
-                                                            $educations = $jobSeeker
-                                                                ->profileEducation()
-                                                                ->orderBy('date_start', 'desc')
-                                                                ->get();
-                                                            $certifications = $jobSeeker->profileSkills()->get();
+                                                            try {
+                                                                $experiences = $jobSeeker
+                                                                    ->profileExperience()
+                                                                    ->orderBy('date_start', 'desc')
+                                                                    ->get();
+                                                            } catch (\Exception $e) {
+                                                                $experiences = collect();
+                                                            }
+                                                            
+                                                            try {
+                                                                $educations = $jobSeeker
+                                                                    ->profileEducation()
+                                                                    ->orderBy('date_start', 'desc')
+                                                                    ->get();
+                                                            } catch (\Exception $e) {
+                                                                $educations = collect();
+                                                            }
+                                                            
+                                                            try {
+                                                                $certifications = $jobSeeker->profileSkills()->get();
+                                                            } catch (\Exception $e) {
+                                                                $certifications = collect();
+                                                            }
                                                         @endphp
 
                                                         {{-- Relevant Work Experience --}}
