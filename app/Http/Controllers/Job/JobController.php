@@ -386,9 +386,9 @@ class JobController extends Controller
         $jobApply->user_id = $user->id;
         
         // Handle CV - either from existing profile CV or new upload
-        if ($request->selected_cv_id) {
+        if ($request->cv_id) {
             // User selected an existing CV from their profile
-            $profileCv = \App\ProfileCv::find($request->selected_cv_id);
+            $profileCv = \App\ProfileCv::find($request->cv_id);
             if ($profileCv && $profileCv->user_id == $user->id) {
                 $jobApply->cv_id = $profileCv->id;
                 $jobApply->resume_source = 'existing';
@@ -410,7 +410,7 @@ class JobController extends Controller
             $profileCv = new \App\ProfileCv();
             $profileCv->user_id = $user->id;
             $profileCv->cv_file = $fileName;
-            $profileCv->cv_title = 'Application CV - ' . $job->title;
+            $profileCv->title = 'Application CV - ' . $job->title;
             $profileCv->is_default = 0;
             $profileCv->save();
             

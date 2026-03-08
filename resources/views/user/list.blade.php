@@ -82,34 +82,20 @@
                                                         Featured</span></div>
                                             @endif
 
-                                            <div class="row">
-                                                <div class="col-md-2 text-center">
-                                                    <div class="userltimg">{{ $jobSeeker->printUserImage(100, 100) }}</div>
+                                            @php
+                                                $isUnlocked = false;
+                                                if (Auth::guard('company')->check()) {
+                                                    $isUnlocked = Gate::forUser(
+                                                        Auth::guard('company')->user(),
+                                                        'company',
+                                                    )->allows('view-full-resume', $jobSeeker);
+                                                }
+                                            @endphp
 
-                                                    @if (Auth::guard('company')->check())
-                                                        @php
-                                                            $isUnlocked = Gate::forUser(
-                                                                Auth::guard('company')->user(),
-                                                                'company',
-                                                            )->allows('view-full-resume', $jobSeeker);
-                                                        @endphp
-                                                        @if ($isUnlocked)
-                                                            <h5 class="mt-2 mb-0">{{ $jobSeeker->getName() }}</h5>
-                                                        @else
-                                                            <h5 class="mt-2 mb-0">{{ __('No Name') }} <i
-                                                                    class="fas fa-lock text-muted small"></i></h5>
-                                                        @endif
-                                                        <small class="text-muted">{{ $jobSeeker->getCity('city') }},
-                                                            {{ $jobSeeker->getState('state') }}</small>
-                                                    @else
-                                                        <h5 class="mt-2 mb-0">{{ $jobSeeker->getName() }}</h5>
-                                                        <small class="text-muted">{{ $jobSeeker->getLocation() }}</small>
-                                                    @endif
-                                                </div>
-
-                                                <div class="col-md-8">
-                                                    @if (Auth::guard('company')->check() && !$isUnlocked)
-                                                        {{-- Show detailed partial data for locked profiles --}}
+                                            <div class="row align-items-center">
+                                                {{-- Main Content Area --}}
+                                                <div class="col-md-10">
+                                                        {{-- Compact Resume Preview - Matches Indeed Style --}}
                                                         @php
                                                             try {
                                                                 $experiences = $jobSeeker
@@ -136,32 +122,25 @@
                                                             }
                                                         @endphp
 
+                                                        {{-- Name and Location --}}
+                                                        <div class="mb-2">
+                                                            <h5 class="mb-1" style="font-weight: 600; font-size: 16px; color: #2557a7;">
+                                                                {{ __('No Name') }} • {{ $jobSeeker->getCity('city') }}, {{ $jobSeeker->getState('state') }}
+                                                            </h5>
+                                                        </div>
+
                                                         {{-- Relevant Work Experience --}}
                                                         @if ($experiences->count() > 0)
-                                                            <div class="mb-3">
-                                                                <h6 class="mb-2" style="font-weight: 600; color: #333;">
-                                                                    <i class="fas fa-briefcase text-primary"></i>
-                                                                    {{ __('Relevant Work Experience') }}
-                                                                </h6>
-                                                                <ul
-                                                                    style="margin: 0; padding-left: 20px; list-style: disc;">
-                                                                    @foreach ($experiences->take(3) as $exp)
-                                                                        <li
-                                                                            style="margin-bottom: 5px; color: #666; font-size: 14px;">
+                                                            <div class="mb-2">
+                                                                <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Relevant Work Experience') }}</strong>
+                                                                <ul style="margin: 3px 0 0 0; padding-left: 20px; list-style: disc;">
+                                                                    @foreach ($experiences->take(1) as $exp)
+                                                                        <li style="color: #2d2d2d; font-size: 14px; line-height: 1.5;">
                                                                             <strong>{{ $exp->title ?? 'Position' }}</strong>
-                                                                            @if ($exp->company)
-                                                                                - {{ $exp->company }}
-                                                                            @endif
-                                                                            @if ($exp->date_start)
-                                                                                ,
-                                                                                {{ \Carbon\Carbon::parse($exp->date_start)->format('Y') }}
-                                                                                -
-                                                                                @if ($exp->is_currently_working)
-                                                                                    {{ __('Present') }}
-                                                                                @elseif($exp->date_end)
-                                                                                    {{ \Carbon\Carbon::parse($exp->date_end)->format('Y') }}
-                                                                                @endif
-                                                                            @endif
+                                                                            <br>
+                                                                            <span style="color: #666;">
+                                                                                {{ $exp->company ?? '' }}@if ($exp->date_start), {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }} - @if ($exp->is_currently_working){{ __('Present') }}@elseif($exp->date_end){{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}@endif @endif
+                                                                            </span>
                                                                         </li>
                                                                     @endforeach
                                                                 </ul>
@@ -170,38 +149,23 @@
 
                                                         {{-- Education --}}
                                                         @if ($educations->count() > 0)
-                                                            <div class="mb-3">
-                                                                <h6 class="mb-2" style="font-weight: 600; color: #333;">
-                                                                    <i class="fas fa-graduation-cap text-success"></i>
-                                                                    {{ __('Education') }}
-                                                                </h6>
-                                                                <ul
-                                                                    style="margin: 0; padding-left: 20px; list-style: disc;">
-                                                                    @foreach ($educations->take(2) as $edu)
-                                                                        <li
-                                                                            style="margin-bottom: 5px; color: #666; font-size: 14px;">
-                                                                            {{ $edu->degree_level ?? '' }}
-                                                                            {{ $edu->degree_title ?? '' }},
-                                                                            {{ $edu->institute ?? '' }}
-                                                                        </li>
+                                                            <div class="mb-2">
+                                                                <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Education') }}</strong>
+                                                                <div style="color: #2d2d2d; font-size: 14px; margin-top: 3px; line-height: 1.5;">
+                                                                    @foreach ($educations->take(1) as $edu)
+                                                                        {{ $edu->degree_level ?? '' }} {{ $edu->degree_title ?? '' }}, {{ $edu->institute ?? '' }}
                                                                     @endforeach
-                                                                </ul>
+                                                                </div>
                                                             </div>
                                                         @endif
 
                                                         {{-- Licences and Certifications --}}
                                                         @if ($certifications->count() > 0)
-                                                            <div class="mb-2">
-                                                                <h6 class="mb-2" style="font-weight: 600; color: #333;">
-                                                                    <i class="fas fa-certificate text-warning"></i>
-                                                                    {{ __('Licences and certifications') }}
-                                                                </h6>
-                                                                <div style="color: #666; font-size: 14px;">
-                                                                    @foreach ($certifications->take(5) as $cert)
-                                                                        <span class="badge bg-light text-dark me-1 mb-1"
-                                                                            style="font-weight: normal; border: 1px solid #ddd;">
-                                                                            {{ $cert->skill ?? '' }}
-                                                                        </span>
+                                                            <div class="mb-0">
+                                                                <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Licences and certifications') }}</strong>
+                                                                <div style="margin-top: 3px;">
+                                                                    @foreach ($certifications->take(3) as $cert)
+                                                                        <span style="color: #2d2d2d; font-size: 14px;">{{ $cert->skill ?? '' }}</span>@if (!$loop->last), @endif
                                                                     @endforeach
                                                                 </div>
                                                             </div>
@@ -219,18 +183,18 @@
                                                     @endif
                                                 </div>
 
-                                                <div
-                                                    class="col-md-2 text-end d-flex align-items-center justify-content-center">
+                                                {{-- Right side: View Details Button --}}
+                                                <div class="col-md-2 text-end d-flex align-items-center justify-content-center">
                                                     @if (Auth::user() || (!Auth::user() && !Auth::guard('company')->user()))
                                                         <a href="javascript:void();" data-bs-toggle="modal"
                                                             data-bs-target="#hireme"
                                                             class="btn btn-outline-primary">{{ __('View Profile') }}</a>
                                                     @else
                                                         @if (!$isUnlocked)
-                                                            <a href="{{ route('user.profile', $jobSeeker->id) }}"
-                                                                class="btn btn-primary btn-lg"
-                                                                style="background: #0d6efd; border: none; padding: 12px 24px; border-radius: 6px; white-space: nowrap;">
-                                                                <i class="fas fa-lock-open me-2"></i>
+                                                            <a href="{{ route('subscribe') }}"
+                                                                class="btn btn-primary"
+                                                                style="background: #2557a7; border: none; padding: 10px 20px; border-radius: 6px; white-space: nowrap; font-size: 14px;">
+                                                                <i class="fas fa-lock me-1"></i>
                                                                 {{ __('View all details') }}
                                                             </a>
                                                         @else
