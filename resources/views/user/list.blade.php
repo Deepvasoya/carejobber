@@ -96,31 +96,13 @@
                                                 {{-- Main Content Area --}}
                                                 <div class="col-md-10">
                                                     @if (Auth::guard('company')->check() && !$isUnlocked)
-                                                        {{-- Compact Resume Preview - Matches Indeed Style --}}
+                                                        {{-- Compact Resume Preview - At least 1 experience, 1 education, or skills --}}
                                                         @php
-                                                            try {
-                                                                $experiences = $jobSeeker
-                                                                    ->profileExperience()
-                                                                    ->orderBy('date_start', 'desc')
-                                                                    ->get();
-                                                            } catch (\Exception $e) {
-                                                                $experiences = collect();
-                                                            }
-                                                            
-                                                            try {
-                                                                $educations = $jobSeeker
-                                                                    ->profileEducation()
-                                                                    ->orderBy('date_start', 'desc')
-                                                                    ->get();
-                                                            } catch (\Exception $e) {
-                                                                $educations = collect();
-                                                            }
-                                                            
-                                                            try {
-                                                                $certifications = $jobSeeker->profileSkills()->get();
-                                                            } catch (\Exception $e) {
-                                                                $certifications = collect();
-                                                            }
+                                                            $experiences = $jobSeeker->profileExperience ?? collect();
+                                                            $educations = $jobSeeker->profileEducation ?? collect();
+                                                            $skills = $jobSeeker->profileSkills ?? collect();
+                                                            $summaryText = optional($jobSeeker->profileSummary->first())->summary ?? $jobSeeker->getProfileSummary('summary') ?? '';
+                                                            $hasPartial = $experiences->count() > 0 || $educations->count() > 0 || $skills->count() > 0 || !empty($summaryText);
                                                         @endphp
 
                                                         {{-- Name and Location --}}
@@ -130,17 +112,30 @@
                                                             </h5>
                                                         </div>
 
-                                                        {{-- Relevant Work Experience --}}
+                                                        {{-- About Me (profile summary, ~50 words) --}}
+                                                        @php
+                                                            $summaryPreview = $summaryText ? \Illuminate\Support\Str::words(strip_tags($summaryText), 50) : '';
+                                                        @endphp
+                                                        @if ($summaryPreview)
+                                                            <div class="mb-2">
+                                                                <strong style="font-size: 14px; color: #2d2d2d;">{{ __('About Me') }}</strong>
+                                                                <div style="color: #2d2d2d; font-size: 14px; margin-top: 3px; line-height: 1.5;">
+                                                                    {{ $summaryPreview }}
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Relevant Work Experience (1 entry) --}}
                                                         @if ($experiences->count() > 0)
                                                             <div class="mb-2">
                                                                 <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Relevant Work Experience') }}</strong>
                                                                 <ul style="margin: 3px 0 0 0; padding-left: 20px; list-style: disc;">
                                                                     @foreach ($experiences->take(1) as $exp)
                                                                         <li style="color: #2d2d2d; font-size: 14px; line-height: 1.5;">
-                                                                            <strong>{{ $exp->title ?? 'Position' }}</strong>
+                                                                            <strong>{{ $exp->title ?? __('Position') }}</strong>
                                                                             <br>
                                                                             <span style="color: #666;">
-                                                                                {{ $exp->company ?? '' }}@if ($exp->date_start), {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }} - @if ($exp->is_currently_working){{ __('Present') }}@elseif($exp->date_end){{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}@endif @endif
+                                                                                {{ $exp->company ?? '' }}@if ($exp->date_start), {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }} - @if ($exp->is_currently_working ?? false){{ __('Present') }}@elseif(!empty($exp->date_end)){{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}@endif @endif
                                                                             </span>
                                                                         </li>
                                                                     @endforeach
@@ -148,26 +143,45 @@
                                                             </div>
                                                         @endif
 
-                                                        {{-- Education --}}
+                                                        {{-- Education (1 entry) - degree_level from relationship --}}
                                                         @if ($educations->count() > 0)
                                                             <div class="mb-2">
                                                                 <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Education') }}</strong>
                                                                 <div style="color: #2d2d2d; font-size: 14px; margin-top: 3px; line-height: 1.5;">
                                                                     @foreach ($educations->take(1) as $edu)
-                                                                        {{ $edu->degree_level ?? '' }} {{ $edu->degree_title ?? '' }}, {{ $edu->institution ?? $edu->institute ?? '' }}
+                                                                        @php
+                                                                            $parts = array_filter([
+                                                                                $edu->getDegreeLevel('degree_level'),
+                                                                                $edu->degree_title,
+                                                                                $edu->institution,
+                                                                            ]);
+                                                                        @endphp
+                                                                        {{ implode(', ', $parts) }}
                                                                     @endforeach
                                                                 </div>
                                                             </div>
                                                         @endif
 
-                                                        {{-- Licences and Certifications --}}
-                                                        @if ($certifications->count() > 0)
+                                                        {{-- Licences and Certifications / Skills - from JobSkill relationship --}}
+                                                        @if ($skills->count() > 0)
                                                             <div class="mb-0">
                                                                 <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Licences and certifications') }}</strong>
                                                                 <div style="margin-top: 3px;">
-                                                                    @foreach ($certifications->take(3) as $cert)
-                                                                        <span style="color: #2d2d2d; font-size: 14px;">{{ $cert->skill ?? '' }}</span>@if (!$loop->last), @endif
+                                                                    @foreach ($skills->take(3) as $cert)
+                                                                        @php $skillName = $cert->jobSkill->job_skill ?? $cert->getJobSkill('job_skill') ?? ''; @endphp
+                                                                        @if($skillName)
+                                                                            <span style="color: #2d2d2d; font-size: 14px;">{{ $skillName }}</span>@if (!$loop->last), @endif
+                                                                        @endif
                                                                     @endforeach
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Fallback: show functional area & career level when no experience/education/skills --}}
+                                                        @if (!$hasPartial)
+                                                            <div class="mb-0">
+                                                                <div style="color: #2d2d2d; font-size: 14px;">
+                                                                    {{ $jobSeeker->getFunctionalArea('functional_area') ?: '' }}{{ ($jobSeeker->getFunctionalArea('functional_area') && $jobSeeker->getCareerLevel('career_level')) ? ' • ' : '' }}{{ $jobSeeker->getCareerLevel('career_level') ?? '' }}
                                                                 </div>
                                                             </div>
                                                         @endif

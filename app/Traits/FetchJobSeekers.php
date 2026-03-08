@@ -70,6 +70,14 @@ trait FetchJobSeekers
     $query = User::select($this->fields);
     $query = $this->createQuery($query, $search, $industry_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $career_level_ids, $gender_ids, $job_experience_ids, $current_salary, $expected_salary, $salary_currency);
 
+    // Eager load partial resume data for employer preview (1 experience, 1 education, 3 skills, profile summary)
+    $query->with([
+        'profileExperience' => fn($q) => $q->orderBy('date_start', 'desc')->limit(1),
+        'profileEducation' => fn($q) => $q->orderBy('date_completion', 'desc')->limit(1)->with('degreeLevel'),
+        'profileSkills' => fn($q) => $q->limit(3)->with('jobSkill'),
+        'profileSummary' => fn($q) => $q->limit(1),
+    ]);
+
     // Show all active users, prioritize promoted and featured users
     // Order: 1) Promoted (active), 2) Featured, 3) Regular users
     $query->orderByRaw('CASE 
