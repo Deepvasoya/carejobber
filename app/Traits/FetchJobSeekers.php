@@ -101,52 +101,40 @@ public function fetchIdsArray($search = '', $industry_ids = array(), $functional
         $query->where('users.is_active', 1);
         if ($search != '') {
             $searchTerm = trim($search);
-            $query->where(function($q) use ($searchTerm) {
-                // Search in main search column (FULLTEXT - fast for indexed users)
-                // Only use FULLTEXT if search column is not empty
-                $q->where(function($subQ) use ($searchTerm) {
-                    $subQ->whereNotNull('users.search')
-                         ->where('users.search', '!=', '')
-                         ->whereRaw("MATCH (`search`) AGAINST ('$searchTerm*' IN BOOLEAN MODE)");
-                })
-                  
-                  // OR search in user basic fields
-                  ->orWhere('users.name', 'like', "%{$searchTerm}%")
-                  ->orWhere('users.first_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('users.last_name', 'like', "%{$searchTerm}%")
-                  ->orWhere('users.email', 'like', "%{$searchTerm}%")
-                  
-                  // OR search in education data (degree titles, institutions)
-                  ->orWhereHas('profileEducation', function($eduQuery) use ($searchTerm) {
-                      $eduQuery->where('degree_title', 'like', "%{$searchTerm}%")
-                               ->orWhere('institution', 'like', "%{$searchTerm}%");
+            $searchLike = '%' . addcslashes($searchTerm, '%_\\') . '%';
+            $query->where(function($q) use ($searchLike) {
+                // Search users.search column (indexed text) and user basic fields
+                $q->where('users.search', 'like', $searchLike)
+                  ->orWhere('users.name', 'like', $searchLike)
+                  ->orWhere('users.first_name', 'like', $searchLike)
+                  ->orWhere('users.last_name', 'like', $searchLike)
+                  ->orWhere('users.email', 'like', $searchLike)
+                  // OR search in education data (degree_title, institution)
+                  ->orWhereHas('profileEducation', function($eduQuery) use ($searchLike) {
+                      $eduQuery->where('degree_title', 'like', $searchLike)
+                               ->orWhere('institution', 'like', $searchLike);
                   })
-                  
-                  // OR search in degree levels (Bachelor, Master, MBA, etc.)
-                  ->orWhereHas('profileEducation.degreeLevel', function($degreeLevelQuery) use ($searchTerm) {
-                      $degreeLevelQuery->where('degree_level', 'like', "%{$searchTerm}%");
+                  // OR search in degree levels
+                  ->orWhereHas('profileEducation.degreeLevel', function($degreeLevelQuery) use ($searchLike) {
+                      $degreeLevelQuery->where('degree_level', 'like', $searchLike);
                   })
-                  
-                  // OR search in degree types (Arts, Science, Commerce, etc.)
-                  ->orWhereHas('profileEducation.degreeType', function($degreeTypeQuery) use ($searchTerm) {
-                      $degreeTypeQuery->where('degree_type', 'like', "%{$searchTerm}%");
+                  // OR search in degree types
+                  ->orWhereHas('profileEducation.degreeType', function($degreeTypeQuery) use ($searchLike) {
+                      $degreeTypeQuery->where('degree_type', 'like', $searchLike);
                   })
-                  
-                  // OR search in experience (job titles, companies)
-                  ->orWhereHas('profileExperience', function($expQuery) use ($searchTerm) {
-                      $expQuery->where('title', 'like', "%{$searchTerm}%")
-                               ->orWhere('company', 'like', "%{$searchTerm}%")
-                               ->orWhere('description', 'like', "%{$searchTerm}%");
+                  // OR search in experience
+                  ->orWhereHas('profileExperience', function($expQuery) use ($searchLike) {
+                      $expQuery->where('title', 'like', $searchLike)
+                               ->orWhere('company', 'like', $searchLike)
+                               ->orWhere('description', 'like', $searchLike);
                   })
-                  
                   // OR search in skills
-                  ->orWhereHas('profileSkills.jobSkill', function($skillQuery) use ($searchTerm) {
-                      $skillQuery->where('job_skill', 'like', "%{$searchTerm}%");
+                  ->orWhereHas('profileSkills.jobSkill', function($skillQuery) use ($searchLike) {
+                      $skillQuery->where('job_skill', 'like', $searchLike);
                   })
-                  
                   // OR search in profile summary
-                  ->orWhereHas('profileSummary', function($summaryQuery) use ($searchTerm) {
-                      $summaryQuery->where('summary', 'like', "%{$searchTerm}%");
+                  ->orWhereHas('profileSummary', function($summaryQuery) use ($searchLike) {
+                      $summaryQuery->where('summary', 'like', $searchLike);
                   });
             });
         }

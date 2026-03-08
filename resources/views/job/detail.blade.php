@@ -401,7 +401,7 @@ $company = $job->getCompany();
                         <div class="form-check mb-3">
                             <input type="checkbox" class="form-check-input" id="terms" name="terms" required style="width: 18px; height: 18px;">
                             <label class="form-check-label ms-2" for="terms" style="color: #666; font-size: 14px;">
-                                {{__('I agree to the')}} <a href="{{url('terms-of-use')}}" target="_blank">{{__('Terms and Conditions')}}</a>
+                                {{__('I agree to the')}} <a href="{{ route('cms', ['slug' => 'terms-of-use']) }}" target="_blank">{{__('Terms and Conditions')}}</a>
                             </label>
                         </div>
                     @else

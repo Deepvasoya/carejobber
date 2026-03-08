@@ -95,6 +95,7 @@
                                             <div class="row align-items-center">
                                                 {{-- Main Content Area --}}
                                                 <div class="col-md-10">
+                                                    @if (Auth::guard('company')->check() && !$isUnlocked)
                                                         {{-- Compact Resume Preview - Matches Indeed Style --}}
                                                         @php
                                                             try {
@@ -153,7 +154,7 @@
                                                                 <strong style="font-size: 14px; color: #2d2d2d;">{{ __('Education') }}</strong>
                                                                 <div style="color: #2d2d2d; font-size: 14px; margin-top: 3px; line-height: 1.5;">
                                                                     @foreach ($educations->take(1) as $edu)
-                                                                        {{ $edu->degree_level ?? '' }} {{ $edu->degree_title ?? '' }}, {{ $edu->institute ?? '' }}
+                                                                        {{ $edu->degree_level ?? '' }} {{ $edu->degree_title ?? '' }}, {{ $edu->institution ?? $edu->institute ?? '' }}
                                                                     @endforeach
                                                                 </div>
                                                             </div>
@@ -191,7 +192,7 @@
                                                             class="btn btn-outline-primary">{{ __('View Profile') }}</a>
                                                     @else
                                                         @if (!$isUnlocked)
-                                                            <a href="{{ route('subscribe') }}"
+                                                            <a href="{{ route('company.packages') }}"
                                                                 class="btn btn-primary"
                                                                 style="background: #2557a7; border: none; padding: 10px 20px; border-radius: 6px; white-space: nowrap; font-size: 14px;">
                                                                 <i class="fas fa-lock me-1"></i>
