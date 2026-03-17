@@ -187,7 +187,7 @@
                                                         @endif
                                                     @else
                                                         {{-- Show normal info for unlocked or non-company users --}}
-                                                        <div class="hmcate justify-content-center" title="Functional Area">
+                                                        <div class="hmcate justify-content-center" title="Job Title">
                                                             {{ $jobSeeker->getFunctionalArea('functional_area') }}</div>
                                                         <div class="hmcate justify-content-center" title="Career Level"><i
                                                                 class="fas fa-chart-line"></i>

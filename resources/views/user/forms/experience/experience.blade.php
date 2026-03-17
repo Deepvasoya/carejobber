@@ -1,7 +1,7 @@
 
 <div class="newcvcard">
                 <div class="cardhead">
-                    <h4 onclick="showExperience();">{{__('Experience')}}</h4>
+                    <h4 onclick="showExperience();">{{__('Work History')}}</h4>
                     <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#add_experience_modal" onclick="showProfileExperienceModal();"><i class="fas fa-plus"></i></a>
                 </div>
                 

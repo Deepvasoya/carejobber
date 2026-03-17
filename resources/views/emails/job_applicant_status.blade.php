@@ -26,7 +26,7 @@
                                         </h3>
                                     </div>
                                     <p>Dear {{$user_name}},</p>
-                                    <p>Thank you for applying for the <strong>{{$job_title}}</strong> position at <strong>{{ $company_name }}</strong>.</p>
+                                    <p>Thank you for applying for the <strong>{{$job_title}}</strong> position at <strong>{{ $company_name }} </strong>.</p>
                                     <p>After careful review of your resume/CV, we regret to inform you that we will not be moving forward with your application at this time. This decision was made after thorough consideration of all applications we received.</p>
                                     <p>We appreciate your interest in joining our team and encourage you to apply for future opportunities that match your skills and experience.</p>
                                     <p><strong>Quick Links:</strong></p>
@@ -90,7 +90,7 @@
                                         </h3>
                                     </div>
                                     <p>Dear {{$user_name}},</p>
-                                    <p>This is to confirm that your application for the <strong>{{$job_title}}</strong> position at <strong>{{ $company_name }}</strong> has been received and is currently being reviewed by our hiring team.</p>
+                                    <p>This is to confirm that your application for the <strong>{{$job_title}}</strong> position at <strong>{{ $company_name }}</strong> has been received and is currently being reviewed by our hiring team. Please note that only candidate we see fit will be considered and selected.</p>
                                     <p>We appreciate your interest in this opportunity and will carefully review your qualifications.</p>
                                     <p><strong>Current Status:</strong> Under Review</p>
                                     <p><strong>What Happens Next:</strong></p>

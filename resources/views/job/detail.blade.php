@@ -166,7 +166,7 @@ $company = $job->getCompany();
                                     <div class="jbitlist">
                                     <span class="material-symbols-outlined">calendar_month</span>
                                     <div class="jbitdata">
-                                        <strong>{{__('Apply Before')}}:</strong>
+                                        <strong>{{__('Application Deadline')}}:</strong>
                                         <span>{{ \Carbon\Carbon::parse($job->expiry_date)->format('M d, Y') }}</span></div>
                                     </div>
                                 </li> 

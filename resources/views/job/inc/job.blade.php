@@ -138,7 +138,7 @@
             {!! APFrmErrHelp::showErrors($errors, 'hide_salary') !!} </div>
     </div>
     <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div"> {!! Form::select('career_level_id', ['' => __('Select Career level')]+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div"> {!! Form::select('career_level_id', ['' => __('Select Career level (optional)')]+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'career_level_id') !!} </div>
     </div>
 
@@ -159,7 +159,7 @@
             {!! APFrmErrHelp::showErrors($errors, 'num_of_positions') !!} </div>
     </div>
     <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div"> {!! Form::select('gender_id', ['' => __('No preference')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div"> {!! Form::select('gender_id', ['' => __('Gender (optional)')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'gender_id') !!} </div>
     </div>
     <div class="col-md-6">
@@ -169,7 +169,7 @@
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'display_duration_days') !!}">
             <label for="display_duration_days" class="bold">
-                <i class="fas fa-calendar-alt"></i> {{__('Job Display Duration')}}
+                <i class="fas fa-calendar-alt"></i> {{__('Job Display Duration (optional)')}}
             </label>
             @php
                 // Get duration options from site settings (or use defaults)
@@ -191,7 +191,7 @@
             <small class="form-text text-muted">
                 <i class="fas fa-info-circle"></i> {{__('How long this job will be visible on the site')}}
                 @if(isset($job) && $job->display_end_date)
-                    <br><strong>{{__('Current display ends')}}: {{ $job->display_end_date->format('M d, Y') }}</strong>
+                 <br><strong>{{ __('Current display ends') }}: {{ \Carbon\Carbon::parse($job->display_end_date)->format('M d, Y') }}</strong>
                 @endif
             </small>
             {!! APFrmErrHelp::showErrors($errors, 'display_duration_days') !!}
@@ -232,7 +232,7 @@
 
     <div class="col-md-12">
     <div class="formrow">
-            {!! Form::label('external_job', 'Is this External Job?', ['class' => 'bold']) !!}
+            {!! Form::label('external_job', 'Do you want applicants to apply through an external application link?', ['class' => 'bold']) !!}
             <?php
             $is_external_1 = '';
             $is_external_2 = 'checked="checked"';

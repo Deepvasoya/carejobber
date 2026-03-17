@@ -139,8 +139,8 @@
     </div>   
     <div class="col-md-12">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'street_address') !!}">
-			<label for="">{{__('Street Address')}} <span>*</span></label>
-			{!! Form::textarea('street_address', null, array('class'=>'form-control', 'id'=>'street_address', 'placeholder'=>__('Street Address'))) !!}
+			<label for="">{{__('Full Address')}} <span>*</span></label>
+			{!! Form::textarea('street_address', null, array('class'=>'form-control', 'id'=>'street_address', 'placeholder'=>__('Your full Address including postal code'))) !!}
             {!! APFrmErrHelp::showErrors($errors, 'street_address') !!} </div>
     </div>
 	

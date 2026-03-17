@@ -206,7 +206,7 @@
                                         <i class="fas fa-address-card fa-3x text-primary"></i>
                                     </div>
                                     <h5 class="fw-bold">{{__('Full Contact Info')}}</h5>
-                                    <p class="text-muted small">{{__('Real name, email, phone number, and complete address')}}</p>
+                                    <p class="text-muted small">{{__('Full name, email, phone number, and complete address')}}</p>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -256,7 +256,7 @@
                             </h2>
                             <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#unlockFAQ">
                                 <div class="accordion-body">
-                                    {{__('We accept all major credit cards (Visa, Mastercard, Amex) and debit cards through our secure Stripe payment gateway. You can also use package credits if available.')}}
+                                    {{__('We accept all major credit cards (Visa, Mastercard, Amex) and debit cards through our secure Stripe payment gateway, or PayPal. You can also use package credits if available.')}}
                                 </div>
                             </div>
                         </div>
@@ -269,7 +269,7 @@
                             </h2>
                             <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#unlockFAQ">
                                 <div class="accordion-body">
-                                    {{__('Yes, we offer a full refund within 24 hours of purchase if you\'re not satisfied. Contact our support team for assistance.')}}
+                                    {{__('No, once you made a purchase and/or viewed resume, we are not able to give refund. Contact our support team for assistance if you need help.')}}
                                 </div>
                             </div>
                         </div>
