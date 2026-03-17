@@ -1,16 +1,42 @@
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        Options -MultiViews
+        #Options -MultiViews
     </IfModule>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} -d [OR]
-    RewriteCond %{REQUEST_FILENAME} -f
-    RewriteRule ^ ^$1 [N]
-    RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
-    RewriteRule ^(.*)$ public/$1 
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ server.php
-    RewriteEngine On
-</IfModule>
 
+    #RewriteEngine On
+#
+    ## Redirect Trailing Slashes If Not A Folder...
+    #RewriteCond %{REQUEST_FILENAME} !-d
+    #RewriteRule ^(.*)/$ /$1 [L,R=301]
+#
+    ## Handle Front Controller...
+    #RewriteCond %{REQUEST_FILENAME} !-d
+    #RewriteCond %{REQUEST_FILENAME} !-f
+    #RewriteRule ^ index.php [L]
+#
+    ## Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+      
+       RewriteEngine On
+
+       RewriteCond %{REQUEST_FILENAME} -d [OR]
+       RewriteCond %{REQUEST_FILENAME} -f
+       RewriteRule ^ ^$1 [N]
+
+       RewriteCond %{REQUEST_URI} (\.\w+$) [NC]
+       RewriteRule ^(.*)$ public/$1
+
+       RewriteCond %{REQUEST_FILENAME} !-d
+       RewriteCond %{REQUEST_FILENAME} !-f
+       RewriteRule ^ server.php
+
+    <Files .env>
+        Order allow,deny
+        Deny from all
+    </Files>  
+
+php_value  post_max_size  256M
+php_value  upload_max_filesize  10M
+</IfModule>
