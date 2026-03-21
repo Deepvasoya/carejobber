@@ -73,6 +73,10 @@ use Illuminate\Support\Str;
 
 use App\SiteSetting;
 
+use App\Services\JobPromotionPricing;
+
+use Illuminate\Support\Facades\Session;
+
 use Mail;
 use App\Mail\JobApprovalMailable;
 use App\Mail\JobPostedMailableFront;
@@ -556,12 +560,20 @@ trait JobTrait
     $settings = SiteSetting::findOrFail(1272);
     $company = Auth::guard('company')->user();
 
+    $pending = JobPromotionPricing::pendingForNewJob($request);
+
     $job = new Job();
     $job->company_id = $company->id;
     $job = $this->assignJobValues($job, $request);
-    $job->is_featured = $request->boolean('promote_featured');
-    $job->is_urgent = $request->boolean('promote_urgent');
-    $job->is_highlighted = $request->boolean('promote_highlighted');
+    if ($pending['total_cents'] > 0) {
+        $job->is_featured = false;
+        $job->is_urgent = false;
+        $job->is_highlighted = false;
+    } else {
+        $job->is_featured = $request->boolean('promote_featured');
+        $job->is_urgent = $request->boolean('promote_urgent');
+        $job->is_highlighted = $request->boolean('promote_highlighted');
+    }
     $job->save();
 
     // Generate slug
@@ -592,6 +604,18 @@ trait JobTrait
         event(new JobPosted($job));
     } else {
         Mail::send(new JobPostedMailableFront($job));
+    }
+
+    if ($pending['total_cents'] > 0) {
+        Session::put('pending_job_promotions', [
+            'job_id' => $job->id,
+            'promote_featured' => $pending['promote_featured'],
+            'promote_urgent' => $pending['promote_urgent'],
+            'promote_highlighted' => $pending['promote_highlighted'],
+        ]);
+        flash(__('Job saved. Complete payment to activate your listing upgrades.'))->info();
+
+        return Redirect::route('job.promotions.checkout');
     }
 
     flash('Job has been added!')->success();
@@ -675,9 +699,36 @@ trait JobTrait
         $wasExpired = $job->expiry_date && $job->expiry_date < now();
 
 		$job = $this->assignJobValues($job, $request);
-        $job->is_featured = $request->boolean('promote_featured');
-        $job->is_urgent = $request->boolean('promote_urgent');
-        $job->is_highlighted = $request->boolean('promote_highlighted');
+
+        $pending = JobPromotionPricing::pendingForUpdate($request, $job);
+
+        $wantF = $request->boolean('promote_featured');
+        $wantU = $request->boolean('promote_urgent');
+        $wantH = $request->boolean('promote_highlighted');
+
+        if (! $wantF) {
+            $job->is_featured = false;
+        } elseif ($pending['promote_featured']) {
+            $job->is_featured = false;
+        } else {
+            $job->is_featured = true;
+        }
+
+        if (! $wantU) {
+            $job->is_urgent = false;
+        } elseif ($pending['promote_urgent']) {
+            $job->is_urgent = false;
+        } else {
+            $job->is_urgent = true;
+        }
+
+        if (! $wantH) {
+            $job->is_highlighted = false;
+        } elseif ($pending['promote_highlighted']) {
+            $job->is_highlighted = false;
+        } else {
+            $job->is_highlighted = true;
+        }
 
         /*         * ******************************* */
 
@@ -712,6 +763,18 @@ trait JobTrait
         $this->updateFullTextSearch($job);
 
         /*         * ************************************ */
+
+        if ($pending['total_cents'] > 0) {
+            Session::put('pending_job_promotions', [
+                'job_id' => $job->id,
+                'promote_featured' => $pending['promote_featured'],
+                'promote_urgent' => $pending['promote_urgent'],
+                'promote_highlighted' => $pending['promote_highlighted'],
+            ]);
+            flash(__('Job updated. Complete payment to activate new listing upgrades.'))->info();
+
+            return \Redirect::route('job.promotions.checkout');
+        }
 
         flash('Job has been updated!')->success();
 

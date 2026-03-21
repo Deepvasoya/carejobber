@@ -6,6 +6,7 @@ Route::get('companies', 'Company\CompaniesController@company_listing')->name('co
 // Stripe success URLs are public so redirect from Stripe (cross-site) still runs fulfillment when session cookie may not be sent
 Route::get('recruiter/stripe/success', 'Company\RecruiterStripeCheckoutController@success')->name('recruiter.stripe.success');
 Route::get('resume/unlock/success', 'Company\ResumeUnlockController@success')->name('resume.unlock.success');
+Route::get('job/promotions/success', 'Company\JobPromotionCheckoutController@success')->name('job.promotions.success');
 
 // Resume unlock: pricing page and Stripe checkout
 Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.page');

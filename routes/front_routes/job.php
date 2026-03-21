@@ -29,6 +29,7 @@ Route::post('custom-alert', 'SubscriptionController@submitCustomAlert')->name('c
 
 Route::middleware(['auth:company'])->group(function () {
     Route::get('/download-csv/{job}', [JobController::class, 'downloadCsv'])->name('job.downloadCsv');
+    Route::get('job/promotions/checkout', 'Company\JobPromotionCheckoutController@checkout')->name('job.promotions.checkout');
 });
 
 

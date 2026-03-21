@@ -147,6 +147,9 @@ class StripeWebhookController extends Controller
 
         if ($type === 'resume_unlock') {
             $this->fulfillResumeUnlock($sessionId, $metadata, $session);
+        } elseif ($type === 'job_promotions') {
+            $meta = is_array($metadata) ? $metadata : (array) $metadata;
+            \App\Http\Controllers\Company\JobPromotionCheckoutController::fulfillJobPromotions($sessionId, $meta, null);
         } elseif (isset($metadata['package_id'])) {
             $this->fulfillPackagePurchase($sessionId, $metadata, $session);
         } else {

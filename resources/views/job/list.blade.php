@@ -75,8 +75,8 @@
               <li class="col-lg-4 col-md-6 @if($job->is_featured == 1) featured @endif">
                 <div class="jobint @if(!empty($job->is_highlighted) && !$hasApplied) job-card-highlighted @endif" style="@if($hasApplied) border: 3px solid #28a745; background: #f0fff4; @endif">
                 @if($hasApplied) 
-                    <span class="promotepof-badge" style="background: #28a745; right: auto; left: 10px;">
-                        <i class="fa fa-check-circle" title="{{__('Already Applied')}}"></i>
+                    <span class="promotepof-badge-left" title="{{__('Already Applied')}}">
+                        <i class="fa fa-check-circle"></i>
                     </span> 
                 @endif
                 @if($job->is_urgent == 1)

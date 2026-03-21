@@ -9,7 +9,7 @@ class StripeCheckoutSession extends Model
     protected $table = 'stripe_checkout_sessions';
     public $timestamps = true;
     protected $guarded = ['id'];
-    protected $fillable = ['session_id', 'company_id', 'package_id', 'country_code', 'status'];
+    protected $fillable = ['session_id', 'company_id', 'package_id', 'job_id', 'country_code', 'status'];
 
     public function company()
     {

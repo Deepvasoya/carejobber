@@ -348,7 +348,14 @@ trait JobApiTrait
             $company = Auth::guard('company-api')->user();
         }
 
-
+        $pendingPromo = \App\Services\JobPromotionPricing::pendingForNewJob($request);
+        if ($pendingPromo['total_cents'] > 0) {
+            return $this->sendError(
+                'Paid listing upgrades (featured, urgent, highlighted) must be purchased on the website after posting the job.',
+                [],
+                422
+            );
+        }
 
         $job = new Job();
 
@@ -498,6 +505,15 @@ trait JobApiTrait
 
         }
         $job = Job::findOrFail($id);
+
+        $pendingPromo = \App\Services\JobPromotionPricing::pendingForUpdate($request, $job);
+        if ($pendingPromo['total_cents'] > 0) {
+            return $this->sendError(
+                'Paid listing upgrades must be purchased on the website.',
+                [],
+                422
+            );
+        }
 
 		$job = $this->assignJobValues($job, $request);
         $job->is_featured = $request->boolean('promote_featured');

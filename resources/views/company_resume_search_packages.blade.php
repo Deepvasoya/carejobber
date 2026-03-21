@@ -12,6 +12,11 @@
     <div class="container">@include('flash::message')
         <div class="row"> @include('includes.company_dashboard_menu')
             <div class="col-md-9 col-sm-8">
+                @if($company->isOnExhaustedFreeCvSearchPeriod())
+                    <div class="alert alert-warning" role="alert">
+                        {{ __('You have used all CV unlocks for your free 30-day package. You can activate the free package again from :date, or purchase a paid package below.', ['date' => ($d = $company->getFreeCvPackageNextAvailableAt()) ? $d->format('d M Y H:i') : '—']) }}
+                    </div>
+                @endif
                 @if(null!==($success_package) && !empty($success_package))
                     @php
                         $isExpired = $company->cvs_package_end_date ? \Carbon\Carbon::parse($company->cvs_package_end_date)->isPast() : true;
@@ -134,7 +139,7 @@
                                 
                                 @if($package->package_price == 0)
                                     @if(! $company->canActivateFreeCvSearchPackage())
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $company->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — 3 CV unlocks, one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif
@@ -232,7 +237,7 @@
                                 
                                 @if($package->package_price == 0)
                                     @if(! $company->canActivateFreeCvSearchPackage())
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $company->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — 3 CV unlocks, one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif

@@ -1306,11 +1306,19 @@ public function downloadReceipt($companyId)
 
             return redirect()->back()->with('success', __('Profile unlocked successfully!'));
         } else {
-            // No credits available → redirect to Stripe payment
             \Log::info('[Unlock] No credits; redirect to Stripe', [
                 'company_id' => $company->id,
                 'user_id' => $user_id,
             ]);
+            $companyFresh = $company->fresh();
+            if ($companyFresh && $companyFresh->isOnExhaustedFreeCvSearchPeriod()) {
+                $until = $companyFresh->getFreeCvPackageNextAvailableAt();
+                $when = $until ? $until->format('d M Y H:i') : __('the end of your current period.');
+
+                return redirect()->route('resume.unlock.checkout', ['userId' => $user_id])
+                    ->with('info', __('You have used all CV unlocks from your free package for this 30-day period. You cannot activate the free package again until :date. You can purchase a paid CV package to unlock now.', ['date' => $when]));
+            }
+
             return redirect()->route('resume.unlock.checkout', ['userId' => $user_id])
                 ->with('info', __('No credits available. Please purchase to unlock this profile.'));
         }

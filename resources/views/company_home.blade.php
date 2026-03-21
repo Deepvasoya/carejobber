@@ -253,7 +253,7 @@
                                 @if($package->package_price == 0)
                                     @php $currentCompany = Auth::guard('company')->user(); @endphp
                                     @if(! $currentCompany->canActivateFreeCvSearchPackage())
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $currentCompany->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $currentCompany->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $currentCompany->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $currentCompany->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — 3 CV unlocks, one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif
@@ -359,7 +359,7 @@
                                 @if($package->package_price == 0)
                                     @php $currentCompany = Auth::guard('company')->user(); @endphp
                                     @if(! $currentCompany->canActivateFreeCvSearchPackage())
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $currentCompany->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $currentCompany->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $currentCompany->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $currentCompany->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — 3 CV unlocks, one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif

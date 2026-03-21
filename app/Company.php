@@ -14,6 +14,8 @@ use Carbon\Carbon;
 
 use App\PaymentHistory;
 
+use App\Package;
+
 use App\Traits\Active;
 
 use App\Traits\Featured;
@@ -137,35 +139,101 @@ class Company extends Authenticatable
     }
 
     /**
-     * When the rolling free-CV cooldown ends, or null if they have never taken a free CV package (or no record).
+     * Start of the most recent free CV search package activation (payment history), if any.
      */
-    public function getFreeCvPackageCooldownEndsAt(int $periodDays = 30): ?Carbon
+    public function getLastFreeCvSearchPackageStartDate(): ?Carbon
     {
         $last = PaymentHistory::where('company_id', $this->id)
             ->where('package_type', 'cv_search')
-            ->where('payment_method', 'Free Package')
+            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
             ->orderByDesc('id')
             ->first();
 
         if ($last && $last->package_start_date) {
-            return Carbon::parse($last->package_start_date)->addDays($periodDays);
+            return Carbon::parse($last->package_start_date);
         }
 
-        if (! empty($this->has_used_free_cv_package) && (int) $this->has_used_free_cv_package === 1 && $this->cvs_package_start_date) {
-            return Carbon::parse($this->cvs_package_start_date)->addDays($periodDays);
+        if (empty($this->has_used_free_cv_package) || (int) $this->has_used_free_cv_package !== 1 || empty($this->cvs_package_start_date) || ! $this->cvs_package_id) {
+            return null;
         }
 
-        return null;
+        $pkg = Package::find($this->cvs_package_id);
+        if (! $pkg || $pkg->package_for !== 'cv_search' || (float) $pkg->package_price > 0) {
+            return null;
+        }
+
+        return Carbon::parse($this->cvs_package_start_date);
     }
 
     /**
-     * Free CV package: at most one activation per 30-day window; paid packages are unaffected.
+     * When the current free-CV period ends (last free activation + N days), or null if never activated free.
+     */
+    public function getFreeCvPackagePeriodEndsAt(int $periodDays = 30): ?Carbon
+    {
+        $start = $this->getLastFreeCvSearchPackageStartDate();
+
+        return $start ? $start->copy()->addDays($periodDays) : null;
+    }
+
+    /**
+     * Earliest moment the free CV package can be activated again (after last free activation + period), or null if allowed now.
+     */
+    public function getFreeCvPackageNextAvailableAt(int $periodDays = 30): ?Carbon
+    {
+        if ($this->canActivateFreeCvSearchPackage($periodDays)) {
+            return null;
+        }
+
+        return $this->getFreeCvPackagePeriodEndsAt($periodDays);
+    }
+
+    /**
+     * @deprecated Use getFreeCvPackageNextAvailableAt(); kept for blade strings.
+     */
+    public function getFreeCvPackageCooldownEndsAt(int $periodDays = 30): ?Carbon
+    {
+        return $this->getFreeCvPackageNextAvailableAt($periodDays);
+    }
+
+    /**
+     * Free CV package: at most one activation every :periodDays (matches 30-day package length in addCompanySearchPackage).
      */
     public function canActivateFreeCvSearchPackage(int $periodDays = 30): bool
     {
-        $until = $this->getFreeCvPackageCooldownEndsAt($periodDays);
+        $start = $this->getLastFreeCvSearchPackageStartDate();
+        if ($start === null) {
+            return true;
+        }
 
-        return $until === null || ! $until->isFuture();
+        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
+    }
+
+    /**
+     * Free tier: all CV unlock credits used but the 30-day free window (from last free activation) is still running — must wait or pay.
+     */
+    public function isOnExhaustedFreeCvSearchPeriod(int $periodDays = 30): bool
+    {
+        if ($this->getRemainingCvsQuota() > 0) {
+            return false;
+        }
+
+        $last = PaymentHistory::where('company_id', $this->id)
+            ->where('package_type', 'cv_search')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $last || ! $last->package_start_date || strcasecmp(trim((string) $last->payment_method), 'Free Package') !== 0) {
+            return false;
+        }
+
+        $start = Carbon::parse($last->package_start_date);
+        if (Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays))) {
+            return false;
+        }
+
+        return (int) $this->cvs_package_id > 0
+            && $this->cvs_package_end_date
+            && Carbon::parse($this->cvs_package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
     public function jobs()

@@ -11,8 +11,10 @@ use Session;
 use Redirect;
 use Input;
 use Config;
+use App\Company;
 use App\Package;
 use App\User;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\SiteSetting;
 use Cake\Chronos\Chronos;
@@ -506,19 +508,35 @@ class OrderController extends Controller
                 $company = Auth::guard('company')->user();
                 
                 if ($package->package_for == 'cv_search' && ! $company->canActivateFreeCvSearchPackage()) {
-                    $until = $company->getFreeCvPackageCooldownEndsAt();
+                    $until = $company->getFreeCvPackageNextAvailableAt();
                     $msg = $until
-                        ? __('You can only activate the free CV package once every 30 days. You can activate again after :date, or purchase a paid package anytime.', ['date' => $until->format('d M Y')])
+                        ? __('You already activated the free CV package for this 30-day period. You can activate it again from :date (3 CV unlocks per activation), or purchase a paid package anytime.', ['date' => $until->format('d M Y H:i')])
                         : __('You cannot activate the free CV package right now. Please purchase a paid package to continue.');
                     flash($msg)->error();
                     return Redirect::route($this->redirectTo);
                 }
 
-                if($package->package_for=='cv_search'){
-                    $this->addCompanySearchPackage($company, $package,'Free Package');
-                    $company->has_used_free_cv_package = 1;
-                    $company->update();
-                }else{
+                if ($package->package_for == 'cv_search') {
+                    $activated = DB::transaction(function () use ($company, $package) {
+                        $locked = Company::where('id', $company->id)->lockForUpdate()->first();
+                        if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
+                            return false;
+                        }
+                        $this->addCompanySearchPackage($locked, $package, 'Free Package');
+                        $locked->has_used_free_cv_package = 1;
+                        $locked->update();
+
+                        return true;
+                    });
+                    if ($activated === false) {
+                        $until = Company::find($company->id)->getFreeCvPackageNextAvailableAt();
+                        $msg = $until
+                            ? __('You already activated the free CV package for this 30-day period. You can activate it again from :date (3 CV unlocks per activation), or purchase a paid package anytime.', ['date' => $until->format('d M Y H:i')])
+                            : __('You cannot activate the free CV package right now. Please purchase a paid package to continue.');
+                        flash($msg)->error();
+                        return Redirect::route($this->redirectTo);
+                    }
+                } else {
                     $this->addCompanyPackage($company, $package,'Free Package');
                 }
             }

@@ -52,7 +52,8 @@ trait CompanyPackageTrait
     {
 
         $now = Carbon::now();
-        $numDays = (strcasecmp((string) $method, 'Free Package') === 0)
+        $isFreeCv = strcasecmp((string) $method, 'Free Package') === 0;
+        $numDays = $isFreeCv
             ? 30
             : (int) $package->package_num_days;
         $startDate = $now->toDateTimeString();
@@ -64,7 +65,9 @@ trait CompanyPackageTrait
 
         $company->cvs_package_end_date = $now->copy()->addDays($numDays);
 
-        $company->cvs_quota = $package->package_num_listings;
+        $cvsListings = $isFreeCv ? 3 : (int) $package->package_num_listings;
+
+        $company->cvs_quota = $cvsListings;
 
         $company->availed_cvs_quota = 0;
 
@@ -73,7 +76,7 @@ trait CompanyPackageTrait
         $company->update();
         
         // Log transaction in payment_history
-        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'cv_search', 0, $package->package_num_listings);
+        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'cv_search', 0, $cvsListings);
 
        
 
@@ -158,8 +161,10 @@ trait CompanyPackageTrait
                 'payment_status' => 'completed'
             ]);
         } catch (\Exception $e) {
-            // Log error but don't fail the package assignment
             \Log::error('Failed to log company payment: ' . $e->getMessage());
+            if ($packageType === 'cv_search' && strcasecmp((string) $paymentMethod, 'Free Package') === 0) {
+                throw $e;
+            }
         }
     }
 
