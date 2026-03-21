@@ -25,7 +25,7 @@
                   </li>
               @else
                   <li class="nav-item {{ Request::url() == url('/search-jobs') ? 'active' : '' }}">
-                      <a href="{{url('/search-jobs')}}" class="nav-link">{{__('Vacancies')}}</a>
+                      <a href="{{url('/search-jobs')}}" class="nav-link">{{__('Search Jobs')}}</a>
                   </li>
               @endif
 
