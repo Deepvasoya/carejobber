@@ -288,6 +288,9 @@
                 $pu = $isErr ? (bool) old('promote_urgent') : (isset($job) && !empty($job->is_urgent));
                 $pf = $isErr ? (bool) old('promote_featured') : (isset($job) && !empty($job->is_featured));
                 $ph = $isErr ? (bool) old('promote_highlighted') : (isset($job) && !empty($job->is_highlighted));
+                $promoJobFeatured = isset($job) && ! empty($job->is_featured);
+                $promoJobUrgent = isset($job) && ! empty($job->is_urgent);
+                $promoJobHighlighted = isset($job) && ! empty($job->is_highlighted);
             @endphp
             <div class="row">
                 <div class="col-md-4 col-sm-12 mb-2">
@@ -308,6 +311,13 @@
                         <span><i class="fas fa-highlighter text-info"></i> {{__('Highlighted')}} — <strong>{{ $promoCur }}{{ number_format($promoCfg['highlighted'], 2) }}</strong><br><small class="text-muted">{{__('Distinct background on listings')}}</small></span>
                     </label>
                 </div>
+            </div>
+            <div id="job-promotion-total-panel" class="mt-3 p-3" style="display: none; background: #fff; border: 1px solid #c7d2fe; border-radius: 8px;">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <strong><i class="fas fa-receipt text-primary"></i> {{ __('Total due for selected listing upgrades (paid on Stripe after submit)') }}</strong>
+                    <span id="job-promotion-total-amount" class="fs-4 fw-bold text-primary ms-md-auto"></span>
+                </div>
+                <p class="mb-0 mt-2 small text-muted">{{ __('The total updates when you add or remove options. You pay once per selected upgrade.') }}</p>
             </div>
         </div>
     </div>
@@ -389,6 +399,46 @@
             startDate: new Date(),
             format: 'yyyy-m-d'
         });
+        (function () {
+            var prices = @json([
+                'featured' => (float) $promoCfg['featured'],
+                'urgent' => (float) $promoCfg['urgent'],
+                'highlighted' => (float) $promoCfg['highlighted'],
+            ]);
+            var currency = @json((string) $promoCur);
+            var already = {
+                featured: @json($promoJobFeatured),
+                urgent: @json($promoJobUrgent),
+                highlighted: @json($promoJobHighlighted),
+            };
+            function jobPromoPayableTotal() {
+                var t = 0;
+                if ($('input[name="promote_featured"]').is(':checked') && ! already.featured) {
+                    t += prices.featured;
+                }
+                if ($('input[name="promote_urgent"]').is(':checked') && ! already.urgent) {
+                    t += prices.urgent;
+                }
+                if ($('input[name="promote_highlighted"]').is(':checked') && ! already.highlighted) {
+                    t += prices.highlighted;
+                }
+                return t;
+            }
+            function refreshJobPromoTotal() {
+                var total = jobPromoPayableTotal();
+                var $panel = $('#job-promotion-total-panel');
+                var $amt = $('#job-promotion-total-amount');
+                if (total > 0.0001) {
+                    $panel.show();
+                    $amt.text(currency + total.toFixed(2));
+                } else {
+                    $panel.hide();
+                }
+            }
+            $(document).on('change', 'input[name="promote_featured"], input[name="promote_urgent"], input[name="promote_highlighted"]', refreshJobPromoTotal);
+            refreshJobPromoTotal();
+        })();
+
         $('#country_id').on('change', function (e) {
             e.preventDefault();
             filterLangStates(0);

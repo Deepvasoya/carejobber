@@ -111,4 +111,48 @@ class JobPromotionPricing
             $request->boolean('promote_highlighted') && ! $job->is_highlighted
         );
     }
+
+    /**
+     * Normalize flags from session / serialized storage (bool, 0/1, "0"/"1").
+     *
+     * @return array{promote_featured: bool, promote_urgent: bool, promote_highlighted: bool}
+     */
+    public static function promotionBoolsFromPending(array $pending): array
+    {
+        $toBool = static function ($v): bool {
+            if ($v === true || $v === 1 || $v === '1') {
+                return true;
+            }
+            if ($v === false || $v === 0 || $v === '0' || $v === null || $v === '') {
+                return false;
+            }
+            if (is_string($v)) {
+                $s = strtolower(trim($v));
+                if (in_array($s, ['false', 'no', 'off', '0'], true)) {
+                    return false;
+                }
+
+                return in_array($s, ['true', 'yes', 'on', '1'], true);
+            }
+
+            return (bool) $v;
+        };
+
+        return [
+            'promote_featured' => $toBool($pending['promote_featured'] ?? false),
+            'promote_urgent' => $toBool($pending['promote_urgent'] ?? false),
+            'promote_highlighted' => $toBool($pending['promote_highlighted'] ?? false),
+        ];
+    }
+
+    public static function packFromPending(array $pending): array
+    {
+        $b = self::promotionBoolsFromPending($pending);
+
+        return self::buildLineItems(
+            $b['promote_featured'],
+            $b['promote_urgent'],
+            $b['promote_highlighted']
+        );
+    }
 }

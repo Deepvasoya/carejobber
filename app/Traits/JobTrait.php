@@ -609,9 +609,10 @@ trait JobTrait
     if ($pending['total_cents'] > 0) {
         Session::put('pending_job_promotions', [
             'job_id' => $job->id,
-            'promote_featured' => $pending['promote_featured'],
-            'promote_urgent' => $pending['promote_urgent'],
-            'promote_highlighted' => $pending['promote_highlighted'],
+            'promote_featured' => $pending['promote_featured'] ? 1 : 0,
+            'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
+            'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+            'total_cents' => (int) $pending['total_cents'],
         ]);
         flash(__('Job saved. Complete payment to activate your listing upgrades.'))->info();
 
@@ -767,9 +768,10 @@ trait JobTrait
         if ($pending['total_cents'] > 0) {
             Session::put('pending_job_promotions', [
                 'job_id' => $job->id,
-                'promote_featured' => $pending['promote_featured'],
-                'promote_urgent' => $pending['promote_urgent'],
-                'promote_highlighted' => $pending['promote_highlighted'],
+                'promote_featured' => $pending['promote_featured'] ? 1 : 0,
+                'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
+                'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+                'total_cents' => (int) $pending['total_cents'],
             ]);
             flash(__('Job updated. Complete payment to activate new listing upgrades.'))->info();
 

@@ -40,11 +40,21 @@ class JobPromotionCheckoutController extends Controller
             return redirect()->route('posted.jobs')->with('error', __('Job not found.'));
         }
 
+        $b = JobPromotionPricing::promotionBoolsFromPending($pending);
         $pack = JobPromotionPricing::buildLineItems(
-            ! empty($pending['promote_featured']),
-            ! empty($pending['promote_urgent']),
-            ! empty($pending['promote_highlighted'])
+            $b['promote_featured'],
+            $b['promote_urgent'],
+            $b['promote_highlighted']
         );
+
+        if (isset($pending['total_cents']) && (int) $pending['total_cents'] !== (int) $pack['total_cents']) {
+            Log::warning('[JobPromotions] Session total_cents does not match recomputed line items', [
+                'job_id' => $job->id,
+                'session_total_cents' => $pending['total_cents'],
+                'recomputed_total_cents' => $pack['total_cents'],
+                'flags' => $b,
+            ]);
+        }
 
         if ($pack['total_cents'] <= 0 || count($pack['line_items']) === 0) {
             Session::forget('pending_job_promotions');
@@ -72,9 +82,9 @@ class JobPromotionCheckoutController extends Controller
                 'type' => 'job_promotions',
                 'company_id' => (string) $company->id,
                 'job_id' => (string) $job->id,
-                'promote_featured' => ! empty($pending['promote_featured']) ? '1' : '0',
-                'promote_urgent' => ! empty($pending['promote_urgent']) ? '1' : '0',
-                'promote_highlighted' => ! empty($pending['promote_highlighted']) ? '1' : '0',
+                'promote_featured' => $b['promote_featured'] ? '1' : '0',
+                'promote_urgent' => $b['promote_urgent'] ? '1' : '0',
+                'promote_highlighted' => $b['promote_highlighted'] ? '1' : '0',
             ],
             'customer_email' => $company->email,
         ];
