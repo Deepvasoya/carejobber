@@ -52,11 +52,12 @@ class AuthServiceProvider extends ServiceProvider
                 }
             }
 
-            // Check if company has active CV package with remaining quota
-            if ($company->cvs_package_id 
-                && $company->cvs_package_end_date >= date('Y-m-d') 
-                && ($company->cvs_quota - $company->availed_cvs_quota) > 0) {
-                return true;
+            // Per-candidate unlock via package credits (company.unlock increments availed_cvs_quota)
+            if (! empty($company->availed_cvs_ids)) {
+                $ids = array_filter(array_map('trim', explode(',', $company->availed_cvs_ids)));
+                if (in_array((string) $jobSeeker->id, $ids, true)) {
+                    return true;
+                }
             }
 
             return false;
