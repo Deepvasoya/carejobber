@@ -65,7 +65,7 @@
                                     <div class="package-content">
                                         <span class="package-label">{{__('Available CV Quota')}}</span>
                                         <h4 class="package-value">
-                                            <span class="quota-available">{{ $company->availed_cvs_quota ?? 0 }}</span>
+                                            <span class="quota-available">{{ $company->getRemainingCvsQuota() }}</span>
                                             <span class="quota-separator">/</span>
                                             <span class="quota-total">{{$company->cvs_quota}}</span>
                                         </h4>
@@ -133,8 +133,8 @@
                                 <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Premium Support 24/7')}}</li> 
                                 
                                 @if($package->package_price == 0)
-                                    @if($company->has_used_free_cv_package == 1)
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;">{{__('Already Activated')}} <i class="fas fa-check"></i></span></li>
+                                    @if(! $company->canActivateFreeCvSearchPackage())
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $company->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif
@@ -231,8 +231,8 @@
                                 <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Premium Support 24/7')}}</li> 
                                 
                                 @if($package->package_price == 0)
-                                    @if($company->has_used_free_cv_package == 1)
-                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;">{{__('Already Activated')}} <i class="fas fa-check"></i></span></li>
+                                    @if(! $company->canActivateFreeCvSearchPackage())
+                                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageCooldownEndsAt() ? __('Available again after :date', ['date' => $company->getFreeCvPackageCooldownEndsAt()->format('d M Y')]) : '' }}">{{__('Free package — once per 30 days')}} <i class="fas fa-check"></i></span></li>
                                     @else
                                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                     @endif

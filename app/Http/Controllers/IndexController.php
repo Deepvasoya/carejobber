@@ -67,8 +67,21 @@ class IndexController extends Controller
         $topCityIds = $this->getCityIdsAndNumJobs(10);
         //$topCityIds = $this->getCityIdsAndNumJobs();
         
-        $featuredJobs = Job::active()->featured()->notExpire()->limit(9)->orderBy('id', 'desc')->get();
-        $latestJobs = Job::active()->notExpire()->orderBy('id', 'desc')->limit(9)->get();
+        $featuredJobs = Job::active()->notExpire()
+            ->where(function ($q) {
+                $q->where('is_urgent', 1)->orWhere('is_featured', 1);
+            })
+            ->orderBy('is_urgent', 'desc')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('id', 'desc')
+            ->limit(9)
+            ->get();
+        $latestJobs = Job::active()->notExpire()
+            ->orderBy('is_urgent', 'desc')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('id', 'desc')
+            ->limit(9)
+            ->get();
         $blogs = Blog::orderBy('id', 'desc')->where('lang', 'like', \App::getLocale())->limit(3)->get();
         $video = Video::getVideo();
         $testimonials = Testimonial::langTestimonials();

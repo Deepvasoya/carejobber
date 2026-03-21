@@ -3,7 +3,7 @@
     @if(isset($featuredJobs) && count($featuredJobs))
         <!-- title start -->
         <div class="titleTop text-center">
-            <h3>{{__('Urgent Jobs')}}</h3>
+            <h3>{{__('Urgent & featured jobs')}}</h3>
         </div>
         <!-- title end --> 
 
@@ -14,8 +14,14 @@
             <?php $company = $featuredJob->getCompany(); ?>
             @if(null !== $company)
             <!--Job start-->
-            <li class="col-lg-3 col-md-6">
-                <div class="jobint">
+            <li class="col-lg-3 col-md-6 @if($featuredJob->is_featured == 1) featured @endif">
+                <div class="jobint @if(!empty($featuredJob->is_highlighted)) job-card-highlighted @endif">
+                    @if($featuredJob->is_urgent == 1)
+                        <span class="promotepof-badge job-urgent-badge" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
+                    @endif
+                    @if($featuredJob->is_featured == 1)
+                        <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured')}}"></i></span>
+                    @endif
                     <div class="d-flex">
                         <div class="fticon"><i class="fas fa-briefcase"></i> {{$featuredJob->getJobType('job_type')}}</div>                        
                     </div>
@@ -41,7 +47,7 @@
         <!--Featured Job end--> 
 
         <!--button start-->
-        <div class="viewallbtn"><a href="{{route('job.list', ['is_featured'=>1])}}">{{__('View All Featured Jobs')}}</a></div>
+        <div class="viewallbtn"><a href="{{route('job.list')}}">{{__('View all jobs')}}</a></div>
         <!--button end--> 
     
      @endif
@@ -50,3 +56,17 @@
     
     
 </div>
+@push('styles')
+<style>
+    .job-card-highlighted {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+        border: 1px solid #f59e0b !important;
+        box-shadow: 0 2px 12px rgba(245, 158, 11, 0.12);
+    }
+    .promotepof-badge.job-urgent-badge {
+        background: #dc2626 !important;
+        left: 10px;
+        right: auto;
+    }
+</style>
+@endpush

@@ -46,6 +46,8 @@ trait FetchJobs
         'jobs.job_experience_id',
         'jobs.is_active',
         'jobs.is_featured',
+        'jobs.is_urgent',
+        'jobs.is_highlighted',
         'jobs.salary_currency',
         'jobs.slug',
         'jobs.created_at',
@@ -58,8 +60,9 @@ trait FetchJobs
         $query = Job::select($this->fields);
         $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured);
 
-        //$query->orderBy('jobs.is_featured', 'DESC');
-        $query->orderBy('jobs.id', 'DESC');
+        $query->orderBy('jobs.is_urgent', 'DESC')
+            ->orderBy('jobs.is_featured', 'DESC')
+            ->orderBy('jobs.id', 'DESC');
         //echo $query->toSql();exit;
         return $query->paginate($limit);
     }

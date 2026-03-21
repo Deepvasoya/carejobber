@@ -271,6 +271,40 @@
 <hr>
 
 
+    <!-- Listing promotion options (employer) -->
+    <div class="col-md-12">
+        <div class="formrow job-promotion-options" style="background: #f8f9fc; border: 1px solid #e8eaf0; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+            <h5 style="margin-top: 0;"><i class="fas fa-bullhorn"></i> {{__('Boost your listing')}}</h5>
+            <p class="text-muted" style="font-size: 14px;">{{__('Optional. Urgent jobs appear first in search, then featured. Highlight adds a coloured background to your card.')}}</p>
+            @php
+                $isErr = isset($errors) && $errors->any();
+                $pu = $isErr ? (bool) old('promote_urgent') : (isset($job) && !empty($job->is_urgent));
+                $pf = $isErr ? (bool) old('promote_featured') : (isset($job) && !empty($job->is_featured));
+                $ph = $isErr ? (bool) old('promote_highlighted') : (isset($job) && !empty($job->is_highlighted));
+            @endphp
+            <div class="row">
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" name="promote_urgent" value="1" class="mt-1 me-2" @if($pu) checked @endif>
+                        <span><i class="fas fa-fire text-danger"></i> {{__('Urgent')}}<br><small class="text-muted">{{__('Top of search results')}}</small></span>
+                    </label>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" name="promote_featured" value="1" class="mt-1 me-2" @if($pf) checked @endif>
+                        <span><i class="fas fa-bolt text-warning"></i> {{__('Featured listing')}}<br><small class="text-muted">{{__('Shown after urgent jobs')}}</small></span>
+                    </label>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-2">
+                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
+                        <input type="checkbox" name="promote_highlighted" value="1" class="mt-1 me-2" @if($ph) checked @endif>
+                        <span><i class="fas fa-highlighter text-info"></i> {{__('Highlighted')}}<br><small class="text-muted">{{__('Distinct background on listings')}}</small></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Additional Questions Section -->
     <div class="col-md-12">
         <div class="formrow">

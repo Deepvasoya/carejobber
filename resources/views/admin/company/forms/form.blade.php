@@ -145,9 +145,10 @@
     </div>
 
     <div class="form-group mb-3">
-        {!! Form::label('cvs_quota', 'Available CV Quota : ', ['class' => 'bold']) !!}
+        {!! Form::label('cvs_quota', 'CV unlock credits (used / total) : ', ['class' => 'bold']) !!}
         <strong>{{ $company->availed_cvs_quota ?? 0 }}</strong> /
         <strong>{{ $company->cvs_quota ?? 0 }}</strong>
+        <span class="text-muted">({{ __(':remaining remaining', ['remaining' => max(0, (int) ($company->cvs_quota ?? 0) - (int) ($company->availed_cvs_quota ?? 0))]) }})</span>
     </div>
 @endif
 

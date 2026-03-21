@@ -1207,6 +1207,9 @@ private function extractEnglishText($text)
                 'jobs.salary_to',
                 'jobs.salary_currency',
                 'jobs.hide_salary',
+                'jobs.is_urgent',
+                'jobs.is_featured',
+                'jobs.is_highlighted',
                 'jobs.created_at',
                 'companies.name AS company_name',
                 'companies.slug AS company_slug',
@@ -1222,8 +1225,12 @@ private function extractEnglishText($text)
             ->leftJoin('functional_areas', 'functional_areas.id', '=', 'jobs.functional_area_id')
             ->leftJoin('job_types', 'job_types.id', '=', 'jobs.job_type_id')
             ->where('jobs.is_active', 1)
-            ->where('jobs.is_featured', 1)
+            ->where(function ($q) {
+                $q->where('jobs.is_urgent', 1)->orWhere('jobs.is_featured', 1);
+            })
             ->where('jobs.expiry_date', '>', now())
+            ->orderBy('jobs.is_urgent', 'desc')
+            ->orderBy('jobs.is_featured', 'desc')
             ->orderBy('jobs.created_at', 'desc')
             ->take(6)
             ->get();
@@ -1267,6 +1274,9 @@ private function extractEnglishText($text)
                 'jobs.id',
                 'jobs.slug',
                 'jobs.title',
+                'jobs.is_urgent',
+                'jobs.is_featured',
+                'jobs.is_highlighted',
                 'jobs.created_at',
                 'companies.name AS company_name',
                 'companies.slug AS company_slug',
@@ -1276,6 +1286,8 @@ private function extractEnglishText($text)
             ->leftJoin('cities', 'cities.id', '=', 'jobs.city_id')
             ->where('jobs.is_active', 1)
             ->where('jobs.expiry_date', '>', now())
+            ->orderBy('jobs.is_urgent', 'desc')
+            ->orderBy('jobs.is_featured', 'desc')
             ->orderBy('jobs.created_at', 'desc')
             ->take(8)
             ->get()
@@ -1287,7 +1299,10 @@ private function extractEnglishText($text)
                     'company_name' => $job->company_name,
                     'company_slug' => $job->company_slug,
                     'city' => $job->city,
-                    'posted_date' => $job->created_at->format('M d, Y')
+                    'posted_date' => $job->created_at->format('M d, Y'),
+                    'is_urgent' => (bool) $job->is_urgent,
+                    'is_featured' => (bool) $job->is_featured,
+                    'is_highlighted' => (bool) $job->is_highlighted,
                 ];
             });
 

@@ -73,11 +73,14 @@
                   }
               @endphp
               <li class="col-lg-4 col-md-6 @if($job->is_featured == 1) featured @endif">
-                <div class="jobint" style="@if($hasApplied) border: 3px solid #28a745; background: #f0fff4; @endif">
+                <div class="jobint @if(!empty($job->is_highlighted) && !$hasApplied) job-card-highlighted @endif" style="@if($hasApplied) border: 3px solid #28a745; background: #f0fff4; @endif">
                 @if($hasApplied) 
                     <span class="promotepof-badge" style="background: #28a745; right: auto; left: 10px;">
                         <i class="fa fa-check-circle" title="{{__('Already Applied')}}"></i>
                     </span> 
+                @endif
+                @if($job->is_urgent == 1)
+                    <span class="promotepof-badge job-urgent-badge" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
                 @endif
                 @if($job->is_featured == 1) <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('This Job is Featured')}}"></i></span> @endif
                 
@@ -265,6 +268,24 @@
 
         cursor:pointer;
 
+    }
+
+    .view_less{
+
+        cursor:pointer;
+
+    }
+
+    .job-card-highlighted {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+        border: 1px solid #f59e0b !important;
+        box-shadow: 0 2px 12px rgba(245, 158, 11, 0.12);
+    }
+
+    .promotepof-badge.job-urgent-badge {
+        background: #dc2626 !important;
+        left: 10px;
+        right: auto;
     }
 
 </style>

@@ -238,7 +238,45 @@
                 <input id="not_featured" name="is_featured" type="radio" value="0" {{$is_featured_2}}>
                 Not Featured </label>
         </div>
-        {!! APFrmErrHelp::showErrors($errors, 'is_featured') !!} </div>	
+        {!! APFrmErrHelp::showErrors($errors, 'is_featured') !!} </div>
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'is_urgent') !!}">
+        {!! Form::label('is_urgent', 'Is Urgent? (top of search)', ['class' => 'bold']) !!}
+        <div class="radio-list">
+            <?php
+            $is_urgent_1 = '';
+            $is_urgent_2 = 'checked="checked"';
+            if (old('is_urgent', ((isset($job)) ? $job->is_urgent : 0)) == 1) {
+                $is_urgent_1 = 'checked="checked"';
+                $is_urgent_2 = '';
+            }
+            ?>
+            <label class="radio-inline">
+                <input id="urgent_yes" name="is_urgent" type="radio" value="1" {{$is_urgent_1}}>
+                Yes </label>
+            <label class="radio-inline">
+                <input id="urgent_no" name="is_urgent" type="radio" value="0" {{$is_urgent_2}}>
+                No </label>
+        </div>
+        {!! APFrmErrHelp::showErrors($errors, 'is_urgent') !!} </div>
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'is_highlighted') !!}">
+        {!! Form::label('is_highlighted', 'Is Highlighted? (listing background)', ['class' => 'bold']) !!}
+        <div class="radio-list">
+            <?php
+            $is_highlighted_1 = '';
+            $is_highlighted_2 = 'checked="checked"';
+            if (old('is_highlighted', ((isset($job)) ? $job->is_highlighted : 0)) == 1) {
+                $is_highlighted_1 = 'checked="checked"';
+                $is_highlighted_2 = '';
+            }
+            ?>
+            <label class="radio-inline">
+                <input id="highlighted_yes" name="is_highlighted" type="radio" value="1" {{$is_highlighted_1}}>
+                Yes </label>
+            <label class="radio-inline">
+                <input id="highlighted_no" name="is_highlighted" type="radio" value="0" {{$is_highlighted_2}}>
+                No </label>
+        </div>
+        {!! APFrmErrHelp::showErrors($errors, 'is_highlighted') !!} </div>
     <div class="form-actions">
         {!! Form::button('Update <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>', array('class'=>'btn btn-large btn-primary', 'type'=>'submit')) !!}
     </div>

@@ -292,6 +292,10 @@ trait JobTrait
 
         $job->is_featured = $request->input('is_featured');
 
+        $job->is_urgent = $request->input('is_urgent', 0);
+
+        $job->is_highlighted = $request->input('is_highlighted', 0);
+
         $job->save();
 
         /*         * ******************************* */
@@ -403,6 +407,10 @@ trait JobTrait
         $job->is_active = $request->input('is_active');
 
         $job->is_featured = $request->input('is_featured');
+
+        $job->is_urgent = $request->input('is_urgent', 0);
+
+        $job->is_highlighted = $request->input('is_highlighted', 0);
 
 
 
@@ -551,6 +559,9 @@ trait JobTrait
     $job = new Job();
     $job->company_id = $company->id;
     $job = $this->assignJobValues($job, $request);
+    $job->is_featured = $request->boolean('promote_featured');
+    $job->is_urgent = $request->boolean('promote_urgent');
+    $job->is_highlighted = $request->boolean('promote_highlighted');
     $job->save();
 
     // Generate slug
@@ -664,6 +675,9 @@ trait JobTrait
         $wasExpired = $job->expiry_date && $job->expiry_date < now();
 
 		$job = $this->assignJobValues($job, $request);
+        $job->is_featured = $request->boolean('promote_featured');
+        $job->is_urgent = $request->boolean('promote_urgent');
+        $job->is_highlighted = $request->boolean('promote_highlighted');
 
         /*         * ******************************* */
 

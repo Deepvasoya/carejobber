@@ -59,6 +59,8 @@ class JobFormRequest extends Request
                         "job_experience_id" => "required",
                         "is_active" => "required",
                         "is_featured" => "required",
+                        "is_urgent" => "required",
+                        "is_highlighted" => "required",
                     ];
                 }
             default:break;
@@ -93,6 +95,8 @@ class JobFormRequest extends Request
             'job_experience_id.required' => 'Please select job experience.',
             'is_active.required' => 'Is this Job active?',
             'is_featured.required' => 'Is this Job featured?',
+            'is_urgent.required' => 'Is this Job urgent?',
+            'is_highlighted.required' => 'Is this Job highlighted?',
         ];
     }
 

@@ -48,7 +48,25 @@ class OrderController extends Controller
                 ], 400);
             }
 
-            // Implement free package logic here
+            $company = Auth::guard('company')->user();
+
+            if ($package->package_for === 'cv_search' && ! $company->canActivateFreeCvSearchPackage()) {
+                $until = $company->getFreeCvPackageCooldownEndsAt();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $until
+                        ? 'Free CV package can only be activated once every 30 days. Try again after ' . $until->format('d M Y') . ' or purchase a paid package.'
+                        : 'You cannot activate the free CV package right now. Please purchase a paid package.',
+                ], 422);
+            }
+
+            if ($package->package_for === 'cv_search') {
+                $this->addCompanySearchPackage($company, $package, 'Free Package');
+                $company->has_used_free_cv_package = 1;
+                $company->update();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Free package ordered successfully',

@@ -130,6 +130,7 @@ class CompanyController extends Controller
 
     public function index()
     {
+        Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
         $company = Auth::guard('company')->user();
         
         // Get suggested candidates based on company industry
@@ -1176,6 +1177,7 @@ public function downloadReceipt($companyId)
 
     $data['packages'] = Package::where('package_for', 'cv_search')->get();
 
+    Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
     $company = Auth::guard('company')->user();
 
    
@@ -1299,6 +1301,8 @@ public function downloadReceipt($companyId)
                 'company_id' => $company->id,
                 'user_id' => $user_id,
             ]);
+
+            Auth::guard('company')->setUser($company->fresh());
 
             return redirect()->back()->with('success', __('Profile unlocked successfully!'));
         } else {

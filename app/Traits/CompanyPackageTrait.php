@@ -52,14 +52,17 @@ trait CompanyPackageTrait
     {
 
         $now = Carbon::now();
+        $numDays = (strcasecmp((string) $method, 'Free Package') === 0)
+            ? 30
+            : (int) $package->package_num_days;
         $startDate = $now->toDateTimeString();
-        $endDate = $now->copy()->addDays($package->package_num_days)->toDateTimeString();
+        $endDate = $now->copy()->addDays($numDays)->toDateTimeString();
 
         $company->cvs_package_id = $package->id;
 
         $company->cvs_package_start_date = $now;
 
-        $company->cvs_package_end_date = $now->copy()->addDays($package->package_num_days);
+        $company->cvs_package_end_date = $now->copy()->addDays($numDays);
 
         $company->cvs_quota = $package->package_num_listings;
 

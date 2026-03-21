@@ -24,8 +24,15 @@ $company = $job->getCompany();
 
     <div class="row jobPagetitle">
             <div class="col-lg-8">
-                <div class="jobinfo">
+                <div class="jobinfo @if(!empty($job->is_highlighted)) job-detail-highlight-wrap @endif">
                     <h2>{{$job->title}}</h2>
+                    @if(!empty($job->is_urgent) || !empty($job->is_featured) || !empty($job->is_highlighted))
+                    <div class="mb-2">
+                        @if(!empty($job->is_urgent))<span class="badge bg-danger me-1"><i class="fas fa-fire"></i> {{__('Urgent')}}</span>@endif
+                        @if(!empty($job->is_featured))<span class="badge bg-warning text-dark me-1"><i class="fas fa-bolt"></i> {{__('Featured')}}</span>@endif
+                        @if(!empty($job->is_highlighted))<span class="badge bg-info text-dark">{{__('Highlighted')}}</span>@endif
+                    </div>
+                    @endif
                     <div class="ptext">{{__('Date Posted')}}: {{$job->created_at->format('M d, Y')}}</div>
                     
                     @if(!(bool)$job->hide_salary)
@@ -271,8 +278,14 @@ $company = $job->getCompany();
             <?php $relatedJobCompany = $relatedJob->getCompany(); ?>
             @if(null !== $relatedJobCompany)
             <!--Job start-->
-            <li class="col-lg-3 col-md-6">
-                <div class="jobint">
+            <li class="col-lg-3 col-md-6 @if($relatedJob->is_featured == 1) featured @endif">
+                <div class="jobint @if(!empty($relatedJob->is_highlighted)) job-card-highlighted @endif">
+                    @if($relatedJob->is_urgent == 1)
+                        <span class="promotepof-badge job-urgent-badge" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
+                    @endif
+                    @if($relatedJob->is_featured == 1)
+                        <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured')}}"></i></span>
+                    @endif
 
                     <div class="d-flex">
                         <div class="fticon"><i class="fas fa-briefcase"></i> {{$relatedJob->getJobType('job_type')}}</div>                        
@@ -432,6 +445,9 @@ $company = $job->getCompany();
 @push('styles')
 <style type="text/css">
     .view_more{display:none !important;}
+    .job-detail-highlight-wrap { background: linear-gradient(135deg, #fffbeb 0%, #fff 40%); padding: 12px 16px; border-radius: 8px; border: 1px solid #fcd34d; }
+    .job-card-highlighted { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important; border: 1px solid #f59e0b !important; box-shadow: 0 2px 12px rgba(245, 158, 11, 0.12); }
+    .promotepof-badge.job-urgent-badge { background: #dc2626 !important; left: 10px; right: auto; }
 </style>
 @endpush
 @push('scripts') 

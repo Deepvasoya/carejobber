@@ -259,6 +259,7 @@ class JobController extends Controller
             })
             ->where('is_active', 1)
             ->where('expiry_date', '>', Carbon::now())
+            ->orderBy('is_urgent', 'desc')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
             ->take(4)

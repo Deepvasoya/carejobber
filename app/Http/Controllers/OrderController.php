@@ -505,15 +505,17 @@ class OrderController extends Controller
             if (Auth::guard('company')->check()) {
                 $company = Auth::guard('company')->user();
                 
-                // Check if company has already used free CV search package
-                if($package->package_for=='cv_search' && $company->has_used_free_cv_package == 1) {
-                    flash(__('You have already activated a free CV search package. Free packages can only be activated once.'))->error();
+                if ($package->package_for == 'cv_search' && ! $company->canActivateFreeCvSearchPackage()) {
+                    $until = $company->getFreeCvPackageCooldownEndsAt();
+                    $msg = $until
+                        ? __('You can only activate the free CV package once every 30 days. You can activate again after :date, or purchase a paid package anytime.', ['date' => $until->format('d M Y')])
+                        : __('You cannot activate the free CV package right now. Please purchase a paid package to continue.');
+                    flash($msg)->error();
                     return Redirect::route($this->redirectTo);
                 }
-                
+
                 if($package->package_for=='cv_search'){
                     $this->addCompanySearchPackage($company, $package,'Free Package');
-                    // Mark that company has used free CV package
                     $company->has_used_free_cv_package = 1;
                     $company->update();
                 }else{

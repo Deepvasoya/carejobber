@@ -12,6 +12,8 @@ use App;
 
 use Carbon\Carbon;
 
+use App\PaymentHistory;
+
 use App\Traits\Active;
 
 use App\Traits\Featured;
@@ -122,6 +124,48 @@ class Company extends Authenticatable
         $quota = (int) $this->jobs_quota;
         $availed = (int) $this->availed_jobs_quota;
         return max(0, $quota - $availed);
+    }
+
+    /**
+     * Remaining CV unlock credits while the CV search package is active.
+     */
+    public function getRemainingCvsQuota(): int
+    {
+        $quota = (int) ($this->cvs_quota ?? 0);
+        $availed = (int) ($this->availed_cvs_quota ?? 0);
+        return max(0, $quota - $availed);
+    }
+
+    /**
+     * When the rolling free-CV cooldown ends, or null if they have never taken a free CV package (or no record).
+     */
+    public function getFreeCvPackageCooldownEndsAt(int $periodDays = 30): ?Carbon
+    {
+        $last = PaymentHistory::where('company_id', $this->id)
+            ->where('package_type', 'cv_search')
+            ->where('payment_method', 'Free Package')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($last && $last->package_start_date) {
+            return Carbon::parse($last->package_start_date)->addDays($periodDays);
+        }
+
+        if (! empty($this->has_used_free_cv_package) && (int) $this->has_used_free_cv_package === 1 && $this->cvs_package_start_date) {
+            return Carbon::parse($this->cvs_package_start_date)->addDays($periodDays);
+        }
+
+        return null;
+    }
+
+    /**
+     * Free CV package: at most one activation per 30-day window; paid packages are unaffected.
+     */
+    public function canActivateFreeCvSearchPackage(int $periodDays = 30): bool
+    {
+        $until = $this->getFreeCvPackageCooldownEndsAt($periodDays);
+
+        return $until === null || ! $until->isFuture();
     }
 
     public function jobs()

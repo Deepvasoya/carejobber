@@ -59,7 +59,8 @@
                 @endif
             </ul>
             <!-- title end --> 
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
 
         <!-- Jobs By Country -->
         <div class="widget">
@@ -82,7 +83,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Country end--> 
 
 
@@ -107,7 +109,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By State end--> 
 
 
@@ -132,7 +135,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By City end--> 
 
         <!-- Jobs By Experience -->
@@ -156,7 +160,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Experience end --> 
 
         <!-- Jobs By Job Type -->
@@ -180,7 +185,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Job Type end --> 
 
         <!-- Jobs By Job Shift -->
@@ -204,7 +210,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Job Shift end --> 
 
         <!-- Jobs By Career Level -->
@@ -228,7 +235,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Career Level end --> 
 
 
@@ -253,7 +261,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Degree Level end --> 
 
 
@@ -287,7 +296,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Industry end --> 
 
 
@@ -314,7 +324,8 @@
 
             </ul>
             <!-- title end --> 
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
 
 
         <!-- Top Companies -->
@@ -339,7 +350,8 @@
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span> </div>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Top Companies end --> 
 
         <!-- Salary -->

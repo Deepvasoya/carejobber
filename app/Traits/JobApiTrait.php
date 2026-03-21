@@ -355,6 +355,9 @@ trait JobApiTrait
         $job->company_id = $company->id;
 
         $job = $this->assignJobValues($job, $request);
+        $job->is_featured = $request->boolean('promote_featured');
+        $job->is_urgent = $request->boolean('promote_urgent');
+        $job->is_highlighted = $request->boolean('promote_highlighted');
 
         $job->save();
 
@@ -497,6 +500,9 @@ trait JobApiTrait
         $job = Job::findOrFail($id);
 
 		$job = $this->assignJobValues($job, $request);
+        $job->is_featured = $request->boolean('promote_featured');
+        $job->is_urgent = $request->boolean('promote_urgent');
+        $job->is_highlighted = $request->boolean('promote_highlighted');
 
         /*         * ******************************* */
 
