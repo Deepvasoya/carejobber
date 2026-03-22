@@ -59,8 +59,8 @@ class OrderController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => $until
-                            ? 'Free CV package can be activated again from ' . $until->format('d M Y H:i') . '.'
-                            : 'You cannot activate the free CV package right now.',
+                            ? 'Silver can be activated again from ' . $until->format('d M Y H:i') . '.'
+                            : 'You cannot activate Silver right now.',
                     ], 422);
                 }
                 $activated = DB::transaction(function () use ($company, $package) {
@@ -73,7 +73,7 @@ class OrderController extends Controller
                     return true;
                 });
                 if ($activated === false) {
-                    return response()->json(['success' => false, 'message' => 'Could not activate free CV package.'], 422);
+                    return response()->json(['success' => false, 'message' => 'Could not activate Silver.'], 422);
                 }
             } elseif ($package->package_for === 'employer') {
                 if (! $company->canActivateFreeEmployerJobPackage()) {

@@ -234,7 +234,7 @@
     @if(null !== $currentPackage && !empty($currentPackage))
     <div class="four-plan">
             <h3>{{__('Upgrade CV Search Package')}}</h3>
-            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Unlock applicant résumés. Paid: Buy Now. Free Silver: Activate Now when eligible.') }}</p>
+            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Unlock applicant résumés. Paid: Buy Now. Silver: Activate Now when eligible.') }}</p>
             <div class="row">
                 <?php $packages = App\Package::get(); ?>
                 @foreach($packages as $package)
@@ -337,7 +337,7 @@
                                 <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
                                 <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Premium Support 24/7')}}</li>
                                 @if(! $company->canActivateFreeCvSearchPackage())
-                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Silver — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                 @else
                                     <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                 @endif
@@ -351,7 +351,7 @@
     @else
         <div class="four-plan">
             <h3>{{__('CV Search Packages')}}</h3>
-            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Paid: Buy Now. Free Silver: Activate Now when eligible.') }}</p>
+            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Paid: Buy Now. Silver: Activate Now when eligible.') }}</p>
             <div class="row">
                 <?php $packages = App\Package::get(); ?>
                 @foreach($packages as $package)
@@ -455,7 +455,7 @@
                                 <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
                                 <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Premium Support 24/7')}}</li>
                                 @if(! $company->canActivateFreeCvSearchPackage())
-                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Silver — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
                                 @else
                                     <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                                 @endif

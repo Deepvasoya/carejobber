@@ -511,8 +511,8 @@ class OrderController extends Controller
                     if (! $company->canActivateFreeCvSearchPackage()) {
                         $until = $company->getFreeCvPackageNextAvailableAt();
                         flash($until
-                            ? __('You can activate the free CV package again from :date.', ['date' => $until->format('d M Y H:i')])
-                            : __('You cannot activate the free CV package right now.'))->error();
+                            ? __('You can activate Silver again from :date.', ['date' => $until->format('d M Y H:i')])
+                            : __('You cannot activate Silver right now.'))->error();
                         return Redirect::route($this->redirectTo);
                     }
                     $activated = DB::transaction(function () use ($company, $package) {
@@ -525,7 +525,7 @@ class OrderController extends Controller
                         return true;
                     });
                     if ($activated === false) {
-                        flash(__('Could not activate free CV package.'))->error();
+                        flash(__('Could not activate Silver.'))->error();
                         return Redirect::route($this->redirectTo);
                     }
                 } elseif ($package->package_for === 'employer') {
