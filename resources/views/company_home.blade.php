@@ -109,6 +109,7 @@
 
 
 
+        <div id="paypackages-job">
         <?php
         if((bool)config('company.is_company_package_active')){        
         $packages = App\Package::where('package_for', 'like', 'employer')->get();
@@ -123,6 +124,7 @@
         <?php }elseif(null !== $packages){ ?>
         @include('includes.company_packages_new')
         <?php }} ?>
+        </div>
 
 
 
@@ -232,11 +234,12 @@
     @if(null !== $currentPackage && !empty($currentPackage))
     <div class="four-plan">
             <h3>{{__('Upgrade CV Search Package')}}</h3>
-            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Paid CV plans only — unlock applicant résumés. For job postings (including your free monthly allowance), use Job Packages above.') }}</p>
+            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Unlock applicant résumés. Paid: Buy Now. Free Silver: Activate Now when eligible.') }}</p>
             <div class="row">
                 <?php $packages = App\Package::get(); ?>
                 @foreach($packages as $package)
-                    @if($package->package_for == 'cv_search' && (float) $package->package_price > 0)
+                    @if($package->package_for == 'cv_search')
+                        @if((float) $package->package_price > 0)
                         <div class="col-md-4 col-sm-6 col-xs-12">
                             <ul class="boxes">
                                 <li class="plan-name">{{$package->package_title}}</li>
@@ -319,6 +322,28 @@
                         </div>
                         </div>
                         </div>
+                        @else
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <ul class="boxes">
+                                <li class="plan-name">{{$package->package_title}}</li>
+                                <li>
+                                    <div class="main-plan">
+                                        <div class="plan-price1-1">{{ $siteSetting->default_currency_code }}</div>
+                                        <div class="plan-price1-2">0</div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Applicant CV Views')}} {{$package->package_num_listings}}</li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Premium Support 24/7')}}</li>
+                                @if(! $company->canActivateFreeCvSearchPackage())
+                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                @else
+                                    <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
+                                @endif
+                            </ul>
+                        </div>
+                        @endif
                     @endif
                 @endforeach
             </div>
@@ -326,11 +351,12 @@
     @else
         <div class="four-plan">
             <h3>{{__('CV Search Packages')}}</h3>
-            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Paid plans only. Free monthly job posts are under Job Packages, not here.') }}</p>
+            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Paid: Buy Now. Free Silver: Activate Now when eligible.') }}</p>
             <div class="row">
                 <?php $packages = App\Package::get(); ?>
                 @foreach($packages as $package)
-                    @if($package->package_for == 'cv_search' && (float) $package->package_price > 0)
+                    @if($package->package_for == 'cv_search')
+                        @if((float) $package->package_price > 0)
                         <div class="col-md-4 col-sm-6 col-xs-12">
                             <ul class="boxes">
                                 <li class="plan-name">{{$package->package_title}}</li>
@@ -414,6 +440,28 @@
                         </div>
                         </div>
                         </div>
+                        @else
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <ul class="boxes">
+                                <li class="plan-name">{{$package->package_title}}</li>
+                                <li>
+                                    <div class="main-plan">
+                                        <div class="plan-price1-1">{{ $siteSetting->default_currency_code }}</div>
+                                        <div class="plan-price1-2">0</div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Applicant CV Views')}} {{$package->package_num_listings}}</li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
+                                <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Premium Support 24/7')}}</li>
+                                @if(! $company->canActivateFreeCvSearchPackage())
+                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free package — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
+                                @else
+                                    <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
+                                @endif
+                            </ul>
+                        </div>
+                        @endif
                     @endif
                 @endforeach
             </div>

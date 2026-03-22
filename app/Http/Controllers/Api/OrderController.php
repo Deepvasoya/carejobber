@@ -53,13 +53,29 @@ class OrderController extends Controller
             $company = Auth::guard('company')->user();
 
             if ($package->package_for === 'cv_search') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Free CV search activation is not available. Use paid CV packages, or Job Packages for free monthly job posts.',
-                ], 422);
-            }
+                if (! $company->canActivateFreeCvSearchPackage()) {
+                    $until = $company->getFreeCvPackageNextAvailableAt();
 
-            if ($package->package_for === 'employer') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $until
+                            ? 'Free CV package can be activated again from ' . $until->format('d M Y H:i') . '.'
+                            : 'You cannot activate the free CV package right now.',
+                    ], 422);
+                }
+                $activated = DB::transaction(function () use ($company, $package) {
+                    $locked = Company::where('id', $company->id)->lockForUpdate()->first();
+                    if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
+                        return false;
+                    }
+                    $this->addCompanySearchPackage($locked, $package, 'Free Package');
+
+                    return true;
+                });
+                if ($activated === false) {
+                    return response()->json(['success' => false, 'message' => 'Could not activate free CV package.'], 422);
+                }
+            } elseif ($package->package_for === 'employer') {
                 if (! $company->canActivateFreeEmployerJobPackage()) {
                     $until = $company->getFreeEmployerJobPackageNextAvailableAt();
 
@@ -85,6 +101,7 @@ class OrderController extends Controller
             } else {
                 $this->addCompanyPackage($company, $package, 'Free Package');
             }
+
 
             return response()->json([
                 'success' => true,

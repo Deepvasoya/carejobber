@@ -508,11 +508,27 @@ class OrderController extends Controller
                 $company = Auth::guard('company')->user();
 
                 if ($package->package_for === 'cv_search') {
-                    flash(__('Free résumé / CV search packages are not activated here. Use paid CV plans on this page, or use Job Packages for your free monthly job posts.'))->error();
-                    return Redirect::route($this->redirectTo);
-                }
+                    if (! $company->canActivateFreeCvSearchPackage()) {
+                        $until = $company->getFreeCvPackageNextAvailableAt();
+                        flash($until
+                            ? __('You can activate the free CV package again from :date.', ['date' => $until->format('d M Y H:i')])
+                            : __('You cannot activate the free CV package right now.'))->error();
+                        return Redirect::route($this->redirectTo);
+                    }
+                    $activated = DB::transaction(function () use ($company, $package) {
+                        $locked = Company::where('id', $company->id)->lockForUpdate()->first();
+                        if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
+                            return false;
+                        }
+                        $this->addCompanySearchPackage($locked, $package, 'Free Package');
 
-                if ($package->package_for === 'employer') {
+                        return true;
+                    });
+                    if ($activated === false) {
+                        flash(__('Could not activate free CV package.'))->error();
+                        return Redirect::route($this->redirectTo);
+                    }
+                } elseif ($package->package_for === 'employer') {
                     if (! $company->canActivateFreeEmployerJobPackage()) {
                         $until = $company->getFreeEmployerJobPackageNextAvailableAt();
                         $msg = $until
@@ -538,7 +554,7 @@ class OrderController extends Controller
                         return Redirect::route($this->redirectTo);
                     }
                 } else {
-                    $this->addCompanyPackage($company, $package,'Free Package');
+                    $this->addCompanyPackage($company, $package, 'Free Package');
                 }
             }
             if (Auth::check()) {
