@@ -52,47 +52,21 @@ class OrderController extends Controller
 
             $company = Auth::guard('company')->user();
 
-            if ($package->package_for === 'cv_search' && ! $company->canActivateFreeCvSearchPackage()) {
-                $until = $company->getFreeCvPackageNextAvailableAt();
-
+            if ($package->package_for === 'cv_search') {
                 return response()->json([
                     'success' => false,
-                    'message' => $until
-                        ? 'You already activated the free CV package for this 30-day period. Try again from ' . $until->format('d M Y H:i') . ' (3 CV unlocks per activation) or purchase a paid package.'
-                        : 'You cannot activate the free CV package right now. Please purchase a paid package.',
+                    'message' => 'Free CV search activation is not available. Use paid CV packages, or Job Packages for free monthly job posts.',
                 ], 422);
             }
 
-            if ($package->package_for === 'cv_search') {
-                $activated = DB::transaction(function () use ($company, $package) {
-                    $locked = Company::where('id', $company->id)->lockForUpdate()->first();
-                    if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
-                        return false;
-                    }
-                    $this->addCompanySearchPackage($locked, $package, 'Free Package');
-                    $locked->has_used_free_cv_package = 1;
-                    $locked->update();
-
-                    return true;
-                });
-                if ($activated === false) {
-                    $until = Company::find($company->id)->getFreeCvPackageNextAvailableAt();
-
-                    return response()->json([
-                        'success' => false,
-                        'message' => $until
-                            ? 'You already activated the free CV package for this 30-day period. Try again from ' . $until->format('d M Y H:i') . ' (3 CV unlocks per activation) or purchase a paid package.'
-                            : 'You cannot activate the free CV package right now. Please purchase a paid package.',
-                    ], 422);
-                }
-            } elseif ($package->package_for === 'employer') {
+            if ($package->package_for === 'employer') {
                 if (! $company->canActivateFreeEmployerJobPackage()) {
                     $until = $company->getFreeEmployerJobPackageNextAvailableAt();
 
                     return response()->json([
                         'success' => false,
                         'message' => $until
-                            ? 'Free job posting package already used this period. Try again from ' . $until->format('d M Y H:i') . ' (3 posts per activation) or purchase a package.'
+                            ? 'Free job package already used this calendar month. Next from ' . $until->format('d M Y') . ' (3 posts per activation) or buy a paid package.'
                             : 'You cannot activate the free job posting package right now.',
                     ], 422);
                 }

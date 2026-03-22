@@ -260,25 +260,48 @@ class Company extends Authenticatable
         return Carbon::parse($this->package_start_date);
     }
 
-    public function canActivateFreeEmployerJobPackage(int $periodDays = 30): bool
+    /**
+     * Free employer job package: only one activation per calendar month (payment history).
+     */
+    public function hasActivatedFreeEmployerJobPackageThisMonth(?Carbon $reference = null): bool
     {
-        $start = $this->getLastFreeEmployerJobPackageStartDate();
-        if ($start === null) {
+        $reference = $reference ?? Carbon::now();
+
+        if (PaymentHistory::where('company_id', $this->id)
+            ->where('package_type', 'job')
+            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
+            ->whereYear('package_start_date', $reference->year)
+            ->whereMonth('package_start_date', $reference->month)
+            ->exists()) {
             return true;
         }
 
-        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
+        if (empty($this->package_start_date) || ! $this->package_id) {
+            return false;
+        }
+
+        $pkg = Package::find($this->package_id);
+        if (! $pkg || $pkg->package_for !== 'employer' || (float) $pkg->package_price > 0) {
+            return false;
+        }
+
+        $start = Carbon::parse($this->package_start_date);
+
+        return (int) $start->year === (int) $reference->year && (int) $start->month === (int) $reference->month;
     }
 
-    public function getFreeEmployerJobPackageNextAvailableAt(int $periodDays = 30): ?Carbon
+    public function canActivateFreeEmployerJobPackage(): bool
     {
-        if ($this->canActivateFreeEmployerJobPackage($periodDays)) {
+        return ! $this->hasActivatedFreeEmployerJobPackageThisMonth();
+    }
+
+    public function getFreeEmployerJobPackageNextAvailableAt(): ?Carbon
+    {
+        if ($this->canActivateFreeEmployerJobPackage()) {
             return null;
         }
 
-        $start = $this->getLastFreeEmployerJobPackageStartDate();
-
-        return $start ? $start->copy()->addDays($periodDays) : null;
+        return Carbon::now()->copy()->startOfMonth()->addMonth()->startOfDay();
     }
 
     public function jobs()

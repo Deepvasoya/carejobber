@@ -506,41 +506,17 @@ class OrderController extends Controller
             /** Here Write your database logic like that insert record or value in database if you want * */
             if (Auth::guard('company')->check()) {
                 $company = Auth::guard('company')->user();
-                
-                if ($package->package_for == 'cv_search' && ! $company->canActivateFreeCvSearchPackage()) {
-                    $until = $company->getFreeCvPackageNextAvailableAt();
-                    $msg = $until
-                        ? __('You already activated the free CV package for this 30-day period. You can activate it again from :date (3 CV unlocks per activation), or purchase a paid package anytime.', ['date' => $until->format('d M Y H:i')])
-                        : __('You cannot activate the free CV package right now. Please purchase a paid package to continue.');
-                    flash($msg)->error();
+
+                if ($package->package_for === 'cv_search') {
+                    flash(__('Free résumé / CV search packages are not activated here. Use paid CV plans on this page, or use Job Packages for your free monthly job posts.'))->error();
                     return Redirect::route($this->redirectTo);
                 }
 
-                if ($package->package_for == 'cv_search') {
-                    $activated = DB::transaction(function () use ($company, $package) {
-                        $locked = Company::where('id', $company->id)->lockForUpdate()->first();
-                        if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
-                            return false;
-                        }
-                        $this->addCompanySearchPackage($locked, $package, 'Free Package');
-                        $locked->has_used_free_cv_package = 1;
-                        $locked->update();
-
-                        return true;
-                    });
-                    if ($activated === false) {
-                        $until = Company::find($company->id)->getFreeCvPackageNextAvailableAt();
-                        $msg = $until
-                            ? __('You already activated the free CV package for this 30-day period. You can activate it again from :date (3 CV unlocks per activation), or purchase a paid package anytime.', ['date' => $until->format('d M Y H:i')])
-                            : __('You cannot activate the free CV package right now. Please purchase a paid package to continue.');
-                        flash($msg)->error();
-                        return Redirect::route($this->redirectTo);
-                    }
-                } elseif ($package->package_for === 'employer') {
+                if ($package->package_for === 'employer') {
                     if (! $company->canActivateFreeEmployerJobPackage()) {
                         $until = $company->getFreeEmployerJobPackageNextAvailableAt();
                         $msg = $until
-                            ? __('You already used the free job posting package for this 30-day period. Try again from :date (3 job posts per activation) or buy a paid package.', ['date' => $until->format('d M Y H:i')])
+                            ? __('You already activated the free job package this calendar month. Next activation is from :date (3 job posts per month). Or purchase a paid package anytime.', ['date' => $until->format('d M Y')])
                             : __('You cannot activate the free job posting package right now.');
                         flash($msg)->error();
                         return Redirect::route($this->redirectTo);
@@ -557,7 +533,7 @@ class OrderController extends Controller
                     if ($activated === false) {
                         $until = Company::find($company->id)->getFreeEmployerJobPackageNextAvailableAt();
                         flash($until
-                            ? __('You already used the free job posting package for this 30-day period. Try again from :date.', ['date' => $until->format('d M Y H:i')])
+                            ? __('You already activated the free job package this calendar month. Next activation from :date.', ['date' => $until->format('d M Y')])
                             : __('Could not activate free job package.'))->error();
                         return Redirect::route($this->redirectTo);
                     }
