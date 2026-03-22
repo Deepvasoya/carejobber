@@ -463,42 +463,6 @@ trait JobTrait
 
 		
 
-		if ((bool)$company->is_active === false) {
-
-            flash(__('Your account is inactive contact site admin to activate it'))->error();
-
-            return \Redirect::route('company.home');
-
-            exit;
-
-        }
-
-		if((bool)config('company.is_company_package_active')){
-
-			if(
-
-				($company->package_end_date === null) || 
-
-				(Carbon::parse($company->package_end_date)->lt(Carbon::now())) ||
-
-				($company->jobs_quota <= $company->availed_jobs_quota)
-
-				)
-
-			{
-
-				flash(__('Please subscribe to package first'))->error();
-
-				return \Redirect::route('company.home');
-
-				exit;
-
-			}
-
-		}
-
-        
-
 		$countries = DataArrayHelper::langCountriesArray();
 
         $currencies = DataArrayHelper::currenciesArray();
@@ -654,7 +618,8 @@ trait JobTrait
 
 
 
-        $job = Job::findOrFail($id);
+        $company = Auth::guard('company')->user();
+        $job = Job::where('company_id', $company->id)->findOrFail($id);
 
         $jobSkillIds = $job->getJobSkillsArray();
 
@@ -694,7 +659,8 @@ trait JobTrait
 
     {
 
-        $job = Job::findOrFail($id);
+        $company = Auth::guard('company')->user();
+        $job = Job::where('company_id', $company->id)->findOrFail($id);
         
         // Check if the job was expired before the update
         $wasExpired = $job->expiry_date && $job->expiry_date < now();

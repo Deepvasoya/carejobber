@@ -291,6 +291,11 @@
                 $promoJobFeatured = isset($job) && ! empty($job->is_featured);
                 $promoJobUrgent = isset($job) && ! empty($job->is_urgent);
                 $promoJobHighlighted = isset($job) && ! empty($job->is_highlighted);
+                $__jobPromoPricesForJs = [
+                    'featured' => (float) $promoCfg['featured'],
+                    'urgent' => (float) $promoCfg['urgent'],
+                    'highlighted' => (float) $promoCfg['highlighted'],
+                ];
             @endphp
             <div class="row">
                 <div class="col-md-4 col-sm-12 mb-2">
@@ -400,11 +405,7 @@
             format: 'yyyy-m-d'
         });
         (function () {
-            var prices = @json([
-                'featured' => (float) $promoCfg['featured'],
-                'urgent' => (float) $promoCfg['urgent'],
-                'highlighted' => (float) $promoCfg['highlighted'],
-            ]);
+            var prices = @json($__jobPromoPricesForJs);
             var currency = @json((string) $promoCur);
             var already = {
                 featured: @json($promoJobFeatured),
