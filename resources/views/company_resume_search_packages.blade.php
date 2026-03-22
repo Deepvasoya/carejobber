@@ -122,6 +122,7 @@
      @if(null!==($package))
        <div class="four-plan">
         <h3>{{__('Upgrade CV Search Packages')}}</h3>
+        <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('These plans unlock and view applicant résumés / CVs. They are not job posting credits. For free job listings, open Job Packages on your dashboard.') }}</p>
         <div class="row"> @foreach($packages as $package)
         <div class="col-md-4 col-sm-6 col-xs-12">
                             <ul class="boxes">
@@ -220,6 +221,7 @@
      @else
     <div class="four-plan">
         <h3>{{__('CV Search Packages')}}</h3>
+        <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('For searching candidates and unlocking CVs — not for posting jobs. Use Job Packages for job listings.') }}</p>
         <div class="row"> @foreach($packages as $package)
         <div class="col-md-4 col-sm-6 col-xs-12">
                             <ul class="boxes">

@@ -80,7 +80,7 @@
                     </span> 
                 @endif
                 @if($job->is_urgent == 1)
-                    <span class="promotepof-badge job-urgent-badge" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
+                    <span class="promotepof-badge-left" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
                 @endif
                 @if($job->is_featured == 1) <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('This Job is Featured')}}"></i></span> @endif
                 

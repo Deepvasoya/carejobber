@@ -236,6 +236,51 @@ class Company extends Authenticatable
             && Carbon::parse($this->cvs_package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
+    public function getLastFreeEmployerJobPackageStartDate(): ?Carbon
+    {
+        $last = PaymentHistory::where('company_id', $this->id)
+            ->where('package_type', 'job')
+            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
+            ->orderByDesc('id')
+            ->first();
+
+        if ($last && $last->package_start_date) {
+            return Carbon::parse($last->package_start_date);
+        }
+
+        if (empty($this->package_start_date) || ! $this->package_id) {
+            return null;
+        }
+
+        $pkg = Package::find($this->package_id);
+        if (! $pkg || $pkg->package_for !== 'employer' || (float) $pkg->package_price > 0) {
+            return null;
+        }
+
+        return Carbon::parse($this->package_start_date);
+    }
+
+    public function canActivateFreeEmployerJobPackage(int $periodDays = 30): bool
+    {
+        $start = $this->getLastFreeEmployerJobPackageStartDate();
+        if ($start === null) {
+            return true;
+        }
+
+        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
+    }
+
+    public function getFreeEmployerJobPackageNextAvailableAt(int $periodDays = 30): ?Carbon
+    {
+        if ($this->canActivateFreeEmployerJobPackage($periodDays)) {
+            return null;
+        }
+
+        $start = $this->getLastFreeEmployerJobPackageStartDate();
+
+        return $start ? $start->copy()->addDays($periodDays) : null;
+    }
+
     public function jobs()
 
     {

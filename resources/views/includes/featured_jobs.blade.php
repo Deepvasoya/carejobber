@@ -17,7 +17,7 @@
             <li class="col-lg-3 col-md-6 @if($featuredJob->is_featured == 1) featured @endif">
                 <div class="jobint @if(!empty($featuredJob->is_highlighted)) job-card-highlighted @endif">
                     @if($featuredJob->is_urgent == 1)
-                        <span class="promotepof-badge job-urgent-badge" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
+                        <span class="promotepof-badge-left" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
                     @endif
                     @if($featuredJob->is_featured == 1)
                         <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured')}}"></i></span>

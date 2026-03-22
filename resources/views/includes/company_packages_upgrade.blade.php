@@ -9,7 +9,28 @@
         <h3>{{__('Upgrade Job Packages')}}</h3>
 
         <div class="row"> @foreach($packages as $package)
-		@if($package->package_price > 0)
+		@if($package->package_price == 0)
+            @php $fc = Auth::guard('company')->user(); @endphp
+            <div class="col-md-4 col-sm-6 col-xs-12">
+                <ul class="boxes">
+                    <li class="plan-name">{{$package->package_title}}</li>
+                    <li>
+                        <div class="main-plan">
+                            <div class="plan-price1-1">{{ $siteSetting->default_currency_code }}</div>
+                            <div class="plan-price1-2">0</div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </li>
+                    <li class="plan-pages"><i class="far fa-check-circle"></i> {{__('Job Postings')}} 3 / {{__('30 days')}}</li>
+                    <li class="plan-pages small text-muted"><i class="fas fa-info-circle"></i> {{ __('For posting jobs — not CV / résumé search.') }}</li>
+                    @if(! $fc->canActivateFreeEmployerJobPackage())
+                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $fc->getFreeEmployerJobPackageNextAvailableAt() ? __('Available again from :date', ['date' => $fc->getFreeEmployerJobPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Free — 3 job posts / 30 days (once per 30 days)')}} <i class="fas fa-check"></i></span></li>
+                    @else
+                        <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
+                    @endif
+                </ul>
+            </div>
+		@elseif($package->package_price > 0)
             <div class="col-md-4 col-sm-6 col-xs-12">
 
                 <ul class="boxes">

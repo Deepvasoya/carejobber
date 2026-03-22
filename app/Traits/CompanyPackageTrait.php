@@ -25,16 +25,21 @@ trait CompanyPackageTrait
     {
 
         $now = Carbon::now();
+        $isFreeEmployer = strcasecmp((string) $method, 'Free Package') === 0
+            && isset($package->package_for) && $package->package_for === 'employer';
+        $numDays = $isFreeEmployer ? 30 : (int) $package->package_num_days;
         $startDate = $now->toDateTimeString();
-        $endDate = $now->copy()->addDays($package->package_num_days)->toDateTimeString();
+        $endDate = $now->copy()->addDays($numDays)->toDateTimeString();
 
         $company->package_id = $package->id;
 
         $company->package_start_date = $now;
 
-        $company->package_end_date = $now->copy()->addDays($package->package_num_days);
+        $company->package_end_date = $now->copy()->addDays($numDays);
 
-        $company->jobs_quota = $package->package_num_listings;
+        $jobsListings = $isFreeEmployer ? 3 : (int) $package->package_num_listings;
+
+        $company->jobs_quota = $jobsListings;
 
         $company->availed_jobs_quota = 0;
 
@@ -42,8 +47,7 @@ trait CompanyPackageTrait
 
         $company->update();
         
-        // Log transaction in payment_history
-        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'job', $package->package_num_listings, 0);
+        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'job', $jobsListings, 0);
 
     }
 
@@ -162,7 +166,7 @@ trait CompanyPackageTrait
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to log company payment: ' . $e->getMessage());
-            if ($packageType === 'cv_search' && strcasecmp((string) $paymentMethod, 'Free Package') === 0) {
+            if (($packageType === 'cv_search' || $packageType === 'job') && strcasecmp((string) $paymentMethod, 'Free Package') === 0) {
                 throw $e;
             }
         }

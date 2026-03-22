@@ -536,6 +536,31 @@ class OrderController extends Controller
                         flash($msg)->error();
                         return Redirect::route($this->redirectTo);
                     }
+                } elseif ($package->package_for === 'employer') {
+                    if (! $company->canActivateFreeEmployerJobPackage()) {
+                        $until = $company->getFreeEmployerJobPackageNextAvailableAt();
+                        $msg = $until
+                            ? __('You already used the free job posting package for this 30-day period. Try again from :date (3 job posts per activation) or buy a paid package.', ['date' => $until->format('d M Y H:i')])
+                            : __('You cannot activate the free job posting package right now.');
+                        flash($msg)->error();
+                        return Redirect::route($this->redirectTo);
+                    }
+                    $activated = DB::transaction(function () use ($company, $package) {
+                        $locked = Company::where('id', $company->id)->lockForUpdate()->first();
+                        if (! $locked || ! $locked->canActivateFreeEmployerJobPackage()) {
+                            return false;
+                        }
+                        $this->addCompanyPackage($locked, $package, 'Free Package');
+
+                        return true;
+                    });
+                    if ($activated === false) {
+                        $until = Company::find($company->id)->getFreeEmployerJobPackageNextAvailableAt();
+                        flash($until
+                            ? __('You already used the free job posting package for this 30-day period. Try again from :date.', ['date' => $until->format('d M Y H:i')])
+                            : __('Could not activate free job package.'))->error();
+                        return Redirect::route($this->redirectTo);
+                    }
                 } else {
                     $this->addCompanyPackage($company, $package,'Free Package');
                 }

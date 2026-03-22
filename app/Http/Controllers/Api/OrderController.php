@@ -85,6 +85,31 @@ class OrderController extends Controller
                             : 'You cannot activate the free CV package right now. Please purchase a paid package.',
                     ], 422);
                 }
+            } elseif ($package->package_for === 'employer') {
+                if (! $company->canActivateFreeEmployerJobPackage()) {
+                    $until = $company->getFreeEmployerJobPackageNextAvailableAt();
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => $until
+                            ? 'Free job posting package already used this period. Try again from ' . $until->format('d M Y H:i') . ' (3 posts per activation) or purchase a package.'
+                            : 'You cannot activate the free job posting package right now.',
+                    ], 422);
+                }
+                $activated = DB::transaction(function () use ($company, $package) {
+                    $locked = Company::where('id', $company->id)->lockForUpdate()->first();
+                    if (! $locked || ! $locked->canActivateFreeEmployerJobPackage()) {
+                        return false;
+                    }
+                    $this->addCompanyPackage($locked, $package, 'Free Package');
+
+                    return true;
+                });
+                if ($activated === false) {
+                    return response()->json(['success' => false, 'message' => 'Could not activate free job package.'], 422);
+                }
+            } else {
+                $this->addCompanyPackage($company, $package, 'Free Package');
             }
 
             return response()->json([
