@@ -74,7 +74,35 @@ if (!isset($seo)) {
     {!! $siteSetting->google_tag_manager_for_head !!}
 
 
+    <style>
+        /* Top-left corner — same pattern as .promotepof-badge (top-right), not width:0 (that broke layout/overflow) */
+.promotepof-badge-left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: auto;
+    z-index: 4;
+}
 
+.promotepof-badge-left:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-top: 50px solid #28a745;
+    border-right: 50px solid transparent;
+    border-radius: 18px 0 0 0;
+}
+
+.promotepof-badge-left i {
+    z-index: 5;
+    position: relative;
+    color: #fff;
+    float: left;
+    margin: 10px 0 0 10px;
+    font-size: 12px;
+}
+    </style>
 </head>
 
 
