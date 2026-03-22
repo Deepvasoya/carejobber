@@ -24,7 +24,7 @@
     </ul>
 
     <ul class="list-unstyled mb-4">
-        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Easy and instant posting process – your jobs available online in just 5 minutes') }}</li>
+        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Easy and instant posting process – your jobs available online in no time') }}</li>
         <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Job posting credits that you purchase will never expire. Buy now and post whenever you need.') }}</li>
     </ul>
 

@@ -69,7 +69,7 @@
 
                                 <div class="hmseekerinfo">
                                     <h3>{{$jobSeeker->getName()}}</h3>                
-                                    <div class="hmcate justify-content-center" title="Functional Area">{{$jobSeeker->getFunctionalArea('functional_area')}}</div>
+                                    <div class="hmcate justify-content-center" title="Job Category">{{$jobSeeker->getFunctionalArea('functional_area')}}</div>
                                     <div class="hmcate justify-content-center" title="Career Level"><i class="fas fa-chart-line"></i> {{$jobSeeker->getCareerLevel('career_level')}}</div>
                                     <div class="hmcate justify-content-center"><i class="fas fa-map-marker-alt"></i> {{$jobSeeker->getCity('city')}}</div>  
                                     
@@ -101,7 +101,7 @@
                 <div class="freepackagebox">                   
                     <div class="frpkgct">                    
                         <h5>{{__('Congratulations Your Account is Active now')}}</h5>
-                        <p>{{__('You have got')}} {{$company->jobs_quota - $company->availed_jobs_quota}} {{__('free jobs postings, valid for 48 hours. Hurry Up before it ends')}}</p>
+                        <p>{{__('You have got')}} {{$company->jobs_quota - $company->availed_jobs_quota}} {{__('free jobs postings remaining, valid for 30 days. Hurry Up before it expired.')}}</p>
                     </div>
                     <a href="{{url('/post-job')}}">{{_('Post a Job')}}</a>
                 </div>
@@ -120,7 +120,7 @@
 
         <?php if(null !== $package){ ?>
         @include('includes.company_package_msg')
-        @include('includes.company_packages_upgrade')
+     {{-- @include('includes.company_packages_upgrade') --}} <!---Remove the curly brackets to show job packages on the employer dashboardn-->
         <?php }elseif(null !== $packages){ ?>
         @include('includes.company_packages_new')
         <?php }} ?>
@@ -234,7 +234,7 @@
     @if(null !== $currentPackage && !empty($currentPackage))
     <div class="four-plan">
             <h3>{{__('Upgrade CV Search Package')}}</h3>
-            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Unlock applicant résumés. Paid: Buy Now. Silver: Activate Now when eligible.') }}</p>
+            <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Unlock applicant resumes by chosing a package below, or Activate free trail if eligible.') }}</p>
             <div class="row">
                 <?php $packages = App\Package::get(); ?>
                 @foreach($packages as $package)
