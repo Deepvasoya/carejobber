@@ -75,7 +75,7 @@ trait FetchJobSeekers
         'profileExperience' => fn($q) => $q->orderBy('date_start', 'desc')->limit(1),
         'profileEducation' => fn($q) => $q->orderBy('date_completion', 'desc')->limit(1)->with('degreeLevel'),
         'profileSkills' => fn($q) => $q->limit(3)->with('jobSkill'),
-        'profileSummary' => fn($q) => $q->limit(1),
+        'profileSummary' => fn($q) => $q->orderByDesc('id')->limit(1),
     ]);
 
     // Show all active users, prioritize promoted and featured users
