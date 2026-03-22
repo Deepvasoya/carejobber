@@ -54,6 +54,7 @@ class RecruiterPackagesSeeder extends Seeder
                     'package_price' => $s['price'],
                     'package_num_days' => $s['days'],
                     'package_num_listings' => 99999,
+                    'subscription_unlimited_jobs' => true,
                     'country_code' => null,
                     'rebate_percent' => null,
                     'is_active' => true,

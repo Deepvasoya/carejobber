@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 
 class PackageFormRequest extends Request
 {
@@ -30,11 +31,26 @@ class PackageFormRequest extends Request
                     $id = (int) $this->input('id', 0);
                     $unique_id = ($id > 0) ? ',' . $id : '';
                     return [
-                        "package_title" => "required",
-                        "package_price" => "required",
-                        "package_num_days" => "required",
-                        //"package_num_listings" => "required",
-                        "package_for" => "required",
+                        'package_title' => 'required',
+                        'package_price' => 'required',
+                        'package_num_days' => 'required',
+                        'package_for' => 'required',
+                        'package_type' => 'nullable|in:one_time_credits,monthly_recurring,resume_boost',
+                        'duration_days' => [
+                            'nullable',
+                            'integer',
+                            'min:1',
+                            'max:3650',
+                            Rule::requiredIf(function () {
+                                return $this->input('package_for') === 'employer'
+                                    && $this->input('package_type') === 'monthly_recurring';
+                            }),
+                        ],
+                        'subscription_unlimited_jobs' => 'nullable|boolean',
+                        'stripe_price_id' => 'nullable|string|max:255',
+                        'country_code' => 'nullable|string|size:2',
+                        'rebate_percent' => 'nullable|integer|min:0|max:100',
+                        'is_active' => 'nullable|boolean',
                     ];
                 }
             default:break;

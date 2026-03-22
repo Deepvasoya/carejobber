@@ -18,7 +18,7 @@
                     <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Job Postings')}} 3 / {{__('30 days')}}</li>
                     <li class="plan-pages small text-muted"><i class="fas fa-info-circle"></i> {{ __('Not CV search — this is for posting jobs on the site.') }}</li>
                     @if(! $fc->canActivateFreeEmployerJobPackage())
-                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $fc->getFreeEmployerJobPackageNextAvailableAt() ? __('Available again from :date', ['date' => $fc->getFreeEmployerJobPackageNextAvailableAt()->format('d M Y')]) : '' }}">{{__('Free — 3 job posts; one activation per calendar month')}} <i class="fas fa-check"></i></span></li>
+                        <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $fc->getFreeEmployerJobPackageNextAvailableAt() ? __('Available again from :date', ['date' => $fc->getFreeEmployerJobPackageNextAvailableAt()->format('d M Y')]) : '' }}">{{__('Free — 3 job posts; one activation every 30 days')}} <i class="fas fa-check"></i></span></li>
                     @else
                         <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
                     @endif

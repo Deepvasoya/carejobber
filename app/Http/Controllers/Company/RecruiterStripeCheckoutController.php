@@ -38,6 +38,20 @@ class RecruiterStripeCheckoutController extends Controller
         $package = Package::where('id', $packageId)->where('package_for', 'employer')->firstOrFail();
         $countryCode = $request->query('cc', '');
         $tab = $request->query('tab', 'packages');
+
+        if ((float) $package->package_price <= 0 && $package->type !== Package::TYPE_MONTHLY_RECURRING) {
+            if (!$company->canActivateFreeEmployerJobPackage()) {
+                $until = $company->getFreeEmployerJobPackageNextAvailableAt();
+
+                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $countryCode ?: null]))
+                    ->with('error', $until
+                        ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
+                        : __('You cannot activate the free job posting package right now.'));
+            }
+
+            return redirect()->route('order.free.package', $package->id);
+        }
+
         $payload = [
             'package_id' => $package->id,
             'company_id' => $company->id,
@@ -73,6 +87,20 @@ class RecruiterStripeCheckoutController extends Controller
             return redirect()->route('recruiter.posting.packages')->with('error', __('Package not found.'));
         }
 
+        if ((float) $package->package_price <= 0 && $package->type !== Package::TYPE_MONTHLY_RECURRING) {
+            $cc = $payload['country_code'] ?? '';
+            if (!$company->canActivateFreeEmployerJobPackage()) {
+                $until = $company->getFreeEmployerJobPackageNextAvailableAt();
+
+                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $cc ?: null]))
+                    ->with('error', $until
+                        ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
+                        : __('You cannot activate the free job posting package right now.'));
+            }
+
+            return redirect()->route('order.free.package', $package->id);
+        }
+
         $secret = static::getStripeSecret();
         if (!$secret) {
             \Log::error('Stripe: No API key. Set STRIPE_SECRET in .env and run: php artisan config:clear');
@@ -81,24 +109,54 @@ class RecruiterStripeCheckoutController extends Controller
         Stripe::setApiKey($secret);
 
         $countryCode = $payload['country_code'] ?? null;
-        $isSubscription = $package->type === 'monthly_recurring';
+        $currency = strtolower($payload['currency'] ?? 'cad');
+        $isSubscription = $package->type === Package::TYPE_MONTHLY_RECURRING;
+        $monthsLabel = $isSubscription ? $package->subscriptionBillingMonths() : null;
         $productName = $package->package_title ?: ($package->package_num_listings . ' job postings');
-        if ($isSubscription && $package->duration_days) {
-            $months = (int) round($package->duration_days / 30);
-            $productName = $package->package_title ?: ($months . ' months unlimited job postings');
+        if ($isSubscription) {
+            if ($package->subscription_unlimited_jobs) {
+                $productName = $package->package_title ?: ($monthsLabel . ' ' . __('months unlimited job postings'));
+            } else {
+                $productName = $package->package_title ?: ($package->package_num_listings . ' ' . __('job postings') . ' / ' . $monthsLabel . ' ' . __('mo'));
+            }
         }
 
-        $lineItem = [
-            'quantity' => 1,
-            'price_data' => [
-                'currency' => strtolower($payload['currency'] ?? 'cad'),
-                'product_data' => [
-                    'name' => $productName,
-                    'description' => $countryCode ? __('Country') . ': ' . $countryCode : '',
+        $productDescription = $countryCode ? __('Country') . ': ' . $countryCode : '';
+
+        if ($isSubscription) {
+            $billingMonths = max(1, (int) round(($package->duration_days ?: 30) / 30));
+            if (!empty($package->stripe_price_id)) {
+                $lineItems = [['price' => $package->stripe_price_id, 'quantity' => 1]];
+            } else {
+                $lineItems = [[
+                    'quantity' => 1,
+                    'price_data' => [
+                        'currency' => $currency,
+                        'product_data' => [
+                            'name' => $productName,
+                            'description' => $productDescription,
+                        ],
+                        'unit_amount' => (int) round($package->package_price * 100),
+                        'recurring' => [
+                            'interval' => 'month',
+                            'interval_count' => $billingMonths,
+                        ],
+                    ],
+                ]];
+            }
+        } else {
+            $lineItems = [[
+                'quantity' => 1,
+                'price_data' => [
+                    'currency' => $currency,
+                    'product_data' => [
+                        'name' => $productName,
+                        'description' => $productDescription,
+                    ],
+                    'unit_amount' => (int) round($package->package_price * 100),
                 ],
-                'unit_amount' => (int) round($package->package_price * 100),
-            ],
-        ];
+            ]];
+        }
 
         // Stripe replaces {CHECKOUT_SESSION_ID} with the real session ID on redirect.
         // Do not use route() with the placeholder as a param — it gets URL-encoded and Stripe won't replace it.
@@ -109,8 +167,8 @@ class RecruiterStripeCheckoutController extends Controller
 
         $sessionParams = [
             'payment_method_types' => ['card'],
-            'line_items' => [$lineItem],
-            'mode' => 'payment',
+            'line_items' => $lineItems,
+            'mode' => $isSubscription ? 'subscription' : 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $company->id,
@@ -119,8 +177,12 @@ class RecruiterStripeCheckoutController extends Controller
                 'package_id' => (string) $package->id,
                 'country_code' => (string) $countryCode,
             ],
-            'customer_email' => $company->email,
         ];
+        if ($company->stripe_customer_id) {
+            $sessionParams['customer'] = $company->stripe_customer_id;
+        } else {
+            $sessionParams['customer_email'] = $company->email;
+        }
 
         try {
             $session = StripeSession::create($sessionParams);
@@ -214,11 +276,14 @@ class RecruiterStripeCheckoutController extends Controller
             return redirect()->route('company.login')->with('error', __('Could not verify payment.'));
         }
 
-        if ($session->payment_status !== 'paid' && $session->status !== 'complete') {
+        $paidOk = in_array($session->payment_status ?? '', ['paid', 'no_payment_required'], true);
+        $subscriptionOk = ($session->status ?? '') === 'complete' && !empty($session->subscription);
+        if (!$paidOk && !$subscriptionOk) {
             \Log::warning('[StripeSuccess] Abort: payment not complete', [
                 'session_id' => $sessionId,
                 'payment_status' => $session->payment_status ?? null,
                 'status' => $session->status ?? null,
+                'has_subscription' => !empty($session->subscription),
             ]);
             return redirect()->route('company.login')->with('error', __('Payment not completed.'));
         }
@@ -257,11 +322,6 @@ class RecruiterStripeCheckoutController extends Controller
             return redirect()->route('company.login')->with('error', __('Package not found.'));
         }
 
-        if ($package->type === 'monthly_recurring') {
-            $package->package_num_days = $package->duration_days ?: 30;
-            $package->package_num_listings = 99999;
-        }
-
         try {
             $this->addCompanyPackage($company, $package, 'Stripe');
             \Log::info('[StripeSuccess] addCompanyPackage completed', [
@@ -280,7 +340,22 @@ class RecruiterStripeCheckoutController extends Controller
             return redirect()->route('company.login')->with('error', __('Could not add package.'));
         }
 
-        $message = __('Thank you! Your job posting credits have been added.');
+        if ($package->type === Package::TYPE_MONTHLY_RECURRING) {
+            $cid = $session->customer ?? null;
+            $sid = $session->subscription ?? null;
+            if ($cid) {
+                $company->stripe_customer_id = is_object($cid) ? $cid->id : $cid;
+            }
+            if ($sid) {
+                $company->stripe_subscription_id = is_object($sid) ? $sid->id : $sid;
+                $company->stripe_subscription_status = 'active';
+            }
+            $company->save();
+        }
+
+        $message = $package->type === Package::TYPE_MONTHLY_RECURRING
+            ? __('Thank you! Your subscription is active.')
+            : __('Thank you! Your job posting credits have been added.');
         $goHome = \Auth::guard('company')->check() && (int) \Auth::guard('company')->id() === (int) $company->id;
         \Log::info('[StripeSuccess] Success; redirecting', [
             'session_id' => $sessionId,

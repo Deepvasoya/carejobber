@@ -532,7 +532,7 @@ class OrderController extends Controller
                     if (! $company->canActivateFreeEmployerJobPackage()) {
                         $until = $company->getFreeEmployerJobPackageNextAvailableAt();
                         $msg = $until
-                            ? __('You already activated the free job package this calendar month. Next activation is from :date (3 job posts per month). Or purchase a paid package anytime.', ['date' => $until->format('d M Y')])
+                            ? __('You already activated the free job package in the last 30 days. You can activate it again from :date (3 job posts per activation), or purchase a paid package anytime.', ['date' => $until->format('d M Y')])
                             : __('You cannot activate the free job posting package right now.');
                         flash($msg)->error();
                         return Redirect::route($this->redirectTo);
@@ -549,7 +549,7 @@ class OrderController extends Controller
                     if ($activated === false) {
                         $until = Company::find($company->id)->getFreeEmployerJobPackageNextAvailableAt();
                         flash($until
-                            ? __('You already activated the free job package this calendar month. Next activation from :date.', ['date' => $until->format('d M Y')])
+                            ? __('You already activated the free job package in the last 30 days. Next activation from :date.', ['date' => $until->format('d M Y')])
                             : __('Could not activate free job package.'))->error();
                         return Redirect::route($this->redirectTo);
                     }

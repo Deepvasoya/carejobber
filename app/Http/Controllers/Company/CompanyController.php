@@ -1251,10 +1251,9 @@ public function downloadReceipt($companyId)
             return redirect()->back()->with('info', __('You have already unlocked this profile.'));
         }
 
-        // Check if company has CV package credits available
-        if ($company->cvs_package_id 
-            && $company->cvs_package_end_date >= date('Y-m-d') 
-            && ($company->cvs_quota - $company->availed_cvs_quota) > 0) {
+        // Check if company has CV package credits available (active package + remaining credits)
+        if ($company->hasActiveCvSearchPackage()
+            && $company->getRemainingCvsQuota() > 0) {
             
             // Use credit to unlock
             if ($company->availed_cvs_ids != '') {

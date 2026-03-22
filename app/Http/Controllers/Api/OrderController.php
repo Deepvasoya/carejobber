@@ -82,7 +82,7 @@ class OrderController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => $until
-                            ? 'Free job package already used this calendar month. Next from ' . $until->format('d M Y') . ' (3 posts per activation) or buy a paid package.'
+                            ? 'Free job package already used in the last 30 days. Next from ' . $until->format('d M Y') . ' (3 posts per activation) or buy a paid package.'
                             : 'You cannot activate the free job posting package right now.',
                     ], 422);
                 }

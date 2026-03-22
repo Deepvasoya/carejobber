@@ -48,6 +48,15 @@ class PackageController extends Controller
         $package->package_num_days = $request->input('package_num_days');
         $package->package_num_listings = $request->input('package_num_listings');
         $package->package_for = $request->input('package_for');
+        if ($package->package_for === 'employer') {
+            $package->type = $request->input('package_type', Package::TYPE_ONE_TIME_CREDITS);
+            $package->duration_days = $request->filled('duration_days') ? (int) $request->input('duration_days') : null;
+            $package->subscription_unlimited_jobs = $request->boolean('subscription_unlimited_jobs');
+            $package->stripe_price_id = $request->filled('stripe_price_id') ? $request->input('stripe_price_id') : null;
+            $package->country_code = $request->filled('country_code') ? strtoupper(substr($request->input('country_code'), 0, 2)) : null;
+            $package->rebate_percent = $request->filled('rebate_percent') ? (int) $request->input('rebate_percent') : null;
+            $package->is_active = $request->boolean('is_active');
+        }
         $package->save();
         /*         * ************************************ */
         flash('Package has been added!')->success();
@@ -70,6 +79,15 @@ class PackageController extends Controller
         $package->package_num_days = $request->input('package_num_days');
         $package->package_num_listings = $request->input('package_num_listings');
         $package->package_for = $request->input('package_for');
+        if ($package->package_for === 'employer') {
+            $package->type = $request->input('package_type', Package::TYPE_ONE_TIME_CREDITS);
+            $package->duration_days = $request->filled('duration_days') ? (int) $request->input('duration_days') : null;
+            $package->subscription_unlimited_jobs = $request->boolean('subscription_unlimited_jobs');
+            $package->stripe_price_id = $request->filled('stripe_price_id') ? $request->input('stripe_price_id') : null;
+            $package->country_code = $request->filled('country_code') ? strtoupper(substr($request->input('country_code'), 0, 2)) : null;
+            $package->rebate_percent = $request->filled('rebate_percent') ? (int) $request->input('rebate_percent') : null;
+            $package->is_active = $request->boolean('is_active');
+        }
 
         $package->update();
         flash('Package has been updated!')->success();

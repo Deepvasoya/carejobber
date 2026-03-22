@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Package;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RecruiterPostingController extends Controller
 {
@@ -65,6 +66,7 @@ class RecruiterPostingController extends Controller
             'packages' => $packages,
             'country_code' => $countryCode,
             'countries' => $countries,
+            'company' => Auth::guard('company')->user(),
         ]);
     }
 }

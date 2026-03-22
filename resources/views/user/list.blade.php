@@ -78,8 +78,8 @@
                                                 <div class="ribbon ribbon-top-left" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);"><span><i class="fas fa-rocket"></i>
                                                         Promoted</span></div>
                                             @elseif ($jobSeeker->is_featured)
-                                                <div class="ribbon ribbon-top-left"><span><i class="fas fa-star"></i>
-                                                        Featured</span></div>
+                                                {{-- <div class="ribbon ribbon-top-left"><span><i class="fas fa-star"></i>
+                                                        Featured</span></div> --}}
                                             @endif
 
                                             @php
@@ -206,7 +206,7 @@
                                                             class="btn btn-outline-primary">{{ __('View Profile') }}</a>
                                                     @else
                                                         @if (!$isUnlocked)
-                                                            <a href="{{ route('company.packages') }}"
+                                                            <a href="{{ route('resume.unlock.page', $jobSeeker->id) }}"
                                                                 class="btn btn-primary"
                                                                 style="background: #2557a7; border: none; padding: 10px 20px; border-radius: 6px; white-space: nowrap; font-size: 14px;">
                                                                 <i class="fas fa-lock me-1"></i>

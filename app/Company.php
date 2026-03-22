@@ -139,6 +139,21 @@ class Company extends Authenticatable
     }
 
     /**
+     * Whether the company's CV search package is still within its end date (end of that calendar day).
+     */
+    public function hasActiveCvSearchPackage(): bool
+    {
+        if (empty($this->cvs_package_id)) {
+            return false;
+        }
+        if (empty($this->cvs_package_end_date)) {
+            return false;
+        }
+
+        return ! Carbon::parse($this->cvs_package_end_date)->endOfDay()->isPast();
+    }
+
+    /**
      * Start of the most recent free CV search package activation (payment history), if any.
      */
     public function getLastFreeCvSearchPackageStartDate(): ?Carbon
@@ -236,11 +251,18 @@ class Company extends Authenticatable
             && Carbon::parse($this->cvs_package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
+    /**
+     * Start of the most recent free (or $0) employer job package activation from payment history, or current row fallback.
+     */
     public function getLastFreeEmployerJobPackageStartDate(): ?Carbon
     {
         $last = PaymentHistory::where('company_id', $this->id)
             ->where('package_type', 'job')
-            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
+            ->where('payment_status', 'completed')
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
+                    ->orWhere('package_price', '<=', 0);
+            })
             ->orderByDesc('id')
             ->first();
 
@@ -261,47 +283,46 @@ class Company extends Authenticatable
     }
 
     /**
-     * Free employer job package: only one activation per calendar month (payment history).
+     * Free employer job package: at most one activation every :periodDays (30-day package; includes Stripe $0 checkouts).
      */
-    public function hasActivatedFreeEmployerJobPackageThisMonth(?Carbon $reference = null): bool
+    public function canActivateFreeEmployerJobPackage(int $periodDays = 30): bool
     {
-        $reference = $reference ?? Carbon::now();
-
-        if (PaymentHistory::where('company_id', $this->id)
-            ->where('package_type', 'job')
-            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
-            ->whereYear('package_start_date', $reference->year)
-            ->whereMonth('package_start_date', $reference->month)
-            ->exists()) {
+        $start = $this->getLastFreeEmployerJobPackageStartDate();
+        if ($start === null) {
             return true;
         }
 
-        if (empty($this->package_start_date) || ! $this->package_id) {
-            return false;
-        }
-
-        $pkg = Package::find($this->package_id);
-        if (! $pkg || $pkg->package_for !== 'employer' || (float) $pkg->package_price > 0) {
-            return false;
-        }
-
-        $start = Carbon::parse($this->package_start_date);
-
-        return (int) $start->year === (int) $reference->year && (int) $start->month === (int) $reference->month;
+        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
     }
 
-    public function canActivateFreeEmployerJobPackage(): bool
+    public function getFreeEmployerJobPackageNextAvailableAt(int $periodDays = 30): ?Carbon
     {
-        return ! $this->hasActivatedFreeEmployerJobPackageThisMonth();
-    }
-
-    public function getFreeEmployerJobPackageNextAvailableAt(): ?Carbon
-    {
-        if ($this->canActivateFreeEmployerJobPackage()) {
+        if ($this->canActivateFreeEmployerJobPackage($periodDays)) {
             return null;
         }
 
-        return Carbon::now()->copy()->startOfMonth()->addMonth()->startOfDay();
+        $start = $this->getLastFreeEmployerJobPackageStartDate();
+
+        return $start ? $start->copy()->addDays($periodDays) : null;
+    }
+
+    /**
+     * Job posting quota is used up but the 30-day window from the last free/$0 activation is still open — must buy paid or wait.
+     */
+    public function isOnExhaustedFreeJobPostingPeriod(int $periodDays = 30): bool
+    {
+        if ($this->getRemainingJobsQuota() > 0) {
+            return false;
+        }
+
+        $start = $this->getLastFreeEmployerJobPackageStartDate();
+        if ($start === null || Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays))) {
+            return false;
+        }
+
+        return ! empty($this->package_id)
+            && $this->package_end_date
+            && Carbon::parse($this->package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
     public function jobs()

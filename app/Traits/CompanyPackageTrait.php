@@ -10,6 +10,7 @@ use DB;
 use Auth;
 use Carbon\Carbon;
 use App\Company;
+use App\Package;
 use App\PaymentHistory;
 
 
@@ -27,7 +28,14 @@ trait CompanyPackageTrait
         $now = Carbon::now();
         $isFreeEmployer = strcasecmp((string) $method, 'Free Package') === 0
             && isset($package->package_for) && $package->package_for === 'employer';
-        $numDays = $isFreeEmployer ? 30 : (int) $package->package_num_days;
+        $isEmployerSubscription = isset($package->package_for) && $package->package_for === 'employer'
+            && isset($package->type) && $package->type === Package::TYPE_MONTHLY_RECURRING;
+
+        if ($isEmployerSubscription) {
+            $numDays = (int) ($package->duration_days ?: $package->package_num_days ?: 30);
+        } else {
+            $numDays = $isFreeEmployer ? 30 : (int) $package->package_num_days;
+        }
         $startDate = $now->toDateTimeString();
         $endDate = $now->copy()->addDays($numDays)->toDateTimeString();
 
@@ -37,7 +45,13 @@ trait CompanyPackageTrait
 
         $company->package_end_date = $now->copy()->addDays($numDays);
 
-        $jobsListings = $isFreeEmployer ? 3 : (int) $package->package_num_listings;
+        if ($isFreeEmployer) {
+            $jobsListings = 3;
+        } elseif ($isEmployerSubscription && $package->subscription_unlimited_jobs) {
+            $jobsListings = 99999;
+        } else {
+            $jobsListings = (int) $package->package_num_listings;
+        }
 
         $company->jobs_quota = $jobsListings;
 

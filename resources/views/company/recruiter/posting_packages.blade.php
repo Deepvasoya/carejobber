@@ -24,8 +24,13 @@
     </ul>
 
     <ul class="list-unstyled mb-4">
-        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Easy and instant posting process – your jobs available online in no time') }}</li>
-        <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Job posting credits that you purchase will never expire. Buy now and post whenever you need.') }}</li>
+        @if($tab === 'subscriptions')
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Easy and instant posting — your jobs go live as soon as your subscription is active.') }}</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Recurring subscription: unlimited job postings for each billing period. Renews automatically until you cancel.') }}</li>
+        @else
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Easy and instant posting process – your jobs available online in no time') }}</li>
+            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> {{ __('Job posting credits that you purchase will never expire. Buy now and post whenever you need.') }}</li>
+        @endif
     </ul>
 
     <section class="package-list">
@@ -78,7 +83,15 @@
                     <div class="col-12 col-md-5 mb-2 mb-md-0">
                         <input type="radio" name="package" value="{{ $pkg->id }}" id="package-{{ $index }}" class="form-check-input me-2" {{ $index === 0 ? 'checked' : '' }}>
                         <label for="package-{{ $index }}" class="form-check-label d-inline">
-                            <strong>{{ $pkg->package_num_listings }}</strong> {{ $tab === 'subscriptions' ? __('months unlimited job postings') : __('job postings') }}
+                            @if($tab === 'subscriptions')
+                                @if($pkg->subscription_unlimited_jobs)
+                                    <strong>{{ $pkg->subscriptionBillingMonths() }}</strong> {{ __('months unlimited job postings') }}
+                                @else
+                                    <strong>{{ $pkg->package_num_listings }}</strong> {{ __('job postings') }} · {{ $pkg->subscriptionBillingMonths() }} {{ __('months') }}
+                                @endif
+                            @else
+                                <strong>{{ $pkg->package_num_listings }}</strong> {{ __('job postings') }}
+                            @endif
                         </label>
                     </div>
                     <div class="col-12 col-md-4 mb-2 mb-md-0">
@@ -91,17 +104,42 @@
                     <div class="col-12 col-md-3 mb-2 mb-md-0">
                         <div class="fw-bold">{{ $siteSetting->default_currency_code ?? 'CAD' }} {{ number_format($pkg->package_price, 2) }}</div>
                     </div>
+                    @php
+                        $isFreeEmployerCredits = $tab === 'packages' && (float) $pkg->package_price <= 0;
+                        $companyUser = $company ?? null;
+                        $freeBlocked = $isFreeEmployerCredits && $companyUser && ! $companyUser->canActivateFreeEmployerJobPackage();
+                        $freeNext = $freeBlocked && $companyUser ? $companyUser->getFreeEmployerJobPackageNextAvailableAt() : null;
+                        $freeExhausted = $isFreeEmployerCredits && $companyUser && $companyUser->isOnExhaustedFreeJobPostingPeriod();
+                    @endphp
                     <div class="col-12 mt-2">
-                        <a href="{{ route('recruiter.checkout.package', ['packageId' => $pkg->id, 'cc' => $country_code, 'tab' => $tab]) }}" class="btn btn-primary">
-                            {{ __('Buy now') }}
-                            <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                        <ul class="list-inline d-inline ms-3 mt-2 mb-0">
-                            <li class="list-inline-item"><i class="fab fa-cc-visa text-muted" title="Visa"></i></li>
-                            <li class="list-inline-item"><i class="fab fa-cc-mastercard text-muted" title="Mastercard"></i></li>
-                            <li class="list-inline-item"><i class="fab fa-cc-amex text-muted" title="Amex"></i></li>
-                            <li class="list-inline-item"><i class="fab fa-cc-stripe text-muted" title="Stripe"></i></li>
-                        </ul>
+                        @if($isFreeEmployerCredits)
+                            @if($freeBlocked)
+                                <button type="button" class="btn btn-secondary" disabled>{{ __('Free — unavailable now') }}</button>
+                                @if($freeExhausted)
+                                    <p class="small text-muted mt-2 mb-0">{{ __('You have used all posts from your current free period. To post more jobs before your next free activation, choose a paid package below.') }}</p>
+                                @endif
+                                @if($freeNext)
+                                    <p class="small text-muted mt-2 mb-0">{{ __('Next free activation: :date.', ['date' => $freeNext->format('d M Y')]) }}</p>
+                                @endif
+                            @else
+                                <a href="{{ route('order.free.package', $pkg->id) }}" class="btn btn-primary">
+                                    {{ __('Activate free') }}
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                                <p class="small text-muted mt-2 mb-0">{{ __('30 days, 3 job posts — one free activation every 30 days.') }}</p>
+                            @endif
+                        @else
+                            <a href="{{ route('recruiter.checkout.package', ['packageId' => $pkg->id, 'cc' => $country_code, 'tab' => $tab]) }}" class="btn btn-primary">
+                                {{ __('Buy now') }}
+                                <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                            <ul class="list-inline d-inline ms-3 mt-2 mb-0">
+                                <li class="list-inline-item"><i class="fab fa-cc-visa text-muted" title="Visa"></i></li>
+                                <li class="list-inline-item"><i class="fab fa-cc-mastercard text-muted" title="Mastercard"></i></li>
+                                <li class="list-inline-item"><i class="fab fa-cc-amex text-muted" title="Amex"></i></li>
+                                <li class="list-inline-item"><i class="fab fa-cc-stripe text-muted" title="Stripe"></i></li>
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </li>

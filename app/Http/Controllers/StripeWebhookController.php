@@ -135,7 +135,7 @@ class StripeWebhookController extends Controller
             'metadata' => $metadata,
         ]);
 
-        if ($paymentStatus !== 'paid') {
+        if (!in_array($paymentStatus, ['paid', 'no_payment_required'], true) && empty($session['subscription'] ?? null)) {
             \Log::warning('[StripeWebhook] Session not paid yet', [
                 'session_id' => $sessionId,
                 'payment_status' => $paymentStatus,
@@ -256,11 +256,6 @@ class StripeWebhookController extends Controller
                 'package_id' => $packageId,
             ]);
             return;
-        }
-
-        if ($package->type === 'monthly_recurring') {
-            $package->package_num_days = $package->duration_days ?: 30;
-            $package->package_num_listings = 99999;
         }
 
         try {

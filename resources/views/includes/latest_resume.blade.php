@@ -13,7 +13,7 @@
 
             <li class="item">
             <div class="seekerbox">  
-              <div class="ribbon ribbon-top-left"><span><i class="fas fa-star"></i> Featured</span></div> 
+              {{-- <div class="ribbon ribbon-top-left"><span><i class="fas fa-star"></i> Featured</span></div>  --}}
 
                 <div class="ltisusrinf">
                     <div class="userltimg">{{$jobSeeker->printUserImage(100, 100)}}</div>

@@ -59,9 +59,9 @@
                     @foreach($suggestedCandidates as $jobSeeker)
                         <li class="col-lg-4 col-md-6">
                             <div class="seekerbox" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 20px; transition: all 0.3s ease; position: relative; height: 100%;">  
-                                @if($jobSeeker->is_featured)
+                                {{-- @if($jobSeeker->is_featured)
                                     <div class="ribbon ribbon-top-left"><span><i class="fas fa-star"></i> Featured</span></div>  
-                                @endif
+                                @endif --}}
 
                                 <div class="ltisusrinf">
                                     <div class="userltimg">{{$jobSeeker->printUserImage(100, 100)}}</div>
