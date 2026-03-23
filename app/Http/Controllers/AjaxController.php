@@ -77,11 +77,16 @@ class AjaxController extends Controller
 
     public function filterLangCities(Request $request)
     {
-        $state_id = $request->input('state_id');
-        $city_id = $request->input('city_id');
-        $cities = DataArrayHelper::langCitiesArray($state_id);
+        $city_id = $request->input('city_id', 0);
+        if ($request->filled('state_id')) {
+            $cities = DataArrayHelper::langCitiesArray($request->input('state_id'));
+        } elseif ($request->filled('country_id')) {
+            $cities = DataArrayHelper::langCitiesArrayForCountry((int) $request->input('country_id'));
+        } else {
+            $cities = [];
+        }
 
-        $dd = Form::select('city_id', ['' => 'Select City'] + $cities, $city_id, array('id' => 'city_id', 'class' => 'form-control'));
+        $dd = Form::select('city_id', ['' => __('Select City')] + $cities, $city_id, array('id' => 'city_id', 'class' => 'form-control'));
         echo $dd;
     }
 

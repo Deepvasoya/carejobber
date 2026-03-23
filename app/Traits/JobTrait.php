@@ -73,9 +73,12 @@ use Illuminate\Support\Str;
 
 use App\SiteSetting;
 
+use App\Helpers\LocationHelper;
+
 use App\Services\JobPromotionPricing;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Gate;
 
 use Mail;
 use App\Mail\JobApprovalMailable;
@@ -176,9 +179,22 @@ trait JobTrait
 
         $job->benefits = $request->input('benefits');
 
-        $job->country_id = $request->input('country_id');
+        $settings = SiteSetting::first();
+        $defaultCountryId = $settings->default_country_id ?? null;
 
-        $job->state_id = $request->input('state_id');
+        if (LocationHelper::showCountry()) {
+            $job->country_id = $request->input('country_id');
+        } else {
+            $job->country_id = $request->input('country_id') ?: $defaultCountryId;
+        }
+
+        $level = LocationHelper::getLocationLevels();
+        if ((int) $level === 1 && $request->filled('city_id')) {
+            $cityRow = City::where('city_id', (int) $request->input('city_id'))->first();
+            $job->state_id = $cityRow ? $cityRow->state_id : $request->input('state_id');
+        } else {
+            $job->state_id = $request->input('state_id');
+        }
 
         $job->city_id = $request->input('city_id');
 
@@ -523,6 +539,11 @@ trait JobTrait
 {
     $settings = SiteSetting::findOrFail(1272);
     $company = Auth::guard('company')->user();
+
+    if (Gate::forUser($company)->denies('canPostJob')) {
+        Session::flash('error', __('Please purchase a package to post jobs.'));
+        return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
+    }
 
     $pending = JobPromotionPricing::pendingForNewJob($request);
 

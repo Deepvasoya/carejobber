@@ -4,8 +4,26 @@
     $remainingCredits = $hasActivePackage ? ($company->jobs_quota - $company->availed_jobs_quota) : 0;
     $packageName = $hasActivePackage ? ($company->getPackage('package_title') ?? __('Active Package')) : __('No Package');
     $packageExpiry = $hasActivePackage ? \Carbon\Carbon::parse($company->package_end_date)->format('M d, Y') : null;
+    $isEditingJob = isset($job);
+    $canPostNewJob = \Illuminate\Support\Facades\Gate::forUser($company)->allows('canPostJob');
+    $showJobForm = $isEditingJob || $canPostNewJob;
 @endphp
 
+@if (! $showJobForm)
+<div class="job-post-paywall card border-0 shadow-sm mb-4" style="border-radius: 16px; overflow: hidden;">
+    <div class="card-body text-center py-5 px-4" style="background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);">
+        <div class="mb-3" style="font-size: 3rem; color: #2557a7;"><i class="fas fa-lock"></i></div>
+        <h2 class="h4 mb-2" style="color: #0f172a; font-weight: 700;">{{ __('Job posting requires an active package') }}</h2>
+        <p class="text-muted mb-4 mx-auto" style="max-width: 520px; line-height: 1.6;">
+            {{ __('Purchase credits or a subscription to post jobs. After payment, you can return here and complete your listing.') }}
+        </p>
+        <a href="{{ route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']) }}" class="btn btn-lg btn-primary px-5" style="border-radius: 10px; font-weight: 600;">
+            <i class="fas fa-shopping-cart me-2"></i>{{ __('View packages & pricing') }}
+        </a>
+        <p class="small text-muted mt-4 mb-0">{{ __('Subscriptions tab offers unlimited postings for each billing period.') }}</p>
+    </div>
+</div>
+@else
 @if($hasActivePackage)
 <div class="alert alert-success mb-4" style="border-radius: 12px; border-left: 4px solid #28a745; background: #d4edda;">
     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -82,6 +100,9 @@
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}" id="country_id_div"> {!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($job))? $job->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'country_id') !!} </div>
     </div>
+    @elseif(\App\Helpers\LocationHelper::showState() || \App\Helpers\LocationHelper::showCity())
+    {{-- Country hidden: use default country from site settings (Canada, India, etc.) for state/city lists --}}
+    {!! Form::hidden('country_id', old('country_id', (isset($job) ? $job->country_id : null) ?? $siteSetting->default_country_id), ['id' => 'country_id']) !!}
     @endif
     
     @if(\App\Helpers\LocationHelper::showState())
@@ -367,7 +388,6 @@
 <input type="file" name="image" id="image" style="display:none;" accept="image/*"/>
 {!! Form::close() !!}
 
-
 @push('styles')
 <style type="text/css">
     .datepicker>div {
@@ -394,6 +414,52 @@
     });
 </script>
 <script type="text/javascript">
+(function () {
+    window.__jobPostingDefaultCountryId = {{ (int) ($siteSetting->default_country_id ?? 0) }};
+    window.__jobPostingLocationLevel = {{ (int) \App\Helpers\LocationHelper::getLocationLevels() }};
+    window.__jobPostingInitialCityId = {{ (int) old('city_id', (isset($job)) ? $job->city_id : 0) }};
+
+    window.jobFormCountryId = function () {
+        var $c = $('#country_id');
+        if ($c.length && $c.val()) {
+            return $c.val();
+        }
+        return window.__jobPostingDefaultCountryId ? String(window.__jobPostingDefaultCountryId) : '';
+    };
+
+    window.filterJobLangStates = function (state_id) {
+        var country_id = window.jobFormCountryId();
+        if (country_id !== '') {
+            $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, _method: 'POST', _token: '{{ csrf_token() }}'})
+                    .done(function (response) {
+                        $('#default_state_dd').html(response);
+                        window.filterJobCitiesByState(window.__jobPostingInitialCityId);
+                    });
+        }
+    };
+
+    window.filterJobCitiesByState = function (city_id) {
+        var state_id = $('#state_id').val();
+        if (state_id && state_id !== '') {
+            $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
+                    .done(function (response) {
+                        $('#default_city_dd').html(response);
+                    });
+        }
+    };
+
+    window.filterJobCitiesByCountry = function (city_id) {
+        var country_id = window.jobFormCountryId();
+        if (country_id === '') {
+            return;
+        }
+        $.post("{{ route('filter.lang.cities.dropdown') }}", {country_id: country_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
+                .done(function (response) {
+                    $('#default_city_dd').html(response);
+                });
+    };
+})();
+
     $(document).ready(function () {
         $('.select2-multiple').select2({
             placeholder: "{{__('Select Required Skills')}}",
@@ -440,43 +506,26 @@
             refreshJobPromoTotal();
         })();
 
-        $('#country_id').on('change', function (e) {
-            e.preventDefault();
-            filterLangStates(0);
-        });
-        $(document).on('change', '#state_id', function (e) {
-            e.preventDefault();
-            filterLangCities(0);
-        });
-        filterLangStates(<?php echo old('state_id', (isset($job)) ? $job->state_id : 0); ?>);
-    });
-    function filterLangStates(state_id)
-    {
-        var country_id = $('#country_id').val();
-        if (country_id != '') {
-            $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-                    .done(function (response) {
-                        $('#default_state_dd').html(response);
-                        filterLangCities(<?php echo old('city_id', (isset($job)) ? $job->city_id : 0); ?>);
-                    });
+        var initialStateId = {{ (int) old('state_id', (isset($job)) ? $job->state_id : 0) }};
+
+        if (window.__jobPostingLocationLevel === 1) {
+            window.filterJobCitiesByCountry(window.__jobPostingInitialCityId);
+        } else {
+            $('#country_id').on('change', function (e) {
+                e.preventDefault();
+                window.filterJobLangStates(0);
+            });
+            $(document).on('change', '#state_id', function (e) {
+                e.preventDefault();
+                window.filterJobCitiesByState(0);
+            });
+            window.filterJobLangStates(initialStateId);
         }
-    }
-    function filterLangCities(city_id)
-    {
-        var state_id = $('#state_id').val();
-        if (state_id != '') {
-            $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-                    .done(function (response) {
-                        $('#default_city_dd').html(response);
-                    });
-        }
-    }
-    
-    // Questions Management
-    let questionIndex = {{isset($job) && $job->jobQuestions->count() > 0 ? $job->jobQuestions->count() : 0}};
-    
-    $('#addQuestionBtn').on('click', function() {
-        const questionHtml = `
+
+        let questionIndex = {{ isset($job) && $job->jobQuestions->count() > 0 ? $job->jobQuestions->count() : 0 }};
+
+        $('#addQuestionBtn').on('click', function() {
+            const questionHtml = `
             <div class="question-item mb-3">
                 <div class="input-group">
                     <input type="text" name="questions[${questionIndex}][title]" class="form-control" placeholder="{{__('Enter Question Title')}}" required>
@@ -486,12 +535,14 @@
                 </div>
             </div>
         `;
-        $('#questionsContainer').append(questionHtml);
-        questionIndex++;
+            $('#questionsContainer').append(questionHtml);
+            questionIndex++;
+        });
     });
-    
+
     function removeQuestion(btn) {
         $(btn).closest('.question-item').remove();
     }
 </script> 
 @endpush
+@endif

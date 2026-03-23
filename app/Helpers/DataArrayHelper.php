@@ -165,6 +165,30 @@ class DataArrayHelper
 
     }
 
+    /**
+     * All cities in a country (join via states). Used when location level = city-only (no state dropdown).
+     */
+    public static function langCitiesArrayForCountry($country_id)
+    {
+        if ((int) $country_id <= 0) {
+            return [];
+        }
+
+        $base = City::query()
+            ->select('cities.city', 'cities.city_id')
+            ->join('states', 'states.state_id', '=', 'cities.state_id')
+            ->where('states.country_id', '=', (int) $country_id)
+            ->where('states.is_active', '=', 1);
+
+        $array = (clone $base)->lang()->active()->orderBy('cities.city')->pluck('cities.city', 'cities.city_id')->toArray();
+
+        if ((int) count($array) === 0) {
+            $array = (clone $base)->active()->orderBy('cities.city')->pluck('cities.city', 'cities.city_id')->toArray();
+        }
+
+        return $array;
+    }
+
 
 
     /*     * **************************** */

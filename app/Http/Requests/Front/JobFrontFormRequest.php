@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Front;
 
+use App\Helpers\LocationHelper;
 use App\Http\Requests\Request;
 
 class JobFrontFormRequest extends Request
@@ -28,13 +29,14 @@ class JobFrontFormRequest extends Request
             case 'PUT':
             case 'POST': {
                     $id = (int) $this->input('id', 0);
+                    $locationLevel = LocationHelper::getLocationLevels();
 
                     return [
                         "title" => "required|max:180",
                         "description" => "required",
                         "skills" => "required",
                         "country_id" => "required",
-                        "state_id" => "required",
+                        "state_id" => in_array((int) $locationLevel, [2, 3, 4], true) ? "required" : "nullable",
                         "city_id" => "required",
                         //"is_freelance" => "required",
                         //"career_level_id" => "required",

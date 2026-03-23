@@ -70,6 +70,7 @@ use App\Events\JobPosted;
 
 use Illuminate\Support\Str;
 use Validator;
+use Illuminate\Support\Facades\Gate;
 
 
 
@@ -346,6 +347,14 @@ trait JobApiTrait
 
         if (Auth::guard('company-api')->check()) {
             $company = Auth::guard('company-api')->user();
+        }
+
+        if (! isset($company)) {
+            return $this->sendError('Unauthorized.', [], 401);
+        }
+
+        if (Gate::forUser($company)->denies('canPostJob')) {
+            return $this->sendError('Please purchase a package to post jobs.', [], 403);
         }
 
         $pendingPromo = \App\Services\JobPromotionPricing::pendingForNewJob($request);

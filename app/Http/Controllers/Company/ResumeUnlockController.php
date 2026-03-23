@@ -114,7 +114,7 @@ class ResumeUnlockController extends Controller
             'session_id' => $session->id,
             'company_id' => $company->id,
             'package_id' => null,
-            'country_code' => null,
+            'country_code' => $company->country_code ? strtoupper(substr((string) $company->country_code, 0, 2)) : null,
             'status' => 'pending',
         ]);
 
