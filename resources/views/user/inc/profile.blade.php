@@ -117,6 +117,14 @@
 			<span id="city_dd"> {!! Form::select('city_id', [''=>__('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
     </div>
     @endif
+    @if(!\App\Helpers\LocationHelper::showCountry())
+        @php
+            $userProfileCountryId = (int) old('country_id', (isset($user) && (int) $user->country_id > 0) ? $user->country_id : ($siteSetting->default_country_id ?? 0));
+        @endphp
+        @if($userProfileCountryId > 0)
+            {!! Form::hidden('country_id', $userProfileCountryId, ['id' => 'country_id']) !!}
+        @endif
+    @endif
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'nationality_id') !!}">
 			<label for="">{{__('Nationality')}} <span>*</span></label>
@@ -213,6 +221,24 @@
 @endpush
 @push('scripts') 
 <script type="text/javascript">
+(function () {
+    window.__userProfileLocationLevel = {{ (int) \App\Helpers\LocationHelper::getLocationLevels() }};
+    window.__userProfileDefaultCountryId = {{ (int) ($siteSetting->default_country_id ?? 0) }};
+    window.__userProfileInitialCityId = {{ (int) old('city_id', isset($user) ? $user->city_id : 0) }};
+    window.__userProfileInitialStateId = {{ (int) old('state_id', isset($user) ? $user->state_id : 0) }};
+    window.userProfileFormCountryId = function () {
+        var $c = $('#country_id');
+        if (!$c.length) {
+            return window.__userProfileDefaultCountryId ? String(window.__userProfileDefaultCountryId) : '';
+        }
+        if ($c.is('input[type="hidden"]')) {
+            var hv = $c.val();
+            return hv ? String(hv) : (window.__userProfileDefaultCountryId ? String(window.__userProfileDefaultCountryId) : '');
+        }
+        return $c.val() ? String($c.val()) : '';
+    };
+})();
+
     $(document).ready(function () {
         initdatepicker();
         $('#salary_currency').typeahead({
@@ -225,15 +251,31 @@
             }
         });
 
-        $('#country_id').on('change', function (e) {
-            e.preventDefault();
-            filterStates(0);
-        });
-        $(document).on('change', '#state_id', function (e) {
-            e.preventDefault();
-            filterCities(0);
-        });
-        filterStates(<?php echo old('state_id', $user->state_id); ?>);
+        var level = window.__userProfileLocationLevel;
+
+        if (level === 1) {
+            var cid = window.userProfileFormCountryId();
+            if (cid !== '') {
+                $.post("{{ route('filter.lang.cities.dropdown') }}", {
+                    country_id: cid,
+                    city_id: window.__userProfileInitialCityId,
+                    _method: 'POST',
+                    _token: '{{ csrf_token() }}'
+                }).done(function (response) {
+                    $('#city_dd').html(response);
+                });
+            }
+        } else {
+            $('#country_id').on('change', function (e) {
+                e.preventDefault();
+                filterStates(0);
+            });
+            $(document).on('change', '#state_id', function (e) {
+                e.preventDefault();
+                filterCities(0);
+            });
+            filterStates(window.__userProfileInitialStateId);
+        }
 
         /*******************************/
         var fileInput = document.getElementById("image");
@@ -314,12 +356,12 @@
 
     function filterStates(state_id)
     {
-        var country_id = $('#country_id').val();
+        var country_id = window.userProfileFormCountryId();
         if (country_id != '') {
             $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, _method: 'POST', _token: '{{ csrf_token() }}'})
                     .done(function (response) {
                         $('#state_dd').html(response);
-                        filterCities(<?php echo old('city_id', $user->city_id); ?>);
+                        filterCities(window.__userProfileInitialCityId);
                     });
         }
     }

@@ -162,6 +162,14 @@
 			<span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
     </div>
     @endif
+    @if(!\App\Helpers\LocationHelper::showCountry())
+        @php
+            $companyProfileCountryId = (int) old('country_id', (isset($company) && (int) $company->country_id > 0) ? $company->country_id : ($siteSetting->default_country_id ?? 0));
+        @endphp
+        @if($companyProfileCountryId > 0)
+            {!! Form::hidden('country_id', $companyProfileCountryId, ['id' => 'country_id']) !!}
+        @endif
+    @endif
     <div class="col-md-12">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'map') !!}">
 			<label>{{__('Company Address')}} <span>*</span></label>
@@ -290,16 +298,50 @@
 @push('scripts')
 @include('includes.tinyMCEFront') 
 <script type="text/javascript">
+(function () {
+    window.__companyProfileLocationLevel = {{ (int) \App\Helpers\LocationHelper::getLocationLevels() }};
+    window.__companyProfileDefaultCountryId = {{ (int) ($siteSetting->default_country_id ?? 0) }};
+    window.__companyProfileInitialCityId = {{ (int) old('city_id', isset($company) ? $company->city_id : 0) }};
+    window.__companyProfileInitialStateId = {{ (int) old('state_id', isset($company) ? $company->state_id : 0) }};
+    window.companyProfileFormCountryId = function () {
+        var $c = $('#country_id');
+        if (!$c.length) {
+            return window.__companyProfileDefaultCountryId ? String(window.__companyProfileDefaultCountryId) : '';
+        }
+        if ($c.is('input[type="hidden"]')) {
+            var hv = $c.val();
+            return hv ? String(hv) : (window.__companyProfileDefaultCountryId ? String(window.__companyProfileDefaultCountryId) : '');
+        }
+        return $c.val() ? String($c.val()) : '';
+    };
+})();
+
     $(document).ready(function () {
-        $('#country_id').on('change', function (e) {
-            e.preventDefault();
-            filterLangStates(0);
-        });
-        $(document).on('change', '#state_id', function (e) {
-            e.preventDefault();
-            filterLangCities(0);
-        });
-        filterLangStates(<?php echo old('state_id', (isset($company)) ? $company->state_id : 0); ?>);
+        var level = window.__companyProfileLocationLevel;
+
+        if (level === 1) {
+            var cid = window.companyProfileFormCountryId();
+            if (cid !== '') {
+                $.post("{{ route('filter.lang.cities.dropdown') }}", {
+                    country_id: cid,
+                    city_id: window.__companyProfileInitialCityId,
+                    _method: 'POST',
+                    _token: '{{ csrf_token() }}'
+                }).done(function (response) {
+                    $('#default_city_dd').html(response);
+                });
+            }
+        } else {
+            $('#country_id').on('change', function (e) {
+                e.preventDefault();
+                filterLangStates(0);
+            });
+            $(document).on('change', '#state_id', function (e) {
+                e.preventDefault();
+                filterLangCities(0);
+            });
+            filterLangStates(window.__companyProfileInitialStateId);
+        }
 
         /*******************************/
         var fileInput = document.getElementById("logo");
@@ -331,12 +373,12 @@
 
     function filterLangStates(state_id)
     {
-        var country_id = $('#country_id').val();
+        var country_id = window.companyProfileFormCountryId();
         if (country_id != '') {
             $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, _method: 'POST', _token: '{{ csrf_token() }}'})
                     .done(function (response) {
                         $('#default_state_dd').html(response);
-                        filterLangCities(<?php echo old('city_id', (isset($company)) ? $company->city_id : 0); ?>);
+                        filterLangCities(window.__companyProfileInitialCityId);
                     });
         }
     }
