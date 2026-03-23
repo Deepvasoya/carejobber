@@ -35,9 +35,9 @@
             <div class="form-group">
                 <input type="text" name="location_search" id="location_search_sidebar" value="{{Request::get('location_search', '')}}" 
                        class="form-control" 
-                       placeholder="{{__('City or State name')}}" 
+                       placeholder="{{__('City or Province/State name')}}" 
                        style="padding: 10px; border-radius: 6px; border: 1px solid #ddd;" />
-                <small class="text-muted">{{__('e.g., Mumbai, Maharashtra')}}</small>
+                <small class="text-muted">{{__('e.g., Calgary, or Alberta')}}</small>
             </div>
         </div>
 
@@ -302,7 +302,7 @@
 
 
         <div class="widget">
-            <h4 class="widget-title">{{__('Jobs By Functional Areas')}}</h4>
+            <h4 class="widget-title">{{__('Jobs By Category')}}</h4>
             <ul class="optionlist view_more_ul">
                 @if(isset($functionalAreaIdsArray) && count($functionalAreaIdsArray))
                 @foreach($functionalAreaIdsArray as $key=>$functional_area_id)
