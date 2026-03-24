@@ -120,7 +120,9 @@ public function fetchIdsArray($search = '', $industry_ids = array(), $functional
                   // OR search in education data (degree_title, institution)
                   ->orWhereHas('profileEducation', function($eduQuery) use ($searchLike) {
                       $eduQuery->where('degree_title', 'like', $searchLike)
-                               ->orWhere('institution', 'like', $searchLike);
+                               ->orWhere('institution', 'like', $searchLike)
+                               ->orWhere('school_location', 'like', $searchLike)
+                               ->orWhere('description', 'like', $searchLike);
                   })
                   // OR search in degree levels
                   ->orWhereHas('profileEducation.degreeLevel', function($degreeLevelQuery) use ($searchLike) {
@@ -134,6 +136,7 @@ public function fetchIdsArray($search = '', $industry_ids = array(), $functional
                   ->orWhereHas('profileExperience', function($expQuery) use ($searchLike) {
                       $expQuery->where('title', 'like', $searchLike)
                                ->orWhere('company', 'like', $searchLike)
+                               ->orWhere('employer_address', 'like', $searchLike)
                                ->orWhere('description', 'like', $searchLike);
                   })
                   // OR search in skills

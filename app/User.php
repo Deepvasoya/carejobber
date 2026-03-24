@@ -155,8 +155,9 @@ class User extends Authenticatable implements MustVerifyEmail
                 }
                 // Add major subjects
                 $str .= ' ' . $education->getProfileEducationMajorSubjectsStr();
-                // Add institution
-                $str .= ' ' . $education->institute;
+                $str .= ' ' . $education->institution;
+                $str .= ' ' . $education->school_location;
+                $str .= ' ' . strip_tags((string) $education->description);
             }
         }
         return $str;
@@ -177,6 +178,7 @@ class User extends Authenticatable implements MustVerifyEmail
             foreach ($profileExperience as $experience) {
                 $str .= ' ' . $experience->title;
                 $str .= ' ' . $experience->company;
+                $str .= ' ' . $experience->employer_address;
                 $str .= ' ' . $experience->description;
             }
         }

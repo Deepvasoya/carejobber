@@ -19,6 +19,43 @@ use Illuminate\Support\Facades\Gate;
 
 trait ProfileExperienceTrait
 {
+    /**
+     * Resume line: prefer free-text employer address; fall back to legacy city/country.
+     */
+    private function formatExperienceLocationLine(ProfileExperience $experience): string
+    {
+        $addr = trim((string) $experience->employer_address);
+        if ($addr !== '') {
+            return '<div class="excity"><i class="fas fa-map-marker-alt"></i> ' . e($addr) . '</div>';
+        }
+
+        $city = $experience->getCity('city');
+        $country = $experience->getCountry('country');
+        if ($city || $country) {
+            return '<div class="excity"><i class="fas fa-map-marker-alt"></i> ' . e(trim($city . ' - ' . $country, ' -')) . '</div>';
+        }
+
+        return '';
+    }
+
+    /**
+     * Accept datepicker / locale output (e.g. "01-Oct-1987") and store MySQL-friendly Y-m-d.
+     */
+    private function normalizeProfileExperienceDate(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
 
     public function showProfileExperience(Request $request, $user_id)
     {
@@ -69,10 +106,10 @@ trait ProfileExperienceTrait
                         <div class="expbox" id="experience_' . $experience->id . '">
                         <div class="d-flex">
 						<h4>' . e($experience->title) . '</h4>                    
-<div class="cvnewbxedit ms-auto"><a href="javascript:void(0);" onclick="showProfileExperienceEditModal(' . $experience->id . ',' . $experience->state_id . ',' . $experience->city_id . ');" class="text text-dark"><i class="fas fa-pencil-alt"></i></a> <a href="javascript:void(0);" onclick="delete_profile_experience(' . $experience->id . ');" class="text text-danger ms-2"><i class="fas fa-times"></i></a></div>
+<div class="cvnewbxedit ms-auto"><a href="javascript:void(0);" onclick="showProfileExperienceEditModal(' . $experience->id . ');" class="text text-dark"><i class="fas fa-pencil-alt"></i></a> <a href="javascript:void(0);" onclick="delete_profile_experience(' . $experience->id . ');" class="text text-danger ms-2"><i class="fas fa-times"></i></a></div>
                         </div>
-                        <div class="excity"><i class="fas fa-map-marker-alt"></i>' . e($experience->getCity('city')) . ' - ' . e($experience->getCountry('country')) . '</div>  
-                        <div class="expcomp"><i class="fas fa-building"></i>' . e($experience->company) . '</div>
+                        ' . $this->formatExperienceLocationLine($experience) . '
+                        <div class="expcomp"><i class="fas fa-building"></i> ' . e($experience->company) . '</div>
                         <div class="expcomp"><i class="fas fa-calendar-alt"></i>From ' . \Carbon\Carbon::parse($experience->date_start)->format('d M, Y') . ' - ' . $date_end . '</div>
                         <p>' . e($experience->description) . '</p>   
 						
@@ -108,8 +145,8 @@ trait ProfileExperienceTrait
             $html .= '<li><span class="exdot"></span>
                 <div class="expbox">
                     <h4>' . e($experience->title) . '</h4>                    
-                    <div class="excity"><i class="fas fa-map-marker-alt"></i>' . e($experience->getCity('city')) . ' - ' . e($experience->getCountry('country')) . '</div>  
-                    <div class="expcomp"><i class="fas fa-building"></i>' . e($experience->company) . '</div>
+                    ' . $this->formatExperienceLocationLine($experience) . '
+                    <div class="expcomp"><i class="fas fa-building"></i> ' . e($experience->company) . '</div>
                     <div class="expcomp"><i class="fas fa-calendar-alt"></i>From ' . \Carbon\Carbon::parse($experience->date_start)->format('d M, Y') . ' - ' . $date_end . '</div>
                     <p>' . e($experience->description) . '</p>                  
                 </div>
@@ -185,13 +222,27 @@ trait ProfileExperienceTrait
         $profileExperience->user_id = $user_id;
         $profileExperience->title = $request->input('title');
         $profileExperience->company = $request->input('company');
-        $profileExperience->country_id = $request->input('country_id');
-        $profileExperience->state_id = $request->input('state_id');
-        $profileExperience->city_id = $request->input('city_id');
-        $profileExperience->date_start = $request->input('date_start');
-        $profileExperience->date_end = $request->input('date_end');
+        $profileExperience->employer_address = $request->input('employer_address');
+
+        if ($request->routeIs('store.front.profile.experience') || $request->routeIs('update.front.profile.experience')) {
+            $profileExperience->country_id = null;
+            $profileExperience->state_id = null;
+            $profileExperience->city_id = null;
+        } else {
+            $profileExperience->country_id = $request->input('country_id');
+            $profileExperience->state_id = $request->input('state_id');
+            $profileExperience->city_id = $request->input('city_id');
+        }
+
+        $profileExperience->date_start = $this->normalizeProfileExperienceDate($request->input('date_start'));
+        if ((string) $request->input('is_currently_working') === '1') {
+            $profileExperience->date_end = null;
+        } else {
+            $profileExperience->date_end = $this->normalizeProfileExperienceDate($request->input('date_end'));
+        }
         $profileExperience->is_currently_working = $request->input('is_currently_working');
         $profileExperience->description = $request->input('description');
+
         return $profileExperience;
     }
 

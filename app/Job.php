@@ -22,7 +22,11 @@ class Job extends Model
     public $timestamps = true;
     protected $guarded = ['id'];
     //protected $dateFormat = 'U';
-    protected $dates = ['created_at', 'updated_at', 'expiry_date', 'display_end_date'];
+
+    protected $casts = [
+        'expiry_date' => 'datetime',
+        'display_end_date' => 'datetime',
+    ];
     
     /**
      * Scope to filter jobs that are still within display duration.

@@ -23,19 +23,47 @@
 
 <style type="text/css">
 
-
-
     .datepicker>div {
-
-
-
         display: block;
-
-
-
     }
 
+    /* Candidate resume — education modal (label left, field right) */
+    .resume-education-form .resume-edu-label {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 0.95rem;
+        padding-bottom: 0;
+    }
 
+    .resume-education-form .resume-edu-input,
+    .resume-education-form .resume-edu-input:focus {
+        background: #f4f7f9;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        box-shadow: none;
+    }
+
+    .resume-education-form .resume-edu-input:focus {
+        border-color: #c7d2fe;
+        background: #fff;
+    }
+
+    .resume-education-form .resume-edu-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .resume-education-form .resume-edu-row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    @media (max-width: 575.98px) {
+        .resume-education-form .resume-edu-label {
+            margin-bottom: 0.35rem;
+        }
+    }
 
 </style>
 
@@ -119,7 +147,7 @@
 
 
 
-            filterLangStatesEducation(0, 0);
+            initEducationLocationSelectors(0, 0);
 
 
 
@@ -199,7 +227,7 @@
 
 
 
-            filterLangStatesEducation(state_id, city_id);
+            initEducationLocationSelectors(state_id || 0, city_id || 0);
 
 
 
@@ -568,6 +596,28 @@
 
 
 
+
+    var __educationLocationLevel = {{ (int) \App\Helpers\LocationHelper::getLocationLevels() }};
+
+    function initEducationLocationSelectors(state_id, city_id) {
+        state_id = parseInt(state_id, 10) || 0;
+        city_id = parseInt(city_id, 10) || 0;
+        if (__educationLocationLevel === 1) {
+            var cid = $('#education_country_id').val();
+            if (cid) {
+                $.post("{{ route('filter.lang.cities.dropdown') }}", {
+                    country_id: cid,
+                    city_id: city_id,
+                    _method: 'POST',
+                    _token: '{{ csrf_token() }}'
+                }).done(function (response) {
+                    $('#default_city_education_dd').html(response);
+                });
+            }
+            return;
+        }
+        filterLangStatesEducation(state_id, city_id);
+    }
 
     function filterLangStatesEducation(state_id, city_id)
 

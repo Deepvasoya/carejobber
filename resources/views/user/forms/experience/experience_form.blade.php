@@ -1,92 +1,92 @@
+@php
+    $px = isset($profileExperience) ? $profileExperience : null;
+@endphp
 <div class="modal-body">
-    <div class="form-body">
-        <div class="formrow" id="div_title">
-            <input class="form-control" id="title" placeholder="{{__('Job Title')}}" name="title" type="text" value="{{(isset($profileExperience)? $profileExperience->title:'')}}">
-            <span class="help-block title-error"></span> </div>
-
-        <div class="formrow" id="div_company">
-            <input class="form-control" id="company" placeholder="{{__('Employer')}}" name="company" type="text" value="{{(isset($profileExperience)? $profileExperience->company:'')}}">
-            <span class="help-block company-error"></span> </div>
-
-        @if(\App\Helpers\LocationHelper::showCountry())
-        <div class="formrow" id="div_country_id">
-            <?php
-            $country_id = (isset($profileExperience) ? $profileExperience->country_id : $siteSetting->default_country_id);
-            ?>
-            {!! Form::select('country_id', [''=>__('Select Country')]+$countries, $country_id, array('class'=>'form-control', 'id'=>'experience_country_id')) !!}
-            <span class="help-block country_id-error"></span> </div>
-        @endif
-
-        @if(\App\Helpers\LocationHelper::showState())
-        <div class="formrow" id="div_state_id">
-            <span id="default_state_experience_dd">
-                {!! Form::select('state_id', [''=>__('Select State')], null, array('class'=>'form-control', 'id'=>'experience_state_id')) !!}
-            </span>
-            <span class="help-block state_id-error"></span> </div>
-        @endif
-
-        @if(\App\Helpers\LocationHelper::showCity())
-        <div class="formrow" id="div_city_id">
-            <span id="default_city_experience_dd">
-                {!! Form::select('city_id', [''=>__('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!}
-            </span>
-            <span class="help-block city_id-error"></span> </div>
-        @endif
-
-        <div class="formrow" id="div_date_start">
-            <input class="form-control datepicker"  autocomplete="off" id="date_start" placeholder="{{__('Date Started Working')}}" name="date_start" type="text" value="{{(isset($profileExperience)? Carbon\Carbon::parse($profileExperience->date_start)->format('Y-m-d'):'')}}">
-            <span class="help-block date_start-error"></span> </div>
-
-            <div class="formrow" id="div_is_currently_working">
-            <label for="is_currently_working" class="bold">{{__('Currently Working Here?')}}</label>
-            <div class="radio-list">
-                <?php
-                $val_1_checked = '';
-                $val_2_checked = 'checked="checked"';
-
-                if (isset($profileExperience) && $profileExperience->is_currently_working == 1) {
-                    $val_1_checked = 'checked="checked"';
-                    $val_2_checked = '';
-                }
-                ?>
-                <label class="radio-inline"><input id="currently_working" name="is_currently_working" type="radio" value="1" {{$val_1_checked}}> {{__('Yes')}} </label>
-                <label class="radio-inline"><input id="not_currently_working" name="is_currently_working" type="radio" value="0" {{$val_2_checked}}> {{__('No')}} </label>
+    <div class="form-body resume-experience-form">
+        <div class="resume-exp-row row align-items-center mb-3" id="div_title">
+            <label class="col-sm-4 col-form-label resume-exp-label" for="title">{{ __('Job title') }} <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <input class="form-control resume-exp-input" id="title" placeholder="{{ __('e.g. Registered Nurse') }}" name="title" type="text" value="{{ old('title', $px ? $px->title : '') }}">
+                <span class="help-block title-error text-danger small"></span>
             </div>
-            <span class="help-block is_currently_working-error"></span>
         </div>
 
+        <div class="resume-exp-row row align-items-center mb-3" id="div_company">
+            <label class="col-sm-4 col-form-label resume-exp-label" for="company">{{ __('Employer') }} <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <input class="form-control resume-exp-input" id="company" placeholder="{{ __('Company or organization name') }}" name="company" type="text" value="{{ old('company', $px ? $px->company : '') }}">
+                <span class="help-block company-error text-danger small"></span>
+            </div>
+        </div>
 
-        <div class="formrow" id="div_date_end"  style="{{ isset($profileExperience) && $profileExperience->is_currently_working == 1 ? 'display:none;' : '' }}">
-            <input class="form-control datepicker" autocomplete="off" id="date_end" placeholder="{{__('Job End Date')}}" name="date_end" type="text" value="{{(isset($profileExperience->date_end)?Carbon\Carbon::parse($profileExperience->date_end)->format('Y-m-d'):'')}}">
-            <span class="help-block date_end-error"></span> </div>
+        <div class="resume-exp-row row align-items-center mb-3" id="div_employer_address">
+            <label class="col-sm-4 col-form-label resume-exp-label" for="employer_address">{{ __('Employer address') }}</label>
+            <div class="col-sm-8">
+                <input class="form-control resume-exp-input" id="employer_address" placeholder="{{ __('Street, city, province/state, postal code') }}" name="employer_address" type="text" value="{{ old('employer_address', $px ? $px->employer_address : '') }}">
+                <span class="help-block employer_address-error text-danger small"></span>
+            </div>
+        </div>
 
-       
+        <div class="resume-exp-row row align-items-center mb-3" id="div_date_start">
+            <label class="col-sm-4 col-form-label resume-exp-label" for="date_start">{{ __('Date started working') }} <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                @php
+                    $dateStartVal = '';
+                    if ($px && $px->date_start) {
+                        try {
+                            $dateStartVal = \Carbon\Carbon::parse($px->date_start)->format('Y-m-d');
+                        } catch (\Throwable $e) {
+                            $dateStartVal = '';
+                        }
+                    }
+                @endphp
+                <input class="form-control resume-exp-input datepicker" autocomplete="off" id="date_start" placeholder="{{ __('Start date') }}" name="date_start" type="text" value="{{ old('date_start', $dateStartVal) }}">
+                <span class="help-block date_start-error text-danger small"></span>
+            </div>
+        </div>
 
+        <div class="resume-exp-row row mb-3" id="div_is_currently_working">
+            <label class="col-sm-4 col-form-label resume-exp-label">{{ __('Currently working here?') }} <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <div class="radio-list pt-1">
+                    @php
+                        if (old('is_currently_working') !== null) {
+                            $valYes = (string) old('is_currently_working') === '1';
+                        } else {
+                            $valYes = $px && (int) $px->is_currently_working === 1;
+                        }
+                    @endphp
+                    <label class="radio-inline me-3"><input id="currently_working" name="is_currently_working" type="radio" value="1" {{ $valYes ? 'checked' : '' }}> {{ __('Yes') }}</label>
+                    <label class="radio-inline"><input id="not_currently_working" name="is_currently_working" type="radio" value="0" {{ ! $valYes ? 'checked' : '' }}> {{ __('No') }}</label>
+                </div>
+                <span class="help-block is_currently_working-error text-danger small"></span>
+            </div>
+        </div>
 
-        <div class="formrow" id="div_description">
-            <textarea name="description" class="form-control" id="description" placeholder="{{__('Job summary')}}">{{(isset($profileExperience)? $profileExperience->description:'')}}</textarea>
-            <span class="help-block description-error"></span> </div>
+        <div class="resume-exp-row row align-items-center mb-3" id="div_date_end" style="{{ $valYes ? 'display:none;' : '' }}">
+            <label class="col-sm-4 col-form-label resume-exp-label" for="date_end">{{ __('Job end date') }}</label>
+            <div class="col-sm-8">
+                @php
+                    $dateEndVal = '';
+                    if ($px && $px->date_end) {
+                        try {
+                            $dateEndVal = \Carbon\Carbon::parse($px->date_end)->format('Y-m-d');
+                        } catch (\Throwable $e) {
+                            $dateEndVal = '';
+                        }
+                    }
+                @endphp
+                <input class="form-control resume-exp-input datepicker" autocomplete="off" id="date_end" placeholder="{{ __('End date') }}" name="date_end" type="text" value="{{ old('date_end', $dateEndVal) }}">
+                <span class="help-block date_end-error text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="resume-exp-row row mb-3" id="div_description">
+            <label class="col-sm-4 col-form-label resume-exp-label pt-sm-2" for="description">{{ __('Job summary') }} <span class="text-danger">*</span></label>
+            <div class="col-sm-8">
+                <textarea name="description" class="form-control resume-exp-input resume-exp-textarea" id="description" rows="5" placeholder="{{ __('Describe your role and achievements') }}">{{ old('description', $px ? $px->description : '') }}</textarea>
+                <span class="help-block description-error text-danger small"></span>
+            </div>
+        </div>
     </div>
 </div>
-
-
-
-
-<script>
-    $('input[name="is_currently_working"]').on('change', function () {
-        var isWorking = $(this).val();
-        if (isWorking == "1") {
-            $('#div_date_end').hide();
-        } else {
-            $('#div_date_end').show();
-        }
-    });
-
-    // Call on load
-    var isWorkingInit = $('input[name="is_currently_working"]:checked').val();
-    if (isWorkingInit == "1") {
-        $('#div_date_end').hide();
-    } else {
-        $('#div_date_end').show();
-    }
-</script>

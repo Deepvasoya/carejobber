@@ -29,19 +29,45 @@
 
 <style type="text/css">
 
-
-
     .datepicker>div {
-
-
-
         display: block;
-
-
-
     }
 
+    .resume-experience-form .resume-exp-label {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 0.95rem;
+    }
 
+    .resume-experience-form .resume-exp-input,
+    .resume-experience-form .resume-exp-input:focus {
+        background: #f4f7f9;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 0.55rem 0.85rem;
+        box-shadow: none;
+    }
+
+    .resume-experience-form .resume-exp-input:focus {
+        border-color: #c7d2fe;
+        background: #fff;
+    }
+
+    .resume-experience-form .resume-exp-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .resume-experience-form .resume-exp-row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    @media (max-width: 575.98px) {
+        .resume-experience-form .resume-exp-label {
+            margin-bottom: 0.35rem;
+        }
+    }
 
 </style>
 
@@ -125,7 +151,7 @@
 
 
 
-            filterDefaultStatesExperience(0, 0);
+            syncExperienceDateEndVisibility();
 
 
 
@@ -141,7 +167,7 @@
 
 
 
-    function showProfileExperienceEditModal(profile_experience_id, state_id, city_id){
+    function showProfileExperienceEditModal(profile_experience_id){
 
     $('#add_experience_modal').css('display','block');
 
@@ -161,7 +187,7 @@
 
 
 
-    loadProfileExperienceEditForm(profile_experience_id, state_id, city_id);
+    loadProfileExperienceEditForm(profile_experience_id);
 
 
 
@@ -169,7 +195,7 @@
 
 
 
-    function loadProfileExperienceEditForm(profile_experience_id, state_id, city_id){
+    function loadProfileExperienceEditForm(profile_experience_id){
 
 
 
@@ -205,7 +231,7 @@
 
 
 
-            filterDefaultStatesExperience(state_id, city_id);
+            syncExperienceDateEndVisibility();
 
 
 
@@ -425,37 +451,9 @@
 
 
 
-    $(document).on('change', '#experience_country_id', function (e) {
-
-
-
-    e.preventDefault();
-
-
-
-    filterDefaultStatesExperience(0, 0);
-
-
-
+    $(document).on('change', 'input[name="is_currently_working"]', function () {
+        syncExperienceDateEndVisibility();
     });
-
-
-
-    $(document).on('change', '#experience_state_id', function (e) {
-
-
-
-    e.preventDefault();
-
-
-
-    filterDefaultCitiesExperience(0);
-
-
-
-    });
-
-
 
     });
 
@@ -509,86 +507,13 @@
 
 
 
-    function filterDefaultStatesExperience(state_id, city_id)
-
-
-
-    {
-
-
-
-    var country_id = $('#experience_country_id').val();
-
-
-
-    if (country_id != ''){
-
-
-
-    $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, new_state_id: 'experience_state_id', _method: 'POST', _token: '{{ csrf_token() }}'})
-
-
-
-            .done(function (response) {
-
-
-
-            $('#default_state_experience_dd').html(response);
-
-
-
-            filterDefaultCitiesExperience(city_id);
-
-
-
-            });
-
-
-
-    }
-
-
-
-    }
-
-
-
-    function filterDefaultCitiesExperience(city_id)
-
-
-
-    {
-
-
-
-    var state_id = $('#experience_state_id').val();
-
-
-
-    if (state_id != ''){
-
-
-
-    $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-
-
-
-            .done(function (response) {
-
-
-
-            $('#default_city_experience_dd').html(response);
-
-
-
-            });
-
-
-
-    }
-
-
-
+    function syncExperienceDateEndVisibility() {
+        var v = $('input[name="is_currently_working"]:checked').val();
+        if (v === '1') {
+            $('#div_date_end').hide();
+        } else {
+            $('#div_date_end').show();
+        }
     }
 
 

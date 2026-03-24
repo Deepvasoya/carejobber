@@ -62,15 +62,21 @@ trait ProfileEducationTrait
 
 
 
+                $descBlock = '';
+                if (! empty(trim(strip_tags((string) $education->description)))) {
+                    $descBlock = '<div class="expcomp text-muted small">' . e(\Illuminate\Support\Str::limit(strip_tags((string) $education->description), 220)) . '</div>';
+                }
+                $addr = $education->school_location ? '<div class="expcomp"><i class="fas fa-map-marker-alt"></i> ' . e($education->school_location) . '</div>' : '';
                 $html .= '<li><span class="exdot"></span>
                             <div class="expbox" id="education_' . $education->id . '">
                           <div class="d-flex">
-						  <h4>' . $education->degree_title . '</h4>						  
+						  <h4>' . e($education->degree_title) . '</h4>						  
 <div class="cvnewbxedit ms-auto"><a href="javascript:void(0);" onclick="showProfileEducationEditModal(' . $education->id . ');" class="text text-dark"><i class="fas fa-pencil-alt"></i></a> <a href="javascript:void(0);" onclick="delete_profile_education(' . $education->id . ');" class="text text-danger ms-2"><i class="fas fa-times"></i></a></div>
                           </div>
                           <div class="date">' . e($education->date_completion) . '</div>
-						  <div class="expcomp"><i class="fas fa-map-marker-alt"></i> ' . $education->school_location  . '</div>
-						  <div class="expcomp"><i class="fas fa-school"></i>' . $education->institution . '</div>
+						  ' . $addr . '
+						  <div class="expcomp"><i class="fas fa-school"></i> ' . e($education->institution) . '</div>
+						  ' . $descBlock . '
 						  </div>
 						
 						</li>';
@@ -167,7 +173,6 @@ trait ProfileEducationTrait
 
         $profileEducation = new ProfileEducation();
         $profileEducation = $this->assignEducationValues($profileEducation, $request, $user_id);
-        $profileEducation->school_location = $request->school_location;
         $profileEducation->save();
         /*         * ************************************ */
         $this->storeprofileEducationMajorSubjects($request, $profileEducation->id);
@@ -186,7 +191,6 @@ trait ProfileEducationTrait
 
         $profileEducation = new ProfileEducation();
         $profileEducation = $this->assignEducationValues($profileEducation, $request, $user_id);
-        $profileEducation->school_location = $request->school_location;
         $profileEducation->save();
         /*         * ************************************ */
         $this->storeprofileEducationMajorSubjects($request, $profileEducation->id);
@@ -211,6 +215,8 @@ trait ProfileEducationTrait
         $profileEducation->city_id = $request->input('city_id');
         $profileEducation->date_completion = $request->input('date_completion');
         $profileEducation->institution = $request->input('institution');
+        $profileEducation->school_location = $request->input('school_location');
+        $profileEducation->description = $request->input('description');
         $profileEducation->degree_result = $request->input('degree_result');
         $profileEducation->result_type_id = $request->input('result_type_id');
         return $profileEducation;
@@ -290,7 +296,6 @@ trait ProfileEducationTrait
 
         $profileEducation = ProfileEducation::find($education_id);
         $profileEducation = $this->assignEducationValues($profileEducation, $request, $user_id);
-        $profileEducation->school_location = $request->school_location;
         $profileEducation->update();
         /*         * ************************************ */
         $this->storeprofileEducationMajorSubjects($request, $profileEducation->id);

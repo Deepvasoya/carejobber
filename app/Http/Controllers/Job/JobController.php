@@ -333,7 +333,8 @@ class JobController extends Controller
         $data['user_id'] = Auth::user()->id;
         $data_save = FavouriteJob::create($data);
         flash(__('Job has been added in favorites list'))->success();
-        return \Redirect::route('job.detail', $job_slug);
+
+        return $this->redirectAfterFavouriteChange($request, $job_slug);
     }
 
     public function removeFromFavouriteJob(Request $request, $job_slug)
@@ -342,6 +343,21 @@ class JobController extends Controller
         FavouriteJob::where('job_slug', 'like', $job_slug)->where('user_id', $user_id)->delete();
 
         flash(__('Job has been removed from favorites list'))->success();
+
+        return $this->redirectAfterFavouriteChange($request, $job_slug);
+    }
+
+    /**
+     * Stay on job search/list when favouriting from there; otherwise open the job detail.
+     */
+    private function redirectAfterFavouriteChange(Request $request, string $job_slug)
+    {
+        $referer = $request->headers->get('referer') ?? '';
+        $base = rtrim((string) config('app.url'), '/');
+        if ($referer !== '' && str_starts_with($referer, $base)) {
+            return \Redirect::to($referer);
+        }
+
         return \Redirect::route('job.detail', $job_slug);
     }
     
