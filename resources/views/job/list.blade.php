@@ -172,7 +172,12 @@
                         @elseif(Auth::check() && $hasApplied)
                             <span class="job-list-apply job-list-apply-done"><i class="fas fa-check-circle"></i> {{ __('Already applied') }}</span>
                         @elseif(Auth::check())
-                            <a href="{{ route('job.detail', [$job->slug]) }}" class="job-list-apply job-list-apply-primary"><i class="fas fa-paper-plane"></i> {{ __('Apply now') }}</a>
+                            <a href="javascript:void(0);"
+                               class="job-list-apply job-list-apply-primary js-job-list-open-apply"
+                               role="button"
+                               data-job-slug="{{ $job->slug }}">
+                                <i class="fas fa-paper-plane"></i> {{ __('Apply now') }}
+                            </a>
                         @else
                             <a href="{{ route('login') }}" class="job-list-apply job-list-apply-primary"><i class="fas fa-paper-plane"></i> {{ __('Apply now') }}</a>
                         @endif
@@ -269,6 +274,29 @@
     </div>
 
 </div>
+
+@if(Auth::check())
+<div class="modal fade" id="applyJobListModal" tabindex="-1" aria-labelledby="applyJobListModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);">
+            <div class="modal-body text-center py-5 text-muted">
+                <div class="spinner-border text-secondary" role="status"><span class="visually-hidden">{{ __('Loading') }}…</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="applySubmitPageOverlay" class="apply-submit-page-overlay" aria-hidden="true" role="status">
+    <div class="apply-submit-page-overlay__card">
+        <div class="apply-submit-page-overlay__rings" aria-hidden="true">
+            <span class="apply-submit-page-overlay__ring"></span>
+            <span class="apply-submit-page-overlay__ring apply-submit-page-overlay__ring--delay"></span>
+        </div>
+        <p class="apply-submit-page-overlay__title">{{ __('Submitting your application') }}</p>
+        <p class="apply-submit-page-overlay__hint">{{ __('Please wait a moment…') }}</p>
+    </div>
+</div>
+@endif
 
 
 @if (Request::get('search') != '' || Request::get('functional_area_id') != '' || Request::get('country_id') != ''|| Request::get('state_id') != '' || Request::get('city_id') != ''|| Request::get('city_id') != '')
@@ -625,6 +653,94 @@
         border-color: #e2e8f0;
     }
 
+    /* Full-screen overlay while apply form submits (above Bootstrap modal, z-modal ~1055) */
+    .apply-submit-page-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: rgba(15, 23, 42, 0.48);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+    }
+
+    .apply-submit-page-overlay.is-visible {
+        display: flex;
+    }
+
+    .apply-submit-page-overlay__card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 2.25rem 2.5rem 2rem;
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.28),
+            0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+        text-align: center;
+        max-width: 340px;
+        width: 100%;
+        animation: apply-submit-card-in 0.35s ease-out;
+    }
+
+    @keyframes apply-submit-card-in {
+        from {
+            opacity: 0;
+            transform: scale(0.94) translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .apply-submit-page-overlay__rings {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.35rem;
+    }
+
+    .apply-submit-page-overlay__ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #17d27c;
+        border-right-color: rgba(23, 210, 124, 0.35);
+        animation: apply-submit-orbit 1s linear infinite;
+    }
+
+    .apply-submit-page-overlay__ring--delay {
+        inset: 8px;
+        border-top-color: #2557a7;
+        border-right-color: rgba(37, 87, 167, 0.3);
+        animation-duration: 1.35s;
+        animation-direction: reverse;
+    }
+
+    @keyframes apply-submit-orbit {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .apply-submit-page-overlay__title {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .apply-submit-page-overlay__hint {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #64748b;
+        line-height: 1.45;
+    }
+
 </style>
 
 @endpush
@@ -736,10 +852,162 @@ $(document).on('click', '.swal-button--register', function() {
 	window.location.href = "{{route('register')}}";
 })
 
+@if(Auth::check())
+function applySubmitOverlayShow() {
+	var $o = $('#applySubmitPageOverlay');
+	if (!$o.length) return;
+	$o.addClass('is-visible').attr('aria-hidden', 'false');
+	$('body').css('overflow', 'hidden');
+}
+
+function applySubmitOverlayHide() {
+	var $o = $('#applySubmitPageOverlay');
+	if (!$o.length) return;
+	$o.removeClass('is-visible').attr('aria-hidden', 'true');
+	$('body').css('overflow', '');
+}
+
+function applyJobListShowModal() {
+	var el = document.getElementById('applyJobListModal');
+	if (!el) return;
+	if (window.bootstrap && window.bootstrap.Modal) {
+		window.bootstrap.Modal.getOrCreateInstance(el).show();
+	} else if (window.jQuery && jQuery.fn.modal) {
+		jQuery(el).modal('show');
+	}
+}
+
+function applyJobListHideModal() {
+	var el = document.getElementById('applyJobListModal');
+	if (!el) return;
+	if (window.bootstrap && window.bootstrap.Modal) {
+		var inst = window.bootstrap.Modal.getInstance(el);
+		if (inst) inst.hide();
+	} else if (window.jQuery && jQuery.fn.modal) {
+		jQuery(el).modal('hide');
+	}
+}
+
+function applyListSelectCv(cvId, element) {
+	var modal = document.getElementById('applyJobListModal');
+	if (!modal) return;
+	modal.querySelectorAll('.apply-list-cv-card').forEach(function (card) {
+		card.style.borderColor = '#e0e0e0';
+		card.style.background = '#fff';
+	});
+	element.style.borderColor = '#667eea';
+	element.style.background = '#f8f9ff';
+	var radio = document.getElementById('apply_list_cv_' + cvId);
+	if (radio) radio.checked = true;
+	var uploadOpt = document.getElementById('apply_list_upload_new_cv');
+	if (uploadOpt) uploadOpt.checked = false;
+	var uploadField = document.getElementById('apply_list_cv_upload_field');
+	if (uploadField) uploadField.style.display = 'none';
+}
+
+function applyListToggleCvUpload() {
+	var uploadField = document.getElementById('apply_list_cv_upload_field');
+	var uploadOpt = document.getElementById('apply_list_upload_new_cv');
+	if (!uploadField || !uploadOpt) return;
+	if (uploadOpt.checked) {
+		uploadField.style.display = 'block';
+		document.querySelectorAll('#applyJobListModal input.apply-list-cv-radio').forEach(function (r) { r.checked = false; });
+		document.querySelectorAll('#applyJobListModal .apply-list-cv-card').forEach(function (card) {
+			card.style.borderColor = '#e0e0e0';
+			card.style.background = '#fff';
+		});
+	} else {
+		uploadField.style.display = 'none';
+	}
+}
+
+function applyListShowFileName(input) {
+	var display = document.getElementById('apply_list_file_name_display');
+	if (!display || !input.files || !input.files[0]) return;
+	display.innerHTML = '<i class="fas fa-file-pdf text-danger me-2"></i>' + input.files[0].name;
+}
+
+function applyListBindCoverLetterCounter() {
+	var ta = document.getElementById('apply_list_cover_letter');
+	var cc = document.getElementById('apply_list_char_count');
+	if (!ta || !cc) return;
+	cc.textContent = String(ta.value.length);
+	ta.oninput = function () { cc.textContent = String(ta.value.length); };
+}
+
+$(document).on('click', '.js-job-list-open-apply', function (e) {
+	e.preventDefault();
+	var slug = $(this).data('job-slug');
+	if (!slug) return;
+	var $dialog = $('#applyJobListModal .modal-dialog');
+	$dialog.html('<div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.15);"><div class="modal-body text-center py-5 text-muted"><div class="spinner-border text-secondary" role="status"></div></div></div>');
+	applyJobListShowModal();
+	$.ajax({
+		url: "{{ url('job-apply-modal') }}/" + encodeURIComponent(slug),
+		type: "GET",
+		headers: {
+			"X-Requested-With": "XMLHttpRequest",
+			"Accept": "application/json",
+			"X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+		},
+		success: function (data) {
+			if (data.success && data.html) {
+				$dialog.html(data.html);
+				applyListBindCoverLetterCounter();
+			} else {
+				swal({ title: "{{ __('Error') }}", text: data.message || "{{ __('Could not load apply form.') }}", icon: "error" });
+				applyJobListHideModal();
+			}
+		},
+		error: function (xhr) {
+			var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : "{{ __('Request failed.') }}";
+			swal({ title: "{{ __('Error') }}", text: msg, icon: "error" });
+			applyJobListHideModal();
+		}
+	});
+});
+
+$(document).on('submit', '#applyJobListForm', function (e) {
+	e.preventDefault();
+	var form = this;
+	var $btn = $(form).find('.apply-job-list-submit');
+	$btn.prop('disabled', true);
+	applySubmitOverlayShow();
+	$.ajax({
+		url: $(form).attr('action'),
+		type: "POST",
+		data: new FormData(form),
+		processData: false,
+		contentType: false,
+		headers: {
+			"X-Requested-With": "XMLHttpRequest",
+			"Accept": "application/json",
+			"X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content")
+		},
+		success: function (res) {
+			$btn.prop('disabled', false);
+			if (res.success) {
+				applyJobListHideModal();
+				swal({ title: "{{ __('Success') }}", text: res.message || "{{ __('You have successfully applied for this job') }}", icon: "success" });
+				window.location.reload();
+			} else {
+				swal({ title: "{{ __('Error') }}", text: res.message || "{{ __('Something went wrong.') }}", icon: "error" });
+			}
+		},
+		error: function (xhr) {
+			$btn.prop('disabled', false);
+			var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : "{{ __('Something went wrong.') }}";
+			swal({ title: "{{ __('Error') }}", text: msg, icon: "error" });
+		},
+		complete: function () {
+			applySubmitOverlayHide();
+		}
+	});
+});
+@endif
+
 </script>
 
 @include('includes.country_state_city_js')
 
 @endpush
-
-@livewire('apply-job-modal')

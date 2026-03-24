@@ -5,7 +5,11 @@
             <div class="modal-content" style="border-radius: 16px; border: none;">
                 <div class="modal-header" style="border-bottom: 1px solid #f0f0f0; padding: 25px 30px;">
                     <h4 class="modal-title" style="font-weight: 600; color: #333; margin: 0;">
-                        {{__('Apply for this job')}}
+                        @if($job)
+                            <i class="fas fa-paper-plane me-2"></i>{{ __('Apply for') }} {{ $job->title }}
+                        @else
+                            {{ __('Apply for this job') }}
+                        @endif
                     </h4>
                     <button type="button" class="btn-close" wire:click="close" aria-label="Close"></button>
                 </div>

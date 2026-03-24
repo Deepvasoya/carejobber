@@ -370,17 +370,52 @@ class JobController extends Controller
                         ->with('job_slug', $job_slug)
                         ->with('job', $job);
     }
+
+    /**
+     * HTML fragment for the apply modal on the job search list (loaded via AJAX).
+     */
+    public function applyModalFragment(Request $request, string $slug)
+    {
+        $job = Job::where('slug', 'like', $slug)->first();
+
+        if (!$job) {
+            return response()->json(['success' => false, 'message' => __('Job not found.')], 404);
+        }
+
+        if ($job->isJobExpired()) {
+            return response()->json(['success' => false, 'message' => __('Job is expired.')], 422);
+        }
+
+        $user = Auth::user();
+        $already = JobApply::where('job_id', $job->id)->where('user_id', $user->id)->exists();
+        if ($already) {
+            return response()->json(['success' => false, 'message' => __('You have already applied for this job.')], 422);
+        }
+
+        $html = view('job.partials.apply_modal_list_fragment', ['job' => $job])->render();
+
+        return response()->json(['success' => true, 'html' => $html]);
+    }
+
     public function postJobApply(Request $request, $job_slug)
     {
+        $wantsJson = $request->expectsJson() || $request->ajax();
+
         $job = Job::where('slug', 'like', $job_slug)->first();
 
         if (!$job) {
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => __('Job not found')], 404);
+            }
             flash(__('Job not found'))->error();
             return redirect()->back();
         }
 
         // Check if user is authenticated
         if (!Auth::check()) {
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => __('Please login to apply for this job')], 401);
+            }
             flash(__('Please login to apply for this job'))->error();
             return redirect()->route('login');
         }
@@ -393,6 +428,9 @@ class JobController extends Controller
             ->first();
 
         if ($existingApplication) {
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => __('You have already applied for this job')], 422);
+            }
             flash(__('You have already applied for this job'))->warning();
             return redirect()->route('job.detail', $job_slug);
         }
@@ -410,6 +448,9 @@ class JobController extends Controller
                 $jobApply->cv_id = $profileCv->id;
                 $jobApply->resume_source = 'existing';
             } else {
+                if ($wantsJson) {
+                    return response()->json(['success' => false, 'message' => __('Invalid CV selected')], 422);
+                }
                 flash(__('Invalid CV selected'))->error();
                 return redirect()->back()->withInput();
             }
@@ -434,6 +475,9 @@ class JobController extends Controller
             $jobApply->cv_id = $profileCv->id;
             $jobApply->resume_source = 'upload';
         } else {
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => __('Please select or upload a CV')], 422);
+            }
             flash(__('Please select or upload a CV'))->error();
             return redirect()->back()->withInput();
         }
@@ -454,7 +498,14 @@ class JobController extends Controller
         }
 
         flash(__('You have successfully applied for this job'))->success();
-        
+
+        if ($wantsJson) {
+            return response()->json([
+                'success' => true,
+                'message' => __('You have successfully applied for this job'),
+            ]);
+        }
+
         return redirect()->route('job.detail', $job_slug);
     }
 

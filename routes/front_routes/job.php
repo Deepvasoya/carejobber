@@ -2,6 +2,7 @@
 use App\Http\Controllers\Job\JobController;
 
 Route::get('job/{slug}', 'Job\JobController@jobDetail')->name('job.detail');
+Route::get('job-apply-modal/{slug}', 'Job\JobController@applyModalFragment')->middleware('auth')->name('job.apply.modal');
 Route::get('job-apply/{slug}', 'Job\JobController@jobApplyExt')->name('job.apply');
 Route::post('job-apply/{slug}', 'Job\JobController@postJobApply')->name('post.job.apply');
 Route::get('apply/{slug}', 'Job\JobController@applyJob')->name('apply.job');

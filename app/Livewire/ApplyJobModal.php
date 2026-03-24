@@ -44,16 +44,19 @@ class ApplyJobModal extends Component
     #[On('openApplyModal')]
     public function open($jobSlug = null)
     {
+        $this->reset(['resumeSource', 'selectedCvId', 'uploadedResume', 'coverLetter', 'acceptTerms', 'currentSalary', 'expectedSalary', 'questionAnswers', 'job', 'jobSlug']);
+        $this->resumeSource = 'existing';
+
         if ($jobSlug) {
             $this->jobSlug = $jobSlug;
             $this->job = Job::where('slug', $jobSlug)->first();
         }
-        
+
         if (!$this->job) {
             session()->flash('error', __('Job not found.'));
             return;
         }
-        
+
         $this->isOpen = true;
     }
 
@@ -61,6 +64,22 @@ class ApplyJobModal extends Component
     {
         $this->isOpen = false;
         $this->reset(['resumeSource', 'selectedCvId', 'uploadedResume', 'coverLetter', 'acceptTerms', 'currentSalary', 'expectedSalary', 'questionAnswers']);
+    }
+
+    public function updatedSelectedCvId($value): void
+    {
+        if ($value) {
+            $this->resumeSource = 'existing';
+            $this->uploadedResume = null;
+        }
+    }
+
+    public function updatedUploadedResume(): void
+    {
+        if ($this->uploadedResume) {
+            $this->resumeSource = 'upload';
+            $this->selectedCvId = null;
+        }
     }
 
     public function rules()
