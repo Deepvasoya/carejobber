@@ -1,0 +1,27 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn.lock
+package-lock.json
+
+# Laravel vendor
+vendor/
+
+# Storage (heavy + useless for indexing)
+storage/
+bootstrap/cache/
+
+# Build output
+public/build/
+public/js/
+public/css/
+public/mix-manifest.json
+
+# Logs
+*.log
+
+# Git
+.git/
+
+# Environment
+.env*

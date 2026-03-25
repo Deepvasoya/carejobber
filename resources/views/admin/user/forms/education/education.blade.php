@@ -42,11 +42,11 @@
             }
     });
     }
-    function showProfileEducationEditModal(education_id, state_id, city_id, degree_type_id){
+    function showProfileEducationEditModal(education_id){
     $("#add_education_modal").modal();
-    loadProfileEducationEditForm(education_id, state_id, city_id, degree_type_id);
+    loadProfileEducationEditForm(education_id);
     }
-    function loadProfileEducationEditForm(education_id, state_id, city_id, degree_type_id){
+    function loadProfileEducationEditForm(education_id){
     $.ajax({
     type: "POST",
             url: "{{ route('get.profile.education.edit.form', $user->id) }}",
@@ -55,8 +55,6 @@
             success: function (json) {
             $("#add_education_modal").html(json.html);
             initdatepicker();
-            filterDefaultStatesEducation(state_id, city_id);
-            filterDegreeTypes(degree_type_id);
             }
     });
     }
@@ -115,18 +113,6 @@
     $(document).ready(function(){
     showEducation();
     initdatepicker();
-    $(document).on('change', '#degree_level_id', function (e) {
-    e.preventDefault();
-    filterDegreeTypes(0);
-    });
-    $(document).on('change', '#education_country_id', function (e) {
-    e.preventDefault();
-    filterDefaultStatesEducation(0, 0);
-    });
-    $(document).on('change', '#education_state_id', function (e) {
-    e.preventDefault();
-    filterDefaultCitiesEducation(0);
-    });
     });
     function showEducation()
     {
@@ -137,38 +123,5 @@
     }
 
 
-    function filterDegreeTypes(degree_type_id)
-    {
-    var degree_level_id = $('#degree_level_id').val();
-    if (degree_level_id != ''){
-    $.post("{{ route('filter.degree.types.dropdown') }}", {degree_level_id: degree_level_id, degree_type_id: degree_type_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-            .done(function (response) {
-            $('#degree_types_dd').html(response);
-            });
-    }
-    }
-
-
-    function filterDefaultStatesEducation(state_id, city_id)
-    {
-    var country_id = $('#education_country_id').val();
-    if (country_id != ''){
-    $.post("{{ route('filter.default.states.dropdown') }}", {country_id: country_id, state_id: state_id, new_state_id: 'education_state_id', _method: 'POST', _token: '{{ csrf_token() }}'})
-            .done(function (response) {
-            $('#default_state_education_dd').html(response);
-            filterDefaultCitiesEducation(city_id);
-            });
-    }
-    }
-    function filterDefaultCitiesEducation(city_id)
-    {
-    var state_id = $('#education_state_id').val();
-    if (state_id != ''){
-    $.post("{{ route('filter.default.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-            .done(function (response) {
-            $('#default_city_education_dd').html(response);
-            });
-    }
-    }
 </script> 
 @endpush

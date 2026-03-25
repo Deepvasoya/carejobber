@@ -145,13 +145,8 @@
 
             initdatepicker();
 
-
-
-            initEducationLocationSelectors(0, 0);
-
-
-
             }
+
 
 
 
@@ -163,9 +158,7 @@
 
 
 
-    function showProfileEducationEditModal(education_id, state_id, city_id, degree_type_id){
-
-    
+    function showProfileEducationEditModal(education_id){
 
     $('#add_education_modal').css('display','block');
 
@@ -175,73 +168,33 @@
 
     $('body').append(myclosemodal);
 
-
-
-
-
     $("#add_education_modal").modal();
 
-
-
-    loadProfileEducationEditForm(education_id, state_id, city_id, degree_type_id);
-
-
+    loadProfileEducationEditForm(education_id);
 
     }
 
-
-
-    function loadProfileEducationEditForm(education_id, state_id, city_id, degree_type_id){
-
-
+    function loadProfileEducationEditForm(education_id){
 
     $.ajax({
 
-
-
     type: "POST",
-
-
 
             url: "{{ route('get.front.profile.education.edit.form', $user->id) }}",
 
-
-
             data: {"education_id": education_id, "_token": "{{ csrf_token() }}"},
-
-
 
             datatype: 'json',
 
-
-
             success: function (json) {
-
-
 
             $("#add_education_modal").html(json.html);
 
-
-
             initdatepicker();
-
-
-
-            initEducationLocationSelectors(state_id || 0, city_id || 0);
-
-
-
-            filterDegreeTypes(degree_type_id);
-
-
 
             }
 
-
-
     });
-
-
 
     }
 
@@ -461,54 +414,6 @@
 
 
 
-    $(document).on('change', '#degree_level_id', function (e) {
-
-
-
-    e.preventDefault();
-
-
-
-    filterDegreeTypes(0);
-
-
-
-    });
-
-
-
-    $(document).on('change', '#education_country_id', function (e) {
-
-
-
-    e.preventDefault();
-
-
-
-    filterLangStatesEducation(0, 0);
-
-
-
-    });
-
-
-
-    $(document).on('change', '#education_state_id', function (e) {
-
-
-
-    e.preventDefault();
-
-
-
-    filterLangCitiesEducation(0);
-
-
-
-    });
-
-
-
     });
 
 
@@ -548,158 +453,6 @@
 
 
 
-
-    function filterDegreeTypes(degree_type_id)
-
-
-
-    {
-
-
-
-    var degree_level_id = $('#degree_level_id').val();
-
-
-
-    if (degree_level_id != ''){
-
-
-
-    $.post("{{ route('filter.degree.types.dropdown') }}", {degree_level_id: degree_level_id, degree_type_id: degree_type_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-
-
-
-            .done(function (response) {
-
-
-
-            $('#degree_types_dd').html(response);
-
-
-
-            });
-
-
-
-    }
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-    var __educationLocationLevel = {{ (int) \App\Helpers\LocationHelper::getLocationLevels() }};
-
-    function initEducationLocationSelectors(state_id, city_id) {
-        state_id = parseInt(state_id, 10) || 0;
-        city_id = parseInt(city_id, 10) || 0;
-        if (__educationLocationLevel === 1) {
-            var cid = $('#education_country_id').val();
-            if (cid) {
-                $.post("{{ route('filter.lang.cities.dropdown') }}", {
-                    country_id: cid,
-                    city_id: city_id,
-                    _method: 'POST',
-                    _token: '{{ csrf_token() }}'
-                }).done(function (response) {
-                    $('#default_city_education_dd').html(response);
-                });
-            }
-            return;
-        }
-        filterLangStatesEducation(state_id, city_id);
-    }
-
-    function filterLangStatesEducation(state_id, city_id)
-
-
-
-    {
-
-
-
-    var country_id = $('#education_country_id').val();
-
-
-
-    if (country_id != ''){
-
-
-
-    $.post("{{ route('filter.lang.states.dropdown') }}", {country_id: country_id, state_id: state_id, new_state_id: 'education_state_id', _method: 'POST', _token: '{{ csrf_token() }}'})
-
-
-
-            .done(function (response) {
-
-
-
-            $('#default_state_education_dd').html(response);
-
-
-
-            filterLangCitiesEducation(city_id);
-
-
-
-            });
-
-
-
-    }
-
-
-
-    }
-
-
-
-    function filterLangCitiesEducation(city_id)
-
-
-
-    {
-
-
-
-    var state_id = $('#education_state_id').val();
-
-
-
-    if (state_id != ''){
-
-
-
-    $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
-
-
-
-            .done(function (response) {
-
-
-
-            $('#default_city_education_dd').html(response);
-
-
-
-            });
-
-
-
-    }
-
-
-
-    }
 
 
 

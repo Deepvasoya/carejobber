@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Auth;
 use DB;
 use Input;
 use Carbon\Carbon;
@@ -10,15 +9,9 @@ use Redirect;
 use App\User;
 use App\ProfileEducation;
 use App\ProfileEducationMajorSubject;
-use App\DegreeLevel;
-use App\DegreeType;
-use App\ResultType;
-use App\MajorSubject;
-use App\Country;
 use App\Http\Requests;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ProfileEducationFormRequest;
 use App\Helpers\DataArrayHelper;
 
@@ -32,15 +25,18 @@ trait ProfileEducationTrait
         if (isset($user) && count($user->profileEducation)):
             foreach ($user->profileEducation as $education):
 
+                $locLine = $education->school_location
+                    ? e($education->school_location)
+                    : trim(e($education->getCountry('country')));
                 $html .= '<!--education Start-->
             <div class="col-md-12" id="education_' . $education->id . '">
               <div class="mt-element-ribbon bg-grey-steel">
-                <div class="ribbon ribbon-color-warning uppercase ">' . $education->getDegreeLevel('degree_level') . ' - ' . $education->getDegreeType('degree_type') . '</div>
+                <div class="ribbon ribbon-color-warning uppercase ">' . e($education->getDegreeLevel('degree_level')) . '</div>
                 <p class="ribbon-content">
-				' . $education->degree_title . '<br />               	
-                ' . $education->date_completion . ' | ' . $education->getCity('city') . '<br />
-                ' . $education->institution . '<br />
-                <a href="javascript:void(0);" onclick="showProfileEducationEditModal(' . $education->id . ',' . $education->state_id . ',' . $education->city_id . ' - ' . $education->getCountry('country') . ',' . $education->degree_type_id . ');" class="btn btn-warning">' . __('Edit') . '</a>
+				' . e($education->degree_title) . '<br />               	
+                ' . e($education->date_completion) . ($locLine !== '' ? ' | ' . $locLine : '') . '<br />
+                ' . e($education->institution) . '<br />
+                <a href="javascript:void(0);" onclick="showProfileEducationEditModal(' . $education->id . ');" class="btn btn-warning">' . __('Edit') . '</a>
 				<a href="javascript:void(0);" onclick="delete_profile_education(' . $education->id . ');" class="btn btn-danger">' . __('Delete') . '</a>
                 </p>
               </div>
@@ -67,12 +63,17 @@ trait ProfileEducationTrait
                     $descBlock = '<div class="expcomp text-muted small">' . e(\Illuminate\Support\Str::limit(strip_tags((string) $education->description), 220)) . '</div>';
                 }
                 $addr = $education->school_location ? '<div class="expcomp"><i class="fas fa-map-marker-alt"></i> ' . e($education->school_location) . '</div>' : '';
+                $levelStr = $education->getDegreeLevel('degree_level');
+                $levelLine = $levelStr !== '' && $levelStr !== null
+                    ? '<div class="text-muted small">' . e($levelStr) . '</div>'
+                    : '';
                 $html .= '<li><span class="exdot"></span>
                             <div class="expbox" id="education_' . $education->id . '">
                           <div class="d-flex">
 						  <h4>' . e($education->degree_title) . '</h4>						  
 <div class="cvnewbxedit ms-auto"><a href="javascript:void(0);" onclick="showProfileEducationEditModal(' . $education->id . ');" class="text text-dark"><i class="fas fa-pencil-alt"></i></a> <a href="javascript:void(0);" onclick="delete_profile_education(' . $education->id . ');" class="text text-danger ms-2"><i class="fas fa-times"></i></a></div>
                           </div>
+                          ' . $levelLine . '
                           <div class="date">' . e($education->date_completion) . '</div>
 						  ' . $addr . '
 						  <div class="expcomp"><i class="fas fa-school"></i> ' . e($education->institution) . '</div>
@@ -89,30 +90,42 @@ trait ProfileEducationTrait
     public function showApplicantProfileEducation(Request $request, $user_id)
 {
     $user = User::find($user_id);
-    $companyUser = Auth::guard('company')->user();
-    
-    // Check if company can view full resume
-    $canViewFull = false;
-    if ($companyUser && $user) {
-        $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
-    } elseif (auth()->check() && auth()->id() == $user_id) {
-        $canViewFull = true;
-    }
-    
+
     $html = '';
 
     if (isset($user) && $user->profileEducation->count() > 0) {
         $html .= '<ul class="educationList">';
         foreach ($user->profileEducation as $education) {
             $majorSubjects = $education->getProfileEducationMajorSubjectsStr();
+            $descBlock = '';
+            if (! empty(trim(strip_tags((string) $education->description)))) {
+                $descBlock = '<div class="expcomp text-muted small">' . e(\Illuminate\Support\Str::limit(strip_tags((string) $education->description), 400)) . '</div>';
+            }
+            $addr = $education->school_location
+                ? '<div class="expcomp"><i class="fas fa-map-marker-alt"></i> ' . e($education->school_location) . '</div>'
+                : '';
+            $countryStr = $education->getCountry('country');
+            $countryLine = ($countryStr !== '' && $countryStr !== null)
+                ? '<div class="expcomp"><i class="fas fa-globe"></i> ' . e($countryStr) . '</div>'
+                : '';
+            $majorLine = ($majorSubjects !== '')
+                ? '<div class="expcomp"><i class="fas fa-book"></i> ' . e($majorSubjects) . '</div>'
+                : '';
+            $levelStr = $education->getDegreeLevel('degree_level');
+            $levelLine = ($levelStr !== '' && $levelStr !== null)
+                ? '<div class="text-muted small">' . e($levelStr) . '</div>'
+                : '';
 
             $html .= '<li><span class="exdot"></span>
-                <div class="expbox">                
-                    <h4>' . e($education->getDegreeLevel('degree_level')) . ' - ' . e($education->getDegreeType('degree_type')) . '</h4>
-                    <div class="date">' . e($education->date_completion) . ' - ' . e($education->getCity('city')) . ' - ' . e($education->getCountry('country')) . '</div>				
-                    <div class="expcomp"><i class="fas fa-graduation-cap"></i>' . e($education->degree_title) . '</div>
-                    <div class="expcomp"><i class="fas fa-school"></i>' . e($education->institution) . '</div>				
-                    <div class="expcomp"><i class="fas fa-book"></i>' . e($majorSubjects) . '</div>
+                <div class="expbox">
+                    <h4>' . e($education->degree_title) . '</h4>
+                    ' . $levelLine . '
+                    <div class="date">' . e($education->date_completion) . '</div>
+                    ' . $addr . '
+                    <div class="expcomp"><i class="fas fa-school"></i> ' . e($education->institution) . '</div>
+                    ' . $countryLine . '
+                    ' . $majorLine . '
+                    ' . $descBlock . '
                 </div>
             </li>';
         }
@@ -208,11 +221,11 @@ trait ProfileEducationTrait
     {
         $profileEducation->user_id = $user_id;
         $profileEducation->degree_level_id = $request->input('degree_level_id');
-        $profileEducation->degree_type_id = $request->input('degree_type_id');
+        $profileEducation->degree_type_id = null;
         $profileEducation->degree_title = $request->input('degree_title');
         $profileEducation->country_id = $request->input('country_id');
-        $profileEducation->state_id = $request->input('state_id');
-        $profileEducation->city_id = $request->input('city_id');
+        $profileEducation->state_id = null;
+        $profileEducation->city_id = null;
         $profileEducation->date_completion = $request->input('date_completion');
         $profileEducation->institution = $request->input('institution');
         $profileEducation->school_location = $request->input('school_location');

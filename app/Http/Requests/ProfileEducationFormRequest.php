@@ -25,14 +25,11 @@ class ProfileEducationFormRequest extends Request
                     'major_subjects' => 'nullable',
                     'degree_result' => 'nullable',
                     'result_type_id' => 'nullable',
-                    'degree_type_id' => 'nullable',
                     'school_location' => 'nullable|string|max:500',
                     'description' => 'nullable|string|max:5000',
                 ];
 
                 $rules['country_id'] = LocationHelper::showCountry() ? 'required' : 'nullable';
-                $rules['state_id'] = LocationHelper::showState() ? 'required' : 'nullable';
-                $rules['city_id'] = LocationHelper::showCity() ? 'required' : 'nullable';
 
                 return $rules;
             default:
@@ -44,12 +41,9 @@ class ProfileEducationFormRequest extends Request
     {
         return [
             'degree_level_id.required' => 'Please select degree level.',
-            'degree_type_id.required' => 'Please select degree type.',
-            'degree_title.required' => 'Please enter degree title.',
+            'degree_title.required' => 'Please enter your degree or program.',
             'major_subjects.required' => 'Please select major subjects.',
             'country_id.required' => 'Please select country.',
-            'state_id.required' => 'Please select state.',
-            'city_id.required' => 'Please select city.',
             'institution.required' => 'Please enter institution.',
             'date_completion.required' => 'Please set completion date.',
             'degree_result.required' => 'Please enter result.',

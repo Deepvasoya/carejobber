@@ -11,20 +11,10 @@
             </div>
         </div>
 
-        <div class="resume-edu-row row align-items-center mb-3" id="div_degree_type_id">
-            <label class="col-sm-4 col-form-label resume-edu-label" for="degree_type_id">{{ __('Certification type') }}</label>
-            <div class="col-sm-8">
-                <span id="degree_types_dd">
-                    {!! Form::select('degree_type_id', ['' => __('Select certification type')], $pe ? $pe->degree_type_id : null, ['class' => 'form-control resume-edu-input', 'id' => 'degree_type_id']) !!}
-                </span>
-                <span class="help-block degree_type_id-error text-danger small"></span>
-            </div>
-        </div>
-
         <div class="resume-edu-row row align-items-center mb-3" id="div_degree_title">
-            <label class="col-sm-4 col-form-label resume-edu-label" for="degree_title">{{ __('Title') }} <span class="text-danger">*</span></label>
+            <label class="col-sm-4 col-form-label resume-edu-label" for="degree_title">{{ __('Degree or program') }} <span class="text-danger">*</span></label>
             <div class="col-sm-8">
-                <input class="form-control resume-edu-input" id="degree_title" placeholder="{{ __('e.g. Diploma in Practical Nursing') }}" name="degree_title" type="text" value="{{ old('degree_title', $pe ? $pe->degree_title : '') }}">
+                <input class="form-control resume-edu-input" id="degree_title" placeholder="{{ __('e.g. Diploma in Practical Nursing, BSc Nursing') }}" name="degree_title" type="text" value="{{ old('degree_title', $pe ? $pe->degree_title : '') }}">
                 <span class="help-block degree_title-error text-danger small"></span>
             </div>
         </div>
@@ -73,30 +63,6 @@
                 @endphp
                 {!! Form::select('country_id', ['' => __('Select country')] + $countries, $country_id, ['class' => 'form-control resume-edu-input', 'id' => 'education_country_id']) !!}
                 <span class="help-block country_id-error text-danger small"></span>
-            </div>
-        </div>
-        @endif
-
-        @if(\App\Helpers\LocationHelper::showState())
-        <div class="resume-edu-row row align-items-center mb-3" id="div_state_id">
-            <label class="col-sm-4 col-form-label resume-edu-label" for="education_state_id">{{ __('State / province') }} <span class="text-danger">*</span></label>
-            <div class="col-sm-8">
-                <span id="default_state_education_dd">
-                    {!! Form::select('state_id', ['' => __('Select state')], $pe ? $pe->state_id : null, ['class' => 'form-control resume-edu-input', 'id' => 'education_state_id']) !!}
-                </span>
-                <span class="help-block state_id-error text-danger small"></span>
-            </div>
-        </div>
-        @endif
-
-        @if(\App\Helpers\LocationHelper::showCity())
-        <div class="resume-edu-row row align-items-center mb-3" id="div_city_id">
-            <label class="col-sm-4 col-form-label resume-edu-label" for="city_id">{{ __('City') }} <span class="text-danger">*</span></label>
-            <div class="col-sm-8">
-                <span id="default_city_education_dd">
-                    {!! Form::select('city_id', ['' => __('Select city')], $pe ? $pe->city_id : null, ['class' => 'form-control resume-edu-input', 'id' => 'city_id']) !!}
-                </span>
-                <span class="help-block city_id-error text-danger small"></span>
             </div>
         </div>
         @endif

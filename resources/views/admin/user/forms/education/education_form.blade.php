@@ -9,19 +9,9 @@
             <span class="help-block degree_level_id-error"></span> </div>
 
 
-        <div class="form-group mb-3" id="div_degree_type_id">
-            <label for="degree_type_id" class="bold">Degree Type</label>
-            <?php
-            $degree_type_id = (isset($profileEducation) ? $profileEducation->degree_type_id : null);
-            ?>
-            <span id="degree_types_dd">
-                {!! Form::select('degree_type_id', [''=>'Select Degree Type'], $degree_type_id, array('class'=>'form-control', 'id'=>'degree_type_id')) !!}
-            </span>
-            <span class="help-block degree_type_id-error"></span> </div>
-
         <div class="form-group mb-3" id="div_degree_title">
-            <label for="degree_title" class="bold">Degree Title</label>
-            <input class="form-control" id="degree_title" placeholder="Degree Title" name="degree_title" type="text" value="{{(isset($profileEducation)? $profileEducation->degree_title:'')}}">
+            <label for="degree_title" class="bold">Degree or program</label>
+            <input class="form-control" id="degree_title" placeholder="e.g. Diploma in Practical Nursing, BSc Nursing" name="degree_title" type="text" value="{{(isset($profileEducation)? $profileEducation->degree_title:'')}}">
             <span class="help-block degree_title-error"></span> </div>
 
         <div class="form-group mb-3" id="div_major_subjects">
@@ -40,25 +30,15 @@
             {!! Form::select('country_id', [''=>'Select Country']+$countries, $country_id, array('class'=>'form-control', 'id'=>'education_country_id')) !!}
             <span class="help-block country_id-error"></span> </div>
 
-        <div class="form-group mb-3" id="div_state_id">
-            <label for="state_id" class="bold">State</label>
-            <span id="default_state_education_dd">
-                {!! Form::select('state_id', [''=>'Select State'], null, array('class'=>'form-control', 'id'=>'education_state_id')) !!}
-            </span>
-            <span class="help-block state_id-error"></span> </div>
-
-        <div class="form-group mb-3" id="div_city_id">
-            <label for="city_id" class="bold">City</label>
-            <span id="default_city_education_dd">
-                {!! Form::select('city_id', [''=>'Select City'], null, array('class'=>'form-control', 'id'=>'city_id')) !!}
-            </span>
-            <span class="help-block city_id-error"></span> </div>
-
         <div class="form-group mb-3" id="div_institution">
             <label for="institution" class="bold">Institution</label>
             <input class="form-control" id="institution" placeholder="Institution" name="institution" type="text" value="{{(isset($profileEducation)? $profileEducation->institution:'')}}">
             <span class="help-block institution-error"></span> </div>
 
+        <div class="form-group mb-3" id="div_school_location">
+            <label for="school_location" class="bold">School address</label>
+            <input class="form-control" id="school_location" placeholder="Street, city, postal code, country" name="school_location" type="text" value="{{ old('school_location', isset($profileEducation) ? $profileEducation->school_location : '') }}">
+            <span class="help-block school_location-error"></span> </div>
 
         <div class="form-group mb-3" id="div_date_completion">
             <label for="date_completion" class="bold">Completion Year</label>
