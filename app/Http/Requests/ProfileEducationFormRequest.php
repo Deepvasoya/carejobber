@@ -18,7 +18,7 @@ class ProfileEducationFormRequest extends Request
             case 'PUT':
             case 'POST':
                 $rules = [
-                    'degree_level_id' => 'required',
+                    'degree_level_id' => 'nullable',
                     'degree_title' => 'required',
                     'institution' => 'required',
                     'date_completion' => 'required',
@@ -40,7 +40,6 @@ class ProfileEducationFormRequest extends Request
     public function messages()
     {
         return [
-            'degree_level_id.required' => 'Please select degree level.',
             'degree_title.required' => 'Please enter your degree or program.',
             'major_subjects.required' => 'Please select major subjects.',
             'country_id.required' => 'Please select country.',

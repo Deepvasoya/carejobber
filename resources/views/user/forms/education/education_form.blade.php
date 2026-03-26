@@ -3,14 +3,6 @@
 @endphp
 <div class="modal-body">
     <div class="form-body resume-education-form">
-        <div class="resume-edu-row row align-items-center mb-3" id="div_degree_level_id">
-            <label class="col-sm-4 col-form-label resume-edu-label" for="degree_level_id">{{ __('Level of education') }} <span class="text-danger">*</span></label>
-            <div class="col-sm-8">
-                {!! Form::select('degree_level_id', ['' => __('Select highest level of education')] + $degreeLevels, $pe ? $pe->degree_level_id : null, ['class' => 'form-control resume-edu-input', 'id' => 'degree_level_id']) !!}
-                <span class="help-block degree_level_id-error text-danger small"></span>
-            </div>
-        </div>
-
         <div class="resume-edu-row row align-items-center mb-3" id="div_degree_title">
             <label class="col-sm-4 col-form-label resume-edu-label" for="degree_title">{{ __('Degree or program') }} <span class="text-danger">*</span></label>
             <div class="col-sm-8">

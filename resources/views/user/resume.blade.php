@@ -4,6 +4,21 @@
 
 @push('styles')
    <style>
+      /* Fixed layout width so screen + html2canvas/pdf match the 800px resume table */
+      #printableArea {
+          width: 800px;
+          max-width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          box-sizing: border-box;
+          background: #fff;
+      }
+      #printableArea > table {
+          width: 800px !important;
+          max-width: 100%;
+          table-layout: fixed;
+          border-collapse: collapse;
+      }
       .usercvimg img{    width: 150px;
     height: 150px;
     border-radius: 50%;
@@ -22,6 +37,14 @@
     #printableArea .profileskills li .skillbox{border:none; padding:3px 0; display:flex; justify-content:space-between;}
     #printableArea .profileskills li .skillbox span{margin-top: 0; color:#fff !important; display:none}
     #printableArea .experienceList li h4, #printableArea .educationList li h4, .educationList li .date, .educationList li h5{font-weight: normal;}
+
+    /* html2canvas handles block layout more reliably than flex for timeline-style lists */
+    #printableArea .experienceList,
+    #printableArea .educationList { list-style: none; padding-left: 0; margin: 0; }
+    #printableArea .experienceList li,
+    #printableArea .educationList li { position: relative; display: block; margin: 0 0 14px 0; padding: 0 0 14px 0; border-bottom: 1px solid #e5e5e5; }
+    #printableArea .expbox { display: block; width: 100%; box-sizing: border-box; }
+    #printableArea .expcomp { display: block; margin-top: 4px; font-size: 14px; line-height: 1.45; color: #333; }
 
    </style>
 @endpush
@@ -617,22 +640,72 @@ if(null!==($package)){
 
 <script>
 function downloadPDF() {
-    const element = document.getElementById('printableArea');
+    var source = document.getElementById('printableArea');
+    if (!source) {
+        return;
+    }
 
-    html2pdf()
-        .from(element)
-        .set({
-            margin: 0,
-            html2canvas: { scale: 2 },
-            jsPDF: { orientation: 'portrait', pt: 'in', format: 'a4' }
+    var resumeWidth = 800;
+
+    /* Clone off-screen at full resume width so PDF is not squeezed by Bootstrap column / viewport */
+    var holder = document.createElement('div');
+    holder.setAttribute('aria-hidden', 'true');
+    holder.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + resumeWidth + 'px;margin:0;padding:0;background:#fff;overflow:visible;';
+    var clone = source.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.style.width = resumeWidth + 'px';
+    clone.style.maxWidth = resumeWidth + 'px';
+    clone.style.margin = '0';
+    clone.style.boxSizing = 'border-box';
+    clone.style.background = '#fff';
+    holder.appendChild(clone);
+    document.body.appendChild(holder);
+
+    var opt = {
+        margin: [0, 0, 0, 0],
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0,
+            width: resumeWidth,
+            windowWidth: resumeWidth
+        },
+        /* was invalid: jsPDF used "pt: 'in'" (ignored) — caused wrong scaling vs A4 */
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    var cleanup = function () {
+        if (holder.parentNode) {
+            holder.parentNode.removeChild(holder);
+        }
+    };
+
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+
+    fontsReady
+        .then(function () {
+            return html2pdf().set(opt).from(clone).outputPdf('blob');
         })
-        .outputPdf('blob')
         .then(function (pdfBlob) {
-            const url = URL.createObjectURL(pdfBlob);
-            window.open(url); // Open the PDF in a new tab
-        });
-
-        
+            var url = URL.createObjectURL(pdfBlob);
+            window.open(url);
+            setTimeout(function () {
+                try {
+                    URL.revokeObjectURL(url);
+                } catch (e) {}
+            }, 120000);
+        })
+        .catch(function (err) {
+            console.error('Resume PDF error:', err);
+        })
+        .finally(cleanup);
 }
 </script>
 
