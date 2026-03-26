@@ -33,15 +33,17 @@
                 @include('includes.job_list_side_bar')
                 
 
-                <div class="col-lg-9"> 
+                <div class="col-lg-9">
 
-                    <!-- Search List -->
+                    <div class="job-search-results-narrow">
+
+                    <!-- Search List (single narrow column, compact rows) -->
                      <h3>{{ $jobs->total() }} Jobs Found</h3>    
                     <div class="topstatinfo mb-0">
                     {{__('Showing Jobs')}} : {{ $jobs->firstItem() }} - {{ $jobs->lastItem() }} {{__('Total')}} {{ $jobs->total() }}
                     </div>
 
-                    <ul class="featuredlist row">
+                    <ul class="featuredlist row job-search-list-single">
 
                         <!-- job start --> 
 
@@ -56,7 +58,7 @@
 
                             <?php if($count_1 == 7) {?>
 
-                                <li class="col-lg-12"><div class="jobint text-center">{!! $siteSetting->listing_page_horizontal_ad !!}</div></li>
+                                <li class="col-12"><div class="jobint text-center">{!! $siteSetting->listing_page_horizontal_ad !!}</div></li>
 
                             <?php }else{ ?>
 
@@ -77,8 +79,8 @@
                   $benefitsPlain = trim(strip_tags((string) $job->benefits));
                   $expired = $job->isJobExpired();
               @endphp
-              <li class="col-lg-6 col-md-6 @if($job->is_featured == 1) featured @endif">
-                <div class="jobint job-list-card-enhanced @if(!empty($job->is_highlighted) && !$hasApplied) job-card-highlighted @endif @if($hasApplied) job-list-card-applied @endif">
+              <li class="col-12 @if($job->is_featured == 1) featured @endif">
+                <div class="jobint job-list-card-enhanced job-list-card-compact @if(!empty($job->is_highlighted) && !$hasApplied) job-card-highlighted @endif @if($hasApplied) job-list-card-applied @endif">
                     <div class="job-list-card-top">
                         <div class="job-list-card-badges">
                             @if(!empty($job->is_urgent))
@@ -107,7 +109,7 @@
                         </div>
                     </div>
 
-                    <h4 class="job-list-card-title"><a href="{{ route('job.detail', [$job->slug]) }}" title="{{ $job->title }}">{{ \Illuminate\Support\Str::limit($job->title, 90) }}</a></h4>
+                    <h4 class="job-list-card-title"><a href="{{ route('job.detail', [$job->slug]) }}" title="{{ $job->title }}">{{ \Illuminate\Support\Str::limit($job->title, 72) }}</a></h4>
 
                     <dl class="job-list-card-meta">
                         <div class="job-list-meta-row">
@@ -133,7 +135,7 @@
                             <dt><i class="fas fa-gift"></i> {{ __('Benefits') }}</dt>
                             <dd>
                                 @if($benefitsPlain !== '')
-                                    {{ \Illuminate\Support\Str::limit($benefitsPlain, 160) }}
+                                    {{ \Illuminate\Support\Str::limit($benefitsPlain, 100) }}
                                 @else
                                     <span class="job-list-meta-muted">—</span>
                                 @endif
@@ -227,39 +229,31 @@
 
                     </ul>
 
-
-
                     <!-- Pagination Start -->
 
-                    <div class="pagiWrap mt-5">
+                    <div class="pagiWrap mt-4 job-search-pagi">
 
-                        <div class="row">
+                        <div class="showreslt small text-muted mb-2">
 
-                            <div class="col-lg-5">
-
-                                <div class="showreslt">
-
-                                    {{__('Showing Jobs')}} : {{ $jobs->firstItem() }} - {{ $jobs->lastItem() }} {{__('Total')}} {{ $jobs->total() }}
-
-                                </div>
-
-                            </div>
-
-                            <div class="col-lg-7 text-right">
-
-                                @if(isset($jobs) && count($jobs))
-
-                                {{ $jobs->appends(request()->query())->links() }}
-
-                                @endif
-
-                            </div>
+                            {{__('Showing Jobs')}} : {{ $jobs->firstItem() }} - {{ $jobs->lastItem() }} {{__('Total')}} {{ $jobs->total() }}
 
                         </div>
 
+                        @if(isset($jobs) && count($jobs))
+
+                        <div class="job-search-pagi-links">
+
+                            {{ $jobs->appends(request()->query())->links() }}
+
+                        </div>
+
+                        @endif
+
                     </div>
 
-                    <!-- Pagination end --> 
+                    <!-- Pagination end -->
+
+                    </div>
 
                    
 
@@ -386,15 +380,50 @@
         right: auto;
     }
 
-    /* Job search: 2-column cards with full meta */
-    ul.featuredlist.row {
-        --bs-gutter-x: 1.25rem;
-        --bs-gutter-y: 1.25rem;
+    /* Narrow list lives inside normal Bootstrap col (avoid width:auto on col — breaks flex + width:100% child) */
+    .job-search-results-narrow {
+    
+        width: 100%;
+    }
+
+    .job-search-results-narrow > h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .job-search-results-narrow .topstatinfo {
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem !important;
+        color: #64748b;
+    }
+
+    .job-search-pagi .pagination {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 0.2rem;
+        margin-bottom: 0;
+        font-size: 0.8rem;
+    }
+
+    .job-search-pagi .page-link {
+        padding: 0.25rem 0.45rem;
+    }
+
+    ul.featuredlist.row.job-search-list-single {
+        --bs-gutter-x: 0.65rem;
+        --bs-gutter-y: 0.5rem;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    ul.featuredlist.row.job-search-list-single > li {
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .job-list-card-enhanced {
         position: relative;
-        height: 100%;
+        height: auto;
         display: flex;
         flex-direction: column;
         padding: 1.1rem 1.15rem 1rem;
@@ -403,6 +432,124 @@
         background: #fff;
         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
         transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .job-list-card-compact {
+        padding: 0.55rem 0.65rem 0.5rem;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(15, 23, 42, 0.05);
+    }
+
+    .job-list-card-compact .job-list-card-top {
+        margin-bottom: 0.35rem;
+        min-height: 0;
+    }
+
+    .job-list-card-compact .job-list-pill {
+        font-size: 0.62rem;
+        padding: 0.15rem 0.4rem;
+    }
+
+    .job-list-card-compact .job-list-save-btn {
+        width: 1.85rem;
+        height: 1.85rem;
+    }
+
+    .job-list-card-compact .job-list-card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0 0 0.4rem;
+    }
+
+    .job-list-card-compact .job-list-card-title a {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .job-list-card-compact .job-list-card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.35rem 0.75rem;
+        margin: 0 0 0.45rem;
+        padding: 0;
+        font-size: 0.78rem;
+        grid-template-columns: unset;
+    }
+
+    .job-list-card-compact .job-list-meta-row {
+        display: inline-flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.2rem 0.35rem;
+        margin: 0;
+    }
+
+    .job-list-card-compact .job-list-meta-row-full {
+        flex-basis: 100%;
+    }
+
+    .job-list-card-compact .job-list-card-meta dt {
+        font-size: 0.65rem;
+        margin-bottom: 0;
+        text-transform: none;
+        letter-spacing: 0;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+    .job-list-card-compact .job-list-card-meta dt i {
+        margin-right: 0.15rem;
+        font-size: 0.7rem;
+    }
+
+    .job-list-card-compact .job-list-card-meta dd {
+        line-height: 1.35;
+        margin: 0;
+    }
+
+    .job-list-card-compact .job-list-card-company {
+        padding-top: 0.45rem;
+        margin-top: 0;
+        margin-bottom: 0.45rem;
+        border-top: 1px solid #f1f5f9;
+        gap: 0.5rem;
+    }
+
+    .job-list-card-compact .job-list-company-logo img {
+        max-height: 32px;
+        max-width: 32px;
+        border-radius: 6px;
+    }
+
+    .job-list-card-compact .job-list-company-name {
+        font-size: 0.82rem;
+    }
+
+    .job-list-card-compact .job-list-posted {
+        font-size: 0.72rem;
+        margin-top: 0;
+    }
+
+    .job-list-card-compact .job-list-card-actions {
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+
+    .job-list-card-compact .job-list-apply {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.78rem;
+        border-radius: 6px;
+    }
+
+    .job-list-card-compact .job-list-meta-row-full dd {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .job-list-card-enhanced:hover {
