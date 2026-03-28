@@ -22,7 +22,7 @@
 <!-- Popular Searches ends --> 
 
 <!-- Top Employers start -->
-@include('includes.top_employers')
+{{-- @include('includes.top_employers') --}}
 <!-- Top Employers ends --> 
 
 <!-- Featured Jobs start -->
@@ -30,11 +30,11 @@
 <!-- Featured Jobs ends -->
 
 <!-- Latest Jobs start -->
-@include('includes.latest_jobs')
+{{-- @include('includes.latest_jobs') --}}
 <!-- Latest Jobs ends -->
 
 <!-- Testimonials start -->
-@include('includes.home_blogs')
+{{-- @include('includes.home_blogs') --}}
 <!-- Testimonials End -->
 
 @include('includes.footer')

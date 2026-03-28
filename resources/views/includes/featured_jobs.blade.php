@@ -3,7 +3,7 @@
     @if(isset($featuredJobs) && count($featuredJobs))
         <!-- title start -->
         <div class="titleTop text-center">
-            <h3>{{__('Urgent & featured jobs')}}</h3>
+            <h3>{{__('Featured Vacancies')}}</h3>
         </div>
         <!-- title end --> 
 
