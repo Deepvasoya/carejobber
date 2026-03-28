@@ -193,7 +193,7 @@
                                                             <div class="job-list-meta-row">
                                                                 <dt><i class="fas fa-map-marker-alt"></i>
                                                                     {{ __('Location') }}</dt>
-                                                                <dd>{{ $job->getCity('city') ?: '—' }}</dd>
+                                                                <dd>{{ trim(implode(', ', array_filter([$job->getCity('city'), $job->getState('state')]))) ?: '—' }}</dd>
                                                             </div>
                                                         </dl>
 
