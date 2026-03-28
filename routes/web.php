@@ -12,6 +12,7 @@
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\SearchAutocompleteController;
 use Illuminate\Support\Facades\File;
 
 Route::get('make-login/{guard}', 'IndexController@login')->name('make.login');
@@ -61,15 +62,9 @@ Route::get('images/{filename}', function ($filename) {
 Route::get('company/email/verify', 'Company\CompanyVerificationController@show')->name('company.verification.notice');
 Route::post('company/email/resend', 'Company\CompanyVerificationController@resend')->name('company.verification.resend');
 $real_path = realpath(__DIR__) . DIRECTORY_SEPARATOR . 'front_routes' . DIRECTORY_SEPARATOR;
-Route::get('jobs-autocomplete', function (\Illuminate\Http\Request $request) {
-  $term = $request->get('term', '');
-  // Fetch job titles from the 'jobs' table where the title matches the search term
-  $results = DB::table('jobs')
-      ->where('search', 'LIKE', '%' . $term . '%')
-      ->pluck('title');
-  // Return the results as a JSON response
-  return response()->json($results);
-})->name('jobs.autocomplete');
+Route::get('jobs-autocomplete', [SearchAutocompleteController::class, 'jobs'])->name('jobs.autocomplete');
+Route::get('locations-autocomplete', [SearchAutocompleteController::class, 'locations'])->name('locations.autocomplete');
+Route::get('geocode-city', [SearchAutocompleteController::class, 'reverseGeocode'])->middleware('throttle:30,1')->name('geocode.city');
 /* * ******** IndexController ************ */
 Route::get('/', 'IndexController@index')->name('index');
 

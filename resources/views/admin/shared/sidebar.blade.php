@@ -266,6 +266,7 @@
             <ul class="sub-menu">
                 <li class="side-nav-item"><a href="{{ route('list.packages') }}" class="side-nav-link">List Packages</a></li>
                 <li class="side-nav-item"><a href="{{ route('create.package') }}" class="side-nav-link">Add Package</a></li>
+                <li class="side-nav-item"><a href="{{ route('list.package.coupons') }}" class="side-nav-link">Package coupons</a></li>
             </ul>
         </div>
     </li>

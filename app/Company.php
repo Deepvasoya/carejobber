@@ -473,6 +473,21 @@ class Company extends Authenticatable
 
     }
 
+    /**
+     * Total job applications across all of this company's jobs.
+     */
+    public function countJobApplications()
+
+    {
+
+        return \App\JobApply::whereHas('job', function ($q) {
+
+            $q->where('company_id', $this->id);
+
+        })->count();
+
+    }
+
     public function countMessages($id)
 
     {

@@ -102,6 +102,36 @@ if (!isset($seo)) {
     margin: 10px 0 0 10px;
     font-size: 12px;
 }
+
+    /* Job / location search autocomplete (jQuery UI) */
+    .ui-autocomplete.search-ac-dropdown {
+        z-index: 10050 !important;
+        max-height: 280px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: #fff;
+        border: 1px solid #ddd !important;
+        border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        padding: 4px 0;
+        margin-top: 4px;
+    }
+    .ui-autocomplete.search-ac-dropdown .ui-menu-item-wrapper {
+        padding: 8px 14px;
+        font-size: 15px;
+        border: none;
+    }
+    .ui-autocomplete.search-ac-dropdown .ui-menu-item-wrapper.ui-state-active {
+        background: #e8f4fd !important;
+        color: #222 !important;
+        border: none;
+        margin: 0;
+    }
+    .search-ac-geo-row i { color: #28a745; margin-right: 8px; }
+    .search-ac-job-typed { color: #888; }
+    .search-ac-job-bold { font-weight: 600; color: #111; }
+    .search-ac-loc-prefix { font-weight: 600; }
+    .search-ac-loc-rest { font-weight: 400; color: #333; }
     </style>
 </head>
 
@@ -198,9 +228,102 @@ if (!isset($seo)) {
         });
 
         $(document).ready(function() {
+            if (!$.fn.autocomplete) {
+                return;
+            }
+
+            window.SEARCH_AC_I18N = window.SEARCH_AC_I18N || {
+                useMyLocation: @json(__('Use my current location')),
+                geoNotSupported: @json(__('Geolocation is not supported by your browser.')),
+                geoDenied: @json(__('Unable to retrieve your location. Please allow location access or type a city.')),
+                geoFailed: @json(__('Could not resolve your location. Try typing a city name.'))
+            };
+
+            function escapeHtml(s) {
+                return String(s).replace(/[&<>"']/g, function(c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+
+            function prefixLen(label, term) {
+                if (!term || !label) {
+                    return 0;
+                }
+                var l = label.toLowerCase();
+                var t = term.toLowerCase();
+                if (l.indexOf(t) !== 0) {
+                    return 0;
+                }
+                return t.length;
+            }
+
+            function renderJobSuggestion(label, term) {
+                var n = prefixLen(label, term);
+                if (n <= 0) {
+                    return '<span class="search-ac-job-rest">' + escapeHtml(label) + '</span>';
+                }
+                var matched = label.substring(0, n);
+                var rest = label.substring(n);
+                return '<span class="search-ac-job-typed">' + escapeHtml(matched) + '</span>'
+                    + '<strong class="search-ac-job-bold">' + escapeHtml(rest) + '</strong>';
+            }
+
+            function renderLocationSuggestion(label, term) {
+                var n = prefixLen(label, term);
+                if (n <= 0) {
+                    return '<span>' + escapeHtml(label) + '</span>';
+                }
+                var matched = label.substring(0, n);
+                var rest = label.substring(n);
+                return '<strong class="search-ac-loc-prefix">' + escapeHtml(matched) + '</strong>'
+                    + '<span class="search-ac-loc-rest">' + escapeHtml(rest) + '</span>';
+            }
+
+            function bindAcMenuClasses($input) {
+                $input.on('autocompleteopen', function() {
+                    $(this).autocomplete('widget').addClass('search-ac-dropdown');
+                });
+            }
+
+            function fillLocationFromGeocode($input) {
+                var i18n = window.SEARCH_AC_I18N;
+                if (!navigator.geolocation) {
+                    window.alert(i18n.geoNotSupported);
+                    return;
+                }
+                $input.prop('disabled', true);
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        $.getJSON("{{ route('geocode.city') }}", {
+                            lat: pos.coords.latitude,
+                            lon: pos.coords.longitude
+                        })
+                            .done(function(res) {
+                                if (res && res.label) {
+                                    $input.val(res.label);
+                                } else {
+                                    window.alert(i18n.geoFailed);
+                                }
+                            })
+                            .fail(function() {
+                                window.alert(i18n.geoFailed);
+                            })
+                            .always(function() {
+                                $input.prop('disabled', false);
+                            });
+                    },
+                    function() {
+                        $input.prop('disabled', false);
+                        window.alert(i18n.geoDenied);
+                    },
+                    { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 }
+                );
+            }
+
             var $jbsearch = $("#jbsearch");
-            if ($jbsearch.length && $.fn.autocomplete) {
+            if ($jbsearch.length) {
                 $jbsearch.autocomplete({
+                    minLength: 2,
                     source: function(request, response) {
                         $.ajax({
                             url: "{{ route('jobs.autocomplete') }}",
@@ -209,8 +332,72 @@ if (!isset($seo)) {
                             success: function(data) { response(data); },
                             error: function() { response([]); }
                         });
-                    },
-                    minLength: 2
+                    }
+                });
+                bindAcMenuClasses($jbsearch);
+                var jbInst = $jbsearch.data('ui-autocomplete');
+                if (jbInst) {
+                    jbInst._renderItem = function(ul, item) {
+                        var label = item.label != null ? item.label : item.value;
+                        var term = this.term || '';
+                        var html = renderJobSuggestion(String(label), term);
+                        return $('<li class="ui-menu-item">').append('<div class="ui-menu-item-wrapper search-ac-item">' + html + '</div>').appendTo(ul);
+                    };
+                }
+            }
+
+            var $locInputs = $('#location_search, #location_search_inner');
+            if ($locInputs.length) {
+                $locInputs.each(function() {
+                    var $loc = $(this);
+                    $loc.autocomplete({
+                        minLength: 2,
+                        source: function(request, response) {
+                            var term = request.term;
+                            $.ajax({
+                                url: "{{ route('locations.autocomplete') }}",
+                                dataType: "json",
+                                data: { term: term },
+                                success: function(data) {
+                                    var geo = {
+                                        label: window.SEARCH_AC_I18N.useMyLocation,
+                                        value: '',
+                                        geo: true
+                                    };
+                                    response([geo].concat(data || []));
+                                },
+                                error: function() { response([]); }
+                            });
+                        },
+                        select: function(event, ui) {
+                            if (ui.item && ui.item.geo) {
+                                event.preventDefault();
+                                $loc.autocomplete('close');
+                                fillLocationFromGeocode($loc);
+                                return false;
+                            }
+                        }
+                    });
+                    bindAcMenuClasses($loc);
+                    var locInst = $loc.data('ui-autocomplete');
+                    if (locInst) {
+                        locInst._renderItem = function(ul, item) {
+                            if (item.geo) {
+                                return $('<li class="ui-menu-item">')
+                                    .append(
+                                        '<div class="ui-menu-item-wrapper search-ac-item search-ac-geo-row">'
+                                        + '<i class="fas fa-crosshairs" aria-hidden="true"></i>'
+                                        + escapeHtml(item.label)
+                                        + '</div>'
+                                    )
+                                    .appendTo(ul);
+                            }
+                            var label = item.label != null ? item.label : item.value;
+                            var term = this.term || '';
+                            var html = renderLocationSuggestion(String(label), term);
+                            return $('<li class="ui-menu-item">').append('<div class="ui-menu-item-wrapper search-ac-item">' + html + '</div>').appendTo(ul);
+                        };
+                    }
                 });
             }
         });

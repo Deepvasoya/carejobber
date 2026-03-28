@@ -86,6 +86,8 @@ Route::get('my-alerts', 'UserController@myAlerts')->name('my-alerts');
 Route::get('delete-alert/{id}', 'UserController@delete_alert')->name('delete-alert');
 
 Route::get('user-package', 'UserController@package')->name('user.package');
+Route::post('user-package/apply-coupon', 'PackageCouponSessionController@applyJobSeeker')->middleware('auth')->name('user.package.apply.coupon');
+Route::post('user-package/clear-coupon', 'PackageCouponSessionController@clearJobSeeker')->middleware('auth')->name('user.package.clear.coupon');
 
 /* * ******** Privacy & Data Settings ************ */
 Route::get('privacy-data-settings', 'UserController@privacyDataSettings')->name('privacy.data.settings');

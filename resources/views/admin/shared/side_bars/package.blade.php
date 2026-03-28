@@ -2,5 +2,6 @@
     <ul class="sub-menu">
         <li class="nav-item  "> <a href="{{ route('list.packages') }}" class="nav-link "> <span class="title">List Packages</span> </a> </li>
         <li class="nav-item  "> <a href="{{ route('create.package') }}" class="nav-link "> <span class="title">Add new Package</span> </a> </li>
+        <li class="nav-item  "> <a href="{{ route('list.package.coupons') }}" class="nav-link "> <span class="title">Package coupons</span> </a> </li>
     </ul>
 </li>

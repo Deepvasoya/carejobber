@@ -133,19 +133,8 @@ class CompanyController extends Controller
         Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
         $company = Auth::guard('company')->user();
         
-        // Get suggested candidates based on company industry
-        $suggestedCandidates = collect();
-        
-        if ($company && $company->industry_id) {
-            // Fetch candidates matching company's industry
-            $industry_ids = [$company->industry_id];
-            $suggestedCandidates = $this->fetchJobSeekers('', $industry_ids, [], [], [], [], [], [], [], 0, 0, '', 'id', 6, 0);
-        }
-        
-        // Ensure we always pass the variable even if empty
-        if (!$suggestedCandidates) {
-            $suggestedCandidates = collect();
-        }
+        // Suggested candidates from active job titles (not company industry)
+        $suggestedCandidates = $this->fetchJobSeekersMatchingPostedJobTitles((int) $company->id, 6);
         
         return view('company_home', compact('suggestedCandidates'));
     }

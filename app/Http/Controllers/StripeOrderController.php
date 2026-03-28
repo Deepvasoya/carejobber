@@ -12,6 +12,8 @@ use Redirect;
 use Input;
 use Config;
 use App\Package;
+use App\PackageCoupon;
+use App\Services\PackageCouponService;
 use App\User;
 use Carbon\Carbon;
 use Cake\Chronos\Chronos;
@@ -49,10 +51,22 @@ class StripeOrderController extends Controller
     public function stripeOrderForm($package_id, $new_or_upgrade)
     {
         $package = Package::findOrFail($package_id);
+        $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
+        $userId = Auth::check() ? Auth::user()->id : null;
+        $rawCoupon = session('jobseeker_package_coupon_code');
+        $couponEval = app(PackageCouponService::class)->evaluateCheckout($rawCoupon, $package, $companyId, $userId);
+        $couponWarning = null;
+        if ($rawCoupon && PackageCoupon::normalizeCode((string) $rawCoupon) !== '' && !$couponEval['ok']) {
+            $couponWarning = PackageCouponService::humanMessage($couponEval['reason'] ?? 'default');
+        }
+
         return view('order.pay_with_stripe')
                         ->with('package', $package)
                         ->with('package_id', $package_id)
-                        ->with('new_or_upgrade', $new_or_upgrade);
+                        ->with('new_or_upgrade', $new_or_upgrade)
+                        ->with('couponEval', $couponEval)
+                        ->with('storedCouponCode', $rawCoupon)
+                        ->with('couponWarning', $couponWarning);
     }
 
     /**
@@ -65,7 +79,18 @@ class StripeOrderController extends Controller
     {
         $package = Package::findOrFail($request->package_id);
 
-        $order_amount = $package->package_price;
+        $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
+        $userId = Auth::check() ? Auth::user()->id : null;
+        $svc = app(PackageCouponService::class);
+        $eval = $svc->evaluateCheckout(session('jobseeker_package_coupon_code'), $package, $companyId, $userId);
+
+        if (PackageCoupon::normalizeCode((string) session('jobseeker_package_coupon_code')) !== '' && !$eval['ok']) {
+            flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
+
+            return Redirect::route('stripe.order.form', [$request->package_id, 'new']);
+        }
+
+        $order_amount = $eval['ok'] ? $eval['total'] : $package->package_price;
 
         /*         * ************************ */
         $buyer_id = '';
@@ -84,7 +109,7 @@ class StripeOrderController extends Controller
         Stripe::setApiKey(Config::get('stripe.stripe_secret'));
         try {
             $charge = Charge::create(array(
-                        "amount" => $order_amount * 100,
+                        "amount" => round($order_amount * 100),
                         "currency" => "USD",
                         "source" => $request->input('stripeToken'), // obtained with Stripe.js
                         "description" => $description
@@ -106,13 +131,27 @@ class StripeOrderController extends Controller
                     $this->addJobSeekerPackage($user, $package, 'Stripe');
                 }
 
+                if (!empty($eval['coupon']) && ($eval['discount'] ?? 0) > 0) {
+                    $svc->recordRedemption(
+                        $eval['coupon'],
+                        $package,
+                        (float) $eval['discount'],
+                        $companyId,
+                        $userId,
+                        null,
+                        $charge['id'] ?? null,
+                        $order_amount,
+                        'USD'
+                    );
+                }
+
                 flash(__('You have successfully subscribed to selected package'))->success();
                 return Redirect::route($this->redirectTo);
             } else {
                 flash(__('Package subscription failed'));
                 return Redirect::route($this->redirectTo);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             flash($e->getMessage());
             return Redirect::route($this->redirectTo);
         }
@@ -123,7 +162,18 @@ class StripeOrderController extends Controller
 
         $package = Package::findOrFail($request->package_id);
 
-        $order_amount = $package->package_price;
+        $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
+        $userId = Auth::check() ? Auth::user()->id : null;
+        $svc = app(PackageCouponService::class);
+        $eval = $svc->evaluateCheckout(session('jobseeker_package_coupon_code'), $package, $companyId, $userId);
+
+        if (PackageCoupon::normalizeCode((string) session('jobseeker_package_coupon_code')) !== '' && !$eval['ok']) {
+            flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
+
+            return Redirect::route('stripe.order.form', [$request->package_id, 'upgrade']);
+        }
+
+        $order_amount = $eval['ok'] ? $eval['total'] : $package->package_price;
 
         /*         * ************************ */
         $buyer_id = '';
@@ -144,7 +194,7 @@ class StripeOrderController extends Controller
         Stripe::setApiKey(Config::get('stripe.stripe_secret'));
         try {
             $charge = Charge::create(array(
-                        "amount" => $order_amount * 100,
+                        "amount" => round($order_amount * 100),
                         "currency" => "USD",
                         "source" => $request->input('stripeToken'), // obtained with Stripe.js
                         "description" => $description
@@ -166,13 +216,27 @@ class StripeOrderController extends Controller
                     $this->updateJobSeekerPackage($user, $package,'Stripe');
                 }
 
+                if (!empty($eval['coupon']) && ($eval['discount'] ?? 0) > 0) {
+                    $svc->recordRedemption(
+                        $eval['coupon'],
+                        $package,
+                        (float) $eval['discount'],
+                        $companyId,
+                        $userId,
+                        null,
+                        $charge['id'] ?? null,
+                        $order_amount,
+                        'USD'
+                    );
+                }
+
                 flash(__('You have successfully subscribed to selected package'))->success();
                 return Redirect::route($this->redirectTo);
             } else {
                 flash(__('Package subscription failed'));
                 return Redirect::route($this->redirectTo);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             flash($e->getMessage());
             return Redirect::route($this->redirectTo);
         }

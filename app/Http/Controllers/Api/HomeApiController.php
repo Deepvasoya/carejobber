@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BaseController as BaseController;
 use App\Job;
+use App\Services\ProfileJobTitleMatching;
 use App\FavouriteCompany;
 use App\Company;
 use Illuminate\Http\Request;
@@ -517,8 +518,8 @@ private function extractEnglishText($text)
             // Get recommended jobs
             $matchingJobs = [];
             try {
-                $matchingJobs = $this->getMatchingJobs($user);
-                
+                $matchingJobs = $this->getMatchingJobsForUserImproved($user);
+
                 // Log each job details
                 foreach ($matchingJobs as $index => $job) {
                 }
@@ -633,8 +634,8 @@ private function extractEnglishText($text)
             // Get recommended jobs
             $matchingJobs = [];
             try {
-                $matchingJobs = $this->getMatchingJobs($user);
-                
+                $matchingJobs = $this->getMatchingJobsForUserImproved($user);
+
                 // Log each job details
                 foreach ($matchingJobs as $index => $job) {
                 }
@@ -779,46 +780,59 @@ private function extractEnglishText($text)
             
             // Step 6: Add complex WHERE clauses
             try {
-                $query->where(function($q) use ($user, $skillIds) {
-            // Match by functional area
-            if ($user->functional_area_id) {
-                $q->orWhere('jobs.functional_area_id', $user->functional_area_id);
-            }
-            
-            // Match by industry through company
-            if ($user->industry_id) {
-                $q->orWhereHas('company', function($subq) use ($user) {
-                    $subq->where('industry_id', $user->industry_id);
+                $professionPhrases = ProfileJobTitleMatching::jobSeekerProfessionPhrases($user);
+                $query->where(function ($q) use ($user, $skillIds, $professionPhrases) {
+                    $added = false;
+                    foreach ($professionPhrases as $phrase) {
+                        $like = '%' . addcslashes($phrase, '%_\\') . '%';
+                        $q->orWhere(function ($sub) use ($like) {
+                            $sub->where('jobs.title', 'like', $like)
+                                ->orWhere('jobs.search', 'like', $like);
+                        });
+                        $added = true;
+                    }
+
+                    // Match by functional area
+                    if ($user->functional_area_id) {
+                        $q->orWhere('jobs.functional_area_id', $user->functional_area_id);
+                        $added = true;
+                    }
+
+                    // Match by career level
+                    if ($user->career_level_id) {
+                        $q->orWhere('jobs.career_level_id', $user->career_level_id);
+                        $added = true;
+                    }
+
+                    // Match by job experience
+                    if ($user->job_experience_id) {
+                        $q->orWhere('jobs.job_experience_id', $user->job_experience_id);
+                        $added = true;
+                    }
+
+                    // Match by salary range (with 20% flexibility)
+                    if ($user->expected_salary) {
+                        $minSalary = $user->expected_salary * 0.8;
+                        $maxSalary = $user->expected_salary * 1.2;
+                        $q->orWhere(function ($salaryQ) use ($minSalary, $maxSalary) {
+                            $salaryQ->whereBetween('jobs.salary_from', [$minSalary, $maxSalary])
+                                ->orWhereBetween('jobs.salary_to', [$minSalary, $maxSalary]);
+                        });
+                        $added = true;
+                    }
+
+                    // Match by skills
+                    if (!empty($skillIds)) {
+                        $q->orWhereHas('jobSkills', function ($skillQ) use ($skillIds) {
+                            $skillQ->whereIn('job_skill_id', $skillIds);
+                        });
+                        $added = true;
+                    }
+
+                    if (!$added) {
+                        $q->whereRaw('0 = 1');
+                    }
                 });
-            }
-            
-            // Match by career level
-            if ($user->career_level_id) {
-                $q->orWhere('jobs.career_level_id', $user->career_level_id);
-            }
-            
-            // Match by job experience
-            if ($user->job_experience_id) {
-                $q->orWhere('jobs.job_experience_id', $user->job_experience_id);
-            }
-            
-            // Match by salary range (with 20% flexibility)
-            if ($user->expected_salary) {
-                $minSalary = $user->expected_salary * 0.8;
-                $maxSalary = $user->expected_salary * 1.2;
-                $q->orWhere(function($salaryQ) use ($minSalary, $maxSalary) {
-                    $salaryQ->whereBetween('jobs.salary_from', [$minSalary, $maxSalary])
-                           ->orWhereBetween('jobs.salary_to', [$minSalary, $maxSalary]);
-                });
-            }
-            
-            // Match by skills
-            if (!empty($skillIds)) {
-                $q->orWhereHas('jobSkills', function($skillQ) use ($skillIds) {
-                    $skillQ->whereIn('job_skill_id', $skillIds);
-                });
-            }
-        });
             } catch (\Exception $e) {
                 \Log::error('Error adding complex WHERE clauses: ' . $e->getMessage());
                 throw $e;
@@ -1005,48 +1019,62 @@ private function extractEnglishText($text)
             
             // Get applied job IDs to exclude them
             $appliedJobIds = $user->getAppliedJobIdsArray();
-            
+
+            $professionPhrases = ProfileJobTitleMatching::jobSeekerProfessionPhrases($user);
+
             // Build the query using the same logic as web controller
             $query = Job::where('is_active', 1)
                 ->where('expiry_date', '>', now())
-                ->where(function($q) use ($user, $skillIds) {
+                ->where(function ($q) use ($user, $skillIds, $professionPhrases) {
+                    $added = false;
+                    foreach ($professionPhrases as $phrase) {
+                        $like = '%' . addcslashes($phrase, '%_\\') . '%';
+                        $q->orWhere(function ($sub) use ($like) {
+                            $sub->where('title', 'like', $like)
+                                ->orWhere('search', 'like', $like);
+                        });
+                        $added = true;
+                    }
+
                     // Match by functional area
                     if ($user->functional_area_id) {
                         $q->orWhere('functional_area_id', $user->functional_area_id);
+                        $added = true;
                     }
-                    
-                    // Match by industry through company
-                    if ($user->industry_id) {
-                        $q->orWhereHas('company', function($subq) use ($user) {
-                            $subq->where('industry_id', $user->industry_id);
-                        });
-                    }
-                    
+
                     // Match by career level
                     if ($user->career_level_id) {
                         $q->orWhere('career_level_id', $user->career_level_id);
+                        $added = true;
                     }
-                    
+
                     // Match by job experience
                     if ($user->job_experience_id) {
                         $q->orWhere('job_experience_id', $user->job_experience_id);
+                        $added = true;
                     }
-                    
+
                     // Match by salary range (with 20% flexibility)
                     if ($user->expected_salary) {
                         $minSalary = $user->expected_salary * 0.8;
                         $maxSalary = $user->expected_salary * 1.2;
-                        $q->orWhere(function($salaryQ) use ($minSalary, $maxSalary) {
+                        $q->orWhere(function ($salaryQ) use ($minSalary, $maxSalary) {
                             $salaryQ->whereBetween('salary_from', [$minSalary, $maxSalary])
-                                   ->orWhereBetween('salary_to', [$minSalary, $maxSalary]);
+                                ->orWhereBetween('salary_to', [$minSalary, $maxSalary]);
                         });
+                        $added = true;
                     }
-                    
+
                     // Match by skills
                     if (!empty($skillIds)) {
-                        $q->orWhereHas('jobSkills', function($skillQ) use ($skillIds) {
+                        $q->orWhereHas('jobSkills', function ($skillQ) use ($skillIds) {
                             $skillQ->whereIn('job_skill_id', $skillIds);
                         });
+                        $added = true;
+                    }
+
+                    if (!$added) {
+                        $q->whereRaw('0 = 1');
                     }
                 });
             
@@ -1424,11 +1452,10 @@ private function extractEnglishText($text)
                 'expected_salary' => $user->expected_salary
             ];
 
-            // Test getMatchingJobs method
+            // Test matching jobs (title/profession-based)
             $matchingJobs = [];
             try {
-                $matchingJobs = $this->getMatchingJobs($user);
-                // Ensure it's an array
+                $matchingJobs = $this->getMatchingJobsForUserImproved($user);
                 if (!is_array($matchingJobs)) {
                     $matchingJobs = [];
                 }

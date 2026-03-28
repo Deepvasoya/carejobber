@@ -270,6 +270,7 @@
                     @if(APAuthHelp::can('faq.view'))<li><a href="{{ route('list.faqs') }}"><i class="ri ri-question-line"></i> FAQs</a></li>@endif
                     @if(APAuthHelp::can('testimonials.view'))<li><a href="{{ route('list.testimonials') }}"><i class="ri ri-chat-quote-line"></i> Testimonials</a></li>@endif
                     @if(APAuthHelp::can('packages.manage'))<li><a href="{{ route('list.packages') }}"><i class="ri ri-price-tag-3-line"></i> Packages</a></li>@endif
+                    @if(APAuthHelp::can('packages.manage'))<li><a href="{{ route('list.package.coupons') }}"><i class="ri ri-coupon-3-line"></i> Package coupons</a></li>@endif
                     @if(APAuthHelp::can('countries.manage'))<li><a href="{{ route('list.countries') }}"><i class="ri ri-global-line"></i> Countries</a></li>@endif
                     @if(APAuthHelp::can('states.manage'))<li><a href="{{ route('list.states') }}"><i class="ri ri-map-line"></i> States</a></li>@endif
                     @if(APAuthHelp::can('cities.manage'))<li><a href="{{ route('list.cities') }}"><i class="ri ri-map-pin-2-line"></i> Cities</a></li>@endif

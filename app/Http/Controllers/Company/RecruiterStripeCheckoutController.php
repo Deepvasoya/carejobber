@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Package;
+use App\PackageCoupon;
+use App\Services\PackageCouponService;
 use App\StripeCheckoutSession;
 use App\Traits\CompanyPackageTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Stripe\Stripe;
 use Stripe\Checkout\Session as StripeSession;
+use Stripe\Stripe;
 
 class RecruiterStripeCheckoutController extends Controller
 {
@@ -59,6 +61,7 @@ class RecruiterStripeCheckoutController extends Controller
             'tab' => $tab,
             'currency' => $request->query('currency', 'cad'),
             'exp' => time() + 900,
+            'coupon_code' => session('employer_package_coupon_code'),
         ];
         $token = encrypt($payload);
         return redirect()->route('recruiter.stripe.checkout', ['token' => $token]);
@@ -110,6 +113,31 @@ class RecruiterStripeCheckoutController extends Controller
 
         $countryCode = $payload['country_code'] ?? null;
         $currency = strtolower($payload['currency'] ?? 'cad');
+        $cancelUrl = $payload['tab'] === 'subscriptions'
+            ? route('recruiter.posting.subscriptions', ['cc' => $countryCode])
+            : route('recruiter.posting.packages', ['cc' => $countryCode]);
+
+        $rawCoupon = $payload['coupon_code'] ?? null;
+        $hasCouponInput = PackageCoupon::normalizeCode((string) $rawCoupon) !== '';
+        $couponSvc = app(PackageCouponService::class);
+        $eval = $couponSvc->evaluateCheckout($rawCoupon, $package, (int) $company->id, null);
+
+        if ($hasCouponInput && !$eval['ok']) {
+            flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
+
+            return redirect()->to($cancelUrl);
+        }
+
+        $appliedCouponId = null;
+        $discountAmount = 0.0;
+        $originalCents = (int) round(((float) $package->package_price) * 100);
+        $finalCents = $originalCents;
+        if (!empty($eval['coupon']) && ($eval['discount'] ?? 0) > 0) {
+            $appliedCouponId = $eval['coupon']->id;
+            $discountAmount = (float) $eval['discount'];
+            $finalCents = (int) round(((float) $eval['total']) * 100);
+        }
+
         $isSubscription = $package->type === Package::TYPE_MONTHLY_RECURRING;
         $monthsLabel = $isSubscription ? $package->subscriptionBillingMonths() : null;
         $productName = $package->package_title ?: ($package->package_num_listings . ' job postings');
@@ -122,6 +150,9 @@ class RecruiterStripeCheckoutController extends Controller
         }
 
         $productDescription = $countryCode ? __('Country') . ': ' . $countryCode : '';
+        if ($discountAmount > 0) {
+            $productDescription = trim($productDescription . ' | ' . __('Coupon discount'));
+        }
 
         if ($isSubscription) {
             $billingMonths = max(1, (int) round(($package->duration_days ?: 30) / 30));
@@ -136,7 +167,7 @@ class RecruiterStripeCheckoutController extends Controller
                             'name' => $productName,
                             'description' => $productDescription,
                         ],
-                        'unit_amount' => (int) round($package->package_price * 100),
+                        'unit_amount' => $finalCents,
                         'recurring' => [
                             'interval' => 'month',
                             'interval_count' => $billingMonths,
@@ -153,7 +184,7 @@ class RecruiterStripeCheckoutController extends Controller
                         'name' => $productName,
                         'description' => $productDescription,
                     ],
-                    'unit_amount' => (int) round($package->package_price * 100),
+                    'unit_amount' => $finalCents,
                 ],
             ]];
         }
@@ -161,9 +192,16 @@ class RecruiterStripeCheckoutController extends Controller
         // Stripe replaces {CHECKOUT_SESSION_ID} with the real session ID on redirect.
         // Do not use route() with the placeholder as a param — it gets URL-encoded and Stripe won't replace it.
         $successUrl = route('recruiter.stripe.success') . '?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl = $payload['tab'] === 'subscriptions'
-            ? route('recruiter.posting.subscriptions', ['cc' => $countryCode])
-            : route('recruiter.posting.packages', ['cc' => $countryCode]);
+
+        $metadata = [
+            'company_id' => (string) $company->id,
+            'package_id' => (string) $package->id,
+            'country_code' => (string) $countryCode,
+        ];
+        if ($appliedCouponId) {
+            $metadata['package_coupon_id'] = (string) $appliedCouponId;
+            $metadata['coupon_discount'] = (string) $discountAmount;
+        }
 
         $sessionParams = [
             'payment_method_types' => ['card'],
@@ -172,11 +210,7 @@ class RecruiterStripeCheckoutController extends Controller
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $company->id,
-            'metadata' => [
-                'company_id' => (string) $company->id,
-                'package_id' => (string) $package->id,
-                'country_code' => (string) $countryCode,
-            ],
+            'metadata' => $metadata,
         ];
         if ($company->stripe_customer_id) {
             $sessionParams['customer'] = $company->stripe_customer_id;
@@ -197,6 +231,9 @@ class RecruiterStripeCheckoutController extends Controller
             'package_id' => $package->id,
             'country_code' => $countryCode,
             'status' => 'pending',
+            'package_coupon_id' => $appliedCouponId,
+            'coupon_discount_amount' => $discountAmount > 0 ? $discountAmount : null,
+            'original_amount_cents' => $originalCents,
         ]);
 
         return redirect()->away($session->url);
@@ -324,6 +361,12 @@ class RecruiterStripeCheckoutController extends Controller
 
         try {
             $this->addCompanyPackage($company, $package, 'Stripe');
+            app(PackageCouponService::class)->redeemEmployerStripeCheckout(
+                $record,
+                $package,
+                isset($session->amount_total) ? (int) $session->amount_total : null,
+                strtoupper((string) ($session->currency ?? 'CAD'))
+            );
             \Log::info('[StripeSuccess] addCompanyPackage completed', [
                 'session_id' => $sessionId,
                 'company_id' => $company->id,
