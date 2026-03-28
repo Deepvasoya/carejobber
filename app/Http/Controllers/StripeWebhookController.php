@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use App\Package;
+use App\Services\PackageCouponService;
 use App\StripeCheckoutSession;
 use App\Models\ResumeUnlock;
 use App\Traits\CompanyPackageTrait;
@@ -260,6 +261,12 @@ class StripeWebhookController extends Controller
 
         try {
             $this->addCompanyPackage($company, $package, 'Stripe');
+            app(PackageCouponService::class)->redeemEmployerStripeCheckout(
+                $record,
+                $package,
+                isset($session['amount_total']) ? (int) $session['amount_total'] : null,
+                strtoupper((string) ($session['currency'] ?? 'CAD'))
+            );
             $record->update(['status' => 'completed']);
 
             // Store Stripe customer and subscription IDs for recurring packages

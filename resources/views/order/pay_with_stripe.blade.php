@@ -15,6 +15,9 @@
             @include('includes.user_dashboard_menu')
             @endif
             <div class="col-md-9 col-sm-8">
+                @php
+                    $couponEval = $couponEval ?? ['ok' => true, 'total' => $package->package_price, 'discount' => 0];
+                @endphp
                 <div class="userccount">
                     <div class="row">
                         <div class="col-md-5">
@@ -22,7 +25,16 @@
                             <div class="strippckinfo">
                                 <h5>{{__('Invoice Details')}}</h5>
                                 <div class="pkginfo">{{__('Package')}}: <strong>{{ $package->package_title }}</strong></div>
-                                <div class="pkginfo">{{__('Price')}}: <strong>{{ $siteSetting->default_currency_code }}{{ $package->package_price }}</strong></div>
+                                @if(!empty($storedCouponCode))
+                                    <div class="pkginfo">{{ __('Coupon') }}: <strong>{{ $storedCouponCode }}</strong>
+                                        @if(!empty($couponWarning))
+                                            <span class="text-danger d-block small">{{ $couponWarning }}</span>
+                                        @elseif(($couponEval['discount'] ?? 0) > 0)
+                                            <span class="text-success d-block small">{{ __('Discount') }}: −{{ $siteSetting->default_currency_code }}{{ number_format($couponEval['discount'], 2) }}</span>
+                                        @endif
+                                    </div>
+                                @endif
+                                <div class="pkginfo">{{__('Price to pay')}}: <strong>{{ $siteSetting->default_currency_code }}{{ number_format($couponEval['total'] ?? $package->package_price, 2) }}</strong></div>
 
                                 @if(Auth::guard('company')->check())
                                     <div class="pkginfo">{{__('Can post jobs')}}: <strong>{{ $package->package_num_listings }}</strong></div>

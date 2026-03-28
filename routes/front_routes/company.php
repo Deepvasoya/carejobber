@@ -19,6 +19,8 @@ Route::get('company-packages', 'Company\CompanyController@resume_search_packages
 // Recruiter posting: packages & subscriptions (Stripe)
 Route::get('recruiter/posting/packages', 'Company\RecruiterPostingController@packages')->name('recruiter.posting.packages');
 Route::get('recruiter/posting/subscriptions', 'Company\RecruiterPostingController@subscriptions')->name('recruiter.posting.subscriptions');
+Route::post('recruiter/posting/apply-package-coupon', 'PackageCouponSessionController@applyEmployer')->name('recruiter.posting.apply.coupon');
+Route::post('recruiter/posting/clear-package-coupon', 'PackageCouponSessionController@clearEmployer')->name('recruiter.posting.clear.coupon');
 Route::get('recruiter/checkout/package/{packageId}', 'Company\RecruiterStripeCheckoutController@redirectToCheckout')->name('recruiter.checkout.package');
 Route::get('recruiter/billing-information/new-client/{token}', 'Company\RecruiterStripeCheckoutController@createSession')->name('recruiter.stripe.checkout');
 Route::get('unloced-seekers', 'Company\CompanyController@UnlockedUser')->name('company.unloced-users');

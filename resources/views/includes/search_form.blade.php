@@ -36,39 +36,37 @@
 @else
 	<form action="{{route('job.list')}}" method="get">
 		<!-- Modern Search Form - Matches Screenshot -->
-		<div class="modern-search-form" style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+		<div class="modern-search-form home-modern-search-form">
 			<div class="row g-2 align-items-center">
 				<!-- Job Title Input -->
 				<div class="col-md-5">
-					<div class="input-group" style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-						<span class="input-group-text" style="background: #fff; border: none; padding: 12px 15px;">
+					<div class="input-group home-search-input-wrap">
+						<span class="input-group-text home-search-input-icon">
 							<i class="fas fa-search" style="color: #999;"></i>
 						</span>
 						<input type="text" name="search" id="jbsearch" value="{{Request::get('search', '')}}" 
-							   class="form-control" 
+							   class="form-control home-search-input" 
 							   placeholder="{{__('Job title, keywords...')}}" 
-							   autocomplete="off" 
-							   style="border: none; padding: 12px 10px; font-size: 15px; box-shadow: none;" />
+							   autocomplete="off" />
 					</div>
 				</div>
 				
 				<!-- Location Text Input -->
 				<div class="col-md-5">
-					<div class="input-group" style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-						<span class="input-group-text" style="background: #fff; border: none; padding: 12px 15px;">
+					<div class="input-group home-search-input-wrap">
+						<span class="input-group-text home-search-input-icon">
 							<i class="fas fa-map-marker-alt" style="color: #999;"></i>
 						</span>
 						<input type="text" name="location_search" id="location_search" value="{{Request::get('location_search', '')}}" 
-							   class="form-control" 
+							   class="form-control home-search-input" 
 							   placeholder="{{__('City or postcode')}}" 
-							   autocomplete="off" 
-							   style="border: none; padding: 12px 10px; font-size: 15px; box-shadow: none;" />
+							   autocomplete="off" />
 					</div>
 				</div>
 				
 				<!-- Find Jobs Button -->
 				<div class="col-md-2">
-					<button type="submit" class="btn btn-success w-100" style="padding: 12px 20px; font-size: 16px; font-weight: 600; border-radius: 8px; background: #28a745; border: none;">
+					<button type="submit" class="btn btn-success w-100 home-search-submit-btn">
 						{{__('Find Jobs')}}
 					</button>
 				</div>
@@ -76,13 +74,13 @@
 		</div>
 		
 		<!-- Popular Searches -->
-		<div class="popular-searches mt-3" style="text-align: left;">
-			<span style="color: #666; font-size: 14px;">{{__('Popular Searches')}} :</span>
-			<a href="{{route('job.list', ['search' => 'HCA'])}}" style="color: #666; font-size: 14px; margin-left: 10px; text-decoration: none;">HCA</a>,
-			<a href="{{route('job.list', ['search' => 'LPN'])}}" style="color: #666; font-size: 14px; margin-left: 5px; text-decoration: none;">LPN</a>,
-			<a href="{{route('job.list', ['search' => 'RN'])}}" style="color: #666; font-size: 14px; margin-left: 5px; text-decoration: none;">RN</a>,
-			<a href="{{route('job.list', ['search' => 'Home Care'])}}" style="color: #666; font-size: 14px; margin-left: 5px; text-decoration: none;">Home Care</a>,
-			<a href="{{route('job.list', ['search' => 'Recreation'])}}" style="color: #666; font-size: 14px; margin-left: 5px; text-decoration: none;">Recreation</a>
+		<div class="popular-searches home-popular-searches mt-3">
+			<span class="home-popular-label">{{__('Popular Searches')}} :</span>
+			<a href="{{route('job.list', ['search' => 'HCA'])}}" class="home-popular-link">HCA</a>,
+			<a href="{{route('job.list', ['search' => 'LPN'])}}" class="home-popular-link">LPN</a>,
+			<a href="{{route('job.list', ['search' => 'RN'])}}" class="home-popular-link">RN</a>,
+			<a href="{{route('job.list', ['search' => 'Home Care'])}}" class="home-popular-link">Home Care</a>,
+			<a href="{{route('job.list', ['search' => 'Recreation'])}}" class="home-popular-link">Recreation</a>
 		</div>
 	</form>
 @endif

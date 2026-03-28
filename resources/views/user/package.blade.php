@@ -20,6 +20,7 @@
                 
                 {{-- Only show purchase/upgrade options if packages are active --}}
                 @if((bool)config('jobseeker.is_jobseeker_package_active'))
+                    @include('includes.package_coupon_seeker')
                     @if(null !== $package)
                         {{-- Show Upgrade Packages if available --}}
                         @if($packages->count() > 0)

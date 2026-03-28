@@ -36,6 +36,7 @@ class RecruiterPostingController extends Controller
             'packages' => $packages,
             'country_code' => $countryCode,
             'countries' => $countries,
+            'company' => Auth::guard('company')->user(),
         ]);
     }
 

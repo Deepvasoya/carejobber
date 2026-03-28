@@ -1,23 +1,27 @@
 
+@php
+    $homeHeroWidget = widget(5);
+    $homeHeroBg = !empty($homeHeroWidget->extra_image_2)
+        ? asset('images/' . $homeHeroWidget->extra_image_2)
+        : null;
+@endphp
 
-
-<div class="searchwrap">
+<div class="searchwrap home-search-hero {{ $homeHeroBg ? 'home-search-hero--image' : '' }}"
+     @if($homeHeroBg) style="--home-hero-image: url('{{ $homeHeroBg }}');" @endif>
 
 <div class="container">
     
-    <div class="row">
-        <div class="col-lg-6">
+    <div class="row align-items-center">
+        <div class="col-lg-9">
     
             <div class="srjobseeker">
                 <div class="bxsrctxt">
-                    <?php $widget =widget(5); ?>
                     @if(Auth::guard('company')->check())
                     <h1>{{__('Find Top Skilled Candidates')}}.</h1>
                     <p>{{__("Simply enter your resume criteria to instantly search from millions of live, top quality resumes")}}</p>
                     @else
-                    <h1>{{ __($widget->extra_field_1) }}</h1>
-<p>{{ __($widget->extra_field_2) }}</p>
-
+                    <h1>{{ __($homeHeroWidget->extra_field_1) }}</h1>
+                    <p>{{ __($homeHeroWidget->extra_field_2) }}</p>
                     @endif
                     
                     
@@ -32,7 +36,7 @@
             </div>
    
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-3 mt-4 mt-lg-0">
             @if((bool)$siteSetting->is_slider_active)
             <!-- Revolution slider start -->
             <div class="tp-banner-container">
@@ -58,7 +62,7 @@
 
             @else
 
-            <div class="homesearchimg"><img src="{{asset('images/'.widget(5)->extra_image_1)}}"></div>
+            <div class="homesearchimg"><img src="{{asset('images/'.$homeHeroWidget->extra_image_1)}}" alt=""></div>
 
 
             @endif
