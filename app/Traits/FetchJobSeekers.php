@@ -12,6 +12,9 @@ use App\FunctionalArea;
 use App\Gender;
 use App\ProfileSkill;
 use App\JobExperience;
+use App\Services\ProfileJobTitleMatching;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 trait FetchJobSeekers
 {
@@ -90,6 +93,56 @@ trait FetchJobSeekers
     // Return paginated results
     return $query->paginate($limit);
 }
+
+    /**
+     * Candidates whose resume text matches this company's active job titles (not company industry).
+     */
+    public function fetchJobSeekersMatchingPostedJobTitles(int $companyId, int $limit = 6)
+    {
+        $phrases = ProfileJobTitleMatching::companyOpenJobTitlePhrases($companyId);
+        if ($phrases === []) {
+            return new LengthAwarePaginator(
+                collect(),
+                0,
+                $limit,
+                1,
+                ['path' => Paginator::resolveCurrentPath(), 'pageName' => 'page']
+            );
+        }
+
+        $query = User::select($this->fields)->where('users.is_active', 1);
+        $query->where(function ($outer) use ($phrases) {
+            foreach ($phrases as $phrase) {
+                $like = '%' . addcslashes($phrase, '%_\\') . '%';
+                $outer->orWhere(function ($q) use ($like) {
+                    $q->where('users.search', 'like', $like)
+                        ->orWhereHas('profileExperience', function ($expQuery) use ($like) {
+                            $expQuery->where('title', 'like', $like)
+                                ->orWhere('description', 'like', $like);
+                        })
+                        ->orWhereHas('profileSummary', function ($summaryQuery) use ($like) {
+                            $summaryQuery->where('summary', 'like', $like);
+                        });
+                });
+            }
+        });
+
+        $query->with([
+            'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc')->limit(1),
+            'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->limit(1)->with('degreeLevel'),
+            'profileSkills' => fn ($q) => $q->limit(3)->with('jobSkill'),
+            'profileSummary' => fn ($q) => $q->orderByDesc('id')->limit(1),
+        ]);
+
+        $query->orderByRaw('CASE 
+            WHEN users.is_resume_promoted = 1 AND users.promotion_end_date >= NOW() THEN 1
+            WHEN users.is_featured = 1 THEN 2
+            ELSE 3
+        END')
+            ->orderBy('users.id', 'DESC');
+
+        return $query->paginate($limit);
+    }
 
 public function fetchIdsArray($search = '', $industry_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $career_level_ids = array(), $gender_ids = array(), $job_experience_ids = array(), $current_salary = 0, $expected_salary = 0, $salary_currency = '', $field = 'users.id')
 {

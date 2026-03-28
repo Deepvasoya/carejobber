@@ -89,7 +89,7 @@
                 </div>
                 @else
                 <div class="text-center py-4">
-                    <p class="text-muted">{{__('No suggested candidates found matching your industry.')}}</p>
+                    <p class="text-muted">{{__('No suggested candidates yet. Post an active job with a clear job title to see candidates whose resumes match that role.')}}</p>
                     <a href="{{route('job.seeker.list')}}" class="btn btn-primary mt-2">
                         <i class="fas fa-search"></i> {{__('Browse All Candidates')}}
                     </a>

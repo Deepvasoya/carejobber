@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Traits\Cron;
 use App\Job;
+use App\Services\ProfileJobTitleMatching;
 use Auth;
 use App\FavouriteCompany;
 use Illuminate\Http\Request;
@@ -65,47 +66,61 @@ class HomeController extends Controller
             $userSkills = $user->getProfileSkills();
             $skillIds = $userSkills->pluck('job_skill_id')->toArray();
             
+            $professionPhrases = ProfileJobTitleMatching::jobSeekerProfessionPhrases($user);
+
             // Build the query
             $query = Job::where('is_active', 1)
                 ->where('expiry_date', '>', now())
-                ->where(function($q) use ($user, $skillIds) {
+                ->where(function ($q) use ($user, $skillIds, $professionPhrases) {
+                    $added = false;
+                    foreach ($professionPhrases as $phrase) {
+                        $like = '%' . addcslashes($phrase, '%_\\') . '%';
+                        $q->orWhere(function ($sub) use ($like) {
+                            $sub->where('title', 'like', $like)
+                                ->orWhere('search', 'like', $like);
+                        });
+                        $added = true;
+                    }
+
                     // Match by functional area
                     if ($user->functional_area_id) {
                         $q->orWhere('functional_area_id', $user->functional_area_id);
+                        $added = true;
                     }
-                    
-                    // Match by industry through company
-                    if ($user->industry_id) {
-                        $q->orWhereHas('company', function($subq) use ($user) {
-                            $subq->where('industry_id', $user->industry_id);
-                        });
-                    }
-                    
+
                     // Match by career level
                     if ($user->career_level_id) {
                         $q->orWhere('career_level_id', $user->career_level_id);
+                        $added = true;
                     }
-                    
+
                     // Match by job experience
                     if ($user->job_experience_id) {
                         $q->orWhere('job_experience_id', $user->job_experience_id);
+                        $added = true;
                     }
-                    
+
                     // Match by salary range (with 20% flexibility)
                     if ($user->expected_salary) {
                         $minSalary = $user->expected_salary * 0.8;
                         $maxSalary = $user->expected_salary * 1.2;
-                        $q->orWhere(function($salaryQ) use ($minSalary, $maxSalary) {
+                        $q->orWhere(function ($salaryQ) use ($minSalary, $maxSalary) {
                             $salaryQ->whereBetween('salary_from', [$minSalary, $maxSalary])
-                                   ->orWhereBetween('salary_to', [$minSalary, $maxSalary]);
+                                ->orWhereBetween('salary_to', [$minSalary, $maxSalary]);
                         });
+                        $added = true;
                     }
-                    
+
                     // Match by skills
                     if (!empty($skillIds)) {
-                        $q->orWhereHas('jobSkills', function($skillQ) use ($skillIds) {
+                        $q->orWhereHas('jobSkills', function ($skillQ) use ($skillIds) {
                             $skillQ->whereIn('job_skill_id', $skillIds);
                         });
+                        $added = true;
+                    }
+
+                    if (!$added) {
+                        $q->whereRaw('0 = 1');
                     }
                 });
             
