@@ -12,7 +12,7 @@ use App\FunctionalArea;
 use App\Gender;
 use App\ProfileSkill;
 use App\JobExperience;
-use App\Services\ProfileJobTitleMatching;
+use App\Job;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 
@@ -95,12 +95,22 @@ trait FetchJobSeekers
 }
 
     /**
-     * Candidates whose resume text matches this company's active job titles (not company industry).
+     * Candidates whose profile job category (functional_area_id) matches any active job posting's category for this company.
      */
-    public function fetchJobSeekersMatchingPostedJobTitles(int $companyId, int $limit = 6)
+    public function fetchJobSeekersMatchingPostedFunctionalAreas(int $companyId, int $limit = 6)
     {
-        $phrases = ProfileJobTitleMatching::companyOpenJobTitlePhrases($companyId);
-        if ($phrases === []) {
+        $functionalAreaIds = Job::query()
+            ->where('company_id', $companyId)
+            ->where('is_active', 1)
+            ->where('expiry_date', '>', now())
+            ->whereNotNull('functional_area_id')
+            ->where('functional_area_id', '>', 0)
+            ->distinct()
+            ->pluck('functional_area_id')
+            ->values()
+            ->all();
+
+        if ($functionalAreaIds === []) {
             return new LengthAwarePaginator(
                 collect(),
                 0,
@@ -110,22 +120,11 @@ trait FetchJobSeekers
             );
         }
 
-        $query = User::select($this->fields)->where('users.is_active', 1);
-        $query->where(function ($outer) use ($phrases) {
-            foreach ($phrases as $phrase) {
-                $like = '%' . addcslashes($phrase, '%_\\') . '%';
-                $outer->orWhere(function ($q) use ($like) {
-                    $q->where('users.search', 'like', $like)
-                        ->orWhereHas('profileExperience', function ($expQuery) use ($like) {
-                            $expQuery->where('title', 'like', $like)
-                                ->orWhere('description', 'like', $like);
-                        })
-                        ->orWhereHas('profileSummary', function ($summaryQuery) use ($like) {
-                            $summaryQuery->where('summary', 'like', $like);
-                        });
-                });
-            }
-        });
+        $query = User::select($this->fields)
+            ->where('users.is_active', 1)
+            ->whereNotNull('users.functional_area_id')
+            ->where('users.functional_area_id', '>', 0)
+            ->whereIn('users.functional_area_id', $functionalAreaIds);
 
         $query->with([
             'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc')->limit(1),

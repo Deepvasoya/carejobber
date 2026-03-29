@@ -46,7 +46,7 @@
 }
 .home-modern-search-form {
     background: #fff;
-    padding: 38px 32px;
+    padding: 24px 32px;
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }

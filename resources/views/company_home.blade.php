@@ -51,7 +51,7 @@
             <div class="suggested-candidates-section mt-4 mb-4" style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                 <div class="section-header" style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;">
                     <h3 style="margin: 0 0 5px 0; font-size: 22px; color: #333; font-weight: 600;"><i class="fas fa-users" style="color: #667eea; margin-right: 8px;"></i> {{__('Suggested Candidates')}}</h3>
-                    <p class="text-muted" style="margin: 0; font-size: 14px;">{{__('Resume suggestions')}}</p>
+                    <p class="text-muted" style="margin: 0; font-size: 14px;">{{__('Candidates in the same job category as your active listings')}}</p>
                 </div>
                 
                 @if(isset($suggestedCandidates) && $suggestedCandidates->count() > 0)
@@ -89,7 +89,7 @@
                 </div>
                 @else
                 <div class="text-center py-4">
-                    <p class="text-muted">{{__('No suggested candidates yet. Post an active job with a clear job title to see candidates whose resumes match that role.')}}</p>
+                    <p class="text-muted">{{__('No suggested candidates yet. Post an active job and choose a job category so we can show seekers whose profile uses that same category.')}}</p>
                     <a href="{{route('job.seeker.list')}}" class="btn btn-primary mt-2">
                         <i class="fas fa-search"></i> {{__('Browse All Candidates')}}
                     </a>

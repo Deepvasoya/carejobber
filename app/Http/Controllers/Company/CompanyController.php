@@ -133,8 +133,8 @@ class CompanyController extends Controller
         Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
         $company = Auth::guard('company')->user();
         
-        // Suggested candidates from active job titles (not company industry)
-        $suggestedCandidates = $this->fetchJobSeekersMatchingPostedJobTitles((int) $company->id, 6);
+        // Suggested candidates: profile job category (functional_area) matches an active job's category
+        $suggestedCandidates = $this->fetchJobSeekersMatchingPostedFunctionalAreas((int) $company->id, 6);
         
         return view('company_home', compact('suggestedCandidates'));
     }
