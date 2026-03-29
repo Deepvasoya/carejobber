@@ -15,21 +15,33 @@ class SearchAutocompleteController extends Controller
             return response()->json([]);
         }
 
-        $pattern = '%' . $this->escapeLike($term) . '%';
+        $len = mb_strlen($term);
+        $prefix = $this->escapeLike($term) . '%';
+        $contains = '%' . $this->escapeLike($term) . '%';
 
-        $titles = DB::table('jobs')
+        $query = DB::table('jobs')
             ->where('is_active', 1)
-            ->where(function ($q) use ($pattern) {
-                $q->where('title', 'LIKE', $pattern)
-                    ->orWhere('search', 'LIKE', $pattern);
-            })
             ->whereNotNull('title')
             ->where('title', '!=', '')
-            ->orderBy('title')
-            ->limit(40)
-            ->pluck('title');
+            ->where(function ($q) use ($len, $prefix, $contains) {
+                if ($len <= 2) {
+                    $q->where('title', 'LIKE', $prefix);
+                } else {
+                    $q->where('title', 'LIKE', $contains);
+                    if ($len >= 4) {
+                        $q->orWhere('search', 'LIKE', $contains);
+                    }
+                }
+            });
 
-        return response()->json($titles->unique()->values()->all());
+        $query->orderByRaw(
+            '(CASE WHEN jobs.title LIKE ? THEN 1 WHEN jobs.title LIKE ? THEN 2 ELSE 3 END) ASC, CHAR_LENGTH(jobs.title) ASC, jobs.title ASC',
+            [$prefix, $contains]
+        );
+
+        $titles = $query->limit(60)->pluck('title');
+
+        return response()->json($titles->unique()->values()->take(25)->all());
     }
 
     public function locations(Request $request)
@@ -39,12 +51,11 @@ class SearchAutocompleteController extends Controller
             return response()->json([]);
         }
 
-        $pattern = '%' . $this->escapeLike($term) . '%';
         $lang = app()->getLocale();
 
-        $rows = $this->locationRows($pattern, $lang);
+        $rows = $this->locationRows($term, $lang);
         if ($rows->isEmpty() && $lang !== 'en') {
-            $rows = $this->locationRows($pattern, 'en');
+            $rows = $this->locationRows($term, 'en');
         }
 
         $labels = $rows->map(function ($r) {
@@ -99,22 +110,73 @@ class SearchAutocompleteController extends Controller
         return response()->json(['label' => '', 'error' => 'parse'], 422);
     }
 
-    private function locationRows(string $pattern, string $lang)
+    private function locationRows(string $term, string $lang)
     {
-        return DB::table('cities as c')
+        $term = trim($term);
+        if (mb_strlen($term) < 2) {
+            return collect();
+        }
+
+        $len = mb_strlen($term);
+        $prefix = $this->escapeLike($term) . '%';
+        $contains = '%' . $this->escapeLike($term) . '%';
+        $termNorm = mb_strtolower(trim($term));
+
+        $cityPattern = $len <= 2 ? $prefix : $contains;
+
+        $cityQuery = DB::table('cities as c')
             ->join('states as s', 'c.state_id', '=', 's.id')
             ->where('c.is_active', 1)
             ->where('s.is_active', 1)
             ->where('c.lang', $lang)
             ->where('s.lang', $lang)
-            ->where(function ($q) use ($pattern) {
-                $q->where('c.city', 'LIKE', $pattern)
-                    ->orWhere('s.state', 'LIKE', $pattern);
-            })
+            ->where('c.city', 'LIKE', $cityPattern);
+
+        if ($len <= 2) {
+            $cityQuery->orderByRaw('CHAR_LENGTH(c.city) ASC')->orderBy('c.city');
+        } else {
+            $cityQuery->orderByRaw(
+                '(CASE WHEN LOWER(TRIM(c.city)) = ? THEN 0 WHEN c.city LIKE ? THEN 1 ELSE 2 END) ASC, CHAR_LENGTH(c.city) ASC, c.city ASC',
+                [$termNorm, $prefix]
+            );
+        }
+
+        $cityResults = $cityQuery->select('c.city', 's.state')->limit(25)->get();
+        $limit = 25;
+
+        if ($cityResults->count() >= $limit || $len < 3) {
+            return $cityResults;
+        }
+
+        $seen = $cityResults->mapWithKeys(function ($r) {
+            $k = mb_strtolower($r->city . '|' . $r->state);
+
+            return [$k => true];
+        });
+
+        $remaining = $limit - $cityResults->count();
+
+        $stateRows = DB::table('cities as c')
+            ->join('states as s', 'c.state_id', '=', 's.id')
+            ->where('c.is_active', 1)
+            ->where('s.is_active', 1)
+            ->where('c.lang', $lang)
+            ->where('s.lang', $lang)
+            ->where('s.state', 'LIKE', $contains)
             ->select('c.city', 's.state')
+            ->orderBy('s.state')
             ->orderBy('c.city')
-            ->limit(25)
-            ->get();
+            ->limit(max(50, $remaining * 3))
+            ->get()
+            ->filter(function ($r) use ($seen) {
+                $k = mb_strtolower($r->city . '|' . $r->state);
+
+                return !$seen->has($k);
+            })
+            ->take($remaining)
+            ->values();
+
+        return $cityResults->concat($stateRows);
     }
 
     private function escapeLike(string $value): string

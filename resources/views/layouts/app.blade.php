@@ -346,7 +346,7 @@ if (!isset($seo)) {
                 }
             }
 
-            var $locInputs = $('#location_search, #location_search_inner');
+            var $locInputs = $('#location_search, #location_search_inner, #location_search_sidebar');
             if ($locInputs.length) {
                 $locInputs.each(function() {
                     var $loc = $(this);
