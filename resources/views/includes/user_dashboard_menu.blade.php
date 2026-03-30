@@ -225,6 +225,10 @@
                     href="{{ route('my.job.applications') }}"><i class="fas fa-desktop" aria-hidden="true"></i>
                     {{__('My Job Applications')}}</a>
             </li>
+            <li class="{{ Request::url() == route('recommended.jobs') ? 'active' : '' }}"><a
+                    href="{{ route('recommended.jobs') }}"><i class="fas fa-thumbs-up" aria-hidden="true"></i>
+                    {{__('Recommended Jobs')}}</a>
+            </li>
             <li class="{{ Request::url() == route('my.favourite.jobs') ? 'active' : '' }}"><a
                     href="{{ route('my.favourite.jobs') }}"><i class="fas fa-heart" aria-hidden="true"></i>
                     {{__('My Favourite Jobs')}}</a>

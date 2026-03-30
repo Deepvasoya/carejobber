@@ -66,7 +66,7 @@ class PackageCouponService
             return $base;
         }
 
-        if ($coupon->package_for_scope && $coupon->package_for_scope !== $package->package_for) {
+        if (!$this->couponScopeAllowsPackage($coupon->package_for_scope, $package)) {
             $base['reason'] = 'wrong_audience';
 
             return $base;
@@ -153,6 +153,29 @@ class PackageCouponService
         $base['total'] = $total;
 
         return $base;
+    }
+
+    /**
+     * Whether a coupon's audience scope allows this package (matches admin "Restrict to package audience").
+     * Empty scope = any package type. Job seeker–scoped codes also apply to "make featured" profile packages.
+     */
+    public function couponScopeAllowsPackage(?string $scope, Package $package): bool
+    {
+        $s = $scope !== null ? trim((string) $scope) : '';
+        if ($s === '') {
+            return true;
+        }
+
+        $pf = (string) $package->package_for;
+        if ($s === $pf) {
+            return true;
+        }
+
+        if ($s === 'job_seeker' && $pf === 'make_featured') {
+            return true;
+        }
+
+        return false;
     }
 
     public function computeDiscount(PackageCoupon $coupon, float $subtotal): float

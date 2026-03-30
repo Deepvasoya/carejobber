@@ -60,52 +60,8 @@
                 <ul class="featuredlist row">	   	
                 @if(isset($appliedJobs) && count($appliedJobs) > 0)
                             @foreach($appliedJobs as $appliedjob)
-                                @php
-                            $job = $appliedjob->job;
-                            $company = $job ? $job->company : null;
-                        @endphp
-                        @if($job && $company)
-                            <li class="col-lg-4 col-md-6 @if($job->is_featured == 1) featured @endif">
-                                <div class="jobint mt-0 mb-3">
-                                    @if($job->is_featured == 1) 
-                                        <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured Job')}}"></i></span> 
-                                    @endif
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="fticon"><i class="fas fa-briefcase"></i> {{$job->getJobType('job_type')}}</div>
-                                        @php
-                                            $statusClass = 'secondary';
-                                            if ($appliedjob->status == 'pending') {
-                                                $statusClass = 'warning';
-                                            } elseif (in_array($appliedjob->status, ['approved', 'hire', 'hired'])) {
-                                                $statusClass = 'success';
-                                            } elseif ($appliedjob->status == 'rejected') {
-                                                $statusClass = 'danger';
-                                            }
-                                @endphp
-                                        <strong class="badge bg-{{ $statusClass }}">
-                                            {{ucfirst($appliedjob->status)}}
-                                        </strong>
-                                    </div>
-                                    <h4>
-                                        <a href="{{route('job.detail', [$job->slug])}}" title="{{$job->title}}">
-                                            {!! \Illuminate\Support\Str::limit($job->title, 20, '...') !!}
-                                        </a>
-                                    </h4>                                        
-                                    @if(!(bool)$job->hide_salary)                    
-                                        <div class="salary mb-2">{{__('Salary')}}: 
-                                            <strong>{{$job->salary_currency.''.$job->salary_from}} - {{$job->salary_currency.''.$job->salary_to}}/{{$job->getSalaryPeriod('salary_period')}}</strong>
-                                        </div>
-                                    @endif 
-                                    <strong><i class="fas fa-map-marker-alt"></i> {{$job->getCity('city')}}</strong>                                         
-                                    <div class="jobcompany">
-                                        <div class="ftjobcomp">
-                                            <span>{{__('Applied')}}: {{$appliedjob->created_at->format('M d, Y')}}</span>
-                                            <a href="{{route('company.detail', $company->slug)}}" title="{{$company->name}}">{{$company->name}}</a>
-                                        </div>
-                                        <a href="{{route('company.detail', $company->slug)}}" class="company-logo" title="{{$company->name}}">{{$company->printCompanyImage()}}</a>
-                                    </div>
-                                </div>
-                            </li>
+                                @if($appliedjob->job)
+                                    @include('includes.job_seeker_dashboard_job_card', ['job' => $appliedjob->job, 'appliedJob' => $appliedjob])
                                 @endif
                             @endforeach
                 @else
@@ -146,47 +102,15 @@
 
 
                             <div class="profbox">
-                                <h3 class="mb-0">{{__('Recommended Jobs')}}</h3>
+                                <h3>{{__('Recommended Jobs')}} <a href="{{ route('recommended.jobs') }}">{{__('View All')}} <i class="fas fa-arrow-right"></i></a></h3>
                                 <ul class="featuredlist row">
                                 @if(!empty($matchingJobs) && count($matchingJobs) > 0)
-    @foreach($matchingJobs as $match)
-        <li class="col-lg-4 col-md-6 @if($match->is_featured == 1) featured @endif">
-            <div class="jobint">
-                @if($match->is_featured == 1) 
-                    <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('This Match is Featured')}}"></i></span> 
-                @endif
-                <div class="d-flex">
-                    <div class="fticon"><i class="fas fa-briefcase"></i> {{$match->getJobType('job_type')}}</div>                        
-                </div>
-                <h4>
-                    <a href="{{route('job.detail', [$match->slug])}}" title="{{$match->title}}">
-                        {!! \Illuminate\Support\Str::limit($match->title, 20, '...') !!}
-                    </a>
-                </h4>                                        
-                @if(!(bool)$match->hide_salary)                    
-                    <div class="salary mb-2">Salary: 
-                        <strong>{{$match->salary_currency.''.$match->salary_from}} - {{$match->salary_currency.''.$match->salary_to}}/{{$match->getSalaryPeriod('salary_period')}}</strong>
-                    </div>
-                @endif 
-                <strong><i class="fas fa-map-marker-alt"></i> {{$match->getCity('city')}}</strong>                                         
-                <div class="jobcompany">
-                    <div class="ftjobcomp">
-                        <span>{{$match->created_at->format('M d, Y')}}</span>
-                        @if(isset($match->company))
-                            <a href="{{route('company.detail', $match->company->slug)}}" title="{{$match->company->name}}">{{$match->company->name}}</a>
-                        @endif
-                    </div>
-                    @if(isset($match->company))
-                        <a href="{{route('company.detail', $match->company->slug)}}" class="company-logo" title="{{$match->company->name}}">{{$match->company->printCompanyImage()}}</a>
-                    @endif
-                </div>
-            </div>
-        </li>
-    @endforeach 
-@else
-    <div class="alert alert-danger">{{__('No matching jobs found')}}</div>
-@endif
-
+                                    @foreach($matchingJobs as $match)
+                                        @include('includes.job_seeker_dashboard_job_card', ['job' => $match])
+                                    @endforeach
+                                @else
+                                    <div class="alert alert-info">{{__('No matching jobs found')}}</div>
+                                @endif
                                 </ul>
                             </div>
 

@@ -77,6 +77,7 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 Route::middleware(['verified'])->group(function(){
     Route::get('home', 'HomeController@index')->name('home');
+    Route::get('recommended-jobs', 'HomeController@recommendedJobs')->name('recommended.jobs');
 });
 Route::get('all-categories', 'IndexController@allCategories')->name('all-categories');
 /* * ******** TypeAheadController ******* */

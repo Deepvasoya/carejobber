@@ -98,6 +98,7 @@
                 <option value="cv_search" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'cv_search')>{{ __('CV search') }}</option>
                 <option value="make_featured" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'make_featured')>{{ __('Make featured') }}</option>
             </select>
+            <span class="help-block">{{ __('Employer / CV search codes only work on company purchases. For job seekers use Job seeker (also covers featured profile packages), Make featured, or Any.') }}</span>
         </div>
     </div>
     <div class="col-md-6">

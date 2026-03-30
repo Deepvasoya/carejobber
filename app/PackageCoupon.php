@@ -58,6 +58,18 @@ class PackageCoupon extends Model
     }
 
     /**
+     * Coupons job seekers may see (CV packages, featured profile, etc.) — for portal display.
+     */
+    public function scopeForJobSeekerPortal($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('package_for_scope')
+                ->orWhere('package_for_scope', '')
+                ->orWhereIn('package_for_scope', ['job_seeker', 'make_featured']);
+        });
+    }
+
+    /**
      * @return \Illuminate\Support\Collection<int, static>
      */
     public static function activeForEmployerPortalDisplay()
@@ -65,6 +77,27 @@ class PackageCoupon extends Model
         $coupons = static::query()
             ->active()
             ->forEmployerPortal()
+            ->withCount('redemptions')
+            ->orderBy('code')
+            ->get();
+
+        return $coupons->filter(function (self $c) {
+            if ($c->usage_limit_total === null) {
+                return true;
+            }
+
+            return (int) $c->redemptions_count < (int) $c->usage_limit_total;
+        })->values();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, static>
+     */
+    public static function activeForJobSeekerPortalDisplay()
+    {
+        $coupons = static::query()
+            ->active()
+            ->forJobSeekerPortal()
             ->withCount('redemptions')
             ->orderBy('code')
             ->get();
