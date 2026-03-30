@@ -44,4 +44,37 @@ class PackageCoupon extends Model
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
             });
     }
+
+    /**
+     * Coupons employers may use (job posting packages, CV search, etc.) — for portal display.
+     */
+    public function scopeForEmployerPortal($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('package_for_scope')
+                ->orWhere('package_for_scope', '')
+                ->orWhereIn('package_for_scope', ['employer', 'cv_search']);
+        });
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, static>
+     */
+    public static function activeForEmployerPortalDisplay()
+    {
+        $coupons = static::query()
+            ->active()
+            ->forEmployerPortal()
+            ->withCount('redemptions')
+            ->orderBy('code')
+            ->get();
+
+        return $coupons->filter(function (self $c) {
+            if ($c->usage_limit_total === null) {
+                return true;
+            }
+
+            return (int) $c->redemptions_count < (int) $c->usage_limit_total;
+        })->values();
+    }
 }

@@ -12,6 +12,7 @@
     <div class="container">@include('flash::message')
         <div class="row"> @include('includes.company_dashboard_menu')
             <div class="col-md-9 col-sm-8">
+                @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_cv_search'])
                 @if($company->isOnExhaustedFreeCvSearchPeriod())
                     <div class="alert alert-warning" role="alert">
                         {{ __('You have used all CV unlocks for your Silver package. You can activate Silver again from :date, or purchase a paid package below.', ['date' => ($d = $company->getFreeCvPackageNextAvailableAt()) ? $d->format('d M Y H:i') : '—']) }}

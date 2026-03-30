@@ -11,6 +11,7 @@ class PackageCouponSessionController extends Controller
     {
         $request->validate([
             'code' => 'required|string|max:64',
+            'apply_context' => 'nullable|string|in:employer_job_posting,employer_cv_search',
         ]);
 
         $code = PackageCoupon::normalizeCode($request->input('code'));
@@ -40,6 +41,23 @@ class PackageCouponSessionController extends Controller
             flash(__('This coupon has expired.'))->error();
 
             return redirect()->back();
+        }
+
+        $ctx = $request->input('apply_context');
+        $scope = $coupon->package_for_scope;
+        if ($ctx === 'employer_job_posting') {
+            if (in_array($scope, ['cv_search', 'job_seeker', 'make_featured'], true)) {
+                flash(__('This coupon does not apply to job posting packages. Open CV search packages if your code is for CV unlocks, or use an employer job-package coupon.'))->error();
+
+                return redirect()->back();
+            }
+        }
+        if ($ctx === 'employer_cv_search') {
+            if (in_array($scope, ['employer', 'job_seeker', 'make_featured'], true)) {
+                flash(__('This coupon does not apply to CV search packages. Job posting or job seeker codes cannot be used here.'))->error();
+
+                return redirect()->back();
+            }
         }
 
         session(['employer_package_coupon_code' => $code]);
@@ -82,6 +100,13 @@ class PackageCouponSessionController extends Controller
         }
         if ($coupon->ends_at && $coupon->ends_at->isPast()) {
             flash(__('This coupon has expired.'))->error();
+
+            return redirect()->back();
+        }
+
+        $scope = $coupon->package_for_scope;
+        if (in_array($scope, ['employer', 'cv_search'], true)) {
+            flash(__('This coupon is for employers. Enter a job seeker coupon here, or apply employer codes on the company dashboard.'))->error();
 
             return redirect()->back();
         }

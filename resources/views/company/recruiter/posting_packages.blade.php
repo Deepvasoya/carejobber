@@ -33,31 +33,7 @@
         @endif
     </ul>
 
-    @php
-        $employerCoupon = session('employer_package_coupon_code');
-    @endphp
-    <section class="coupon-apply-section border rounded-3 p-4 mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); box-shadow: 0 2px 12px rgba(0,0,0,0.06);">
-        <h2 class="h5 mb-3"><i class="fas fa-ticket-alt text-success me-2"></i>{{ __('Have a coupon code?') }}</h2>
-        @if($employerCoupon)
-            <p class="mb-2">{{ __('Applied:') }} <strong class="text-success">{{ $employerCoupon }}</strong></p>
-            <form method="post" action="{{ route('recruiter.posting.clear.coupon') }}" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-outline-secondary">{{ __('Remove') }}</button>
-            </form>
-        @else
-            <form method="post" action="{{ route('recruiter.posting.apply.coupon') }}" class="row g-2 align-items-end">
-                @csrf
-                <div class="col-md-8">
-                    <label class="form-label small text-muted mb-1">{{ __('Coupon code') }}</label>
-                    <input type="text" name="code" class="form-control" placeholder="{{ __('Enter code') }}" autocomplete="off">
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-outline-success w-100">{{ __('Apply') }}</button>
-                </div>
-            </form>
-        @endif
-        <p class="small text-muted mt-3 mb-0">{{ __('Valid codes reduce the price at Stripe checkout. Subscriptions linked to a fixed Stripe Price ID cannot use these coupons—use Stripe promotions or a custom-priced subscription package.') }}</p>
-    </section>
+    @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_job_posting'])
 
     <section class="package-list">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">

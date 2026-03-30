@@ -149,6 +149,7 @@ if ($companyUser) {
                     <i class="fas fa-info-circle me-2"></i> {{__('View Pricing')}}
                 </a>
                 <span class="text-muted d-block mt-2">{{ __('One-time payment • Lifetime access • Secure checkout') }}</span>
+                <p class="small text-muted mt-2 mb-0">{{ __('For CV search packages, apply your coupon on') }} <a href="{{ route('company.packages') }}">{{ __('CV search packages') }}</a> {{ __('before Stripe checkout.') }}</p>
             @endif
         @endif
     @endif

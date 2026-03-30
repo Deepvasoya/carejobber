@@ -8,6 +8,7 @@ use App\PackageCoupon;
 use App\Services\PackageCouponService;
 use App\StripeCheckoutSession;
 use App\Traits\CompanyPackageTrait;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session as StripeSession;
@@ -45,10 +46,11 @@ class RecruiterStripeCheckoutController extends Controller
             if (!$company->canActivateFreeEmployerJobPackage()) {
                 $until = $company->getFreeEmployerJobPackageNextAvailableAt();
 
-                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $countryCode ?: null]))
-                    ->with('error', $until
-                        ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
-                        : __('You cannot activate the free job posting package right now.'));
+                flash($until
+                    ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
+                    : __('You cannot activate the free job posting package right now.'))->error();
+
+                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $countryCode ?: null]));
             }
 
             return redirect()->route('order.free.package', $package->id);
@@ -73,21 +75,36 @@ class RecruiterStripeCheckoutController extends Controller
      */
     public function createSession(Request $request, string $token)
     {
-        $payload = decrypt($token);
-        if (!$payload || !isset($payload['package_id'], $payload['company_id'], $payload['exp'])) {
-            return redirect()->route('recruiter.posting.packages')->with('error', __('Invalid link.'));
+        try {
+            $payload = decrypt($token);
+        } catch (DecryptException $e) {
+            flash(__('That checkout link is invalid or expired. Please select your package again.'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
+        }
+
+        if (!is_array($payload) || !isset($payload['package_id'], $payload['company_id'], $payload['exp'])) {
+            flash(__('That checkout link is invalid. Please select your package again.'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
         }
         if ($payload['exp'] < time()) {
-            return redirect()->route('recruiter.posting.packages')->with('error', __('Link expired.'));
+            flash(__('That checkout link has expired. Please select your package again.'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
         }
         $company = \Auth::guard('company')->user();
         if ((int) $company->id !== (int) $payload['company_id']) {
-            return redirect()->route('recruiter.posting.packages')->with('error', __('Invalid link.'));
+            flash(__('That checkout link is not valid for your account.'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
         }
 
         $package = Package::find($payload['package_id']);
         if (!$package || $package->package_for !== 'employer') {
-            return redirect()->route('recruiter.posting.packages')->with('error', __('Package not found.'));
+            flash(__('Package not found.'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
         }
 
         if ((float) $package->package_price <= 0 && $package->type !== Package::TYPE_MONTHLY_RECURRING) {
@@ -95,10 +112,11 @@ class RecruiterStripeCheckoutController extends Controller
             if (!$company->canActivateFreeEmployerJobPackage()) {
                 $until = $company->getFreeEmployerJobPackageNextAvailableAt();
 
-                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $cc ?: null]))
-                    ->with('error', $until
-                        ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
-                        : __('You cannot activate the free job posting package right now.'));
+                flash($until
+                    ? __('You already used the free job package in the last 30 days. You can activate it again from :date, or purchase a paid package.', ['date' => $until->format('d M Y')])
+                    : __('You cannot activate the free job posting package right now.'))->error();
+
+                return redirect()->route('recruiter.posting.packages', array_filter(['cc' => $cc ?: null]));
             }
 
             return redirect()->route('order.free.package', $package->id);
@@ -107,7 +125,9 @@ class RecruiterStripeCheckoutController extends Controller
         $secret = static::getStripeSecret();
         if (!$secret) {
             \Log::error('Stripe: No API key. Set STRIPE_SECRET in .env and run: php artisan config:clear');
-            return redirect()->route('recruiter.posting.packages')->with('error', __('Stripe is not configured. Please set STRIPE_SECRET in .env and run: php artisan config:clear'));
+            flash(__('Stripe is not configured. Please set STRIPE_SECRET in .env and run: php artisan config:clear'))->error();
+
+            return redirect()->route('recruiter.posting.packages');
         }
         Stripe::setApiKey($secret);
 
@@ -123,7 +143,7 @@ class RecruiterStripeCheckoutController extends Controller
         $eval = $couponSvc->evaluateCheckout($rawCoupon, $package, (int) $company->id, null);
 
         if ($hasCouponInput && !$eval['ok']) {
-            flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
+            flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default') . ' ' . __('Remove the coupon or choose another package, then try again.'))->error();
 
             return redirect()->to($cancelUrl);
         }
@@ -221,8 +241,10 @@ class RecruiterStripeCheckoutController extends Controller
         try {
             $session = StripeSession::create($sessionParams);
         } catch (\Exception $e) {
-            \Log::error('Stripe Checkout create failed: ' . $e->getMessage());
-            return redirect()->to($cancelUrl)->with('error', __('Payment setup failed. Please try again.'));
+            \Log::error('Stripe Checkout create failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            flash(__('Payment setup failed. Please try again. If it keeps happening, remove your coupon or contact support.'))->error();
+
+            return redirect()->to($cancelUrl);
         }
 
         StripeCheckoutSession::create([
@@ -263,7 +285,9 @@ class RecruiterStripeCheckoutController extends Controller
         // dd($sessionId, $logCtx, $request->all());
         if (!$sessionId) {
             \Log::warning('[StripeSuccess] Abort: missing session_id');
-            return redirect()->route('company.login')->with('error', __('Invalid session.'));
+            flash(__('Invalid session.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         // Find by session_id only so it works when user is not logged in (redirect from Stripe)
@@ -281,7 +305,9 @@ class RecruiterStripeCheckoutController extends Controller
                     'company_id' => $anyRecord->company_id,
                 ] : null,
             ]);
-            return redirect()->route('company.login')->with('error', __('Session already processed or invalid.'));
+            flash(__('Session already processed or invalid.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         \Log::info('[StripeSuccess] Found pending record', [
@@ -294,7 +320,9 @@ class RecruiterStripeCheckoutController extends Controller
         $secret = static::getStripeSecret();
         if (!$secret) {
             \Log::error('[StripeSuccess] Abort: Stripe secret not configured');
-            return redirect()->route('company.login')->with('error', __('Stripe is not configured.'));
+            flash(__('Stripe is not configured.'))->error();
+
+            return redirect()->route('company.login');
         }
         try {
             Stripe::setApiKey($secret);
@@ -310,7 +338,9 @@ class RecruiterStripeCheckoutController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return redirect()->route('company.login')->with('error', __('Could not verify payment.'));
+            flash(__('Could not verify payment.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         $paidOk = in_array($session->payment_status ?? '', ['paid', 'no_payment_required'], true);
@@ -322,7 +352,9 @@ class RecruiterStripeCheckoutController extends Controller
                 'status' => $session->status ?? null,
                 'has_subscription' => !empty($session->subscription),
             ]);
-            return redirect()->route('company.login')->with('error', __('Payment not completed.'));
+            flash(__('Payment not completed.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         try {
@@ -338,7 +370,9 @@ class RecruiterStripeCheckoutController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return redirect()->route('company.login')->with('error', __('Could not update order status.'));
+            flash(__('Could not update order status.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         $company = \App\Company::find($record->company_id);
@@ -356,7 +390,9 @@ class RecruiterStripeCheckoutController extends Controller
                 'session_id' => $sessionId,
                 'package_id' => $record->package_id,
             ]);
-            return redirect()->route('company.login')->with('error', __('Package not found.'));
+            flash(__('Package not found.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         try {
@@ -380,7 +416,9 @@ class RecruiterStripeCheckoutController extends Controller
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            return redirect()->route('company.login')->with('error', __('Could not add package.'));
+            flash(__('Could not add package.'))->error();
+
+            return redirect()->route('company.login');
         }
 
         if ($package->type === Package::TYPE_MONTHLY_RECURRING) {
@@ -405,8 +443,12 @@ class RecruiterStripeCheckoutController extends Controller
             'redirect_to' => $goHome ? 'company.home' : 'company.login',
         ]);
         if ($goHome) {
-            return redirect()->route('company.home')->with('success', $message);
+            flash($message)->success();
+
+            return redirect()->route('company.home');
         }
-        return redirect()->route('company.login')->with('success', $message);
+        flash($message)->success();
+
+        return redirect()->route('company.login');
     }
 }

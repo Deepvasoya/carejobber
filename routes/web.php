@@ -95,8 +95,11 @@ Route::get('company-email-verification/check/{token}', 'Company\Auth\RegisterCon
 // Sociallite Start
 // OAuth Routes
 Route::get('login/jobseeker/{provider}', 'Auth\LoginController@redirectToProvider');
-Route::get('company-login', 'Auth\LoginController@companyLogin');
-Route::get('company-register', 'Auth\LoginController@companyRegister');
+Route::get('company-login', 'Auth\LoginController@companyLogin')->name('company.login.landing');
+Route::get('company-register', 'Auth\LoginController@companyRegister')->name('company.register.landing');
+
+// Help Centre (WordPress or static at /faqs/ — uses current APP_URL, not a hardcoded domain)
+Route::redirect('help-centre', '/faqs/', 302)->name('help.centre');
 Route::get('login/jobseeker/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 Route::get('login/employer/{provider}', 'Company\Auth\LoginController@redirectToProvider');
 Route::get('login/employer/{provider}/callback', 'Company\Auth\LoginController@handleProviderCallback');

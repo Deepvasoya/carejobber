@@ -48,12 +48,24 @@ class StripeOrderController extends Controller
         /*         * ****************************************** */
     }
 
+    /**
+     * Employer purchases (job posting, CV search, etc.) use employer session; job seekers use jobseeker session.
+     */
+    protected function stripeCheckoutCouponCode(): ?string
+    {
+        if (Auth::guard('company')->check()) {
+            return session('employer_package_coupon_code');
+        }
+
+        return session('jobseeker_package_coupon_code');
+    }
+
     public function stripeOrderForm($package_id, $new_or_upgrade)
     {
         $package = Package::findOrFail($package_id);
         $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
         $userId = Auth::check() ? Auth::user()->id : null;
-        $rawCoupon = session('jobseeker_package_coupon_code');
+        $rawCoupon = $this->stripeCheckoutCouponCode();
         $couponEval = app(PackageCouponService::class)->evaluateCheckout($rawCoupon, $package, $companyId, $userId);
         $couponWarning = null;
         if ($rawCoupon && PackageCoupon::normalizeCode((string) $rawCoupon) !== '' && !$couponEval['ok']) {
@@ -82,9 +94,10 @@ class StripeOrderController extends Controller
         $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
         $userId = Auth::check() ? Auth::user()->id : null;
         $svc = app(PackageCouponService::class);
-        $eval = $svc->evaluateCheckout(session('jobseeker_package_coupon_code'), $package, $companyId, $userId);
+        $rawCoupon = $this->stripeCheckoutCouponCode();
+        $eval = $svc->evaluateCheckout($rawCoupon, $package, $companyId, $userId);
 
-        if (PackageCoupon::normalizeCode((string) session('jobseeker_package_coupon_code')) !== '' && !$eval['ok']) {
+        if (PackageCoupon::normalizeCode((string) $rawCoupon) !== '' && !$eval['ok']) {
             flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
 
             return Redirect::route('stripe.order.form', [$request->package_id, 'new']);
@@ -152,7 +165,9 @@ class StripeOrderController extends Controller
                 return Redirect::route($this->redirectTo);
             }
         } catch (\Exception $e) {
-            flash($e->getMessage());
+            \Log::error('Stripe charge failed', ['message' => $e->getMessage()]);
+            flash(__('Payment could not be processed. Please check your card details or try again.'))->error();
+
             return Redirect::route($this->redirectTo);
         }
     }
@@ -165,9 +180,10 @@ class StripeOrderController extends Controller
         $companyId = Auth::guard('company')->check() ? Auth::guard('company')->user()->id : null;
         $userId = Auth::check() ? Auth::user()->id : null;
         $svc = app(PackageCouponService::class);
-        $eval = $svc->evaluateCheckout(session('jobseeker_package_coupon_code'), $package, $companyId, $userId);
+        $rawCoupon = $this->stripeCheckoutCouponCode();
+        $eval = $svc->evaluateCheckout($rawCoupon, $package, $companyId, $userId);
 
-        if (PackageCoupon::normalizeCode((string) session('jobseeker_package_coupon_code')) !== '' && !$eval['ok']) {
+        if (PackageCoupon::normalizeCode((string) $rawCoupon) !== '' && !$eval['ok']) {
             flash(PackageCouponService::humanMessage($eval['reason'] ?? 'default'))->error();
 
             return Redirect::route('stripe.order.form', [$request->package_id, 'upgrade']);
@@ -237,7 +253,9 @@ class StripeOrderController extends Controller
                 return Redirect::route($this->redirectTo);
             }
         } catch (\Exception $e) {
-            flash($e->getMessage());
+            \Log::error('Stripe upgrade charge failed', ['message' => $e->getMessage()]);
+            flash(__('Payment could not be processed. Please check your card details or try again.'))->error();
+
             return Redirect::route($this->redirectTo);
         }
     }

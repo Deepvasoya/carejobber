@@ -40,8 +40,8 @@
                             
 							<li class="nav-item {{ Request::url() == route('blogs') ? 'active' : '' }}"><a href="{{ route('blogs') }}" class="nav-link">{{__('Blog')}}</a> </li>
                             <li class="nav-item {{ Request::url() == route('contact.us') ? 'active' : '' }}"><a href="{{ route('contact.us') }}" class="nav-link">{{__('Contact Us')}}</a> </li>
-                            <li class="nav-item"><a href="https://carejobber.com/faqs/"class="nav-link" target="_blank" rel="noopener noreferrer">{{ __('Help Centre') }}</a></li>
-                            <li class="nav-item"><a href="https://carejobber.com/company-login" class="nav-link">{{__('Employers/Post Job')}}</a> </li>
+                            <li class="nav-item"><a href="{{ route('help.centre') }}" class="nav-link" target="_blank" rel="noopener noreferrer">{{ __('Help Centre') }}</a></li>
+                            <li class="nav-item"><a href="{{ route('company.login.landing') }}" class="nav-link">{{ __('Employers/Post Job') }}</a></li>
                             {{-- Instant Chat Addon - Header Icon --}}
                             @include('includes.chat-header-icon')
                             

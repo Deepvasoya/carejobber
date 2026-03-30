@@ -8,8 +8,7 @@
                 <!--Quick Links menu Start-->
                 <ul class="quicklinks">
                     <li><a href="{{ route('index') }}">{{__('Home')}}</a></li>
-                    <li><a href="https://carejobber.com/faqs/" target="_blank" rel="noopener noreferrer">
-                    {{ __('Help Desk') }}</a></li>
+                    <li><a href="{{ route('help.centre') }}" target="_blank" rel="noopener noreferrer">{{ __('Help Desk') }}</a></li>
                     <li><a href="{{ route('contact.us') }}">{{__('Contact Us')}}</a></li>
                     <li class="postad"><a href="{{ route('post.job') }}">{{__('Post a Job')}}</a></li>
                     @foreach($show_in_footer_menu as $footer_menu)
@@ -41,14 +40,14 @@
                 <h5>{{__('For Jobseekers')}}</h5>
                 <!--Industry menu Start-->
                 <ul class="quicklinks">
-                    <li><a href="https://carejobber.com/my-profile">My Profile</a></li>
-                    <li><a href="https://carejobber.com/build-resume">Build Resume</a></li>
-                    <li><a href="https://carejobber.com/my-job-applications">My Job Applications</a></li>
-                    <li><a href="https://carejobber.com/my-favourite-jobs">My Favourite Jobs</a></li>
-                    <li><a href="https://carejobber.com/my-alerts">My Job Alerts</a></li>
-                    <li><a href="https://carejobber.com/my-messages">My Messages</a></li>
-                    <li><a href="https://carejobber.com/my-followings">My Followings</a></li>
-                    <li><a href="https://carejobber.com/user-referral-program">Referral Program</a></li>
+                    <li><a href="{{ route('my.profile') }}">{{ __('My Profile') }}</a></li>
+                    <li><a href="{{ route('build.resume') }}">{{ __('Build Resume') }}</a></li>
+                    <li><a href="{{ route('my.job.applications') }}">{{ __('My Job Applications') }}</a></li>
+                    <li><a href="{{ route('my.favourite.jobs') }}">{{ __('My Favourite Jobs') }}</a></li>
+                    <li><a href="{{ route('my-alerts') }}">{{ __('My Job Alerts') }}</a></li>
+                    <li><a href="{{ route('my.messages') }}">{{ __('My Messages') }}</a></li>
+                    <li><a href="{{ route('my.followings') }}">{{ __('My Followings') }}</a></li>
+                    <li><a href="{{ route('user.referral.program') }}">{{ __('Referral Program') }}</a></li>
                 </ul>
                 <!--Industry menu End-->
                 <div class="clear"></div>
@@ -59,14 +58,14 @@
                 <h5>{{__('For Employers')}}</h5>
                 <!--Industry menu Start-->
                 <ul class="quicklinks">
-                    <li><a href="https://carejobber.com/company-home">Dashboard</a></li>
-                    <li><a href="https://carejobber.com/post-job">Post a Job</a></li>
-                    <li><a href="https://carejobber.com/posted-jobs">Manage Jobs</a></li>
-                    <li><a href="https://carejobber.com/unloced-seekers">Unlocked Users</a></li>
-                    <li><a href="https://carejobber.com/company-messages">Company Messages</a></li>
-                    <li><a href="https://carejobber.com/company-followers">Company Followers</a></li>
-                    <li><a href="https://carejobber.com/company-profile">Company Public Profile</a></li>
-                    <li><a href="https://carejobber.com/referral-program">Employers Referral Program</a></li>
+                    <li><a href="{{ route('company.home') }}">{{ __('Dashboard') }}</a></li>
+                    <li><a href="{{ route('post.job') }}">{{ __('Post a Job') }}</a></li>
+                    <li><a href="{{ route('posted.jobs') }}">{{ __('Manage Jobs') }}</a></li>
+                    <li><a href="{{ route('company.unloced-users') }}">{{ __('Unlocked Users') }}</a></li>
+                    <li><a href="{{ route('company.messages') }}">{{ __('Company Messages') }}</a></li>
+                    <li><a href="{{ route('company.followers') }}">{{ __('Company Followers') }}</a></li>
+                    <li><a href="{{ route('company.profile') }}">{{ __('Company Public Profile') }}</a></li>
+                    <li><a href="{{ route('company.referral.program') }}">{{ __('Employers Referral Program') }}</a></li>
                 </ul>
                 <!--Industry menu End-->
                 <div class="clear"></div>

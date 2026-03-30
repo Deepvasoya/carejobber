@@ -47,6 +47,10 @@
             
             @include('includes.company_dashboard_stats')
 
+            <div class="mt-3 mb-2">
+                @include('includes.package_coupon_employer')
+            </div>
+
             <!-- Suggested Candidates Section -->
             <div class="suggested-candidates-section mt-4 mb-4" style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
                 <div class="section-header" style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;">
