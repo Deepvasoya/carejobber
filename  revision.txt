@@ -2,7 +2,7 @@ The only task completed is the admin URL change. (1) The subscription package is
 
 
 Here is my original request: I have a PHP Laravel job board website that needs modifications.
-The site is: https://carejobber.com/. I need a PHP and Laravel expert who can be my developer.
+The site is: https://yobist.com/. I need a PHP and Laravel expert who can be my developer.
 I need to change a lot of the core functionality to my taste.
 (1). I need a custom job for the subscription sections. I need a monthly subscriptions and
 pay-per-post options for employers to buy a package and for job seekers to promote their
