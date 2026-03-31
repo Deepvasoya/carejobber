@@ -99,6 +99,11 @@ class PackageCouponController extends Controller
         $ids = $request->input('package_ids');
         $packageIds = is_array($ids) && count($ids) > 0 ? array_values(array_unique(array_map('intval', $ids))) : null;
 
+        $rpInput = $request->input('resume_promotion_package_ids');
+        $resumePromotionPackageIds = is_array($rpInput) && count($rpInput) > 0
+            ? array_values(array_unique(array_map('intval', $rpInput)))
+            : null;
+
         return [
             'code' => PackageCoupon::normalizeCode($validated['code']),
             'admin_note' => $validated['admin_note'] ?? null,
