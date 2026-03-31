@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ResumePromotionPackage;
 use App\Package;
 use App\PackageCoupon;
 use App\PackageCouponRedemption;
@@ -156,6 +157,142 @@ class PackageCouponService
     }
 
     /**
+     * Stripe Checkout for /resume-promotion-packages (ResumePromotionPackage, not Package).
+     *
+     * @return array{ok:bool, reason:?string, coupon:?PackageCoupon, subtotal:float, discount:float, total:float}
+     */
+    public function evaluateResumePromotionCheckout(
+        ?string $rawCode,
+        ResumePromotionPackage $promoPackage,
+        ?int $userId
+    ): array {
+        $base = [
+            'ok' => false,
+            'reason' => null,
+            'coupon' => null,
+            'subtotal' => (float) $promoPackage->price,
+            'discount' => 0.0,
+            'total' => (float) $promoPackage->price,
+        ];
+
+        $code = PackageCoupon::normalizeCode($rawCode);
+        if ($code === '') {
+            $base['ok'] = true;
+            $base['reason'] = 'no_code';
+
+            return $base;
+        }
+
+        $coupon = PackageCoupon::where('code', $code)->first();
+        if (!$coupon) {
+            $base['reason'] = 'invalid_code';
+
+            return $base;
+        }
+
+        if (!$coupon->is_active) {
+            $base['reason'] = 'inactive';
+
+            return $base;
+        }
+
+        $now = now();
+        if ($coupon->starts_at && $coupon->starts_at->isFuture()) {
+            $base['reason'] = 'not_started';
+
+            return $base;
+        }
+        if ($coupon->ends_at && $coupon->ends_at->isPast()) {
+            $base['reason'] = 'expired';
+
+            return $base;
+        }
+
+        if ($base['subtotal'] <= 0) {
+            $base['reason'] = 'free_package';
+
+            return $base;
+        }
+
+        if (!$this->couponScopeAllowsResumePromotion($coupon->package_for_scope)) {
+            $base['reason'] = 'wrong_audience';
+
+            return $base;
+        }
+
+        $jobPackageIds = $coupon->package_ids;
+        if (is_array($jobPackageIds) && count($jobPackageIds) > 0) {
+            $rpPick = $coupon->resume_promotion_package_ids;
+            if (!is_array($rpPick) || count($rpPick) === 0) {
+                $base['reason'] = 'wrong_audience';
+
+                return $base;
+            }
+        }
+
+        $rpIds = $coupon->resume_promotion_package_ids;
+        if (is_array($rpIds) && count($rpIds) > 0) {
+            $rpIds = array_map('intval', $rpIds);
+            if (!in_array((int) $promoPackage->id, $rpIds, true)) {
+                $base['reason'] = 'package_not_allowed';
+
+                return $base;
+            }
+        }
+
+        if ($coupon->min_package_price !== null && $base['subtotal'] < (float) $coupon->min_package_price) {
+            $base['reason'] = 'below_minimum';
+
+            return $base;
+        }
+
+        if ($coupon->usage_limit_total !== null) {
+            $used = PackageCouponRedemption::where('package_coupon_id', $coupon->id)->count();
+            if ($used >= (int) $coupon->usage_limit_total) {
+                $base['reason'] = 'usage_limit_total';
+
+                return $base;
+            }
+        }
+
+        if ($coupon->usage_limit_per_buyer !== null && $userId) {
+            $limit = (int) $coupon->usage_limit_per_buyer;
+            $n = PackageCouponRedemption::where('package_coupon_id', $coupon->id)
+                ->where('user_id', $userId)
+                ->count();
+            if ($n >= $limit) {
+                $base['reason'] = 'usage_limit_buyer';
+
+                return $base;
+            }
+        }
+
+        $discount = $this->computeDiscount($coupon, $base['subtotal']);
+        $total = round(max(0, $base['subtotal'] - $discount), 2);
+
+        if ($total < 0.5) {
+            $base['reason'] = 'amount_below_stripe_minimum';
+
+            return $base;
+        }
+
+        $base['ok'] = true;
+        $base['reason'] = 'applied';
+        $base['coupon'] = $coupon;
+        $base['discount'] = $discount;
+        $base['total'] = $total;
+
+        return $base;
+    }
+
+    public function couponScopeAllowsResumePromotion(?string $scope): bool
+    {
+        $s = $scope !== null ? trim((string) $scope) : '';
+
+        return $s === '' || $s === 'resume_promotion';
+    }
+
+    /**
      * Whether a coupon's audience scope allows this package (matches admin "Restrict to package audience").
      * Empty scope = any package type. Job seeker–scoped codes also apply to "make featured" profile packages.
      */
@@ -231,16 +368,21 @@ class PackageCouponService
 
     public function recordRedemption(
         PackageCoupon $coupon,
-        Package $package,
+        ?Package $package,
         float $discountAmount,
         ?int $companyId,
         ?int $userId,
         ?string $stripeCheckoutSessionId,
         ?string $stripeChargeId,
         ?float $amountPaid,
-        string $currency = 'USD'
+        string $currency = 'USD',
+        ?int $resumePromotionPackageId = null
     ): void {
         if ($discountAmount <= 0) {
+            return;
+        }
+
+        if (!$package && !$resumePromotionPackageId) {
             return;
         }
 
@@ -259,7 +401,8 @@ class PackageCouponService
 
         PackageCouponRedemption::create([
             'package_coupon_id' => $coupon->id,
-            'package_id' => $package->id,
+            'package_id' => $package?->id,
+            'resume_promotion_package_id' => $resumePromotionPackageId,
             'company_id' => $companyId,
             'user_id' => $userId,
             'discount_amount' => $discountAmount,

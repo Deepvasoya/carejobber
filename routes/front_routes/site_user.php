@@ -7,6 +7,8 @@ Route::get('build-resume', 'UserController@buildResume')->name('build.resume');
 
 // Resume Promotion Routes
 Route::get('resume-promotion-packages', 'ResumePromotionController@showPackages')->name('resume.promotion.packages');
+Route::post('resume-promotion/apply-coupon', 'PackageCouponSessionController@applyResumePromotion')->name('resume.promotion.apply.coupon');
+Route::post('resume-promotion/clear-coupon', 'PackageCouponSessionController@clearResumePromotion')->name('resume.promotion.clear.coupon');
 Route::get('resume-promotion-checkout/{packageId}', 'ResumePromotionController@createCheckout')->name('resume.promotion.checkout');
 Route::get('resume-promotion-success', 'ResumePromotionController@success')->name('resume.promotion.success');
 Route::get('view-public-profile/{id}', 'UserController@viewPublicProfile')->name('view.public.profile');

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\ResumePromotionPackage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -27,5 +28,10 @@ class PackageCouponRedemption extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id');
+    }
+
+    public function resumePromotionPackage(): BelongsTo
+    {
+        return $this->belongsTo(ResumePromotionPackage::class, 'resume_promotion_package_id');
     }
 }

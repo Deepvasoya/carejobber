@@ -18,6 +18,7 @@ class PackageCoupon extends Model
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
         'package_ids' => 'array',
+        'resume_promotion_package_ids' => 'array',
         'allow_subscription_packages' => 'boolean',
         'is_active' => 'boolean',
     ];
@@ -69,6 +70,15 @@ class PackageCoupon extends Model
         });
     }
 
+    public function scopeForResumePromotionPortal($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('package_for_scope')
+                ->orWhere('package_for_scope', '')
+                ->orWhere('package_for_scope', 'resume_promotion');
+        });
+    }
+
     /**
      * @return \Illuminate\Support\Collection<int, static>
      */
@@ -98,6 +108,27 @@ class PackageCoupon extends Model
         $coupons = static::query()
             ->active()
             ->forJobSeekerPortal()
+            ->withCount('redemptions')
+            ->orderBy('code')
+            ->get();
+
+        return $coupons->filter(function (self $c) {
+            if ($c->usage_limit_total === null) {
+                return true;
+            }
+
+            return (int) $c->redemptions_count < (int) $c->usage_limit_total;
+        })->values();
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, static>
+     */
+    public static function activeForResumePromotionPortalDisplay()
+    {
+        $coupons = static::query()
+            ->active()
+            ->forResumePromotionPortal()
             ->withCount('redemptions')
             ->orderBy('code')
             ->get();

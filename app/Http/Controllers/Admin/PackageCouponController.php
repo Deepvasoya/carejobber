@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ResumePromotionPackage;
 use App\Package;
 use App\PackageCoupon;
 use Illuminate\Http\Request;
@@ -20,8 +21,9 @@ class PackageCouponController extends Controller
     public function create()
     {
         $packages = Package::orderBy('package_for')->orderBy('package_title')->get();
+        $resumePromotionPackages = ResumePromotionPackage::orderBy('duration_days')->get();
 
-        return view('admin.package_coupon.add', compact('packages'));
+        return view('admin.package_coupon.add', compact('packages', 'resumePromotionPackages'));
     }
 
     public function store(Request $request)
@@ -37,8 +39,9 @@ class PackageCouponController extends Controller
     {
         $coupon = PackageCoupon::findOrFail($id);
         $packages = Package::orderBy('package_for')->orderBy('package_title')->get();
+        $resumePromotionPackages = ResumePromotionPackage::orderBy('duration_days')->get();
 
-        return view('admin.package_coupon.edit', compact('coupon', 'packages'));
+        return view('admin.package_coupon.edit', compact('coupon', 'packages', 'resumePromotionPackages'));
     }
 
     public function update(Request $request, $id)
@@ -78,9 +81,11 @@ class PackageCouponController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
             'usage_limit_total' => 'nullable|integer|min:1',
             'usage_limit_per_buyer' => 'nullable|integer|min:1',
-            'package_for_scope' => 'nullable|in:job_seeker,employer,cv_search,make_featured',
+            'package_for_scope' => 'nullable|in:job_seeker,employer,cv_search,make_featured,resume_promotion',
             'package_ids' => 'nullable|array',
             'package_ids.*' => 'integer|exists:packages,id',
+            'resume_promotion_package_ids' => 'nullable|array',
+            'resume_promotion_package_ids.*' => 'integer|exists:resume_promotion_packages,id',
             'allow_subscription_packages' => 'sometimes|boolean',
             'is_active' => 'sometimes|boolean',
         ]);
@@ -107,6 +112,7 @@ class PackageCouponController extends Controller
             'usage_limit_per_buyer' => $validated['usage_limit_per_buyer'] ?? null,
             'package_for_scope' => $validated['package_for_scope'] ?? null,
             'package_ids' => $packageIds,
+            'resume_promotion_package_ids' => $resumePromotionPackageIds,
             'allow_subscription_packages' => $request->boolean('allow_subscription_packages'),
             'is_active' => $request->boolean('is_active'),
         ];

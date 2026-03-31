@@ -97,8 +97,9 @@
                 <option value="employer" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'employer')>{{ __('Employer') }}</option>
                 <option value="cv_search" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'cv_search')>{{ __('CV search') }}</option>
                 <option value="make_featured" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'make_featured')>{{ __('Make featured') }}</option>
+                <option value="resume_promotion" @selected(old('package_for_scope', isset($coupon) ? $coupon->package_for_scope : '') == 'resume_promotion')>{{ __('Resume promotion (Promote Your Resume)') }}</option>
             </select>
-            <span class="help-block">{{ __('Employer / CV search codes only work on company purchases. For job seekers use Job seeker (also covers featured profile packages), Make featured, or Any.') }}</span>
+            <span class="help-block">{{ __('Employer / CV search codes only work on company purchases. For job seekers use Job seeker (also covers featured profile packages), Make featured, or Any. Resume promotion codes only work on /resume-promotion-packages.') }}</span>
         </div>
     </div>
     <div class="col-md-6">
@@ -127,6 +128,19 @@
         @endforeach
     </select>
     <span class="help-block">{{ __('Hold Ctrl/Cmd to select multiple. Leave none selected for all packages in scope.') }}</span>
+</div>
+
+<div class="form-group mb-3">
+    <label class="control-label">{{ __('Limit to specific resume promotion durations') }}</label>
+    <select name="resume_promotion_package_ids[]" class="form-control" multiple size="6">
+        @foreach($resumePromotionPackages ?? [] as $rp)
+            @php
+                $selRp = collect(old('resume_promotion_package_ids', isset($coupon) ? ($coupon->resume_promotion_package_ids ?? []) : []))->map(fn ($v) => (int) $v)->contains((int) $rp->id);
+            @endphp
+            <option value="{{ $rp->id }}" @selected($selRp)>{{ $rp->name }} — {{ $rp->duration_days }} {{ __('days') }} (${{ number_format($rp->price, 2) }} {{ $rp->currency }})</option>
+        @endforeach
+    </select>
+    <span class="help-block">{{ __('Optional. Only used for “Resume promotion” or “Any” coupons on the Promote Your Resume checkout. Leave empty to allow all active promotion tiers.') }}</span>
 </div>
 
 <div class="form-group mb-3">

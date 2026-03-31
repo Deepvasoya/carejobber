@@ -37,6 +37,12 @@
                 </div>
                 @endif
 
+                @if((bool)($siteSetting->is_stripe_active ?? false))
+                    <div class="mb-4">
+                        @include('includes.package_coupon_resume_promotion')
+                    </div>
+                @endif
+
                 <!-- Packages -->
                 <div class="row">
                     @foreach($packages as $package)
