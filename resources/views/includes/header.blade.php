@@ -21,7 +21,7 @@
                             
 							@if(Auth::guard('company')->check())
                   <li class="nav-item {{ Request::url() == url('/job-seekers') ? 'active' : '' }}">
-                      <a href="{{url('/job-seekers')}}" class="nav-link">{{__('Search Resumes')}}</a>
+                      <a href="{{url('/job-seekers')}}" class="nav-link">{{__('Resume Database')}}</a>
                   </li>
               @else
                   <li class="nav-item {{ Request::url() == url('/search-jobs') ? 'active' : '' }}">

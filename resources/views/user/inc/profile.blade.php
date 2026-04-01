@@ -171,17 +171,17 @@
 
 <div class="row">
  <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_experience_id') !!}">
-			<label for="">{{__('Job Experience')}} <span>*</span></label>
-			{!! Form::select('job_experience_id', [''=>__('Select Job Experience')]+$jobExperiences, null, array('class'=>'form-control', 'id'=>'job_experience_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!} </div>
-    </div>
-    
-    <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}">
 			<label for="">{{__('Your Job Category')}} <span>*</span></label>
 			{!! Form::select('functional_area_id', [''=>__('Select Job Category')]+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!} </div>
+    </div>
+    
+ <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_experience_id') !!}">
+			<label for="">{{__('Job Experience')}} <span>*</span></label>
+			{!! Form::select('job_experience_id', [''=>__('Select Job Experience')]+$jobExperiences, null, array('class'=>'form-control', 'id'=>'job_experience_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!} </div>
     </div>
     
 </div>
