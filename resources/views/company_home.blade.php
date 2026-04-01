@@ -47,9 +47,6 @@
             
             @include('includes.company_dashboard_stats')
 
-            <div class="mt-3 mb-2">
-                @include('includes.package_coupon_employer')
-            </div>
 
             <!-- Suggested Candidates Section -->
             <div class="suggested-candidates-section mt-4 mb-4" style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
@@ -99,6 +96,11 @@
                     </a>
                 </div>
                 @endif
+            </div>
+
+
+            <div class="mt-3 mb-2">
+                @include('includes.package_coupon_employer')
             </div>
 
            @if($company->getPackage('id') == 13 && $company->package_end_date !== null && Carbon\Carbon::parse($company->package_end_date)->gt(Carbon\Carbon::now()) && $company->jobs_quota > $company->availed_jobs_quota)

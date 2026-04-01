@@ -6,6 +6,9 @@
 <div id="recruiter-posting-packs-subs" class="container" style="max-width: 900px; margin: 2rem auto; padding: 0 15px;">
     @include('flash::message')
 
+
+    @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_job_posting'])
+
     <section class="hero text-center mb-4">
         <div class="mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="80" height="50" viewBox="0 0 248 144" fill="none" class="d-inline-block" style="max-width: 120px;"><path d="M31 0h186a9 9 0 019 9v124a9 9 0 01-9 9H31a9 9 0 01-9-9V9a9 9 0 019-9z" fill="#74737E"/><path fill="#FFF" d="M31 11h186v118H31z"/><rect fill="#428EE6" x="50" y="50" width="80" height="8" rx="2"/><rect fill="#D4D6DE" x="50" y="70" width="120" height="6" rx="2"/></svg>
@@ -33,7 +36,7 @@
         @endif
     </ul>
 
-    @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_job_posting'])
+    
 
     <section class="package-list">
         <input type="hidden" name="_token" value="{{ csrf_token() }}">
