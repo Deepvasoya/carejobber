@@ -108,7 +108,8 @@
                                                             $summaryPreview = trim($summaryText) !== ''
                                                                 ? \Illuminate\Support\Str::words(strip_tags($summaryText), 50, '…')
                                                                 : '';
-                                                            $hasPartial = $experiences->count() > 0 || $educations->count() > 0 || $skills->count() > 0 || $summaryPreview !== '';
+                                                            $expFirst = $experiences->first();
+                                                            $eduFirst = $educations->first();
 
                                                             $fn = trim((string) ($jobSeeker->first_name ?? ''));
                                                             $ln = trim((string) ($jobSeeker->last_name ?? ''));
@@ -156,59 +157,61 @@
                                                                 </p>
                                                             </div>
 
-                                                            @if ($experiences->count() > 0)
-                                                                @foreach ($experiences->take(1) as $exp)
+                                                            <div class="resume-preview-card__section">
+                                                                <div class="resume-preview-card__label">{{ __('Experience') }}</div>
+                                                                @if ($expFirst)
                                                                     @php
+                                                                        $exp = $expFirst;
                                                                         $expDesc = trim(strip_tags((string) ($exp->description ?? '')));
                                                                         $expDescPreview = $expDesc !== '' ? \Illuminate\Support\Str::words($expDesc, 25, '…') : '';
                                                                     @endphp
-                                                                    <div class="resume-preview-card__section">
-                                                                        <div class="resume-preview-card__label">{{ __('Experience') }}</div>
-                                                                        <div class="resume-preview-card__text">
-                                                                            <span class="resume-preview-card__strong">{{ $exp->title ?? __('Position') }}</span>
-                                                                            @if (! empty($exp->company))
-                                                                                <span class="text-muted"> · {{ $exp->company }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                        @if ($exp->date_start)
-                                                                            <div class="resume-preview-card__sub text-muted small">
-                                                                                {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }}
-                                                                                —
-                                                                                @if ($exp->is_currently_working ?? false)
-                                                                                    {{ __('Present') }}
-                                                                                @elseif (! empty($exp->date_end))
-                                                                                    {{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}
-                                                                                @else
-                                                                                    {{ __('Present') }}
-                                                                                @endif
-                                                                            </div>
-                                                                        @endif
-                                                                        @if ($expDescPreview !== '')
-                                                                            <p class="resume-preview-card__text resume-preview-card__text--muted small mb-0 mt-1">{{ $expDescPreview }}</p>
+                                                                    <div class="resume-preview-card__text">
+                                                                        <span class="resume-preview-card__strong">{{ $exp->title ?? __('Position') }}</span>
+                                                                        @if (! empty($exp->company))
+                                                                            <span class="text-muted"> · {{ $exp->company }}</span>
                                                                         @endif
                                                                     </div>
-                                                                @endforeach
-                                                            @endif
+                                                                    @if ($exp->date_start)
+                                                                        <div class="resume-preview-card__sub text-muted small">
+                                                                            {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }}
+                                                                            —
+                                                                            @if ($exp->is_currently_working ?? false)
+                                                                                {{ __('Present') }}
+                                                                            @elseif (! empty($exp->date_end))
+                                                                                {{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}
+                                                                            @else
+                                                                                {{ __('Present') }}
+                                                                            @endif
+                                                                        </div>
+                                                                    @endif
+                                                                    @if ($expDescPreview !== '')
+                                                                        <p class="resume-preview-card__text resume-preview-card__text--muted small mb-0 mt-1">{{ $expDescPreview }}</p>
+                                                                    @endif
+                                                                @else
+                                                                    <p class="resume-preview-card__text text-muted fst-italic mb-0">{{ __('No work history in preview. Unlock full profile to see experience.') }}</p>
+                                                                @endif
+                                                            </div>
 
-                                                            @if ($educations->count() > 0)
-                                                                <div class="resume-preview-card__section">
-                                                                    <div class="resume-preview-card__label">{{ __('Education') }}</div>
-                                                                    @foreach ($educations->take(1) as $edu)
-                                                                        @php
-                                                                            $eduLine = implode(', ', array_filter([
-                                                                                $edu->getDegreeLevel('degree_level'),
-                                                                                $edu->degree_title,
-                                                                                $edu->institution,
-                                                                            ]));
-                                                                        @endphp
-                                                                        <p class="resume-preview-card__text mb-0">{{ $eduLine !== '' ? $eduLine : __('Education details on file') }}</p>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
+                                                            <div class="resume-preview-card__section">
+                                                                <div class="resume-preview-card__label">{{ __('Education') }}</div>
+                                                                @if ($eduFirst)
+                                                                    @php
+                                                                        $edu = $eduFirst;
+                                                                        $eduLine = implode(', ', array_filter([
+                                                                            $edu->getDegreeLevel('degree_level'),
+                                                                            $edu->degree_title,
+                                                                            $edu->institution,
+                                                                        ]));
+                                                                    @endphp
+                                                                    <p class="resume-preview-card__text mb-0">{{ $eduLine !== '' ? $eduLine : __('Education details on file') }}</p>
+                                                                @else
+                                                                    <p class="resume-preview-card__text text-muted fst-italic mb-0">{{ __('No education in preview. Unlock full profile to see qualifications.') }}</p>
+                                                                @endif
+                                                            </div>
 
-                                                            @if ($skills->count() > 0)
-                                                                <div class="resume-preview-card__section mb-0">
-                                                                    <div class="resume-preview-card__label">{{ __('Skills & certifications') }}</div>
+                                                            <div class="resume-preview-card__section mb-0">
+                                                                <div class="resume-preview-card__label">{{ __('Skills & certifications') }}</div>
+                                                                @if ($skills->count() > 0)
                                                                     <div class="resume-preview-card__chips">
                                                                         @foreach ($skills->take(6) as $cert)
                                                                             @php $skillName = $cert->jobSkill->job_skill ?? $cert->getJobSkill('job_skill') ?? ''; @endphp
@@ -217,12 +220,14 @@
                                                                             @endif
                                                                         @endforeach
                                                                     </div>
-                                                                </div>
-                                                            @endif
+                                                                @else
+                                                                    <p class="resume-preview-card__text text-muted fst-italic mb-0">{{ __('No skills listed in preview. Unlock full profile to see skills.') }}</p>
+                                                                @endif
+                                                            </div>
 
-                                                            @if (! $hasPartial)
-                                                                <p class="resume-preview-card__text text-muted small mb-0">{{ __('Additional details available after unlock.') }}</p>
-                                                            @endif
+                                                            <p class="resume-preview-card__text text-muted small mb-0 mt-2 pt-2 border-top" style="border-color: #eef1f5 !important;">
+                                                                <i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('Unlock full profile for complete resume, documents, and contact details.') }}
+                                                            </p>
                                                         </div>
                                                     @else
                                                         {{-- Show normal info for unlocked or non-company users --}}

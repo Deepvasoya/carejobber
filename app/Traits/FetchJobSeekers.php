@@ -64,7 +64,9 @@ trait FetchJobSeekers
         'users.jobs_quota',
         'users.availed_jobs_quota',
         'users.is_featured',
-        'users.search'
+        'users.search',
+        'users.is_resume_promoted',
+        'users.promotion_end_date',
     );
 
   public function fetchJobSeekers($search = '', $industry_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $career_level_ids = array(), $gender_ids = array(), $job_experience_ids = array(), $current_salary = 0, $expected_salary = 0, $salary_currency = '', $order_by = 'id', $limit = 10, $featured = 0)
@@ -73,12 +75,13 @@ trait FetchJobSeekers
     $query = User::select($this->fields);
     $query = $this->createQuery($query, $search, $industry_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $career_level_ids, $gender_ids, $job_experience_ids, $current_salary, $expected_salary, $salary_currency);
 
-    // Eager load partial resume data for employer preview (1 experience, 1 education, 3 skills, profile summary)
+    // Eager load resume slices for employer preview. Do NOT use limit() here — Laravel applies it
+    // globally across the eager load, so only one row total was loaded for all candidates.
     $query->with([
-        'profileExperience' => fn($q) => $q->orderBy('date_start', 'desc')->limit(1),
-        'profileEducation' => fn($q) => $q->orderBy('date_completion', 'desc')->limit(1)->with('degreeLevel'),
-        'profileSkills' => fn($q) => $q->limit(3)->with('jobSkill'),
-        'profileSummary' => fn($q) => $q->orderByDesc('id')->limit(1),
+        'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
+        'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->with('degreeLevel'),
+        'profileSkills' => fn ($q) => $q->with('jobSkill'),
+        'profileSummary' => fn ($q) => $q->orderByDesc('id'),
     ]);
 
     // Show all active users, prioritize promoted and featured users
@@ -127,10 +130,10 @@ trait FetchJobSeekers
             ->whereIn('users.functional_area_id', $functionalAreaIds);
 
         $query->with([
-            'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc')->limit(1),
-            'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->limit(1)->with('degreeLevel'),
-            'profileSkills' => fn ($q) => $q->limit(3)->with('jobSkill'),
-            'profileSummary' => fn ($q) => $q->orderByDesc('id')->limit(1),
+            'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
+            'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->with('degreeLevel'),
+            'profileSkills' => fn ($q) => $q->with('jobSkill'),
+            'profileSummary' => fn ($q) => $q->orderByDesc('id'),
         ]);
 
         $query->orderByRaw('CASE 
