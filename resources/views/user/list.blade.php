@@ -97,19 +97,18 @@
                                                 <div class="col-md-10">
                                                     @if (Auth::guard('company')->check() && !$isUnlocked)
                                                         @php
-                                                            $experiences = $jobSeeker->profileExperience ?? collect();
                                                             $educations = $jobSeeker->profileEducation ?? collect();
+                                                            $experiences = $jobSeeker->profileExperience ?? collect();
                                                             $skills = $jobSeeker->profileSkills ?? collect();
-                                                            // Latest profile summary (eager: orderByDesc id, limit 1)
                                                             $summaryRow = $jobSeeker->profileSummary->first();
-                                                            $summaryText = ($summaryRow && trim(strip_tags((string) $summaryRow->summary)) !== '')
-                                                                ? (string) $summaryRow->summary
+                                                            $summaryPlain = ($summaryRow && trim(strip_tags((string) $summaryRow->summary)) !== '')
+                                                                ? trim(strip_tags((string) $summaryRow->summary))
                                                                 : '';
-                                                            $summaryPreview = trim($summaryText) !== ''
-                                                                ? \Illuminate\Support\Str::words(strip_tags($summaryText), 50, '…')
+                                                            $summaryPreview = $summaryPlain !== ''
+                                                                ? \Illuminate\Support\Str::limit($summaryPlain, 200, '…')
                                                                 : '';
-                                                            $expFirst = $experiences->first();
                                                             $eduFirst = $educations->first();
+                                                            $expFirst = $experiences->first();
 
                                                             $fn = trim((string) ($jobSeeker->first_name ?? ''));
                                                             $ln = trim((string) ($jobSeeker->last_name ?? ''));
@@ -162,33 +161,25 @@
                                                                 @if ($expFirst)
                                                                     @php
                                                                         $exp = $expFirst;
-                                                                        $expDesc = trim(strip_tags((string) ($exp->description ?? '')));
-                                                                        $expDescPreview = $expDesc !== '' ? \Illuminate\Support\Str::words($expDesc, 25, '…') : '';
+                                                                        $expLine = implode(', ', array_filter([$exp->title, $exp->company]));
+                                                                        $dateStart = $exp->date_start ? \Carbon\Carbon::parse($exp->date_start)->format('M Y') : '';
+                                                                        if ((int) $exp->is_currently_working === 1) {
+                                                                            $dateEndLabel = __('Present');
+                                                                        } elseif ($exp->date_end) {
+                                                                            $dateEndLabel = \Carbon\Carbon::parse($exp->date_end)->format('M Y');
+                                                                        } else {
+                                                                            $dateEndLabel = '';
+                                                                        }
+                                                                        $dateRange = ($dateStart !== '' || $dateEndLabel !== '')
+                                                                            ? trim($dateStart . ($dateStart !== '' && $dateEndLabel !== '' ? ' – ' : '') . $dateEndLabel)
+                                                                            : '';
                                                                     @endphp
-                                                                    <div class="resume-preview-card__text">
-                                                                        <span class="resume-preview-card__strong">{{ $exp->title ?? __('Position') }}</span>
-                                                                        @if (! empty($exp->company))
-                                                                            <span class="text-muted"> · {{ $exp->company }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                    @if ($exp->date_start)
-                                                                        <div class="resume-preview-card__sub text-muted small">
-                                                                            {{ \Carbon\Carbon::parse($exp->date_start)->format('M Y') }}
-                                                                            —
-                                                                            @if ($exp->is_currently_working ?? false)
-                                                                                {{ __('Present') }}
-                                                                            @elseif (! empty($exp->date_end))
-                                                                                {{ \Carbon\Carbon::parse($exp->date_end)->format('M Y') }}
-                                                                            @else
-                                                                                {{ __('Present') }}
-                                                                            @endif
-                                                                        </div>
-                                                                    @endif
-                                                                    @if ($expDescPreview !== '')
-                                                                        <p class="resume-preview-card__text resume-preview-card__text--muted small mb-0 mt-1">{{ $expDescPreview }}</p>
+                                                                    <p class="resume-preview-card__text mb-0">{{ $expLine !== '' ? $expLine : __('Work experience on file') }}</p>
+                                                                    @if ($dateRange !== '')
+                                                                        <p class="resume-preview-card__text text-muted small mb-0">{{ $dateRange }}</p>
                                                                     @endif
                                                                 @else
-                                                                    <p class="resume-preview-card__text text-muted fst-italic mb-0">{{ __('No work history in preview. Unlock full profile to see experience.') }}</p>
+                                                                    <p class="resume-preview-card__text text-muted fst-italic mb-0">{{ __('No experience in preview. Unlock full profile to see work history.') }}</p>
                                                                 @endif
                                                             </div>
 

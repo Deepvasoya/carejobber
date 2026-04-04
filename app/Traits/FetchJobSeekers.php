@@ -78,8 +78,8 @@ trait FetchJobSeekers
     // Eager load resume slices for employer preview. Do NOT use limit() here — Laravel applies it
     // globally across the eager load, so only one row total was loaded for all candidates.
     $query->with([
-        'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
         'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->with('degreeLevel'),
+        'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
         'profileSkills' => fn ($q) => $q->with('jobSkill'),
         'profileSummary' => fn ($q) => $q->orderByDesc('id'),
     ]);
@@ -130,8 +130,8 @@ trait FetchJobSeekers
             ->whereIn('users.functional_area_id', $functionalAreaIds);
 
         $query->with([
-            'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
             'profileEducation' => fn ($q) => $q->orderBy('date_completion', 'desc')->with('degreeLevel'),
+            'profileExperience' => fn ($q) => $q->orderBy('date_start', 'desc'),
             'profileSkills' => fn ($q) => $q->with('jobSkill'),
             'profileSummary' => fn ($q) => $q->orderByDesc('id'),
         ]);
