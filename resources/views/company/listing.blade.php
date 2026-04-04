@@ -28,7 +28,7 @@
                 <div class="compnysidebarserch">           
                     <h4>Search Filter</h4>
                     <div class="mb-3">                        
-                    <input type="text" name="search" value="{{Request::get('search', '')}}" class="form-control" placeholder="{{__('keywords e.g. "Google"')}}" />  
+                    <input type="text" name="search" value="{{Request::get('search', '')}}" class="form-control" placeholder="{{__('keywords e.g. "Venta Care"')}}" />  
                     </div>
                     <div class="mb-3">
                         <label for="">Country</label>
@@ -45,19 +45,6 @@
                         <span id="city_dd">
                     {!! Form::select('city_id[]', ['' => __('Select City')], Request::get('city_id', null), array('class'=>'form-control', 'id'=>'city_id')) !!}
                 </span>
-                    </div>
-
-                    <div class="mb-3">
-                    <label for="">Industry</label>
-                    <ul class="optionlist">
-                        @foreach($industries as $key => $industry)
-                            <li>
-                                <input type="checkbox" name="industry_id[]" id="industry_id_{{$key}}" value="{{$key}}" {{ in_array($key, (array)old('industry_id', $industry_id)) ? 'checked' : '' }}>
-                                <label for="industry_id_{{$key}}"></label>
-                                {{ $industry['name'] }} <span>{{ $industry['count'] }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
                     </div>
 
                     <div class="comfilter">

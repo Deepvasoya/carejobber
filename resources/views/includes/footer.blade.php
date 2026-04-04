@@ -8,9 +8,9 @@
                 <!--Quick Links menu Start-->
                 <ul class="quicklinks">
                     <li><a href="{{ route('index') }}">{{__('Home')}}</a></li>
+                    <li class="postad"><a href="https://yobist.com/blog">{{__('Blog')}}</a></li>
                     <li><a href="{{ route('help.centre') }}" target="_blank" rel="noopener noreferrer">{{ __('Help Desk') }}</a></li>
                     <li><a href="{{ route('contact.us') }}">{{__('Contact Us')}}</a></li>
-                    <li class="postad"><a href="{{ route('post.job') }}">{{__('Post a Job')}}</a></li>
                     @foreach($show_in_footer_menu as $footer_menu)
                     @php
                     $cmsContent = App\CmsContent::getContentBySlug($footer_menu->page_slug);
@@ -37,7 +37,7 @@
 
             <!--Jobs By Industry-->
             <div class="col-md-3 col-sm-6">
-                <h5>{{__('For Jobseekers')}}</h5>
+                <h5>{{__('Job seekers')}}</h5>
                 <!--Industry menu Start-->
                 <ul class="quicklinks">
                     <li><a href="{{ route('my.profile') }}">{{ __('My Profile') }}</a></li>
@@ -55,7 +55,7 @@
 
             <!--About Us-->
             <div class="col-md-3 col-sm-6">
-                <h5>{{__('For Employers')}}</h5>
+                <h5>{{__('Employers')}}</h5>
                 <!--Industry menu Start-->
                 <ul class="quicklinks">
                     <li><a href="{{ route('company.home') }}">{{ __('Dashboard') }}</a></li>
