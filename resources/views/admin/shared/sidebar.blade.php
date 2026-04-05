@@ -304,6 +304,23 @@
     </li>
     @endif
 
+    @if(APAuthHelp::can('custom_fields.manage'))
+    <li class="side-nav-title mt-2">Custom Fields</li>
+    <li class="side-nav-item">
+        <a data-bs-toggle="collapse" href="#custom-fields-admin" class="side-nav-link {{ request()->routeIs('list.custom.fields', 'create.custom.field', 'edit.custom.field') ? 'active' : '' }}">
+            <span class="menu-icon"><i class="ri ri-input-cursor-move"></i></span>
+            <span class="menu-text">Custom Fields</span>
+            <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse {{ request()->routeIs('list.custom.fields', 'create.custom.field', 'edit.custom.field') ? 'show' : '' }}" id="custom-fields-admin">
+            <ul class="sub-menu">
+                <li class="side-nav-item"><a href="{{ route('list.custom.fields') }}" class="side-nav-link {{ request()->routeIs('list.custom.fields') ? 'active' : '' }}">List Custom Fields</a></li>
+                <li class="side-nav-item"><a href="{{ route('create.custom.field') }}" class="side-nav-link {{ request()->routeIs('create.custom.field') ? 'active' : '' }}">Add Custom Field</a></li>
+            </ul>
+        </div>
+    </li>
+    @endif
+
     @if(APAuthHelp::can('job_attributes.manage'))
     <li class="side-nav-title mt-2">Job Attributes</li>
     <li class="side-nav-item">

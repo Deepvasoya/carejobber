@@ -76,7 +76,8 @@
                                 @include('user.inc.summary')                                
                             </div>
                         </div>
-						
+
+                        @include('user.inc.build_resume_embed')
 						 
             </div>
         </div>

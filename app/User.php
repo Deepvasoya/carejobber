@@ -35,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
     
     protected $casts = [
         'partial_data' => 'array',
+        'visible_in_employer_resume_search' => 'boolean',
     ];
 
     /**

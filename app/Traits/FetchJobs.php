@@ -28,6 +28,7 @@ trait FetchJobs
         'jobs.company_id',
         'jobs.title',
         'jobs.description',
+        'jobs.benefits',
         'jobs.country_id',
         'jobs.state_id',
         'jobs.city_id',

@@ -6,24 +6,10 @@
     $packageExpiry = $hasActivePackage ? \Carbon\Carbon::parse($company->package_end_date)->format('M d, Y') : null;
     $isEditingJob = isset($job);
     $canPostNewJob = \Illuminate\Support\Facades\Gate::forUser($company)->allows('canPostJob');
-    $showJobForm = $isEditingJob || $canPostNewJob;
+    $showJobForm = true;
 @endphp
 
-@if (! $showJobForm)
-<div class="job-post-paywall card border-0 shadow-sm mb-4" style="border-radius: 16px; overflow: hidden;">
-    <div class="card-body text-center py-5 px-4" style="background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);">
-        <div class="mb-3" style="font-size: 3rem; color: #2557a7;"><i class="fas fa-lock"></i></div>
-        <h2 class="h4 mb-2" style="color: #0f172a; font-weight: 700;">{{ __('Job posting requires an active package') }}</h2>
-        <p class="text-muted mb-4 mx-auto" style="max-width: 520px; line-height: 1.6;">
-            {{ __('Purchase credits or a subscription to post jobs. After payment, you can return here and complete your listing.') }}
-        </p>
-        <a href="{{ route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']) }}" class="btn btn-lg btn-primary px-5" style="border-radius: 10px; font-weight: 600;">
-            <i class="fas fa-shopping-cart me-2"></i>{{ __('View packages & pricing') }}
-        </a>
-        <p class="small text-muted mt-4 mb-0">{{ __('Subscriptions tab offers unlimited postings for each billing period.') }}</p>
-    </div>
-</div>
-@else
+@if ($showJobForm)
 @if($hasActivePackage)
 <div class="alert alert-success mb-4" style="border-radius: 12px; border-left: 4px solid #28a745; background: #d4edda;">
     <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -92,8 +78,18 @@
             <?php
             $skills = old('skills', $jobSkillIds);
             ?>
-            {!! Form::select('skills[]', $jobSkills, $skills, array('class'=>'form-control select2-multiple', 'id'=>'skills', 'multiple'=>'multiple')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'skills') !!} </div>
+            @php
+                $jobSkillsWithOther = $jobSkills + ['0' => __('Other — add custom skills below')];
+            @endphp
+            {!! Form::select('skills[]', $jobSkillsWithOther, $skills, array('class'=>'form-control select2-multiple', 'id'=>'skills', 'multiple'=>'multiple')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'skills') !!}
+            <small class="text-muted d-block mt-1">{{ __('If your skills are not listed, choose “Other” and type one skill per line below.') }}</small>
+            <div id="custom_job_skills_wrap_job" class="mt-2" style="display:none;">
+                <label>{{ __('Custom skills (one per line)') }}</label>
+                {!! Form::textarea('custom_job_skills_lines', old('custom_job_skills_lines'), array('class'=>'form-control', 'id'=>'custom_job_skills_lines', 'rows'=>3, 'placeholder'=>__('e.g. Pediatric care'))) !!}
+                {!! APFrmErrHelp::showErrors($errors, 'custom_job_skills_lines') !!}
+            </div>
+            </div>
     </div>
     @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-4">
@@ -113,7 +109,14 @@
     
     @if(\App\Helpers\LocationHelper::showCity())
     <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}" id="city_id_div"> <span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}" id="city_id_div"> <span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')]+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
+    </div>
+    <div class="col-md-12" id="custom_city_name_wrap_job" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_city_name') !!}">
+            <label>{{ __('Custom city') }}</label>
+            {!! Form::text('custom_city_name', old('custom_city_name'), array('class'=>'form-control', 'id'=>'custom_city_name', 'maxlength'=>30)) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_city_name') !!}
+        </div>
     </div>
     @endif
     <div class="col-md-6">
@@ -164,8 +167,18 @@
     </div>
 
     <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div"> {!! Form::select('functional_area_id', ['' => __('Select Job Category')]+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+        @php
+            $functionalAreasWithOther = $functionalAreas + ['0' => __('Other (specify)')];
+        @endphp
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div"> {!! Form::select('functional_area_id', ['' => __('Select Job Category')]+$functionalAreasWithOther, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!} </div>
+    </div>
+    <div class="col-md-12" id="custom_functional_area_wrap_job" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
+            <label>{{ __('Custom job category') }}</label>
+            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'maxlength'=>200, 'placeholder'=>__('Enter category name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
+        </div>
     </div>
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_type_id') !!}" id="job_type_id_div"> {!! Form::select('job_type_id', ['' => __('Select Job Type')]+$jobTypes, null, array('class'=>'form-control', 'id'=>'job_type_id')) !!}
@@ -380,9 +393,16 @@
     </div>
 
     <div class="col-md-12">
-        <div class="formrow">
-            <button type="submit" class="btn">{{__('Submit Job')}} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
+        <div class="formrow d-flex flex-wrap gap-2 align-items-center">
+            <a href="{{ route('posted.jobs') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
+            @if(!isset($job) || $job->is_draft)
+                <button type="submit" name="job_action" value="draft" class="btn btn-secondary" formnovalidate>{{ __('Save as draft') }}</button>
+            @endif
+            <button type="submit" name="job_action" value="submit" class="btn btn-primary">{{ __('Submit Job') }} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
         </div>
+        @if(! $canPostNewJob && (!isset($job) || $job->is_draft))
+            <p class="small text-muted mt-2 mb-0">{{ __('Submit Job requires an active package and available credits. You can still save a draft and publish later.') }}</p>
+        @endif
     </div>
 </div>
 <input type="file" name="image" id="image" style="display:none;" accept="image/*"/>
@@ -444,6 +464,9 @@
             $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
                     .done(function (response) {
                         $('#default_city_dd').html(response);
+                        if (typeof window.syncJobPostingOtherFields === 'function') {
+                            window.syncJobPostingOtherFields();
+                        }
                     });
         }
     };
@@ -456,15 +479,45 @@
         $.post("{{ route('filter.lang.cities.dropdown') }}", {country_id: country_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
                 .done(function (response) {
                     $('#default_city_dd').html(response);
+                    if (typeof window.syncJobPostingOtherFields === 'function') {
+                        window.syncJobPostingOtherFields();
+                    }
                 });
     };
 })();
+
+    window.syncJobPostingOtherFields = function () {
+        var $fa = $('#functional_area_id');
+        if ($fa.length) {
+            $('#custom_functional_area_wrap_job').toggle(String($fa.val()) === '0');
+        }
+        var $ct = $('#city_id');
+        if ($ct.length) {
+            $('#custom_city_name_wrap_job').toggle(String($ct.val()) === '0');
+        }
+        var $sk = $('#skills');
+        if ($sk.length) {
+            var vals = $sk.val() || [];
+            var show = false;
+            if (Array.isArray(vals)) {
+                show = vals.indexOf('0') !== -1 || vals.indexOf(0) !== -1;
+            }
+            $('#custom_job_skills_wrap_job').toggle(show);
+        }
+    };
 
     $(document).ready(function () {
         $('.select2-multiple').select2({
             placeholder: "{{__('Select Required Skills')}}",
             allowClear: true
         });
+        $('#skills').on('change', function () {
+            window.syncJobPostingOtherFields();
+        });
+        $(document).on('change', '#functional_area_id, #city_id', function () {
+            window.syncJobPostingOtherFields();
+        });
+        window.syncJobPostingOtherFields();
         $(".datepicker").datepicker({
             autoclose: true,
             startDate: new Date(),
@@ -510,6 +563,7 @@
 
         if (window.__jobPostingLocationLevel === 1) {
             window.filterJobCitiesByCountry(window.__jobPostingInitialCityId);
+            setTimeout(function () { window.syncJobPostingOtherFields(); }, 0);
         } else {
             $('#country_id').on('change', function (e) {
                 e.preventDefault();

@@ -43,6 +43,7 @@ include_once($real_path . 'video.php');
 include_once($real_path . 'testimonial.php');
 include_once($real_path . 'slider.php');
 include_once($real_path . 'referral.php');
+include_once($real_path . 'custom_field.php');
 
 Route::group(['namespace' => 'Admin'], function () {
     Route::get('/blog_category', 'Blog_categoriesController@index');

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Front;
 
 use Auth;
+use App\Helpers\LocationHelper;
 use App\Http\Requests\Request;
 
 class UserFrontFormRequest extends Request
@@ -54,7 +55,28 @@ class UserFrontFormRequest extends Request
             //'salary_currency' => 'required|max:5',
             'street_address' => 'required|max:230',
             'image' => 'image',
+            'custom_functional_area' => 'nullable|string|max:200',
+            'custom_city_name' => 'nullable|string|max:30',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            if ((int) $this->input('functional_area_id') === 0) {
+                if (mb_strlen(trim((string) $this->input('custom_functional_area', ''))) < 2) {
+                    $v->errors()->add('custom_functional_area', __('Please enter your job category.'));
+                }
+            }
+            if (LocationHelper::showCity() && (int) $this->input('city_id') === 0) {
+                $sid = app(\App\Services\UserSubmittedLookupService::class)->resolveStateIdForCity($this);
+                if ($sid <= 0) {
+                    $v->errors()->add('custom_city_name', __('Choose your country and state/province first, then add a custom city.'));
+                } elseif (mb_strlen(trim((string) $this->input('custom_city_name', ''))) < 2) {
+                    $v->errors()->add('custom_city_name', __('Please enter your city name.'));
+                }
+            }
+        });
     }
 
     public function messages()

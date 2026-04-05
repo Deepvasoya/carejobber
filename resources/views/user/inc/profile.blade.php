@@ -114,7 +114,14 @@
     <div class="col-md-3">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}">
 			<label for="">{{__('City')}} <span>*</span></label>
-			<span id="city_dd"> {!! Form::select('city_id', [''=>__('Select City')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
+			<span id="city_dd"> {!! Form::select('city_id', [''=>__('Select City')]+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
+    </div>
+    <div class="col-md-12" id="custom_city_name_wrap" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_city_name') !!}">
+            <label for="custom_city_name">{{ __('Custom city') }}</label>
+            {!! Form::text('custom_city_name', old('custom_city_name'), array('class'=>'form-control', 'id'=>'custom_city_name', 'maxlength'=>30, 'placeholder'=>__('Enter city name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_city_name') !!}
+        </div>
     </div>
     @endif
     @if(!\App\Helpers\LocationHelper::showCountry())
@@ -173,7 +180,7 @@
  <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}">
 			<label for="">{{__('Your Job Category')}} <span>*</span></label>
-			{!! Form::select('functional_area_id', [''=>__('Select Job Category')]+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+			{!! Form::select('functional_area_id', [''=>__('Select Job Category')]+$functionalAreas+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!} </div>
     </div>
     
@@ -183,12 +190,21 @@
 			{!! Form::select('job_experience_id', [''=>__('Select Job Experience')]+$jobExperiences, null, array('class'=>'form-control', 'id'=>'job_experience_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!} </div>
     </div>
+
+    <div class="col-md-12" id="custom_functional_area_wrap" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
+            <label for="custom_functional_area">{{ __('Custom job category') }}</label>
+            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'id'=>'custom_functional_area', 'maxlength'=>200, 'placeholder'=>__('Enter the category name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
+        </div>
+    </div>
     
 </div>
 	
 	
 	
 	<div class="row">
+    @include('user.inc.resume_search_visibility')
 	
     <div class="col-md-12">
     <div class="formrow {!! APFrmErrHelp::hasError($errors, 'is_subscribed') !!}">
@@ -239,6 +255,17 @@
     };
 })();
 
+    function syncUserProfileOtherFields() {
+        var $fa = $('#functional_area_id');
+        if ($fa.length) {
+            $('#custom_functional_area_wrap').toggle(String($fa.val()) === '0');
+        }
+        var $ct = $('#city_id');
+        if ($ct.length) {
+            $('#custom_city_name_wrap').toggle(String($ct.val()) === '0');
+        }
+    }
+
     $(document).ready(function () {
         initdatepicker();
         $('#salary_currency').typeahead({
@@ -276,6 +303,9 @@
             });
             filterStates(window.__userProfileInitialStateId);
         }
+
+        $(document).on('change', '#functional_area_id, #city_id', syncUserProfileOtherFields);
+        syncUserProfileOtherFields();
 
         /*******************************/
         var fileInput = document.getElementById("image");
@@ -372,6 +402,7 @@
             $.post("{{ route('filter.lang.cities.dropdown') }}", {state_id: state_id, city_id: city_id, _method: 'POST', _token: '{{ csrf_token() }}'})
                     .done(function (response) {
                         $('#city_dd').html(response);
+                        syncUserProfileOtherFields();
                     });
         }
     }

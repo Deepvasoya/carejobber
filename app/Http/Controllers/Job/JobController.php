@@ -223,7 +223,7 @@ class JobController extends Controller
 
     public function jobDetail(Request $request, $job_slug)
     {
-        $job = Job::where('slug', 'like', $job_slug)->firstOrFail();
+        $job = Job::where('slug', 'like', $job_slug)->where('is_draft', 0)->firstOrFail();
         
         // Increment view count if num_views column exists
         if (\Schema::hasColumn('jobs', 'num_views')) {

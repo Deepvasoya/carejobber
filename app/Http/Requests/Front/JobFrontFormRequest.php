@@ -18,6 +18,18 @@ class JobFrontFormRequest extends Request
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (! $this->has('job_action')) {
+            $this->merge(['job_action' => 'submit']);
+        }
+    }
+
+    public function isDraftAction(): bool
+    {
+        return $this->input('job_action') === 'draft';
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,13 +40,35 @@ class JobFrontFormRequest extends Request
         switch ($this->method()) {
             case 'PUT':
             case 'POST': {
-                    $id = (int) $this->input('id', 0);
                     $locationLevel = LocationHelper::getLocationLevels();
 
+                    if ($this->isDraftAction()) {
+                        return [
+                            'job_action' => 'required|in:draft,submit',
+                            'title' => 'nullable|string|max:180',
+                            'description' => 'nullable|string',
+                            'skills' => 'nullable|array',
+                            'custom_functional_area' => 'nullable|string|max:200',
+                            'custom_city_name' => 'nullable|string|max:30',
+                            'custom_job_skills_lines' => 'nullable|string|max:10000',
+                            'country_id' => 'nullable',
+                            'state_id' => 'nullable',
+                            'city_id' => 'nullable',
+                            'functional_area_id' => 'nullable',
+                            'job_type_id' => 'nullable',
+                            'expiry_date' => 'nullable',
+                            'job_experience_id' => 'nullable',
+                        ];
+                    }
+
                     return [
+                        'job_action' => 'required|in:draft,submit',
                         "title" => "required|max:180",
                         "description" => "required",
-                        "skills" => "required",
+                        "skills" => "nullable|array",
+                        "custom_functional_area" => "nullable|string|max:200",
+                        "custom_city_name" => "nullable|string|max:30",
+                        "custom_job_skills_lines" => "nullable|string|max:10000",
                         "country_id" => "required",
                         "state_id" => in_array((int) $locationLevel, [2, 3, 4], true) ? "required" : "nullable",
                         "city_id" => "required",
@@ -59,12 +93,45 @@ class JobFrontFormRequest extends Request
         }
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            if ($this->isDraftAction()) {
+                return;
+            }
+            if ((int) $this->input('functional_area_id') === 0) {
+                if (mb_strlen(trim((string) $this->input('custom_functional_area', ''))) < 2) {
+                    $v->errors()->add('custom_functional_area', __('Please enter a custom job category.'));
+                }
+            }
+            if (LocationHelper::showCity() && (int) $this->input('city_id') === 0) {
+                $sid = app(\App\Services\UserSubmittedLookupService::class)->resolveStateIdForCity($this);
+                if ($sid <= 0) {
+                    $v->errors()->add('custom_city_name', __('Choose country and state/province before adding a custom city.'));
+                } elseif (mb_strlen(trim((string) $this->input('custom_city_name', ''))) < 2) {
+                    $v->errors()->add('custom_city_name', __('Please enter a custom city.'));
+                }
+            }
+            $skills = $this->input('skills', []);
+            if (! is_array($skills)) {
+                $skills = [];
+            }
+            $picked = array_filter($skills, function ($x) {
+                return (int) $x !== 0;
+            });
+            $custom = trim((string) $this->input('custom_job_skills_lines', ''));
+            if (count($picked) === 0 && $custom === '') {
+                $v->errors()->add('skills', __('Please select at least one skill and/or enter custom skills (one per line).'));
+            }
+        });
+    }
+
     public function messages()
     {
         return [
             'title.required' => __('Please enter Job title'),
             'description.required' => __('Please enter Job description'),
-            'skills.required' => __('Please enter Job skills'),
+            'skills.required' => __('Please select or enter job skills'),
             'country_id.required' => __('Please select Country'),
             'state_id.required' => __('Please select State'),
             'city_id.required' => __('Please select City'),

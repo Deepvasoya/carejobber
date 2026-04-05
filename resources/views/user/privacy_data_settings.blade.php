@@ -20,6 +20,30 @@
                     <h3 class="page-title">{{__('Privacy & Data Settings')}}</h3>
                     
                     <div class="privacy-settings-container">
+
+                        <!-- Resume search visibility -->
+                        <div class="privacy-card">
+                            <div class="privacy-card-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div class="privacy-card-content">
+                                <h4 class="privacy-card-title">{{ __('Employer resume search') }}</h4>
+                                <p class="privacy-card-description">{{ __('Choose whether your profile appears when employers search the resume database.') }}</p>
+                                <form method="POST" action="{{ route('update.resume.search.visibility') }}" class="mt-2">
+                                    @csrf
+                                    <input type="hidden" name="visible_in_employer_resume_search" value="0" />
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" name="visible_in_employer_resume_search" value="1" id="privacy_visible_resume_search"
+                                            {{ old('visible_in_employer_resume_search', $user->visible_in_employer_resume_search ?? true) ? 'checked' : '' }} />
+                                        <label class="form-check-label" for="privacy_visible_resume_search">{{ __('Show my profile in employer resume search') }}</label>
+                                    </div>
+                                    <button type="submit" class="btn-privacy-action btn-export">
+                                        {{ __('Save preference') }}
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                         
                         <!-- Privacy Consent Card -->
                         <div class="privacy-card">

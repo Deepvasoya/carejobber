@@ -117,6 +117,7 @@ trait ProfileSkillTrait
 
     public function storeFrontProfileSkill(ProfileSkillFormRequest $request, $user_id)
     {
+        app(\App\Services\UserSubmittedLookupService::class)->resolveProfileJobSkillId($request);
 
         $profileSkill = new ProfileSkill();
         $profileSkill->user_id = $user_id;
@@ -191,6 +192,7 @@ trait ProfileSkillTrait
 
     public function updateFrontProfileSkill(ProfileSkillFormRequest $request, $skill_id, $user_id)
     {
+        app(\App\Services\UserSubmittedLookupService::class)->resolveProfileJobSkillId($request);
 
         $profileSkill = ProfileSkill::find($skill_id);
         $profileSkill->user_id = $user_id;

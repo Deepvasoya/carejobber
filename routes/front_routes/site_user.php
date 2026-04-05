@@ -93,6 +93,7 @@ Route::post('user-package/clear-coupon', 'PackageCouponSessionController@clearJo
 
 /* * ******** Privacy & Data Settings ************ */
 Route::get('privacy-data-settings', 'UserController@privacyDataSettings')->name('privacy.data.settings');
+Route::post('privacy-data-settings/resume-search-visibility', 'UserController@updateResumeSearchVisibility')->name('update.resume.search.visibility');
 Route::post('save-cookie-consent', 'UserController@saveCookieConsent')->name('save.cookie.consent');
 Route::post('give-privacy-consent', 'UserController@givePrivacyConsent')->name('give.privacy.consent');
 Route::post('request-data-export', 'UserController@requestDataExport')->name('request.data.export');

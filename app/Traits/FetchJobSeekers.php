@@ -125,6 +125,7 @@ trait FetchJobSeekers
 
         $query = User::select($this->fields)
             ->where('users.is_active', 1)
+            ->where('users.visible_in_employer_resume_search', 1)
             ->whereNotNull('users.functional_area_id')
             ->where('users.functional_area_id', '>', 0)
             ->whereIn('users.functional_area_id', $functionalAreaIds);
@@ -162,6 +163,7 @@ public function fetchIdsArray($search = '', $industry_ids = array(), $functional
     public function createQuery($query, $search = '', $industry_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $career_level_ids = array(), $gender_ids = array(), $job_experience_ids = array(), $current_salary = 0, $expected_salary = 0, $salary_currency = '')
     {
         $query->where('users.is_active', 1);
+        $query->where('users.visible_in_employer_resume_search', 1);
         if ($search != '') {
             $searchTerm = trim($search);
             $searchLike = '%' . addcslashes($searchTerm, '%_\\') . '%';

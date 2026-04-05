@@ -27,14 +27,24 @@ class ProfileSkillFormRequest extends Request
         switch ($this->method()) {
             case 'PUT':
             case 'POST': {
-                    $id = (int) $this->input('id', 0);
                     return [
-                        "job_skill_id" => "required",
-                       // "job_experience_id" => "required",
+                        'job_skill_id' => 'required',
+                        'custom_job_skill_name' => 'nullable|string|max:200',
                     ];
                 }
             default:break;
         }
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            if ((int) $this->input('job_skill_id') === 0) {
+                if (mb_strlen(trim((string) $this->input('custom_job_skill_name', ''))) < 2) {
+                    $v->errors()->add('custom_job_skill_name', __('Please enter the skill name.'));
+                }
+            }
+        });
     }
 
     public function messages()

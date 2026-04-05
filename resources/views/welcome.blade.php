@@ -136,6 +136,8 @@
 {{-- @include('includes.home_blogs') --}}
 <!-- Testimonials End -->
 
+@include('includes.job_list_apply_modal')
+
 @include('includes.footer')
 
 @livewire('apply-job-modal')
@@ -154,4 +156,7 @@
     });
 </script>
 @include('includes.country_state_city_js')
+<script>
+@include('includes.job_list_apply_scripts_auth')
+</script>
 @endpush

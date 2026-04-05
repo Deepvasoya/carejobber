@@ -26,6 +26,7 @@ class Job extends Model
     protected $casts = [
         'expiry_date' => 'datetime',
         'display_end_date' => 'datetime',
+        'is_draft' => 'boolean',
     ];
     
     /**
@@ -283,6 +284,51 @@ class Job extends Model
                 return $industry;
             }
         }
+    }
+
+    /**
+     * Parsed benefit lines for list cards (HTML list, newlines, or comma-separated).
+     * Caps at $max items (default 4) for compact display.
+     *
+     * @return array<int, string>
+     */
+    public function getBenefitsPreviewLines(int $max = 4): array
+    {
+        $raw = trim((string) $this->benefits);
+        if ($raw === '') {
+            return [];
+        }
+
+        if (stripos($raw, '<li') !== false) {
+            preg_match_all('/<li[^>]*>(.*?)<\/li>/is', $raw, $m);
+            $lines = array_map(function ($html) {
+                return trim(html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8'));
+            }, $m[1] ?? []);
+        } else {
+            $normalized = preg_replace('/<\s*br\s*\/?>/i', "\n", $raw);
+            $normalized = preg_replace('/<\/p>\s*<p[^>]*>/i', "\n", $normalized);
+            $normalized = preg_replace('/<\/p>/i', "\n", $normalized);
+            $normalized = preg_replace('/<p[^>]*>/i', '', $normalized);
+            $plain = trim(strip_tags($normalized));
+            $plain = html_entity_decode($plain, ENT_QUOTES, 'UTF-8');
+            $lines = preg_split('/\r\n|\r|\n/', $plain) ?: [];
+            $lines = array_map('trim', $lines);
+            $lines = array_values(array_filter($lines, static function ($l) {
+                return $l !== '';
+            }));
+            if (count($lines) === 1 && isset($lines[0]) && strpos($lines[0], ',') !== false) {
+                $split = array_map('trim', explode(',', $lines[0]));
+                $lines = array_values(array_filter($split, static function ($l) {
+                    return $l !== '';
+                }));
+            }
+        }
+
+        $lines = array_values(array_filter($lines, static function ($l) {
+            return $l !== '';
+        }));
+
+        return array_slice($lines, 0, $max);
     }
 
     /*     * ****************************** */

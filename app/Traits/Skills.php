@@ -13,6 +13,9 @@ trait Skills
             JobSkillManager::where('job_id', '=', $job_id)->delete();
             $skills = $request->input('skills');
             foreach ($skills as $job_skill_id) {
+                if ((int) $job_skill_id <= 0) {
+                    continue;
+                }
                 $jobSkillManager = new JobSkillManager();
                 $jobSkillManager->job_id = $job_id;
                 $jobSkillManager->job_skill_id = $job_skill_id;

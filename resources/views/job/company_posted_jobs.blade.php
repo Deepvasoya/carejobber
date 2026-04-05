@@ -17,21 +17,30 @@
                     @include('flash::message') 
 
                     <h3>{{__('Manage Jobs')}}</h3>
+                    @php
+                        $listTab = request('tab', 'active');
+                        if (! in_array($listTab, ['active', 'expired', 'drafts'], true)) {
+                            $listTab = 'active';
+                        }
+                    @endphp
                     
                     <!-- Tabs start -->
                     <ul class="nav nav-tabs mt-4" id="jobTabs">
                         <li class="nav-item">
-                            <a class="nav-link active" id="active-tab" data-toggle="tab" href="#active-jobs">{{__('Active Jobs')}}</a>
+                            <a class="nav-link {{ $listTab === 'active' ? 'active' : '' }}" id="active-tab" data-toggle="tab" href="#active-jobs">{{__('Active Jobs')}}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="expired-tab" data-toggle="tab" href="#expired-jobs">{{__('Expired Jobs')}}</a>
+                            <a class="nav-link {{ $listTab === 'expired' ? 'active' : '' }}" id="expired-tab" data-toggle="tab" href="#expired-jobs">{{__('Expired Jobs')}}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $listTab === 'drafts' ? 'active' : '' }}" id="drafts-tab" data-toggle="tab" href="#draft-jobs">{{__('Drafts')}}</a>
                         </li>
                     </ul>
                     <!-- Tabs end -->
 
                     <div class="tab-content">
                         <!-- Active Jobs start -->
-                        <div class="tab-pane fade show active" id="active-jobs">
+                        <div class="tab-pane fade {{ $listTab === 'active' ? 'show active' : '' }}" id="active-jobs">
                             <ul class="featuredlist row">
                                 @if(isset($jobs) && count($jobs))
                                     @foreach($jobs as $job)
@@ -39,7 +48,7 @@
                                             $company = $job->getCompany(); 
                                             $appliedUsersCount = $job->appliedUsers->count();
                                         @endphp
-                                        @if(null !== $company && $job->expiry_date >= now())
+                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date >= now())
 
                                         <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
                                             <div class="jobint">
@@ -92,7 +101,7 @@
                         <!-- Active Jobs end -->
 
                         <!-- Expired Jobs start -->
-                        <div class="tab-pane fade" id="expired-jobs">
+                        <div class="tab-pane fade {{ $listTab === 'expired' ? 'show active' : '' }}" id="expired-jobs">
                             <ul class="featuredlist row">
                                 @if(isset($jobs) && count($jobs))
                                     @foreach($jobs as $job)
@@ -100,7 +109,7 @@
                                             $company = $job->getCompany(); 
                                             $appliedUsersCount = $job->appliedUsers->count();
                                         @endphp
-                                        @if(null !== $company && $job->expiry_date < now())
+                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date < now())
                                            
                                             <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
                                             <div class="jobint">
@@ -157,6 +166,39 @@
                             </ul>
                         </div>
                         <!-- Expired Jobs end -->
+
+                        <!-- Draft Jobs start -->
+                        <div class="tab-pane fade {{ $listTab === 'drafts' ? 'show active' : '' }}" id="draft-jobs">
+                            <ul class="featuredlist row">
+                                @if(isset($jobs) && count($jobs))
+                                    @foreach($jobs as $job)
+                                        @php
+                                            $company = $job->getCompany();
+                                        @endphp
+                                        @if(null !== $company && $job->is_draft)
+                                            <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
+                                                <div class="jobint">
+                                                    <div class="d-flex">
+                                                        <div class="fticon"><i class="fas fa-file-alt"></i> {{ __('Draft') }}</div>
+                                                    </div>
+                                                    <h4>
+                                                        <a href="{{ route('edit.front.job', [$job->id]) }}" title="{{ $job->title }}">{!! \Illuminate\Support\Str::limit($job->title ?: __('Untitled'), $limit = 40, $end = '...') !!}</a>
+                                                    </h4>
+                                                    <span class="text-muted d-block">{{ $job->updated_at ? $job->updated_at->format('M d, Y') : '' }}</span>
+                                                    <div class="d-flex mt-3 compjobslinks">
+                                                        <a class="btn btn-primary me-2" href="{{ route('edit.front.job', [$job->id]) }}">{{ __('Continue editing') }}</a>
+                                                        <a class="btn btn-danger me-2" href="javascript:;" onclick="deleteJob({{$job->id}});"><i class="fas fa-trash"></i></a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <p>{{ __('No drafts') }}</p>
+                                @endif
+                            </ul>
+                        </div>
+                        <!-- Draft Jobs end -->
                     </div>
 
                     <!-- Pagination Start -->

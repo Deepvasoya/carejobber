@@ -30,7 +30,13 @@ class JobPostedListener implements ShouldQueue
      */
     public function handle(JobPosted $event)
     {
-        Mail::send(new JobPostedMailableFront($event->job));
+        // Employer "pending approval" first (only when job is still inactive), then admin.
+        // When auto-approved, storeFrontJob already sent JobApprovalMailable — do not send
+        // a duplicate "pending" email (queued listener was arriving after approval).
+        if (! (bool) $event->job->is_active) {
+            Mail::send(new JobPostedMailableFront($event->job));
+        }
+
         Mail::send(new JobPostedMailable($event->job));
     }
 

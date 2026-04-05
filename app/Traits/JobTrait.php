@@ -167,7 +167,15 @@ trait JobTrait
 
     }
 
+    private function makeJobSlug(Job $job): string
+    {
+        $t = trim((string) $job->title);
+        if ($t !== '') {
+            return Str::slug($t, '-') . '-' . $job->id;
+        }
 
+        return 'draft-' . $job->id;
+    }
 
     private function assignJobValues($job, $request)
 
@@ -220,7 +228,8 @@ trait JobTrait
 
         $job->gender_id = $request->input('gender_id');
 
-        $job->expiry_date = $request->input('expiry_date');
+        $expiryIn = $request->input('expiry_date');
+        $job->expiry_date = ($expiryIn === '' || $expiryIn === null) ? null : $expiryIn;
 
         $job->degree_level_id = $request->input('degree_level_id');
 
@@ -539,18 +548,30 @@ trait JobTrait
 {
     $settings = SiteSetting::findOrFail(1272);
     $company = Auth::guard('company')->user();
+    $isDraft = $request->isDraftAction();
 
-    if (Gate::forUser($company)->denies('canPostJob')) {
+    if (! $isDraft && Gate::forUser($company)->denies('canPostJob')) {
         Session::flash('error', __('Please purchase a package to post jobs.'));
         return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
     }
 
-    $pending = JobPromotionPricing::pendingForNewJob($request);
+    if (! $isDraft) {
+        app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedJobRequest($request);
+    }
+
+    $pending = $isDraft ? ['total_cents' => 0, 'promote_featured' => false, 'promote_urgent' => false, 'promote_highlighted' => false] : JobPromotionPricing::pendingForNewJob($request);
 
     $job = new Job();
     $job->company_id = $company->id;
     $job = $this->assignJobValues($job, $request);
-    if ($pending['total_cents'] > 0) {
+
+    if ($isDraft) {
+        $job->is_draft = true;
+        $job->is_active = false;
+        $job->is_featured = false;
+        $job->is_urgent = false;
+        $job->is_highlighted = false;
+    } elseif ($pending['total_cents'] > 0) {
         $job->is_featured = false;
         $job->is_urgent = false;
         $job->is_highlighted = false;
@@ -561,29 +582,33 @@ trait JobTrait
     }
     $job->save();
 
-    // Generate slug
-    $job->slug = Str::slug($job->title, '-') . '-' . $job->id;
+    $job->slug = $this->makeJobSlug($job);
 
-    // Set active status based on auto approval setting
-    $job->is_active = ($settings->auto_approval_job == 1) ? 1 : 0;
-    
-    // Calculate display end date based on duration
-    $displayDuration = (int) $request->input('display_duration_days', 30);
-    $job->display_duration_days = $displayDuration;
-    $job->display_end_date = Carbon::now()->addDays($displayDuration);
-    
-    $job->update();
+    if ($isDraft) {
+        $job->display_duration_days = (int) $request->input('display_duration_days', 30);
+        $job->display_end_date = null;
+        $job->update();
+    } else {
+        $job->is_active = ($settings->auto_approval_job == 1) ? 1 : 0;
+        $displayDuration = (int) $request->input('display_duration_days', 30);
+        $job->display_duration_days = $displayDuration;
+        $job->display_end_date = Carbon::now()->addDays($displayDuration);
+        $job->update();
+    }
 
-    // Store skills and update search index
     $this->storeJobSkills($request, $job->id);
     $this->storeJobQuestions($request, $job->id);
     $this->updateFullTextSearch($job);
 
-    // Update company's job quota
+    if ($isDraft) {
+        flash(__('Draft saved. You can finish and submit it from Manage Jobs.'))->success();
+
+        return Redirect::route('posted.jobs', ['tab' => 'drafts']);
+    }
+
     $company->availed_jobs_quota += 1;
     $company->update();
 
-    // Email and event logic based on active status
     if ($job->is_active == 1) {
         Mail::send(new JobApprovalMailable($job));
         event(new JobPosted($job));
@@ -680,13 +705,101 @@ trait JobTrait
 
     {
 
+        $settings = SiteSetting::findOrFail(1272);
         $company = Auth::guard('company')->user();
         $job = Job::where('company_id', $company->id)->findOrFail($id);
-        
-        // Check if the job was expired before the update
-        $wasExpired = $job->expiry_date && $job->expiry_date < now();
 
-		$job = $this->assignJobValues($job, $request);
+        $wasExpired = $job->expiry_date && $job->expiry_date < now();
+        $wasDraft = (bool) $job->is_draft;
+        $isDraft = $request->isDraftAction();
+
+        if ($isDraft) {
+            if (! $wasDraft) {
+                flash(__('You cannot save a published job as a draft from this form.'))->error();
+
+                return Redirect::route('edit.front.job', $job->id);
+            }
+
+            $job = $this->assignJobValues($job, $request);
+            $job->is_draft = true;
+            $job->is_active = false;
+            $job->is_featured = false;
+            $job->is_urgent = false;
+            $job->is_highlighted = false;
+            $job->slug = $this->makeJobSlug($job);
+            $job->display_duration_days = (int) $request->input('display_duration_days', $job->display_duration_days ?? 30);
+            $job->display_end_date = null;
+            $job->update();
+
+            $this->storeJobSkills($request, $job->id);
+            $this->storeJobQuestions($request, $job->id);
+            $this->updateFullTextSearch($job);
+
+            flash(__('Draft saved.'))->success();
+
+            return Redirect::route('posted.jobs', ['tab' => 'drafts']);
+        }
+
+        if (Gate::forUser($company)->denies('canPostJob')) {
+            Session::flash('error', __('Please purchase a package to post jobs.'));
+
+            return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
+        }
+
+        app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedJobRequest($request);
+
+        $job = $this->assignJobValues($job, $request);
+
+        if ($wasDraft) {
+            $pending = JobPromotionPricing::pendingForNewJob($request);
+            if ($pending['total_cents'] > 0) {
+                $job->is_featured = false;
+                $job->is_urgent = false;
+                $job->is_highlighted = false;
+            } else {
+                $job->is_featured = $request->boolean('promote_featured');
+                $job->is_urgent = $request->boolean('promote_urgent');
+                $job->is_highlighted = $request->boolean('promote_highlighted');
+            }
+            $job->is_draft = false;
+            $job->is_active = ($settings->auto_approval_job == 1) ? 1 : 0;
+            $displayDuration = (int) $request->input('display_duration_days', 30);
+            $job->display_duration_days = $displayDuration;
+            $job->display_end_date = Carbon::now()->addDays($displayDuration);
+            $job->slug = $this->makeJobSlug($job);
+            $job->update();
+
+            $company->availed_jobs_quota = $company->availed_jobs_quota + 1;
+            $company->update();
+
+            if ($job->is_active == 1) {
+                Mail::send(new JobApprovalMailable($job));
+                event(new JobPosted($job));
+            } else {
+                Mail::send(new JobPostedMailableFront($job));
+            }
+
+            $this->storeJobSkills($request, $job->id);
+            $this->storeJobQuestions($request, $job->id);
+            $this->updateFullTextSearch($job);
+
+            if ($pending['total_cents'] > 0) {
+                Session::put('pending_job_promotions', [
+                    'job_id' => $job->id,
+                    'promote_featured' => $pending['promote_featured'] ? 1 : 0,
+                    'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
+                    'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+                    'total_cents' => (int) $pending['total_cents'],
+                ]);
+                flash(__('Job saved. Complete payment to activate your listing upgrades.'))->info();
+
+                return Redirect::route('job.promotions.checkout');
+            }
+
+            flash('Job has been updated!')->success();
+
+            return Redirect::route('posted.jobs');
+        }
 
         $pending = JobPromotionPricing::pendingForUpdate($request, $job);
 
@@ -718,39 +831,25 @@ trait JobTrait
             $job->is_highlighted = true;
         }
 
-        /*         * ******************************* */
+        $job->slug = $this->makeJobSlug($job);
 
-        $job->slug = Str::slug($job->title, '-') . '-' . $job->id;
-
-        /*         * ******************************* */
-
-        // Update display end date if duration changed
         $displayDuration = (int) $request->input('display_duration_days', 30);
         if ($job->display_duration_days != $displayDuration) {
             $job->display_duration_days = $displayDuration;
             $job->display_end_date = Carbon::now()->addDays($displayDuration);
         }
 
-        /*         * ************************************ */
-
         $job->update();
-        
+
         if ($wasExpired) {
-            $company = Auth::guard('company')->user();
             $company->availed_jobs_quota = $company->availed_jobs_quota + 1;
             $company->update();
         }
 
-        /*         * ************************************ */
-
         $this->storeJobSkills($request, $job->id);
         $this->storeJobQuestions($request, $job->id);
 
-        /*         * ************************************ */
-
         $this->updateFullTextSearch($job);
-
-        /*         * ************************************ */
 
         if ($pending['total_cents'] > 0) {
             Session::put('pending_job_promotions', [
@@ -762,12 +861,12 @@ trait JobTrait
             ]);
             flash(__('Job updated. Complete payment to activate new listing upgrades.'))->info();
 
-            return \Redirect::route('job.promotions.checkout');
+            return Redirect::route('job.promotions.checkout');
         }
 
         flash('Job has been updated!')->success();
 
-        return \Redirect::route('posted.jobs');
+        return Redirect::route('posted.jobs');
 
     }
     

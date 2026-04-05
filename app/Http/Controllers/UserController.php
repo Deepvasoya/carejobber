@@ -114,6 +114,8 @@ class UserController extends Controller
 
     public function updateMyProfile(UserFrontFormRequest $request)
     {
+        app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedProfileRequest($request);
+
         $user = User::findOrFail(Auth::user()->id);
         /*         * **************************************** */
         if ($request->hasFile('image')) {
@@ -169,6 +171,7 @@ class UserController extends Controller
         $user->video_link = $request->video_link;
         $user->street_address = $request->input('street_address');
 		$user->is_subscribed = $request->input('is_subscribed', 0);
+        $user->visible_in_employer_resume_search = $request->boolean('visible_in_employer_resume_search');
 		
         $user->update();
 
@@ -414,6 +417,17 @@ public function privacyDataSettings()
     
     return view('user.privacy_data_settings')
         ->with('user', $user);
+}
+
+public function updateResumeSearchVisibility(Request $request)
+{
+    $user = Auth::user();
+    $user->visible_in_employer_resume_search = $request->boolean('visible_in_employer_resume_search');
+    $user->save();
+
+    flash(__('Your resume search visibility has been updated.'))->success();
+
+    return redirect()->route('privacy.data.settings');
 }
 
 public function saveCookieConsent(Request $request)

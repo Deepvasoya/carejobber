@@ -86,7 +86,7 @@ class AjaxController extends Controller
             $cities = [];
         }
 
-        $dd = Form::select('city_id', ['' => __('Select City')] + $cities, $city_id, array('id' => 'city_id', 'class' => 'form-control'));
+        $dd = Form::select('city_id', ['' => __('Select City')] + $cities + ['0' => __('Other (specify)')], $city_id, array('id' => 'city_id', 'class' => 'form-control'));
         echo $dd;
     }
 
