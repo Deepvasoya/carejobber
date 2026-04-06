@@ -149,6 +149,7 @@
                                     </div>
                                     </div>
                                 </li>
+                                @include('includes.custom_fields_public_grid', ['record' => $company, 'context' => \App\Models\CustomField::CONTEXT_COMPANY_PROFILE])
 
 
                             

@@ -51,22 +51,20 @@
             datatype: 'json',
             success: function (json) {
             $("#add_cv_modal").html(json.html);
+            if (typeof window.initCustomFieldMultiselect === 'function') {
+                window.initCustomFieldMultiselect($('#add_cv_modal'));
+            }
             }
     });
     }
     function submitProfileCvForm() {
-    var form = $('#add_edit_profile_cv');
-    var formData = new FormData();
-    formData.append("id", $('#id').val());
-    formData.append("_token", $('input[name=_token]').val());
-    formData.append("title", $('#title').val());
-    formData.append("is_default", $('input[name=is_default]:checked').val());
-    if (document.getElementById("cv_file").value != "") {
-    formData.append("cv_file", $('#cv_file')[0].files[0]);
+    var formEl = document.getElementById('add_edit_profile_cv');
+    if (!formEl) {
+        return;
     }
-    //form.attr('method'),
+    var formData = new FormData(formEl);
     $.ajax({
-    url     : form.attr('action'),
+    url     : $(formEl).attr('action'),
             type    : 'POST',
             data    : formData,
             dataType: 'json',
@@ -74,20 +72,26 @@
             processData: false,
             success : function (json){
             $ ("#add_cv_modal").html(json.html);
+            if (typeof window.initCustomFieldMultiselect === 'function') {
+                window.initCustomFieldMultiselect($('#add_cv_modal'));
+            }
             showCvs();
             },
-            error: function(json){
-            if (json.status === 422) {
-            var resJSON = json.responseJSON;
-            $('.help-block').html('');
+            error: function(xhr){
+            if (xhr.status === 422) {
+            var resJSON = xhr.responseJSON;
+            $('#add_edit_profile_cv .help-block').html('');
             $.each(resJSON.errors, function (key, value) {
-            $('.' + key + '-error').html('<strong>' + value + '</strong>');
-            $('#div_' + key).addClass('has-error');
-            });
+            var msg = Array.isArray(value) ? value[0] : value;
+            var parts = key.split('.');
+            if (parts[0] === 'custom_fields' && parts[1]) {
+                $('.cf-err-' + parts[1]).html('<strong>' + msg + '</strong>');
             } else {
-            // Error
-            // Incorrect credentials
-            // alert('Incorrect credentials. Please try again.')
+                $('.' + key.replace(/\./g, '-') + '-error').html('<strong>' + msg + '</strong>');
+                $('.' + key.replace(/\./g, '_') + '-error').html('<strong>' + msg + '</strong>');
+                $('#div_' + key.replace(/\./g, '_')).addClass('has-error');
+            }
+            });
             }
             }
     });
@@ -109,6 +113,9 @@
             datatype: 'json',
             success: function (json) {
             $("#add_cv_modal").html(json.html);
+            if (typeof window.initCustomFieldMultiselect === 'function') {
+                window.initCustomFieldMultiselect($('#add_cv_modal'));
+            }
             }
     });
     }

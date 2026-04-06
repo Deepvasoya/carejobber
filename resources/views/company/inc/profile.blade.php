@@ -217,10 +217,15 @@
    
     
     
-    
-    
-    
-    
+    <div class="col-md-12">
+        <hr>
+        <h5>{{ __('Additional information') }}</h5>
+        @include('includes.custom_fields_for_context', [
+            'context' => \App\Models\CustomField::CONTEXT_COMPANY_PROFILE,
+            'values' => old('custom_fields', $company->custom_field_data ?? []),
+        ])
+    </div>
+
     <div class="col-md-12">
         <div class="formrow">
             <button type="submit" class="btn">{{__('Update Profile and Save')}} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>

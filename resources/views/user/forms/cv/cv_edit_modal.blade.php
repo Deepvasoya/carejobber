@@ -5,8 +5,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
-        <form class="form" id="add_edit_profile_cv" method="PUT" action="{{ route('update.front.profile.cv', [$profileCv->id, $user->id]) }}">
+        <form class="form" id="add_edit_profile_cv" method="POST" action="{{ route('update.front.profile.cv', [$profileCv->id, $user->id]) }}">
             {{csrf_field()}}
+            @method('PUT')
             <input type="hidden" name="id" id="id" value="{{$profileCv->id}}"/>
             
             @include('user.forms.cv.cv_form')

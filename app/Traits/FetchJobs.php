@@ -120,13 +120,16 @@ trait FetchJobs
         if (isset($functional_area_ids[0])) {
             $query->whereIn('jobs.functional_area_id', $functional_area_ids);
         }
-        if (isset($country_ids[0])) {
+        $country_ids = $this->normalizeLocationFilterIds($country_ids);
+        $state_ids = $this->normalizeLocationFilterIds($state_ids);
+        $city_ids = $this->normalizeLocationFilterIds($city_ids);
+        if (!empty($country_ids)) {
             $query->whereIn('jobs.country_id', $country_ids);
         }
-        if (isset($state_ids[0])) {
+        if (!empty($state_ids)) {
             $query->whereIn('jobs.state_id', $state_ids);
         }
-        if (isset($city_ids[0])) {
+        if (!empty($city_ids)) {
             $query->whereIn('jobs.city_id', $city_ids);
         }
         if ($is_freelance == 1) {
@@ -281,6 +284,31 @@ trait FetchJobs
             }
         }
         return ['keywords' => $keywords, 'description' => $description];
+    }
+
+    /**
+     * Normalize country/state/city id arrays for whereIn (no reliance on key 0).
+     *
+     * @param  array|mixed  $ids
+     * @return array<int>
+     */
+    private function normalizeLocationFilterIds($ids)
+    {
+        if (!is_array($ids)) {
+            $ids = $ids === null || $ids === '' ? [] : [$ids];
+        }
+        $out = [];
+        foreach ($ids as $v) {
+            if ($v === '' || $v === null) {
+                continue;
+            }
+            $i = (int) $v;
+            if ($i > 0) {
+                $out[] = $i;
+            }
+        }
+
+        return array_values(array_unique($out));
     }
 
 }

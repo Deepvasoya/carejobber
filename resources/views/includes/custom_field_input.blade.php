@@ -66,7 +66,7 @@
             @php
                 $selected = is_array($val) ? $val : (array) array_filter(explode(',', (string)($val ?? '')));
             @endphp
-            <select class="form-control" name="{{ $baseName }}[]" id="{{ $id }}" multiple size="{{ min(8, max(3, count($opts))) }}" @if($req) required @endif>
+            <select class="form-control custom-field-select2" name="{{ $baseName }}[]" id="{{ $id }}" multiple="multiple" @if($req) required @endif data-cf-placeholder="{{ __('Select one or more…') }}">
                 @foreach($opts as $opt)
                     @php
                         $ov = is_array($opt) ? ($opt['value'] ?? '') : $opt;
@@ -75,7 +75,7 @@
                     <option value="{{ $ov }}" @selected(in_array((string)$ov, array_map('strval', $selected), true))>{{ $ol }}</option>
                 @endforeach
             </select>
-            <small class="text-muted">{{ __('Hold Ctrl/Cmd to select multiple.') }}</small>
+            <small class="text-muted">{{ __('Open the dropdown and choose one or more options.') }}</small>
             @break
         @case(\App\Models\CustomField::TYPE_CHECKBOXES)
             @php
@@ -98,6 +98,7 @@
         @default
             <input type="text" class="form-control" name="{{ $baseName }}" id="{{ $id }}" value="{{ $val ?? '' }}" />
     @endswitch
+    <span class="help-block text-danger cf-err-{{ $field->slug }}"></span>
     @error('custom_fields.'.$field->slug)
         <span class="text-danger small">{{ $message }}</span>
     @enderror

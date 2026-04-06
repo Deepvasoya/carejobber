@@ -24,3 +24,4 @@
         @endforeach
     </div>
 @endif
+{{-- Select2 init for .custom-field-select2: layouts/app.blade.php + admin_layout (initCustomFieldMultiselect) --}}

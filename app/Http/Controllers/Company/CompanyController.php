@@ -481,6 +481,10 @@ public function downloadReceipt($companyId)
 
 		$company->is_subscribed = $request->input('is_subscribed', 0);
 
+        $cf = app(\App\Services\CustomFieldValueService::class);
+        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_COMPANY_PROFILE);
+        $company->custom_field_data = $cf->mergeStored($company->custom_field_data ?? null, $norm);
+
 		
 
         $company->slug = Str::slug($company->name, '-') . '-' . $company->id;

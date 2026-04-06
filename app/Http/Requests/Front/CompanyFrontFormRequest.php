@@ -4,6 +4,8 @@ namespace App\Http\Requests\Front;
 
 use Auth;
 use App\Http\Requests\Request;
+use App\Models\CustomField;
+use App\Services\CustomFieldValueService;
 
 class CompanyFrontFormRequest extends Request
 {
@@ -52,10 +54,18 @@ class CompanyFrontFormRequest extends Request
                         "city_id" => "required",
                         "contact_name" => "required",
                         "contact_email" => "required",
+                        'custom_fields' => 'nullable|array',
                     ];
                 }
             default:break;
         }
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_COMPANY_PROFILE, $v);
+        });
     }
 
     public function messages()

@@ -378,7 +378,8 @@ if ($companyUser) {
                                         <span>{{$user->salary_currency}}{{$user->expected_salary}}</span>
                                     </div>
                                     </div>
-                                </li>        
+                                </li>
+                                @include('includes.custom_fields_public_grid', ['record' => $user, 'context' => \App\Models\CustomField::CONTEXT_PROFILE])
                             </ul>
                         </div>
                     </div>    

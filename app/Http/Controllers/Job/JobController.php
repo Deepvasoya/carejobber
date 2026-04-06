@@ -82,27 +82,39 @@ class JobController extends Controller
         $state_ids = $request->query('state_id', array());
         $city_ids = $request->query('city_id', array());
         
-        // If location_search is provided, find matching cities and states
+        // If location_search is provided, find matching cities and states.
+        // jobs.city_id / jobs.state_id store logical city_id / state_id (same as dropdowns), not PKs.
         if (!empty($locationSearch)) {
             $locationTerm = trim($locationSearch);
-            
-            // Search for matching cities
-            $matchingCities = \App\City::where('city', 'like', "%{$locationTerm}%")
-                ->pluck('id')
-                ->toArray();
-            
-            // Search for matching states
-            $matchingStates = \App\State::where('state', 'like', "%{$locationTerm}%")
-                ->pluck('id')
-                ->toArray();
-            
-            // Merge with existing filters
-            if (!empty($matchingCities)) {
-                $city_ids = array_merge((array)$city_ids, $matchingCities);
+
+            $matchingCityIds = City::where('city', 'like', "%{$locationTerm}%")
+                ->lang()
+                ->active()
+                ->distinct()
+                ->pluck('city_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $matchingStateIds = State::where('state', 'like', "%{$locationTerm}%")
+                ->lang()
+                ->active()
+                ->distinct()
+                ->pluck('state_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($matchingCityIds)) {
+                $city_ids = array_merge((array) $city_ids, $matchingCityIds);
             }
-            if (!empty($matchingStates)) {
-                $state_ids = array_merge((array)$state_ids, $matchingStates);
+            if (!empty($matchingStateIds)) {
+                $state_ids = array_merge((array) $state_ids, $matchingStateIds);
             }
+            $city_ids = array_values(array_unique(array_map('intval', (array) $city_ids)));
+            $state_ids = array_values(array_unique(array_map('intval', (array) $state_ids)));
         }
         $is_freelance = $request->query('is_freelance', array());
         $career_level_ids = $request->query('career_level_id', array());

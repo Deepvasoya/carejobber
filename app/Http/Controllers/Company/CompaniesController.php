@@ -239,6 +239,10 @@ class CompaniesController extends Controller
         $company->state_id = $request->input('state_id');
         $company->city_id = $request->input('city_id');
 		$company->is_subscribed = $request->input('is_subscribed', 0);
+
+        $cf = app(\App\Services\CustomFieldValueService::class);
+        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_COMPANY_PROFILE);
+        $company->custom_field_data = $cf->mergeStored($company->custom_field_data ?? null, $norm);
 		
         $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
         $company->update();

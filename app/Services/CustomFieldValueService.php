@@ -163,4 +163,88 @@ class CustomFieldValueService
                 return null;
         }
     }
+
+    /**
+     * Whether the stored value should be shown on public profile (non-empty).
+     *
+     * @param  mixed  $stored
+     */
+    public function hasDisplayableValue(CustomField $field, $stored): bool
+    {
+        if ($stored === 0 || $stored === '0') {
+            return true;
+        }
+
+        return ! $this->isEmpty($field, $stored);
+    }
+
+    /**
+     * Plain-text display for public profile / company page (escape in Blade with {{ }} except textarea uses nl2br).
+     *
+     * @param  mixed  $stored
+     */
+    public function formatDisplayValue(CustomField $field, $stored): string
+    {
+        if (! $this->hasDisplayableValue($field, $stored)) {
+            return '';
+        }
+
+        switch ($field->field_type) {
+            case CustomField::TYPE_MULTISELECT:
+            case CustomField::TYPE_CHECKBOXES:
+                if (! is_array($stored)) {
+                    $stored = [$stored];
+                }
+                $parts = [];
+                foreach ($stored as $v) {
+                    if ($v === null || $v === '') {
+                        continue;
+                    }
+                    $parts[] = $this->optionLabelForValue($field, (string) $v) ?? (string) $v;
+                }
+
+                return implode(', ', $parts);
+
+            case CustomField::TYPE_RADIO:
+            case CustomField::TYPE_SELECT:
+
+                return $this->optionLabelForValue($field, (string) $stored) ?? (string) $stored;
+
+            case CustomField::TYPE_DATE:
+                try {
+                    return \Carbon\Carbon::parse($stored)->format('Y-m-d');
+                } catch (\Throwable $e) {
+                    return (string) $stored;
+                }
+
+            case CustomField::TYPE_DATETIME:
+                try {
+                    return \Carbon\Carbon::parse($stored)->format('Y-m-d H:i');
+                } catch (\Throwable $e) {
+                    return (string) $stored;
+                }
+
+            case CustomField::TYPE_NUMBER:
+                return (string) $stored;
+
+            case CustomField::TYPE_TEXTAREA:
+                return (string) $stored;
+
+            default:
+                return (string) $stored;
+        }
+    }
+
+    private function optionLabelForValue(CustomField $field, string $value): ?string
+    {
+        foreach ($field->options ?? [] as $opt) {
+            $ov = is_array($opt) ? (string) ($opt['value'] ?? '') : (string) $opt;
+            $ol = is_array($opt) ? (string) ($opt['label'] ?? $ov) : (string) $opt;
+            if ($ov === $value) {
+                return $ol;
+            }
+        }
+
+        return null;
+    }
 }

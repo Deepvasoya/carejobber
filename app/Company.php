@@ -77,6 +77,10 @@ class Company extends Authenticatable
 
     ];
 
+    protected $casts = [
+        'custom_field_data' => 'array',
+    ];
+
 
 
     public function sendPasswordResetNotification($token)

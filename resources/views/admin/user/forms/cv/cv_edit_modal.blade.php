@@ -1,7 +1,8 @@
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
-        <form class="form" id="add_edit_profile_cv" method="PUT" action="{{ route('update.profile.cv', [$profileCv->id, $user->id]) }}">
+        <form class="form" id="add_edit_profile_cv" method="POST" action="{{ route('update.profile.cv', [$profileCv->id, $user->id]) }}">
             {{csrf_field()}}
+            @method('PUT')
             <input type="hidden" name="id" id="id" value="{{$profileCv->id}}"/>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>

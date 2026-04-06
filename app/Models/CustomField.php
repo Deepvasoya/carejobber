@@ -31,6 +31,9 @@ class CustomField extends Model
 
     public const CONTEXT_RESUME_BUILDER = 'resume_builder';
 
+    /** Employer company profile (public company page + edit form) */
+    public const CONTEXT_COMPANY_PROFILE = 'company_profile';
+
     protected $fillable = [
         'label',
         'slug',
@@ -58,7 +61,7 @@ class CustomField extends Model
             self::TYPE_TEXTAREA => __('Textarea'),
             self::TYPE_RADIO => __('Radio buttons'),
             self::TYPE_SELECT => __('Select box'),
-            self::TYPE_MULTISELECT => __('Multiple select'),
+            self::TYPE_MULTISELECT => __('Multiple select (dropdown)'),
             self::TYPE_CHECKBOXES => __('Checkboxes'),
             self::TYPE_DATE => __('Date picker'),
             self::TYPE_DATETIME => __('Date & time'),
@@ -72,6 +75,7 @@ class CustomField extends Model
             self::CONTEXT_PROFILE => __('Job seeker profile form'),
             self::CONTEXT_JOB_LISTING => __('Job listing (employer)'),
             self::CONTEXT_RESUME_BUILDER => __('Resume builder'),
+            self::CONTEXT_COMPANY_PROFILE => __('Employer profile'),
         ];
     }
 

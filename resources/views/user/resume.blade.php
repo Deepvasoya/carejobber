@@ -175,6 +175,7 @@ if(null!==($package)){
                                         <td style="padding: 10px 0;"><strong>Nationality</strong> </td>
                                         <td style="padding: 10px 0;">{{$user->getNationality('nationality')}}</td>
                                     </tr>
+                                    @include('includes.custom_fields_resume_print_rows', ['profileCv' => $profileCv ?? null])
                                     
                                     <tr>
                                         <td style="padding: 7px 0;"></td>

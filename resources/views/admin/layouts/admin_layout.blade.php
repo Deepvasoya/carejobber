@@ -140,6 +140,22 @@
     <script src="{{ asset('theme/js/vendors.min.js') }}"></script>
     <script src="{{ asset('theme/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('theme/plugins/select2/select2.min.js') }}"></script>
+    <script>
+    window.initCustomFieldMultiselect = function ($root) {
+        if (typeof jQuery === 'undefined' || !jQuery.fn.select2) return;
+        var $ = jQuery;
+        var $scope = ($root && $root.length) ? $root : $(document);
+        $scope.find('select.custom-field-select2').each(function () {
+            var $s = $(this);
+            if ($s.hasClass('select2-hidden-accessible')) {
+                $s.select2('destroy');
+            }
+            var ph = $s.data('cf-placeholder') || @json(__('Select one or more…'));
+            $s.select2({ width: '100%', placeholder: ph, allowClear: true, closeOnSelect: false });
+        });
+    };
+    jQuery(function () { window.initCustomFieldMultiselect(jQuery(document)); });
+    </script>
     <script src="{{ asset('theme/plugins/datatables/dataTables.min.js') }}"></script>
     <script src="{{ asset('theme/plugins/datatables/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('theme/js/app.js') }}"></script>
