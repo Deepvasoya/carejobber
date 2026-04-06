@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
+use App\Models\CustomField;
+use App\Services\CustomFieldValueService;
 
 class ProfileCvFormRequest extends Request
 {
@@ -33,10 +35,18 @@ class ProfileCvFormRequest extends Request
                         "title" => "required",
                         "is_default" => "required",
                         "cv_file" => $cv_file . 'mimes:doc,docx,docm,zip,pdf',
+                        'custom_fields' => 'nullable|array',
                     ];
                 }
             default:break;
         }
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_RESUME_BUILDER, $v);
+        });
     }
 
     public function messages()

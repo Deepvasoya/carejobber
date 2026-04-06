@@ -16,6 +16,13 @@
             <span class="help-block cv_file-error"></span>
         </div>
 
+        <div class="formrow">
+            @include('includes.custom_fields_for_context', [
+                'context' => \App\Models\CustomField::CONTEXT_RESUME_BUILDER,
+                'values' => old('custom_fields', isset($profileCv) ? ($profileCv->custom_field_data ?? []) : []),
+            ])
+        </div>
+
         <div class="formrow" id="div_is_default">
             <label for="is_default" class="bold">{{__('Is default?')}}</label>
             <div class="radio-list">

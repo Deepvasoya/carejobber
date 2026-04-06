@@ -5,6 +5,8 @@ namespace App\Http\Requests\Front;
 use Auth;
 use App\Helpers\LocationHelper;
 use App\Http\Requests\Request;
+use App\Models\CustomField;
+use App\Services\CustomFieldValueService;
 
 class UserFrontFormRequest extends Request
 {
@@ -57,6 +59,7 @@ class UserFrontFormRequest extends Request
             'image' => 'image',
             'custom_functional_area' => 'nullable|string|max:200',
             'custom_city_name' => 'nullable|string|max:30',
+            'custom_fields' => 'nullable|array',
         ];
     }
 
@@ -76,6 +79,7 @@ class UserFrontFormRequest extends Request
                     $v->errors()->add('custom_city_name', __('Please enter your city name.'));
                 }
             }
+            app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_PROFILE, $v);
         });
     }
 

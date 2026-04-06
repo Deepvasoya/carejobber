@@ -239,6 +239,10 @@ trait JobTrait
         $job->external_job = $request->input('external_job');
         $job->job_link = $request->input('job_link');
 
+        $cf = app(\App\Services\CustomFieldValueService::class);
+        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_JOB_LISTING);
+        $job->custom_field_data = $cf->mergeStored($job->custom_field_data ?? null, $norm);
+
         return $job;
 
     }

@@ -27,6 +27,7 @@ class Job extends Model
         'expiry_date' => 'datetime',
         'display_end_date' => 'datetime',
         'is_draft' => 'boolean',
+        'custom_field_data' => 'array',
     ];
     
     /**

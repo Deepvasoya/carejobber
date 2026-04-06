@@ -91,6 +91,12 @@
             </div>
             </div>
     </div>
+    <div class="col-md-12">
+        @include('includes.custom_fields_for_context', [
+            'context' => \App\Models\CustomField::CONTEXT_JOB_LISTING,
+            'values' => old('custom_fields', (isset($job) ? ($job->custom_field_data ?? []) : [])),
+        ])
+    </div>
     @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}" id="country_id_div"> {!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($job))? $job->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
@@ -393,12 +399,29 @@
     </div>
 
     <div class="col-md-12">
-        <div class="formrow d-flex flex-wrap gap-2 align-items-center">
-            <a href="{{ route('posted.jobs') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
+        <div class="formrow job-post-form-actions">
             @if(!isset($job) || $job->is_draft)
-                <button type="submit" name="job_action" value="draft" class="btn btn-secondary" formnovalidate>{{ __('Save as draft') }}</button>
+                <div class="row g-2 align-items-stretch">
+                    <div class="col-12 col-lg-3">
+                        <button type="submit" name="job_action" value="draft" class="btn btn-secondary w-100 job-post-action-btn" formnovalidate>{{ __('Save as draft') }}</button>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <button type="submit" name="job_action" value="submit" class="btn btn-primary w-100 job-post-action-btn job-post-action-btn--submit">{{ __('Submit Job') }} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="col-12 col-lg-3">
+                        <a href="{{ route('posted.jobs') }}" class="btn btn-outline-secondary w-100 job-post-action-btn">{{ __('Cancel') }}</a>
+                    </div>
+                </div>
+            @else
+                <div class="row g-2 align-items-stretch justify-content-lg-center">
+                    <div class="col-12 col-lg-6">
+                        <button type="submit" name="job_action" value="submit" class="btn btn-primary w-100 job-post-action-btn job-post-action-btn--submit">{{ __('Submit Job') }} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <a href="{{ route('posted.jobs') }}" class="btn btn-outline-secondary w-100 job-post-action-btn">{{ __('Cancel') }}</a>
+                    </div>
+                </div>
             @endif
-            <button type="submit" name="job_action" value="submit" class="btn btn-primary">{{ __('Submit Job') }} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
         </div>
         @if(! $canPostNewJob && (!isset($job) || $job->is_draft))
             <p class="small text-muted mt-2 mb-0">{{ __('Submit Job requires an active package and available credits. You can still save a draft and publish later.') }}</p>
@@ -412,6 +435,23 @@
 <style type="text/css">
     .datepicker>div {
         display: block;
+    }
+    .job-post-form-actions .job-post-action-btn {
+        font-weight: 600;
+        padding-top: 0.65rem;
+        padding-bottom: 0.65rem;
+        border-radius: 8px;
+    }
+    .job-post-form-actions .job-post-action-btn--submit {
+        background-color: #2557a7;
+        border-color: #2557a7;
+        color: #fff;
+    }
+    .job-post-form-actions .job-post-action-btn--submit:hover,
+    .job-post-form-actions .job-post-action-btn--submit:focus {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+        color: #fff;
     }
 </style>
 @endpush

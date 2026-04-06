@@ -198,6 +198,13 @@
             {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
         </div>
     </div>
+
+    <div class="col-md-12">
+        @include('includes.custom_fields_for_context', [
+            'context' => \App\Models\CustomField::CONTEXT_PROFILE,
+            'values' => old('custom_fields', $user->custom_field_data ?? []),
+        ])
+    </div>
     
 </div>
 	
@@ -290,6 +297,7 @@
                     _token: '{{ csrf_token() }}'
                 }).done(function (response) {
                     $('#city_dd').html(response);
+                    syncUserProfileOtherFields();
                 });
             }
         } else {

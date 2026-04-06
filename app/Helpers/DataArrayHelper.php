@@ -377,6 +377,7 @@ class DataArrayHelper
             '£'=>'GBP (£)',
             '$'=>'USD ($)',
             '€'=>'EUR (€)',
+            'CAD'=>'CAD (Canadian dollar)',
         );
         if(null!==($array)){
             foreach ($array as $key => $val) {

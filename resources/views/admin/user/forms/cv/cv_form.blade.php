@@ -16,6 +16,13 @@
             <input name="cv_file" id="cv_file" type="file" />
             <span class="help-block cv_file-error"></span> </div>
 
+        <div class="form-group mb-3">
+            @include('includes.custom_fields_for_context', [
+                'context' => \App\Models\CustomField::CONTEXT_RESUME_BUILDER,
+                'values' => old('custom_fields', isset($profileCv) ? ($profileCv->custom_field_data ?? []) : []),
+            ])
+        </div>
+
         <div class="form-group mb-3" id="div_is_default">
             <label for="is_default" class="bold">Is default?</label>
             <div class="radio-list" style="margin-left:22px;">

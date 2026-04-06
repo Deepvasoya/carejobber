@@ -4,6 +4,8 @@ namespace App\Http\Requests\Front;
 
 use App\Helpers\LocationHelper;
 use App\Http\Requests\Request;
+use App\Models\CustomField;
+use App\Services\CustomFieldValueService;
 
 class JobFrontFormRequest extends Request
 {
@@ -51,6 +53,7 @@ class JobFrontFormRequest extends Request
                             'custom_functional_area' => 'nullable|string|max:200',
                             'custom_city_name' => 'nullable|string|max:30',
                             'custom_job_skills_lines' => 'nullable|string|max:10000',
+                            'custom_fields' => 'nullable|array',
                             'country_id' => 'nullable',
                             'state_id' => 'nullable',
                             'city_id' => 'nullable',
@@ -69,6 +72,7 @@ class JobFrontFormRequest extends Request
                         "custom_functional_area" => "nullable|string|max:200",
                         "custom_city_name" => "nullable|string|max:30",
                         "custom_job_skills_lines" => "nullable|string|max:10000",
+                        "custom_fields" => "nullable|array",
                         "country_id" => "required",
                         "state_id" => in_array((int) $locationLevel, [2, 3, 4], true) ? "required" : "nullable",
                         "city_id" => "required",
@@ -123,6 +127,7 @@ class JobFrontFormRequest extends Request
             if (count($picked) === 0 && $custom === '') {
                 $v->errors()->add('skills', __('Please select at least one skill and/or enter custom skills (one per line).'));
             }
+            app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_JOB_LISTING, $v);
         });
     }
 

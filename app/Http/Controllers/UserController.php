@@ -172,7 +172,11 @@ class UserController extends Controller
         $user->street_address = $request->input('street_address');
 		$user->is_subscribed = $request->input('is_subscribed', 0);
         $user->visible_in_employer_resume_search = $request->boolean('visible_in_employer_resume_search');
-		
+
+        $cf = app(\App\Services\CustomFieldValueService::class);
+        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_PROFILE);
+        $user->custom_field_data = $cf->mergeStored($user->custom_field_data ?? null, $norm);
+
         $user->update();
 
         $this->updateUserFullTextSearch($user);

@@ -114,6 +114,10 @@ trait ProfileCvsTrait
         }
         $profileCv->cv_file = $this->uploadCvFile($request);
 
+        $cf = app(\App\Services\CustomFieldValueService::class);
+        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_RESUME_BUILDER);
+        $profileCv->custom_field_data = $cf->mergeStored($profileCv->custom_field_data ?? null, $norm);
+
         return $profileCv;
     }
 

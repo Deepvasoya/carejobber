@@ -13,6 +13,10 @@ class ProfileCv extends Model
     //protected $dateFormat = 'U';
     protected $dates = ['created_at', 'updated_at'];
 
+    protected $casts = [
+        'custom_field_data' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo('App\User', 'user_id', 'id');

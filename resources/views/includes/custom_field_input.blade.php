@@ -51,7 +51,7 @@
             </div>
             @break
         @case(\App\Models\CustomField::TYPE_SELECT)
-            <select class="form-select" name="{{ $baseName }}" id="{{ $id }}" @if($req) required @endif>
+            <select class="form-control" name="{{ $baseName }}" id="{{ $id }}" @if($req) required @endif>
                 <option value="">{{ __('Select…') }}</option>
                 @foreach($opts as $opt)
                     @php
@@ -66,7 +66,7 @@
             @php
                 $selected = is_array($val) ? $val : (array) array_filter(explode(',', (string)($val ?? '')));
             @endphp
-            <select class="form-select" name="{{ $baseName }}[]" id="{{ $id }}" multiple size="{{ min(8, max(3, count($opts))) }}" @if($req) required @endif>
+            <select class="form-control" name="{{ $baseName }}[]" id="{{ $id }}" multiple size="{{ min(8, max(3, count($opts))) }}" @if($req) required @endif>
                 @foreach($opts as $opt)
                     @php
                         $ov = is_array($opt) ? ($opt['value'] ?? '') : $opt;
@@ -98,4 +98,7 @@
         @default
             <input type="text" class="form-control" name="{{ $baseName }}" id="{{ $id }}" value="{{ $val ?? '' }}" />
     @endswitch
+    @error('custom_fields.'.$field->slug)
+        <span class="text-danger small">{{ $message }}</span>
+    @enderror
 </div>
