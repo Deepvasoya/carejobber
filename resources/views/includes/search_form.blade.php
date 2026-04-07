@@ -57,7 +57,7 @@
 						<span class="input-group-text home-search-input-icon">
 							<i class="fas fa-map-marker-alt" style="color: #999;"></i>
 						</span>
-						<input type="text" name="location_search" id="location_search" value="{{Request::get('location_search', '')}}" 
+						<input type="text" name="location_search" id="location_search" value="{{ \App\Helpers\MiscHelper::locationSearchFormValue() }}" 
 							   class="form-control home-search-input" 
 							   placeholder="{{__('City or postcode')}}" 
 							   autocomplete="off" />

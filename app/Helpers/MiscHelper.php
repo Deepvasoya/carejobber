@@ -83,4 +83,80 @@ class MiscHelper
         return $array;
     }
 
+    /**
+     * Value for job search location text fields: explicit location_search, or a label from city/state/country ids.
+     */
+    public static function locationSearchFormValue(): string
+    {
+        $term = request()->get('location_search', '');
+        if (is_string($term)) {
+            $term = trim($term);
+            if ($term !== '') {
+                return $term;
+            }
+        }
+
+        $cityIds = request()->get('city_id', []);
+        if (!is_array($cityIds)) {
+            $cityIds = $cityIds !== null && $cityIds !== '' ? [$cityIds] : [];
+        }
+        $cityLabels = [];
+        foreach ($cityIds as $cid) {
+            $cid = (int) $cid;
+            if ($cid <= 0) {
+                continue;
+            }
+            $city = \App\City::where('city_id', $cid)->lang()->active()->first();
+            if ($city !== null) {
+                $cityLabels[] = (string) $city->city;
+            }
+        }
+        $cityLabels = array_unique($cityLabels);
+        if (!empty($cityLabels)) {
+            return implode(', ', $cityLabels);
+        }
+
+        $stateIds = request()->get('state_id', []);
+        if (!is_array($stateIds)) {
+            $stateIds = $stateIds !== null && $stateIds !== '' ? [$stateIds] : [];
+        }
+        $stateLabels = [];
+        foreach ($stateIds as $sid) {
+            $sid = (int) $sid;
+            if ($sid <= 0) {
+                continue;
+            }
+            $state = \App\State::where('state_id', $sid)->lang()->active()->first();
+            if ($state !== null) {
+                $stateLabels[] = (string) $state->state;
+            }
+        }
+        $stateLabels = array_unique($stateLabels);
+        if (!empty($stateLabels)) {
+            return implode(', ', $stateLabels);
+        }
+
+        $countryIds = request()->get('country_id', []);
+        if (!is_array($countryIds)) {
+            $countryIds = $countryIds !== null && $countryIds !== '' ? [$countryIds] : [];
+        }
+        $countryLabels = [];
+        foreach ($countryIds as $cid) {
+            $cid = (int) $cid;
+            if ($cid <= 0) {
+                continue;
+            }
+            $country = \App\Country::where('country_id', $cid)->lang()->active()->first();
+            if ($country !== null) {
+                $countryLabels[] = (string) $country->country;
+            }
+        }
+        $countryLabels = array_unique($countryLabels);
+        if (!empty($countryLabels)) {
+            return implode(', ', $countryLabels);
+        }
+
+        return '';
+    }
+
 }
