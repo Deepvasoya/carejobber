@@ -140,7 +140,7 @@
             gap: 0.35rem 0.75rem;
             margin: 0 0 0.45rem;
             padding: 0;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             grid-template-columns: unset;
         }
 
@@ -157,22 +157,25 @@
         }
 
         .job-list-card-compact .job-list-card-meta dt {
-            font-size: 0.65rem;
+            font-size: 0.74rem;
             margin-bottom: 0;
             text-transform: none;
             letter-spacing: 0;
             font-weight: 600;
-            color: #94a3b8;
+            color: #475569;
         }
 
         .job-list-card-compact .job-list-card-meta dt i {
             margin-right: 0.15rem;
-            font-size: 0.7rem;
+            font-size: 0.78rem;
+            color: #64748b;
         }
 
         .job-list-card-compact .job-list-card-meta dd {
-            line-height: 1.35;
+            line-height: 1.45;
             margin: 0;
+            color: #1e293b;
+            font-size: 0.88rem;
         }
 
     .job-list-card-compact .job-list-card-main {
@@ -404,8 +407,8 @@
 
         .job-list-card-meta dt {
             font-weight: 600;
-            color: #64748b;
-            font-size: 0.72rem;
+            color: #475569;
+            font-size: 0.78rem;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             margin-bottom: 0.15rem;
@@ -413,18 +416,19 @@
 
         .job-list-card-meta dt i {
             margin-right: 0.25rem;
-            opacity: 0.85;
+            color: #64748b;
+            opacity: 1;
         }
 
         .job-list-card-meta dd {
             margin: 0;
-            color: #1e293b;
+            color: #0f172a;
             line-height: 1.45;
             word-break: break-word;
         }
 
         .job-list-meta-muted {
-            color: #94a3b8;
+            color: #64748b;
             font-weight: 500;
         }
 
