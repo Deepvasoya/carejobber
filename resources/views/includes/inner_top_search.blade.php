@@ -14,7 +14,7 @@
 							<div class="input-group flex-wrap">
 								<input type="text" name="search" id="jbsearch" value="{{Request::get('search', '')}}" class="form-control" placeholder="{{__('Job title or keywords')}}" autocomplete="off" />
 								
-								<input type="text" name="location_search" id="location_search_inner" value="{{Request::get('location_search', '')}}" 
+								<input type="text" name="location_search" id="location_search_inner" value="{{ \App\Helpers\MiscHelper::locationSearchFormValue() }}" 
 									   class="form-control" 
 									   placeholder="{{__('City or postcode')}}" 
 									   autocomplete="off" />

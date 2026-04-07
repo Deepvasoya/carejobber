@@ -33,7 +33,7 @@
         <div class="widget">
             <h4 class="widget-title">{{__('Location')}}</h4>
             <div class="form-group">
-                <input type="text" name="location_search" id="location_search_sidebar" value="{{Request::get('location_search', '')}}" 
+                <input type="text" name="location_search" id="location_search_sidebar" value="{{ \App\Helpers\MiscHelper::locationSearchFormValue() }}" 
                        class="form-control" 
                        placeholder="{{__('City or Province/State name')}}" 
                        style="padding: 10px; border-radius: 6px; border: 1px solid #ddd;" />
