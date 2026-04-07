@@ -159,4 +159,107 @@ class MiscHelper
         return '';
     }
 
+    /**
+     * Escape a string for use inside SQL LIKE patterns.
+     */
+    public static function escapeLike(string $value): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $value);
+    }
+
+    /**
+     * Resolve location text to logical city_id and state_id lists for job filtering.
+     * Autocomplete returns "City, State" but cities.city only stores the city name.
+     *
+     * @return array{0: array<int>, 1: array<int>}
+     */
+    public static function locationSearchToCityStateIds(string $locationTerm): array
+    {
+        $locationTerm = trim($locationTerm);
+        if ($locationTerm === '') {
+            return [[], []];
+        }
+
+        if (str_contains($locationTerm, ',')) {
+            $parts = array_map('trim', explode(',', $locationTerm, 2));
+            $cityPart = $parts[0] ?? '';
+            $statePart = $parts[1] ?? '';
+
+            $matchingCityIds = [];
+            if ($cityPart !== '') {
+                $query = \App\City::where('city', 'like', '%' . self::escapeLike($cityPart) . '%')
+                    ->lang()
+                    ->active();
+                if ($statePart !== '') {
+                    $stateLogicalIds = \App\State::where('state', 'like', '%' . self::escapeLike($statePart) . '%')
+                        ->lang()
+                        ->active()
+                        ->pluck('state_id')
+                        ->unique()
+                        ->filter()
+                        ->values()
+                        ->all();
+                    if (!empty($stateLogicalIds)) {
+                        $query->whereIn('state_id', $stateLogicalIds);
+                    }
+                }
+                $matchingCityIds = $query->distinct()
+                    ->pluck('city_id')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                if ($statePart !== '' && empty($matchingCityIds)) {
+                    $matchingCityIds = \App\City::where('city', 'like', '%' . self::escapeLike($cityPart) . '%')
+                        ->lang()
+                        ->active()
+                        ->distinct()
+                        ->pluck('city_id')
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->all();
+                }
+            }
+
+            $matchingStateIds = [];
+            if ($cityPart === '' && $statePart !== '') {
+                $matchingStateIds = \App\State::where('state', 'like', '%' . self::escapeLike($statePart) . '%')
+                    ->lang()
+                    ->active()
+                    ->distinct()
+                    ->pluck('state_id')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+            }
+
+            return [$matchingCityIds, $matchingStateIds];
+        }
+
+        $matchingCityIds = \App\City::where('city', 'like', '%' . self::escapeLike($locationTerm) . '%')
+            ->lang()
+            ->active()
+            ->distinct()
+            ->pluck('city_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $matchingStateIds = \App\State::where('state', 'like', '%' . self::escapeLike($locationTerm) . '%')
+            ->lang()
+            ->active()
+            ->distinct()
+            ->pluck('state_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return [$matchingCityIds, $matchingStateIds];
+    }
+
 }

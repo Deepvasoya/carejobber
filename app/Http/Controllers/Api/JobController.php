@@ -17,8 +17,6 @@ use App\JobSkill;
 use App\JobSkillManager;
 use App\Country;
 use App\CountryDetail;
-use App\State;
-use App\City;
 use App\CareerLevel;
 use App\FunctionalArea;
 use App\JobType;
@@ -78,26 +76,7 @@ class JobController extends BaseController
         $locationSearch = $request->query('location_search', '');
         if (!empty($locationSearch)) {
             $locationTerm = trim($locationSearch);
-
-            $matchingCityIds = City::where('city', 'like', "%{$locationTerm}%")
-                ->lang()
-                ->active()
-                ->distinct()
-                ->pluck('city_id')
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            $matchingStateIds = State::where('state', 'like', "%{$locationTerm}%")
-                ->lang()
-                ->active()
-                ->distinct()
-                ->pluck('state_id')
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
+            [$matchingCityIds, $matchingStateIds] = MiscHelper::locationSearchToCityStateIds($locationTerm);
 
             if (!empty($matchingCityIds)) {
                 $city_ids = array_merge((array) $city_ids, $matchingCityIds);
