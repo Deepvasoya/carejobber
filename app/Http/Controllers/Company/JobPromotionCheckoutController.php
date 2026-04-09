@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Job;
+use App\PaymentHistory;
 use App\Services\JobPromotionPricing;
 use App\StripeCheckoutSession;
 use Illuminate\Http\Request;
@@ -156,7 +157,12 @@ class JobPromotionCheckoutController extends Controller
             return redirect()->route('posted.jobs')->with('error', __('Invalid payment data.'));
         }
 
-        static::fulfillJobPromotions($sessionId, $meta, $record);
+        static::fulfillJobPromotions(
+            $sessionId,
+            $meta,
+            $record,
+            isset($session->amount_total) ? (int) $session->amount_total : null
+        );
 
         Session::forget('pending_job_promotions');
 
@@ -166,14 +172,19 @@ class JobPromotionCheckoutController extends Controller
     /**
      * Apply paid flags and mark DB session row complete (idempotent).
      */
-    public static function fulfillJobPromotions(string $sessionId, array $metadata, ?StripeCheckoutSession $record = null): bool
-    {
+    public static function fulfillJobPromotions(
+        string $sessionId,
+        array $metadata,
+        ?StripeCheckoutSession $record = null,
+        ?int $amountTotalCents = null
+    ): bool {
         if (($metadata['type'] ?? '') !== 'job_promotions') {
             return false;
         }
 
         $existing = StripeCheckoutSession::where('session_id', $sessionId)->first();
-        if ($existing && $existing->status === 'completed') {
+        if ($existing && $existing->status === 'completed'
+            && PaymentHistory::where('transaction_id', $sessionId)->exists()) {
             return true;
         }
 
@@ -204,6 +215,51 @@ class JobPromotionCheckoutController extends Controller
         }
 
         $job->save();
+
+        $price = $amountTotalCents !== null ? round($amountTotalCents / 100, 2) : 0.0;
+        $labelParts = [];
+        if (($metadata['promote_featured'] ?? '0') === '1') {
+            $labelParts[] = __('Featured');
+        }
+        if (($metadata['promote_urgent'] ?? '0') === '1') {
+            $labelParts[] = __('Urgent');
+        }
+        if (($metadata['promote_highlighted'] ?? '0') === '1') {
+            $labelParts[] = __('Highlighted');
+        }
+        $title = __('Job listing promotion');
+        if (! empty($labelParts)) {
+            $title .= ' ('.implode(', ', $labelParts).')';
+        }
+        $title .= ' — '.$job->title;
+
+        $now = now();
+        if (! PaymentHistory::where('transaction_id', $sessionId)->exists()) {
+            try {
+                PaymentHistory::create([
+                    'company_id' => $companyId,
+                    'user_id' => null,
+                    'user_type' => 'company',
+                    'package_id' => 0,
+                    'package_type' => 'job',
+                    'package_title' => $title,
+                    'package_price' => $price,
+                    'payment_method' => 'Stripe',
+                    'assigned_by' => null,
+                    'transaction_id' => $sessionId,
+                    'package_start_date' => $now,
+                    'package_end_date' => $now,
+                    'jobs_quota' => 0,
+                    'cvs_quota' => 0,
+                    'payment_status' => 'completed',
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('[JobPromotions] payment_history insert failed', [
+                    'session_id' => $sessionId,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
 
         StripeCheckoutSession::where('session_id', $sessionId)->update(['status' => 'completed']);
 

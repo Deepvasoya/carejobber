@@ -152,14 +152,34 @@ class CompanyController extends Controller
     } 
 
     public function indexCompaniesHistory()
-{
-    $companies = Company::with('package') // Assuming a relationship between Company and Package
-        ->where('id', auth()->guard('company')->user()->id)
-        ->orderBy('package_start_date', 'DESC')
-        ->get();
+    {
+        $company = auth()->guard('company')->user();
 
-    return view('company.payment_history', compact('companies'));
-}
+        $payments = \App\PaymentHistory::where('company_id', $company->id)
+            ->where('user_type', 'company')
+            ->with('package')
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        if ($payments->isEmpty() && $company->package_id) {
+            $pkg = $company->package;
+            if ($pkg) {
+                $fallback = new \stdClass();
+                $fallback->package = $pkg;
+                $fallback->package_title = $pkg->package_title;
+                $fallback->package_price = $pkg->package_price;
+                $fallback->payment_method = $company->payment_method ?? 'Admin Assign';
+                $fallback->package_start_date = $company->package_start_date;
+                $fallback->package_end_date = $company->package_end_date;
+                $fallback->jobs_quota = $company->jobs_quota;
+                $fallback->package_type = 'job';
+                $fallback->created_at = $company->package_start_date;
+                $payments = collect([$fallback]);
+            }
+        }
+
+        return view('company.payment_history', compact('payments'));
+    }
 public function fetchCompaniesHistory(Request $request)
 
 {

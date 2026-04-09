@@ -27,13 +27,13 @@
                 <!-- Payment Timeline -->
                 <div class="user-payment-timeline">
         @forelse ($candidatePayments as $payment)
-                        @if ($payment->package)
+                        @if ($payment->package || !empty($payment->package_title))
                         <div class="user-payment-card">
                             <div class="user-payment-card-header">
                                 <div class="user-payment-package-info">
                                     <h4>
                                         <i class="fas fa-box"></i>
-                                        {{ $payment->package->package_title }}
+                                        {{ $payment->package_title ?? optional($payment->package)->package_title }}
                                     </h4>
                                     @php
                                         $paymentMethod = !empty($payment->payment_method) && $payment->payment_method !== 'offline' 
@@ -92,6 +92,7 @@
                                 @endif
                                 
                                 <!-- Duration -->
+                                @if($payment->package)
                                 <div class="user-payment-detail-item-inline">
                                     <div class="user-payment-detail-icon-inline">
                                         <i class="fas fa-calendar-alt"></i>
@@ -101,6 +102,7 @@
                                         <span class="user-payment-detail-value-inline">{{ $payment->package->package_num_days }} {{__('Days')}}</span>
                                     </div>
                                 </div>
+                                @endif
                                 
                                 <!-- Start Date -->
                                 <div class="user-payment-detail-item-inline">

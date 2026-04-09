@@ -28,32 +28,35 @@
                 
                 <!-- Payment Timeline -->
                 <div class="company-payment-timeline">
-                    @forelse ($companies as $company)
+                    @forelse ($payments as $payment)
+                        @php
+                            $pkgTitle = $payment->package_title ?? optional($payment->package)->package_title ?? 'N/A';
+                            $pkgPrice = $payment->package_price ?? optional($payment->package)->package_price;
+                            $pmRaw = $payment->payment_method ?? '';
+                            $paymentMethod = !empty($pmRaw) && strtolower($pmRaw) !== 'offline'
+                                ? $pmRaw
+                                : 'offline';
+                            $badgeClass = 'company-payment-method-' . strtolower(preg_replace('/[^a-z0-9]+/i', '-', $paymentMethod));
+                        @endphp
                         <div class="company-payment-card">
                             <div class="company-payment-card-header">
                                 <div class="company-payment-package-info">
                                     <h4>
                                         <i class="fas fa-box"></i>
-                                        {{ $company->package->package_title ?? 'N/A' }}
+                                        {{ $pkgTitle }}
                                     </h4>
-                                    @php
-                                        $paymentMethod = !empty($company->payment_method) && $company->payment_method !== 'offline' 
-                                            ? $company->payment_method 
-                                            : 'offline';
-                                        $badgeClass = 'company-payment-method-' . strtolower($paymentMethod);
-                                    @endphp
                                     <span class="company-payment-method-badge {{ $badgeClass }}">
-                                        @if($paymentMethod === 'paypal')
+                                        @if(stripos($paymentMethod, 'paypal') !== false)
                                             <i class="fab fa-paypal"></i> PayPal
-                                        @elseif($paymentMethod === 'stripe')
+                                        @elseif(stripos($paymentMethod, 'stripe') !== false)
                                             <i class="fab fa-stripe"></i> Stripe
-                                        @elseif($paymentMethod === 'razorpay')
+                                        @elseif(stripos($paymentMethod, 'razorpay') !== false)
                                             <i class="fas fa-credit-card"></i> Razorpay
-                                        @elseif($paymentMethod === 'paystack')
+                                        @elseif(stripos($paymentMethod, 'paystack') !== false)
                                             <i class="fas fa-credit-card"></i> Paystack
-                                        @elseif($paymentMethod === 'paytm')
+                                        @elseif(stripos($paymentMethod, 'paytm') !== false)
                                             <i class="fas fa-credit-card"></i> Paytm
-                                        @elseif($paymentMethod === 'payu')
+                                        @elseif(stripos($paymentMethod, 'payu') !== false)
                                             <i class="fas fa-credit-card"></i> PayU
                                         @else
                                             <i class="fas fa-user-shield"></i> {{__('Offline (Added by Admin)')}}
@@ -61,7 +64,7 @@
                                     </span>
                                 </div>
                                 <div class="company-payment-price-badge">
-                                    <i class="fas fa-tag"></i> {{ $siteSetting->default_currency_code ?? '' }}{{ $company->package->package_price ?? 'N/A' }}
+                                    <i class="fas fa-tag"></i> {{ $siteSetting->default_currency_code ?? '' }}{{ $pkgPrice !== null ? number_format((float) $pkgPrice, 2) : 'N/A' }}
                                 </div>
                             </div>
                             
@@ -73,7 +76,7 @@
                                     </div>
                                     <div class="company-payment-detail-text-inline">
                                         <span class="company-payment-detail-label-inline">{{__('Jobs')}}:</span>
-                                        <span class="company-payment-detail-value-inline">{{ $company->jobs_quota ?? 'N/A' }}</span>
+                                        <span class="company-payment-detail-value-inline">{{ isset($payment->jobs_quota) ? $payment->jobs_quota : 'N/A' }}</span>
                                     </div>
                                 </div>
                                 
@@ -85,7 +88,7 @@
                                     <div class="company-payment-detail-text-inline">
                                         <span class="company-payment-detail-label-inline">{{__('Start')}}:</span>
                                         <span class="company-payment-detail-value-inline">
-                                            {{ $company->package_start_date ? \Carbon\Carbon::parse($company->package_start_date)->format('d M, Y') : 'N/A' }}
+                                            {{ $payment->package_start_date ? \Carbon\Carbon::parse($payment->package_start_date)->format('d M, Y') : 'N/A' }}
                                         </span>
                                     </div>
                                 </div>
@@ -98,7 +101,7 @@
                                     <div class="company-payment-detail-text-inline">
                                         <span class="company-payment-detail-label-inline">{{__('Expires')}}:</span>
                                         <span class="company-payment-detail-value-inline">
-                                            {{ $company->package_end_date ? \Carbon\Carbon::parse($company->package_end_date)->format('d M, Y') : 'N/A' }}
+                                            {{ $payment->package_end_date ? \Carbon\Carbon::parse($payment->package_end_date)->format('d M, Y') : 'N/A' }}
                                         </span>
                                     </div>
                                 </div>

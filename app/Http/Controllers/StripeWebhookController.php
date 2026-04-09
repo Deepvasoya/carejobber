@@ -150,7 +150,12 @@ class StripeWebhookController extends Controller
             $this->fulfillResumeUnlock($sessionId, $metadata, $session);
         } elseif ($type === 'job_promotions') {
             $meta = is_array($metadata) ? $metadata : (array) $metadata;
-            \App\Http\Controllers\Company\JobPromotionCheckoutController::fulfillJobPromotions($sessionId, $meta, null);
+            \App\Http\Controllers\Company\JobPromotionCheckoutController::fulfillJobPromotions(
+                $sessionId,
+                $meta,
+                null,
+                isset($session['amount_total']) ? (int) $session['amount_total'] : null
+            );
         } elseif (isset($metadata['package_id'])) {
             $this->fulfillPackagePurchase($sessionId, $metadata, $session);
         } else {
