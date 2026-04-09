@@ -127,6 +127,193 @@
             @endif
         </div>
 
+        {{-- Platform totals: all counts (permission-gated) --}}
+        @if(APAuthHelp::can('site_users.view') || APAuthHelp::can('jobs.view') || APAuthHelp::can('companies.view') || APAuthHelp::can('payments.view'))
+        <div class="row g-2 mb-1">
+            <div class="col-12">
+                <h5 class="mb-0 text-muted fw-normal" style="font-size: 0.95rem;">{{ __('Platform totals') }}</h5>
+            </div>
+        </div>
+        <div class="row g-2 mb-2">
+            @if(APAuthHelp::can('site_users.view'))
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.users') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('All users') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-primary rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-group-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalUsersAll) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Registered (all time)') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.users') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Verified users') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-success rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-checkbox-circle-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalVerifiedUsers) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Email verified') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            @endif
+            @if(APAuthHelp::can('jobs.view'))
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.jobs') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('All jobs') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-secondary rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-file-list-3-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalJobsAll) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Including inactive') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.jobs') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Featured jobs') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-warning rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-star-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalFeaturedJobs) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Featured flag') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.jobs') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __("Today's jobs") }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-info rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-calendar-todo-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalTodaysJobs) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Created today') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.jobs') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Inactive jobs') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-dark rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-eye-off-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalInactiveJobs) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Not live') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.jobs') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Applications') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-primary rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-send-plane-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalJobApplications) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Total job applies') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            @endif
+            @if(APAuthHelp::can('companies.view'))
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.companies') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('All employers') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-secondary rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-building-4-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalCompaniesAll) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Companies (all)') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.companies') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Active employers') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-success rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-building-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalActiveCompanies) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Approved / active') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.companies') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __("Today's employers") }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-info rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-calendar-check-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalTodaysCompanies) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Registered today') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.companies') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Inactive employers') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-danger rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-building-2-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalInactiveCompanies) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Not active') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            @endif
+            @if(APAuthHelp::can('payments.view'))
+            <div class="col-6 col-md-4 col-xl-2">
+                <a href="{{ route('list.payment.hostory') }}" style="text-decoration:none;color:inherit;">
+                <div class="card m-0 h-100">
+                    <div class="card-header border-0 py-2"><h4 class="card-title mb-0" style="font-size:0.9rem;">{{ __('Paid transactions') }}</h4></div>
+                    <div class="card-body pt-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="avatar-title text-bg-success rounded-circle avatar-sm d-inline-flex align-items-center justify-content-center" style="width:36px;height:36px;"><i class="ri ri-bank-card-line"></i></span>
+                            <h3 class="mb-0 fw-bold fs-4">{{ number_format($totalPaymentTransactions) }}</h3>
+                        </div>
+                        <p class="mb-0 text-muted small">{{ __('Completed in history') }}</p>
+                    </div>
+                </div>
+                </a>
+            </div>
+            @endif
+        </div>
+        @endif
+
         {{-- Second row: Business Performance + New Users charts (per permission) --}}
         @if(APAuthHelp::can('payments.view') || APAuthHelp::can('site_users.view'))
         <div class="row g-2 mb-2">
