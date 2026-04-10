@@ -8,7 +8,7 @@
                 <!--Quick Links menu Start-->
                 <ul class="quicklinks">
                     <li><a href="{{ route('index') }}">{{__('Home')}}</a></li>
-                    <li class="postad"><a href="https://yobist.com/blog">{{__('Blog')}}</a></li>
+                    <li class="postad"><a href="https://medojob.com/blog">{{__('Blog')}}</a></li>
                     <li><a href="{{ route('help.centre') }}" target="_blank" rel="noopener noreferrer">{{ __('Help Desk') }}</a></li>
                     <li><a href="{{ route('contact.us') }}">{{__('Contact Us')}}</a></li>
                     @foreach($show_in_footer_menu as $footer_menu)

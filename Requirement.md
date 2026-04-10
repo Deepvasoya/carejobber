@@ -5,7 +5,7 @@ password : Deepvasoya
 Prompt 1: Full Overhaul Prompt (Best to Start With – Broad but Guided)
 
 
-You are an expert Laravel developer (Laravel 10/11 preferred). I have an existing Laravel job board website at https://yobist.com (healthcare-focused, Canada-based, with job seeker and employer dashboards, resume builder, job posting, basic search).
+You are an expert Laravel developer (Laravel 10/11 preferred). I have an existing Laravel job board website at https://medojob.com (healthcare-focused, Canada-based, with job seeker and employer dashboards, resume builder, job posting, basic search).
 
 I need to heavily customize core functionality. Implement the following changes step-by-step with clean, modern Laravel code (use best practices: Eloquent relationships, Policies/Gates, Livewire or Blade components where dynamic, Laravel Cashier for payments if needed, migrations, seeders if required, etc.). Provide full code files/structure changes, explain what to add/modify, and suggest any new packages (e.g., Laravel Cashier, Spatie permissions if needed).
 
@@ -62,7 +62,7 @@ Prompt 2: Focused on Subscriptions & Payments (High Priority Feature)
 
 Expert Laravel + Stripe developer needed.
 
-For my Laravel job board[](https://yobist.com), implement a flexible subscription & package system.
+For my Laravel job board[](https://medojob.com), implement a flexible subscription & package system.
 
 Requirements:
 - Packages table: id, name, price (decimal), type (monthly_recurring / one_time_credits / resume_boost), credits_or_posts (int), duration_days (for boosts), stripe_price_id (nullable), is_active (bool).
@@ -130,7 +130,7 @@ Provide full code diffs/additions: migrations, models, middleware, routes, blade
 
 You are a senior Laravel + Tailwind + Livewire expert building a custom healthcare job board (Canada-focused, like CareJobber.com).
 
-My current site is https://yobist.com (Laravel-based). I want to overhaul the employer/recruiter side, especially packages/subscriptions, resume database access, and job application flow.
+My current site is https://medojob.com (Laravel-based). I want to overhaul the employer/recruiter side, especially packages/subscriptions, resume database access, and job application flow.
 
 Implement these features with modern, clean code (Laravel 10/11, Livewire for dynamic parts, Tailwind CSS for styling, Stripe via Laravel Cashier for payments). Match the UI style from my screenshots as closely as possible:
 

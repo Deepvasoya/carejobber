@@ -268,7 +268,7 @@ Environment Variable:
 ADMIN_PREFIX=secure-admin-panel-cj2026
 
 Access URL:
-https://yobist.com/secure-admin-panel-cj2026/login
+https://medojob.com/secure-admin-panel-cj2026/login
 ```
 
 **Security Features**:
@@ -555,7 +555,7 @@ php artisan queue:restart
 ### Stripe Configuration:
 1. **Live Mode**: Switch from test keys to live keys
 2. **Webhook** (Optional): Configure in Stripe Dashboard
-   - URL: `https://yobist.com/stripe/webhook`
+   - URL: `https://medojob.com/stripe/webhook`
    - Events: `checkout.session.completed`, `customer.subscription.*`
 3. **Test Payments**: Use test cards in test mode first
 

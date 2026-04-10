@@ -17,20 +17,20 @@ Laravel serves all static assets (JS, CSS, images) from the `public` folder. The
 - **Nginx**: Set `root` to the full path to `public`, e.g. `root /var/www/html/carejobber/public;`
 - **Shared hosting**: If you cannot change document root, move or symlink the contents of `public/` to the web root and ensure `index.php` and `.htaccess` are in place (see [Laravel deployment docs](https://laravel.com/docs/deployment)).
 
-After this, requests like `https://yobist.com/js/jquery.min.js` should serve `public/js/jquery.min.js` and return 200, not 404.
+After this, requests like `https://medojob.com/js/jquery.min.js` should serve `public/js/jquery.min.js` and return 200, not 404.
 
 ### 2. Production `.env`
 
 On the server, set:
 
 ```env
-APP_URL=https://yobist.com
+APP_URL=https://medojob.com
 ```
 
 If you use a CDN or different domain for assets, you can set:
 
 ```env
-ASSET_URL=https://yobist.com
+ASSET_URL=https://medojob.com
 ```
 
 Run after deploy:
