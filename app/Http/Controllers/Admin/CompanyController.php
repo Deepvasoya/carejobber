@@ -91,32 +91,54 @@ class CompanyController extends Controller
     
     public function getCompanyPaymentDetails(Request $request)
     {
+        if ($request->filled('payment_id')) {
+            $payment = \App\PaymentHistory::with('company')->findOrFail((int) $request->get('payment_id'));
+            $company = $payment->company;
+            if (!$company) {
+                return response()->json(['error' => 'Company not found'], 404);
+            }
+            $jobPackage = $payment->package_type === 'job' && $payment->package_id
+                ? Package::find($payment->package_id)
+                : ($company->package_id ? Package::find($company->package_id) : null);
+            $cvPackage = $payment->package_type === 'cv_search' && $payment->package_id
+                ? Package::find($payment->package_id)
+                : ($company->cvs_package_id ? Package::find($company->cvs_package_id) : null);
+
+            return response()->json([
+                'company' => $company,
+                'job_package' => $jobPackage,
+                'cv_package' => $cvPackage,
+                'payment' => $payment,
+            ]);
+        }
+
         $company = Company::with([
-                'industry' => function($query) {
+                'industry' => function ($query) {
                     $query->where('is_default', 1);
                 },
-                'ownershipType' => function($query) {
+                'ownershipType' => function ($query) {
                     $query->where('is_default', 1);
                 },
-                'country' => function($query) {
+                'country' => function ($query) {
                     $query->where('is_default', 1);
                 },
-                'state' => function($query) {
+                'state' => function ($query) {
                     $query->where('is_default', 1);
                 },
-                'city' => function($query) {
+                'city' => function ($query) {
                     $query->where('is_default', 1);
                 }
             ])
             ->findOrFail($request->id);
-        
+
         $jobPackage = $company->package_id ? Package::find($company->package_id) : null;
         $cvPackage = $company->cvs_package_id ? Package::find($company->cvs_package_id) : null;
-        
+
         return response()->json([
             'company' => $company,
             'job_package' => $jobPackage,
-            'cv_package' => $cvPackage
+            'cv_package' => $cvPackage,
+            'payment' => null,
         ]);
     }
     public function fetchCompaniesHistory(Request $request)
@@ -238,7 +260,7 @@ class CompanyController extends Controller
                             return 'N/A';
                         })
                         ->addColumn('action', function ($payment) {
-                            return '<button class="btn btn-sm btn-info view-details" data-id="' . $payment->company_id . '" data-type="' . $payment->package_type . '"><i class="ri ri-eye-line me-1"></i> View</button>';
+                            return '<button type="button" class="btn btn-sm btn-info view-details" data-payment-id="' . $payment->id . '" data-id="' . $payment->company_id . '" data-type="' . $payment->package_type . '"><i class="ri ri-eye-line me-1"></i> View</button>';
                         })
                         ->rawColumns(['payment_method', 'package_type_badge', 'package', 'quota', 'package_start_date', 'package_end_date', 'action'])
                         ->setRowId(function($payment) {

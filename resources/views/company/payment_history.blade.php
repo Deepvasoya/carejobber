@@ -63,8 +63,11 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="company-payment-price-badge">
-                                    <i class="fas fa-tag"></i> {{ $siteSetting->default_currency_code ?? '' }}{{ $pkgPrice !== null ? number_format((float) $pkgPrice, 2) : 'N/A' }}
+                                <div class="company-payment-price-badge text-end">
+                                    <div><i class="fas fa-tag"></i> {{ $siteSetting->default_currency_code ?? '' }}{{ $pkgPrice !== null ? number_format((float) $pkgPrice, 2) : 'N/A' }}</div>
+                                    @if(isset($payment->package_list_price) && (float) $payment->package_list_price > (float) ($pkgPrice ?? 0) + 0.001)
+                                        <div class="small text-muted mt-1">{{ __('Regular price') }}: {{ $siteSetting->default_currency_code ?? '' }}{{ number_format((float) $payment->package_list_price, 2) }}</div>
+                                    @endif
                                 </div>
                             </div>
                             

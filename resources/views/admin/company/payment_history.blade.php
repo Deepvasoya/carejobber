@@ -344,16 +344,21 @@
         $(document).on('click', '.view-details', function() {
             var companyId = $(this).data('id');
             var packageType = $(this).data('type');
+            var paymentId = $(this).data('payment-id');
             $('#detailsModal').modal('show');
-            loadCompanyDetails(companyId, packageType);
+            loadCompanyDetails(companyId, packageType, paymentId);
         });
 
     });
 
-    function loadCompanyDetails(companyId, packageType) {
+    function loadCompanyDetails(companyId, packageType, paymentId) {
+        var req = { id: companyId };
+        if (paymentId) {
+            req.payment_id = paymentId;
+        }
         $.ajax({
             url: '{{ route("get.company.payment.details") }}',
-            data: { id: companyId },
+            data: req,
             success: function(response) {
                 var html = '<div class="row">';
                 
@@ -380,7 +385,11 @@
                     html += '<div class="alert alert-info">';
                     html += '<h5><strong><span class="label label-primary">Job Package</span></strong></h5><br>';
                     html += '<p><strong>Package:</strong> ' + response.job_package.package_title + '</p>';
-                    html += '<p><strong>Price:</strong> $' + response.job_package.package_price + '</p>';
+                    var paid = response.payment ? parseFloat(response.payment.package_price) : parseFloat(response.job_package.package_price);
+                    html += '<p><strong>Amount paid:</strong> $' + paid.toFixed(2) + '</p>';
+                    if (response.payment && response.payment.package_list_price && parseFloat(response.payment.package_list_price) > paid + 0.001) {
+                        html += '<p><strong>List price:</strong> $' + parseFloat(response.payment.package_list_price).toFixed(2) + '</p>';
+                    }
                     html += '<p><strong>Duration:</strong> ' + response.job_package.package_num_days + ' days</p>';
                     html += '<p><strong>Jobs Quota:</strong> ' + response.company.availed_jobs_quota + '/' + response.company.jobs_quota + '</p>';
                     html += '<p><strong>Start Date:</strong> ' + (response.company.package_start_date ? new Date(response.company.package_start_date).toLocaleDateString() : 'N/A') + '</p>';
@@ -389,11 +398,15 @@
                     var isExpired = endDate < new Date();
                     html += '<p><strong>Status:</strong> <span class="label label-' + (isExpired ? 'danger' : 'success') + '">' + (isExpired ? 'Expired' : 'Active') + '</span></p>';
                     html += '</div>';
-                } else if (packageType === 'cv' && response.cv_package) {
+                } else if (packageType === 'cv_search' && response.cv_package) {
                     html += '<div class="alert alert-success">';
                     html += '<h5><strong><span class="label label-success">CV Search Package</span></strong></h5><br>';
                     html += '<p><strong>Package:</strong> ' + response.cv_package.package_title + '</p>';
-                    html += '<p><strong>Price:</strong> $' + response.cv_package.package_price + '</p>';
+                    var paidCv = response.payment ? parseFloat(response.payment.package_price) : parseFloat(response.cv_package.package_price);
+                    html += '<p><strong>Amount paid:</strong> $' + paidCv.toFixed(2) + '</p>';
+                    if (response.payment && response.payment.package_list_price && parseFloat(response.payment.package_list_price) > paidCv + 0.001) {
+                        html += '<p><strong>List price:</strong> $' + parseFloat(response.payment.package_list_price).toFixed(2) + '</p>';
+                    }
                     html += '<p><strong>Duration:</strong> ' + response.cv_package.package_num_days + ' days</p>';
                     html += '<p><strong>CVs Quota:</strong> ' + response.company.availed_cvs_quota + '/' + response.company.cvs_quota + '</p>';
                     html += '<p><strong>Start Date:</strong> ' + (response.company.cvs_package_start_date ? new Date(response.company.cvs_package_start_date).toLocaleDateString() : 'N/A') + '</p>';
@@ -407,7 +420,11 @@
                 }
                 
                 html += '<hr>';
-                html += '<h5><strong>Payment Method:</strong> ' + (response.company.payment_method || 'N/A') + '</h5>';
+                var pm = (response.payment && response.payment.payment_method) ? response.payment.payment_method : (response.company.payment_method || 'N/A');
+                html += '<h5><strong>Payment Method:</strong> ' + pm + '</h5>';
+                if (response.payment && response.payment.transaction_id) {
+                    html += '<p><strong>Transaction ID:</strong> <small>' + response.payment.transaction_id + '</small></p>';
+                }
                 
                 // Show other packages available
                 html += '<hr><h5>Other Active Packages:</h5>';
@@ -416,7 +433,7 @@
                     html += '<p><span class="label label-primary">Job Package</span>: ' + response.job_package.package_title + '</p>';
                     hasOtherPackages = true;
                 }
-                if (packageType !== 'cv' && response.cv_package) {
+                if (packageType !== 'cv_search' && response.cv_package) {
                     html += '<p><span class="label label-success">CV Package</span>: ' + response.cv_package.package_title + '</p>';
                     hasOtherPackages = true;
                 }
