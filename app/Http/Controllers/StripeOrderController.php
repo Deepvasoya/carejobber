@@ -13,6 +13,7 @@ use Input;
 use Config;
 use App\Package;
 use App\PackageCoupon;
+use App\Services\EmployerPackageReceiptNotifier;
 use App\Services\PackageCouponService;
 use App\User;
 use Carbon\Carbon;
@@ -133,10 +134,29 @@ class StripeOrderController extends Controller
                  */
                 if (Auth::guard('company')->check()) {
                     $company = Auth::guard('company')->user();
-                    if($package->package_for=='cv_search'){
-                        $this->addCompanySearchPackage($company, $package,'Stripe');
-                    }else{
-                        $this->addCompanyPackage($company, $package,'Stripe');
+                    $orderAmt = (float) $order_amount;
+                    $listAmt = (float) $package->package_price;
+                    $chargeId = (string) ($charge['id'] ?? 'stripe_charge_'.uniqid('', true));
+                    if ($package->package_for == 'cv_search') {
+                        $this->addCompanySearchPackage($company, $package, 'Stripe', $orderAmt, $listAmt, $chargeId);
+                        EmployerPackageReceiptNotifier::sendOnce(
+                            $company,
+                            $package,
+                            $orderAmt,
+                            abs($listAmt - $orderAmt) > 0.009 ? $listAmt : null,
+                            $chargeId,
+                            'USD'
+                        );
+                    } else {
+                        $this->addCompanyPackage($company, $package, 'Stripe', $orderAmt, $listAmt, $chargeId);
+                        EmployerPackageReceiptNotifier::sendOnce(
+                            $company,
+                            $package,
+                            $orderAmt,
+                            abs($listAmt - $orderAmt) > 0.009 ? $listAmt : null,
+                            $chargeId,
+                            'USD'
+                        );
                     }
                 }
                 if (Auth::check()) {

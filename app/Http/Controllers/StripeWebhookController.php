@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Company;
 use App\Package;
+use App\Services\EmployerPackageReceiptNotifier;
 use App\Services\PackageCouponService;
 use App\StripeCheckoutSession;
 use App\Models\ResumeUnlock;
@@ -265,7 +266,11 @@ class StripeWebhookController extends Controller
         }
 
         try {
-            $this->addCompanyPackage($company, $package, 'Stripe');
+            $paidCents = (int) ($session['amount_total'] ?? 0);
+            $paidAmount = $paidCents > 0 ? round($paidCents / 100, 2) : (float) $package->package_price;
+            $listPrice = (float) $package->package_price;
+
+            $this->addCompanyPackage($company, $package, 'Stripe', $paidAmount, $listPrice, $sessionId);
             app(PackageCouponService::class)->redeemEmployerStripeCheckout(
                 $record,
                 $package,
@@ -273,6 +278,15 @@ class StripeWebhookController extends Controller
                 strtoupper((string) ($session['currency'] ?? 'CAD'))
             );
             $record->update(['status' => 'completed']);
+
+            EmployerPackageReceiptNotifier::sendOnce(
+                $company,
+                $package,
+                $paidAmount,
+                abs($listPrice - $paidAmount) > 0.009 ? $listPrice : null,
+                $sessionId,
+                strtoupper((string) ($session['currency'] ?? 'CAD'))
+            );
 
             // Store Stripe customer and subscription IDs for recurring packages
             if ($package->type === 'monthly_recurring') {

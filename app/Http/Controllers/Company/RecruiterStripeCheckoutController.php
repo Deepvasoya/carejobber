@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Package;
 use App\PackageCoupon;
+use App\Services\EmployerPackageReceiptNotifier;
 use App\Services\PackageCouponService;
 use App\StripeCheckoutSession;
 use App\Traits\CompanyPackageTrait;
@@ -396,11 +397,24 @@ class RecruiterStripeCheckoutController extends Controller
         }
 
         try {
-            $this->addCompanyPackage($company, $package, 'Stripe');
+            $paidCents = (int) ($session->amount_total ?? 0);
+            $paidAmount = $paidCents > 0 ? round($paidCents / 100, 2) : (float) $package->package_price;
+            $listPrice = (float) $package->package_price;
+
+            $this->addCompanyPackage($company, $package, 'Stripe', $paidAmount, $listPrice, $sessionId);
             app(PackageCouponService::class)->redeemEmployerStripeCheckout(
                 $record,
                 $package,
                 isset($session->amount_total) ? (int) $session->amount_total : null,
+                strtoupper((string) ($session->currency ?? 'CAD'))
+            );
+
+            EmployerPackageReceiptNotifier::sendOnce(
+                $company,
+                $package,
+                $paidAmount,
+                abs($listPrice - $paidAmount) > 0.009 ? $listPrice : null,
+                $sessionId,
                 strtoupper((string) ($session->currency ?? 'CAD'))
             );
             \Log::info('[StripeSuccess] addCompanyPackage completed', [

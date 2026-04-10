@@ -16,6 +16,7 @@ class PaymentHistory extends Model
         'package_type',
         'package_title',
         'package_price',
+        'package_list_price',
         'payment_method',
         'assigned_by',
         'transaction_id',

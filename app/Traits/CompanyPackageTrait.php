@@ -21,8 +21,12 @@ trait CompanyPackageTrait
 
 
 
-    public function addCompanyPackage($company, $package,$method='')
-
+    /**
+     * @param  float|null  $amountPaid  Actual amount charged (e.g. Stripe after coupon); defaults to package price
+     * @param  float|null  $listPrice  Catalog / list price before discount
+     * @param  string|null  $transactionId  Gateway reference (e.g. Stripe Checkout session id)
+     */
+    public function addCompanyPackage($company, $package, $method = '', $amountPaid = null, $listPrice = null, $transactionId = null)
     {
 
         $now = Carbon::now();
@@ -61,12 +65,16 @@ trait CompanyPackageTrait
 
         $company->update();
         
-        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'job', $jobsListings, 0);
+        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'job', $jobsListings, 0, $amountPaid, $listPrice, $transactionId);
 
     }
 
-    public function addCompanySearchPackage($company, $package,$method='')
-
+    /**
+     * @param  float|null  $amountPaid  Actual amount charged
+     * @param  float|null  $listPrice  Catalog price
+     * @param  string|null  $transactionId  Gateway reference
+     */
+    public function addCompanySearchPackage($company, $package, $method = '', $amountPaid = null, $listPrice = null, $transactionId = null)
     {
 
         $now = Carbon::now();
@@ -94,7 +102,7 @@ trait CompanyPackageTrait
         $company->update();
         
         // Log transaction in payment_history
-        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'cv_search', 0, $cvsListings);
+        $this->logCompanyPayment($company, $package, $method, $startDate, $endDate, 'cv_search', 0, $cvsListings, $amountPaid, $listPrice, $transactionId);
 
        
 
@@ -151,8 +159,19 @@ trait CompanyPackageTrait
     /**
      * Log company payment to payment_history table
      */
-    protected function logCompanyPayment($company, $package, $paymentMethod, $startDate, $endDate, $packageType, $jobsQuota, $cvsQuota)
-    {
+    protected function logCompanyPayment(
+        $company,
+        $package,
+        $paymentMethod,
+        $startDate,
+        $endDate,
+        $packageType,
+        $jobsQuota,
+        $cvsQuota,
+        $amountPaid = null,
+        $listPrice = null,
+        $transactionId = null
+    ) {
         try {
             // Determine if this was admin assigned
             $assignedBy = null;
@@ -160,7 +179,11 @@ trait CompanyPackageTrait
                 $paymentMethod = 'Admin Assign';
                 $assignedBy = Auth::guard('admin')->check() ? Auth::guard('admin')->id() : null;
             }
-            
+
+            $list = $listPrice !== null ? (float) $listPrice : (float) $package->package_price;
+            $paid = $amountPaid !== null ? (float) $amountPaid : $list;
+            $listColumn = (abs($list - $paid) > 0.009) ? $list : null;
+
             PaymentHistory::create([
                 'company_id' => $company->id,
                 'user_id' => null,
@@ -168,10 +191,11 @@ trait CompanyPackageTrait
                 'package_id' => $package->id,
                 'package_type' => $packageType,
                 'package_title' => $package->package_title,
-                'package_price' => $package->package_price,
+                'package_price' => $paid,
+                'package_list_price' => $listColumn,
                 'payment_method' => $paymentMethod,
                 'assigned_by' => $assignedBy,
-                'transaction_id' => null, // Will be updated by payment gateway if needed
+                'transaction_id' => $transactionId,
                 'package_start_date' => $startDate,
                 'package_end_date' => $endDate,
                 'jobs_quota' => $jobsQuota,

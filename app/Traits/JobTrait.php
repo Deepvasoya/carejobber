@@ -490,6 +490,12 @@ trait JobTrait
 
         $company = Auth::guard('company')->user();
 
+        if (Gate::forUser($company)->denies('canPostJob')) {
+            Session::flash('error', __('You have no job posting credits left. Please choose a package before continuing.'));
+
+            return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
+        }
+
 		
 
 		$countries = DataArrayHelper::langCountriesArray();
@@ -555,7 +561,7 @@ trait JobTrait
     $isDraft = $request->isDraftAction();
 
     if (! $isDraft && Gate::forUser($company)->denies('canPostJob')) {
-        Session::flash('error', __('Please purchase a package to post jobs.'));
+        Session::flash('error', __('You have no job posting credits left. Please choose a package before continuing.'));
         return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
     }
 
@@ -745,7 +751,7 @@ trait JobTrait
         }
 
         if (Gate::forUser($company)->denies('canPostJob')) {
-            Session::flash('error', __('Please purchase a package to post jobs.'));
+            Session::flash('error', __('You have no job posting credits left. Please choose a package before continuing.'));
 
             return Redirect::route('recruiter.posting.packages', ['cc' => $company->country_code ?? 'CA']);
         }
