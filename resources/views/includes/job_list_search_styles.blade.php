@@ -608,14 +608,19 @@
             line-height: 1.45;
         }
 
-        ul.home-featured-jobs-2col.job-search-list-single {
+        /* Homepage "Urgent & Featured Jobs": restore gutters (base rule zeros li padding with higher specificity). */
+        ul.featuredlist.row.home-featured-jobs-2col.job-search-list-single {
             margin-left: 0;
             margin-right: 0;
+            --bs-gutter-x: 20px;
+            --bs-gutter-y: 20px;
         }
 
-        ul.home-featured-jobs-2col.job-search-list-single > li {
+        ul.featuredlist.row.home-featured-jobs-2col.job-search-list-single > li {
             padding-left: calc(var(--bs-gutter-x) * 0.5);
             padding-right: calc(var(--bs-gutter-x) * 0.5);
+            padding-top: calc(var(--bs-gutter-y) * 0.5);
+            padding-bottom: calc(var(--bs-gutter-y) * 0.5);
         }
     </style>
 @endpush
