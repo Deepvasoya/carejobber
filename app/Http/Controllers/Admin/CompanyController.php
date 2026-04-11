@@ -221,7 +221,22 @@ class CompanyController extends Controller
                         })
                         ->addColumn('package', function ($payment) {
                             $badgeClass = ($payment->package_type == 'cv_search') ? 'badge-success' : 'badge-primary';
-                            return '<span class="badge ' . $badgeClass . '">' . $payment->package_title . ' ($' . $payment->package_price . ')</span>';
+                            $listPrice = $payment->package_list_price ?? $payment->package_price;
+                            $paidPrice = $payment->package_price;
+                            $hasDiscount = abs($listPrice - $paidPrice) > 0.009;
+                            
+                            $html = '<span class="badge ' . $badgeClass . '">' . $payment->package_title . '</span><br>';
+                            
+                            if ($hasDiscount) {
+                                $discount = $listPrice - $paidPrice;
+                                $html .= '<small class="text-muted" style="text-decoration: line-through;">$' . number_format($listPrice, 2) . '</small> ';
+                                $html .= '<strong style="color: #17D27C;">$' . number_format($paidPrice, 2) . '</strong><br>';
+                                $html .= '<small class="text-success"><i class="fa fa-tag"></i> Saved $' . number_format($discount, 2) . '</small>';
+                            } else {
+                                $html .= '<strong>$' . number_format($paidPrice, 2) . '</strong>';
+                            }
+                            
+                            return $html;
                         })
                         ->addColumn('quota', function ($payment) {
                             if ($payment->package_type == 'job') {

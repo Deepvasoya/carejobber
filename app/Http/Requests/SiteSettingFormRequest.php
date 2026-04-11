@@ -27,7 +27,7 @@ class SiteSettingFormRequest extends Request
         return [
             'site_name' => 'required|max:100',
             'site_slogan' => 'required|max:150',
-            'image' => 'image',
+            'image' => 'mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'site_phone_primary' => 'required|max:20',
             'site_phone_secondary' => 'max:20',
             'mail_host' => 'max:100',
@@ -66,6 +66,8 @@ class SiteSettingFormRequest extends Request
             'site_name.required' => 'Please enter site name.',
             'site_slogan.required' => 'Please enter site slogan.',
             'image.required' => 'Please select image.',
+            'image.mimes' => 'Logo must be a file of type: jpeg, png, jpg, gif, svg, webp',
+            'image.max' => 'Logo file size must not exceed 2MB',
             'site_phone_primary.required' => 'Please enter site primary phone number.',
             'mail_from_address.required' => 'Please enter site email from address.',
             'mail_from_name.required' => 'Please enter site email from name.',

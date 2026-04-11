@@ -29,6 +29,7 @@
                     <div class="portlet-title">
                         <div class="caption"> <i class="icon-settings font-dark"></i> <span class="caption-subject font-dark sbold uppercase">FAQs</span> </div>
                         <div class="actions">
+                            <a href="{{ route('list.faq.categories') }}" class="btn btn-xs btn-info"><i class="fa fa-folder"></i> Manage Categories</a>
                             <a href="{{ route('create.faq') }}" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-plus"></i> Add New FAQ</a>
                         </div>
                     </div>

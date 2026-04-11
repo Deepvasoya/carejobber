@@ -1253,12 +1253,16 @@ private function extractEnglishText($text)
             ->leftJoin('functional_areas', 'functional_areas.id', '=', 'jobs.functional_area_id')
             ->leftJoin('job_types', 'job_types.id', '=', 'jobs.job_type_id')
             ->where('jobs.is_active', 1)
-            ->where(function ($q) {
-                $q->where('jobs.is_urgent', 1)->orWhere('jobs.is_featured', 1);
-            })
+            ->wherePromotionUrgentOrFeaturedActive()
             ->where('jobs.expiry_date', '>', now())
-            ->orderBy('jobs.is_urgent', 'desc')
-            ->orderBy('jobs.is_featured', 'desc')
+            ->orderByRaw(
+                'CASE WHEN jobs.is_urgent = 1 AND ((jobs.promotion_urgent_until IS NOT NULL AND jobs.promotion_urgent_until >= ?) OR (jobs.promotion_urgent_until IS NULL AND (jobs.display_end_date IS NULL OR jobs.display_end_date >= ?))) THEN 1 ELSE 0 END DESC',
+                [now(), now()]
+            )
+            ->orderByRaw(
+                'CASE WHEN jobs.is_featured = 1 AND ((jobs.promotion_featured_until IS NOT NULL AND jobs.promotion_featured_until >= ?) OR (jobs.promotion_featured_until IS NULL AND (jobs.display_end_date IS NULL OR jobs.display_end_date >= ?))) THEN 1 ELSE 0 END DESC',
+                [now(), now()]
+            )
             ->orderBy('jobs.created_at', 'desc')
             ->take(6)
             ->get();

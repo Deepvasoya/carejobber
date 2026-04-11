@@ -41,12 +41,8 @@ class JobPromotionCheckoutController extends Controller
             return redirect()->route('posted.jobs')->with('error', __('Job not found.'));
         }
 
-        $b = JobPromotionPricing::promotionBoolsFromPending($pending);
-        $pack = JobPromotionPricing::buildLineItems(
-            $b['promote_featured'],
-            $b['promote_urgent'],
-            $b['promote_highlighted']
-        );
+        $b = JobPromotionPricing::paymentFlagsFromPending($pending);
+        $pack = JobPromotionPricing::packFromPending($pending);
 
         if (isset($pending['total_cents']) && (int) $pending['total_cents'] !== (int) $pack['total_cents']) {
             Log::warning('[JobPromotions] Session total_cents does not match recomputed line items', [
@@ -83,9 +79,11 @@ class JobPromotionCheckoutController extends Controller
                 'type' => 'job_promotions',
                 'company_id' => (string) $company->id,
                 'job_id' => (string) $job->id,
-                'promote_featured' => $b['promote_featured'] ? '1' : '0',
-                'promote_urgent' => $b['promote_urgent'] ? '1' : '0',
-                'promote_highlighted' => $b['promote_highlighted'] ? '1' : '0',
+                'promote_featured' => $b['pay_featured'] ? '1' : '0',
+                'promote_urgent' => $b['pay_urgent'] ? '1' : '0',
+                'promote_highlighted' => $b['pay_highlighted'] ? '1' : '0',
+                'promote_urgent_days' => (string) ($pending['promote_urgent_days'] ?? '0'),
+                'promote_featured_days' => (string) ($pending['promote_featured_days'] ?? '0'),
             ],
             'customer_email' => $company->email,
         ];
@@ -204,25 +202,17 @@ class JobPromotionCheckoutController extends Controller
             return false;
         }
 
-        if (($metadata['promote_featured'] ?? '0') === '1') {
-            $job->is_featured = true;
-        }
-        if (($metadata['promote_urgent'] ?? '0') === '1') {
-            $job->is_urgent = true;
-        }
-        if (($metadata['promote_highlighted'] ?? '0') === '1') {
-            $job->is_highlighted = true;
-        }
-
-        $job->save();
+        JobPromotionPricing::fulfillFromStripeMetadata($job, $metadata);
 
         $price = $amountTotalCents !== null ? round($amountTotalCents / 100, 2) : 0.0;
         $labelParts = [];
         if (($metadata['promote_featured'] ?? '0') === '1') {
-            $labelParts[] = __('Featured');
+            $days = (int) ($metadata['promote_featured_days'] ?? 0);
+            $labelParts[] = $days > 0 ? __('Featured (:days d)', ['days' => $days]) : __('Featured');
         }
         if (($metadata['promote_urgent'] ?? '0') === '1') {
-            $labelParts[] = __('Urgent');
+            $days = (int) ($metadata['promote_urgent_days'] ?? 0);
+            $labelParts[] = $days > 0 ? __('Urgent (:days d)', ['days' => $days]) : __('Urgent');
         }
         if (($metadata['promote_highlighted'] ?? '0') === '1') {
             $labelParts[] = __('Highlighted');

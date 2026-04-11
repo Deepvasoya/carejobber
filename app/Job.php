@@ -8,6 +8,7 @@ use App\Traits\Active;
 use App\Traits\Featured;
 use App\Traits\JobTrait;
 use App\Traits\CountryStateCity;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
@@ -26,9 +27,109 @@ class Job extends Model
     protected $casts = [
         'expiry_date' => 'datetime',
         'display_end_date' => 'datetime',
+        'promotion_urgent_until' => 'datetime',
+        'promotion_featured_until' => 'datetime',
+        'promotion_highlighted_until' => 'datetime',
         'is_draft' => 'boolean',
         'custom_field_data' => 'array',
     ];
+
+    public function isPromotionUrgentActive(): bool
+    {
+        if (! (int) $this->is_urgent) {
+            return false;
+        }
+        if ($this->promotion_urgent_until === null) {
+            return $this->display_end_date === null || $this->display_end_date >= now();
+        }
+
+        return $this->promotion_urgent_until >= now();
+    }
+
+    public function isPromotionFeaturedActive(): bool
+    {
+        if (! (int) $this->is_featured) {
+            return false;
+        }
+        if ($this->promotion_featured_until === null) {
+            return $this->display_end_date === null || $this->display_end_date >= now();
+        }
+
+        return $this->promotion_featured_until >= now();
+    }
+
+    public function isPromotionHighlightedActive(): bool
+    {
+        if (! (int) $this->is_highlighted) {
+            return false;
+        }
+        if ($this->promotion_highlighted_until === null) {
+            return $this->display_end_date === null || $this->display_end_date >= now();
+        }
+
+        return $this->promotion_highlighted_until >= now();
+    }
+
+    public function scopeWherePromotionUrgentActive(Builder $query): Builder
+    {
+        return $query->where('jobs.is_urgent', 1)
+            ->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('jobs.promotion_urgent_until')
+                        ->where('jobs.promotion_urgent_until', '>=', now());
+                })->orWhere(function ($q2) {
+                    $q2->whereNull('jobs.promotion_urgent_until')
+                        ->where(function ($q3) {
+                            $q3->whereNull('jobs.display_end_date')
+                                ->orWhere('jobs.display_end_date', '>=', now());
+                        });
+                });
+            });
+    }
+
+    public function scopeWherePromotionFeaturedActive(Builder $query): Builder
+    {
+        return $query->where('jobs.is_featured', 1)
+            ->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('jobs.promotion_featured_until')
+                        ->where('jobs.promotion_featured_until', '>=', now());
+                })->orWhere(function ($q2) {
+                    $q2->whereNull('jobs.promotion_featured_until')
+                        ->where(function ($q3) {
+                            $q3->whereNull('jobs.display_end_date')
+                                ->orWhere('jobs.display_end_date', '>=', now());
+                        });
+                });
+            });
+    }
+
+    public function scopeWherePromotionUrgentOrFeaturedActive(Builder $query): Builder
+    {
+        return $query->where(function ($q) {
+            $q->where(function ($sub) {
+                $sub->wherePromotionUrgentActive();
+            })->orWhere(function ($sub) {
+                $sub->wherePromotionFeaturedActive();
+            });
+        });
+    }
+
+    public static function orderByPromotionPriority(Builder $query): Builder
+    {
+        $now = now();
+
+        return $query
+            ->orderByRaw(
+                'CASE WHEN jobs.is_urgent = 1 AND ((jobs.promotion_urgent_until IS NOT NULL AND jobs.promotion_urgent_until >= ?) OR (jobs.promotion_urgent_until IS NULL AND (jobs.display_end_date IS NULL OR jobs.display_end_date >= ?))) THEN 1 ELSE 0 END DESC',
+                [$now, $now]
+            )
+            ->orderByRaw(
+                'CASE WHEN jobs.is_featured = 1 AND ((jobs.promotion_featured_until IS NOT NULL AND jobs.promotion_featured_until >= ?) OR (jobs.promotion_featured_until IS NULL AND (jobs.display_end_date IS NULL OR jobs.display_end_date >= ?))) THEN 1 ELSE 0 END DESC',
+                [$now, $now]
+            )
+            ->orderBy('jobs.id', 'DESC');
+    }
     
     /**
      * Scope to filter jobs that are still within display duration.

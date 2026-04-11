@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\User;
+use App\Services\EmailTemplateService;
 
 class IncompleteProfileReminderMailable extends Mailable
 {
@@ -35,17 +36,38 @@ class IncompleteProfileReminderMailable extends Mailable
     {
         $recipientAddress = config('mail.recieve_to.address');
         $recipientName = config('mail.recieve_to.name');
-    
+
+        // Prepare data for template
+        $data = [
+            'USER_NAME' => $this->user->name,
+            'PROFILE_URL' => $this->profileUrl,
+            'MISSING_FIELDS' => !empty($this->missingFields) ? implode(', ', $this->missingFields) : 'several fields'
+        ];
+
+        // Get parsed template
+        $parsed = EmailTemplateService::parseTemplate('incomplete-profile', $data);
+
+        if (!$parsed) {
+            // Fallback to old method if template not found
+            return $this->from([
+                'address' => $recipientAddress,
+                'name' => $recipientName,
+            ])
+            ->subject(__('Complete Your Profile') . ' - ' . config('app.name'))
+            ->view('emails.incomplete_profile_reminder')
+            ->with([
+                'user' => $this->user,
+                'profileUrl' => $this->profileUrl,
+                'missingFields' => $this->missingFields
+            ]);
+        }
+
         return $this->from([
             'address' => $recipientAddress,
             'name' => $recipientName,
         ])
-        ->subject(__('Complete Your Profile') . ' - ' . config('app.name'))
-        ->view('emails.incomplete_profile_reminder')
-        ->with([
-            'user' => $this->user,
-            'profileUrl' => $this->profileUrl,
-            'missingFields' => $this->missingFields
-        ]);
+        ->to($this->user->email, $this->user->name)
+        ->subject($parsed['subject'])
+        ->html($parsed['body']);
     }
 }

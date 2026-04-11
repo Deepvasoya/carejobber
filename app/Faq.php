@@ -23,4 +23,12 @@ class Faq extends Model
     //protected $dateFormat = 'U';
     protected $dates = ['created_at', 'updated_at'];
 
+    /**
+     * Get the category that owns the FAQ.
+     */
+    public function category()
+    {
+        return $this->belongsTo(FaqCategory::class, 'faq_category_id', 'id');
+    }
+
 }

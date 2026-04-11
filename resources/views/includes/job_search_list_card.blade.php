@@ -10,20 +10,20 @@
     $benefitLines = $job->getBenefitsPreviewLines(4);
     $expired = $job->isJobExpired();
 @endphp
-<li class="{{ $columnClass }} @if ($job->is_featured == 1) featured @endif">
+<li class="{{ $columnClass }} @if ($job->isPromotionFeaturedActive()) featured @endif">
     <div
-        class="jobint job-list-card-enhanced job-list-card-compact @if (!empty($job->is_highlighted) && !$hasApplied) job-card-highlighted @endif @if ($hasApplied) job-list-card-applied @endif">
+        class="jobint job-list-card-enhanced job-list-card-compact @if ($job->isPromotionHighlightedActive() && !$hasApplied) job-card-highlighted @endif @if ($hasApplied) job-list-card-applied @endif">
         <div class="job-list-card-top">
             <div class="job-list-card-badges">
-                @if (!empty($job->is_urgent))
+                @if ($job->isPromotionUrgentActive())
                     <span class="job-list-pill job-list-pill-urgent"><i class="fas fa-fire"></i>
                         {{ __('Urgent hiring') }}</span>
                 @endif
-                @if (!empty($job->is_featured))
+                @if ($job->isPromotionFeaturedActive())
                     <span class="job-list-pill job-list-pill-featured"><i class="fas fa-bolt"></i>
                         {{ __('Featured job') }}</span>
                 @endif
-                @if (!empty($job->is_highlighted))
+                @if ($job->isPromotionHighlightedActive())
                     <span class="job-list-pill job-list-pill-highlight"><i class="fas fa-star"></i>
                         {{ __('Highlighted') }}</span>
                 @endif

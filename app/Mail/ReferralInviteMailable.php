@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use App\Company;
+use App\Services\EmailTemplateService;
 
 class ReferralInviteMailable extends Mailable
 {
@@ -35,16 +36,37 @@ class ReferralInviteMailable extends Mailable
     {
         $recipientAddress = config('mail.recieve_to.address');
         $recipientName = config('mail.recieve_to.name');
-    
+
+        // Prepare data for template
+        $data = [
+            'REFERRER_NAME' => $this->referrerCompany->name,
+            'REFERRAL_LINK' => $this->referralLink,
+            'INVITED_EMAIL' => $this->invitedEmail
+        ];
+
+        // Get parsed template
+        $parsed = EmailTemplateService::parseTemplate('referral-invite-company', $data);
+
+        if (!$parsed) {
+            // Fallback to old method if template not found
+            return $this->from([
+                'address' => $recipientAddress,
+                'name' => $recipientName,
+            ])
+            ->subject(__('You have been invited to join') . ' ' . config('app.name'))
+            ->view('emails.referral_invite')
+            ->with([
+                'referrerCompany' => $this->referrerCompany,
+                'referralLink' => $this->referralLink
+            ]);
+        }
+
         return $this->from([
             'address' => $recipientAddress,
             'name' => $recipientName,
         ])
-        ->subject(__('You have been invited to join') . ' ' . config('app.name'))
-        ->view('emails.referral_invite')
-        ->with([
-            'referrerCompany' => $this->referrerCompany,
-            'referralLink' => $this->referralLink
-        ]);
+        ->to($this->invitedEmail)
+        ->subject($parsed['subject'])
+        ->html($parsed['body']);
     }
 }

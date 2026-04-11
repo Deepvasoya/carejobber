@@ -16,12 +16,14 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         'App\Events\UserRegistered' => [
             'App\Listeners\UserRegisterdListener',
+            'App\Listeners\SendCandidateRecommendationsListener',
         ],
         'App\Events\CompanyRegistered' => [
             'App\Listeners\CompanyRegisterdListener',
         ],
         'App\Events\JobPosted' => [
             'App\Listeners\JobPostedListener',
+            'App\Listeners\SendJobRecommendationsListener',
         ],
         'App\Events\JobApplied' => [
             'App\Listeners\JobAppliedJobSeekerListener',

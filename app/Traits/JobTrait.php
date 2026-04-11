@@ -569,7 +569,7 @@ trait JobTrait
         app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedJobRequest($request);
     }
 
-    $pending = $isDraft ? ['total_cents' => 0, 'promote_featured' => false, 'promote_urgent' => false, 'promote_highlighted' => false] : JobPromotionPricing::pendingForNewJob($request);
+    $pending = $isDraft ? ['total_cents' => 0, 'pay_urgent' => false, 'pay_featured' => false, 'pay_highlighted' => false] : JobPromotionPricing::pendingForNewJob($request);
 
     $job = new Job();
     $job->company_id = $company->id;
@@ -582,13 +582,18 @@ trait JobTrait
         $job->is_urgent = false;
         $job->is_highlighted = false;
     } elseif ($pending['total_cents'] > 0) {
-        $job->is_featured = false;
-        $job->is_urgent = false;
-        $job->is_highlighted = false;
-    } else {
-        $job->is_featured = $request->boolean('promote_featured');
-        $job->is_urgent = $request->boolean('promote_urgent');
-        $job->is_highlighted = $request->boolean('promote_highlighted');
+        if (! empty($pending['pay_urgent'])) {
+            $job->is_urgent = false;
+            $job->promotion_urgent_until = null;
+        }
+        if (! empty($pending['pay_featured'])) {
+            $job->is_featured = false;
+            $job->promotion_featured_until = null;
+        }
+        if (! empty($pending['pay_highlighted'])) {
+            $job->is_highlighted = false;
+            $job->promotion_highlighted_until = null;
+        }
     }
     $job->save();
 
@@ -604,6 +609,7 @@ trait JobTrait
         $job->display_duration_days = $displayDuration;
         $job->display_end_date = Carbon::now()->addDays($displayDuration);
         $job->update();
+        JobPromotionPricing::reconcilePromotionsAfterSave($job, $request, $pending);
     }
 
     $this->storeJobSkills($request, $job->id);
@@ -629,9 +635,12 @@ trait JobTrait
     if ($pending['total_cents'] > 0) {
         Session::put('pending_job_promotions', [
             'job_id' => $job->id,
-            'promote_featured' => $pending['promote_featured'] ? 1 : 0,
-            'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
-            'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+            'pay_urgent' => ! empty($pending['pay_urgent']) ? 1 : 0,
+            'pay_featured' => ! empty($pending['pay_featured']) ? 1 : 0,
+            'pay_highlighted' => ! empty($pending['pay_highlighted']) ? 1 : 0,
+            'promote_urgent_days' => (int) $pending['promote_urgent_days'],
+            'promote_featured_days' => (int) $pending['promote_featured_days'],
+            'promote_highlighted' => (int) $pending['promote_highlighted'],
             'total_cents' => (int) $pending['total_cents'],
         ]);
         flash(__('Job saved. Complete payment to activate your listing upgrades.'))->info();
@@ -736,6 +745,9 @@ trait JobTrait
             $job->is_featured = false;
             $job->is_urgent = false;
             $job->is_highlighted = false;
+            $job->promotion_urgent_until = null;
+            $job->promotion_featured_until = null;
+            $job->promotion_highlighted_until = null;
             $job->slug = $this->makeJobSlug($job);
             $job->display_duration_days = (int) $request->input('display_duration_days', $job->display_duration_days ?? 30);
             $job->display_end_date = null;
@@ -763,13 +775,18 @@ trait JobTrait
         if ($wasDraft) {
             $pending = JobPromotionPricing::pendingForNewJob($request);
             if ($pending['total_cents'] > 0) {
-                $job->is_featured = false;
-                $job->is_urgent = false;
-                $job->is_highlighted = false;
-            } else {
-                $job->is_featured = $request->boolean('promote_featured');
-                $job->is_urgent = $request->boolean('promote_urgent');
-                $job->is_highlighted = $request->boolean('promote_highlighted');
+                if (! empty($pending['pay_urgent'])) {
+                    $job->is_urgent = false;
+                    $job->promotion_urgent_until = null;
+                }
+                if (! empty($pending['pay_featured'])) {
+                    $job->is_featured = false;
+                    $job->promotion_featured_until = null;
+                }
+                if (! empty($pending['pay_highlighted'])) {
+                    $job->is_highlighted = false;
+                    $job->promotion_highlighted_until = null;
+                }
             }
             $job->is_draft = false;
             $job->is_active = ($settings->auto_approval_job == 1) ? 1 : 0;
@@ -778,6 +795,8 @@ trait JobTrait
             $job->display_end_date = Carbon::now()->addDays($displayDuration);
             $job->slug = $this->makeJobSlug($job);
             $job->update();
+
+            JobPromotionPricing::reconcilePromotionsAfterSave($job, $request, $pending);
 
             $company->availed_jobs_quota = $company->availed_jobs_quota + 1;
             $company->update();
@@ -796,9 +815,12 @@ trait JobTrait
             if ($pending['total_cents'] > 0) {
                 Session::put('pending_job_promotions', [
                     'job_id' => $job->id,
-                    'promote_featured' => $pending['promote_featured'] ? 1 : 0,
-                    'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
-                    'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+                    'pay_urgent' => ! empty($pending['pay_urgent']) ? 1 : 0,
+                    'pay_featured' => ! empty($pending['pay_featured']) ? 1 : 0,
+                    'pay_highlighted' => ! empty($pending['pay_highlighted']) ? 1 : 0,
+                    'promote_urgent_days' => (int) $pending['promote_urgent_days'],
+                    'promote_featured_days' => (int) $pending['promote_featured_days'],
+                    'promote_highlighted' => (int) $pending['promote_highlighted'],
                     'total_cents' => (int) $pending['total_cents'],
                 ]);
                 flash(__('Job saved. Complete payment to activate your listing upgrades.'))->info();
@@ -813,34 +835,6 @@ trait JobTrait
 
         $pending = JobPromotionPricing::pendingForUpdate($request, $job);
 
-        $wantF = $request->boolean('promote_featured');
-        $wantU = $request->boolean('promote_urgent');
-        $wantH = $request->boolean('promote_highlighted');
-
-        if (! $wantF) {
-            $job->is_featured = false;
-        } elseif ($pending['promote_featured']) {
-            $job->is_featured = false;
-        } else {
-            $job->is_featured = true;
-        }
-
-        if (! $wantU) {
-            $job->is_urgent = false;
-        } elseif ($pending['promote_urgent']) {
-            $job->is_urgent = false;
-        } else {
-            $job->is_urgent = true;
-        }
-
-        if (! $wantH) {
-            $job->is_highlighted = false;
-        } elseif ($pending['promote_highlighted']) {
-            $job->is_highlighted = false;
-        } else {
-            $job->is_highlighted = true;
-        }
-
         $job->slug = $this->makeJobSlug($job);
 
         $displayDuration = (int) $request->input('display_duration_days', 30);
@@ -849,7 +843,24 @@ trait JobTrait
             $job->display_end_date = Carbon::now()->addDays($displayDuration);
         }
 
+        if ($pending['total_cents'] > 0) {
+            if (! empty($pending['pay_urgent'])) {
+                $job->is_urgent = false;
+                $job->promotion_urgent_until = null;
+            }
+            if (! empty($pending['pay_featured'])) {
+                $job->is_featured = false;
+                $job->promotion_featured_until = null;
+            }
+            if (! empty($pending['pay_highlighted'])) {
+                $job->is_highlighted = false;
+                $job->promotion_highlighted_until = null;
+            }
+        }
+
         $job->update();
+
+        JobPromotionPricing::reconcilePromotionsAfterSave($job, $request, $pending);
 
         if ($wasExpired) {
             $company->availed_jobs_quota = $company->availed_jobs_quota + 1;
@@ -864,9 +875,12 @@ trait JobTrait
         if ($pending['total_cents'] > 0) {
             Session::put('pending_job_promotions', [
                 'job_id' => $job->id,
-                'promote_featured' => $pending['promote_featured'] ? 1 : 0,
-                'promote_urgent' => $pending['promote_urgent'] ? 1 : 0,
-                'promote_highlighted' => $pending['promote_highlighted'] ? 1 : 0,
+                'pay_urgent' => ! empty($pending['pay_urgent']) ? 1 : 0,
+                'pay_featured' => ! empty($pending['pay_featured']) ? 1 : 0,
+                'pay_highlighted' => ! empty($pending['pay_highlighted']) ? 1 : 0,
+                'promote_urgent_days' => (int) $pending['promote_urgent_days'],
+                'promote_featured_days' => (int) $pending['promote_featured_days'],
+                'promote_highlighted' => (int) $pending['promote_highlighted'],
                 'total_cents' => (int) $pending['total_cents'],
             ]);
             flash(__('Job updated. Complete payment to activate new listing upgrades.'))->info();

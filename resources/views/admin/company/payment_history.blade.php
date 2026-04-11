@@ -386,10 +386,18 @@
                     html += '<h5><strong><span class="label label-primary">Job Package</span></strong></h5><br>';
                     html += '<p><strong>Package:</strong> ' + response.job_package.package_title + '</p>';
                     var paid = response.payment ? parseFloat(response.payment.package_price) : parseFloat(response.job_package.package_price);
-                    html += '<p><strong>Amount paid:</strong> $' + paid.toFixed(2) + '</p>';
-                    if (response.payment && response.payment.package_list_price && parseFloat(response.payment.package_list_price) > paid + 0.001) {
-                        html += '<p><strong>List price:</strong> $' + parseFloat(response.payment.package_list_price).toFixed(2) + '</p>';
+                    var listPrice = response.payment && response.payment.package_list_price ? parseFloat(response.payment.package_list_price) : paid;
+                    var hasDiscount = listPrice > paid + 0.001;
+                    
+                    if (hasDiscount) {
+                        var discount = listPrice - paid;
+                        html += '<p><strong>Regular price:</strong> <span style="text-decoration: line-through;">$' + listPrice.toFixed(2) + '</span></p>';
+                        html += '<p><strong>Discount:</strong> <span style="color: #17D27C;">-$' + discount.toFixed(2) + '</span></p>';
+                        html += '<p><strong>Total paid:</strong> <strong style="color: #17D27C; font-size: 18px;">$' + paid.toFixed(2) + '</strong></p>';
+                    } else {
+                        html += '<p><strong>Amount paid:</strong> $' + paid.toFixed(2) + '</p>';
                     }
+                    
                     html += '<p><strong>Duration:</strong> ' + response.job_package.package_num_days + ' days</p>';
                     html += '<p><strong>Jobs Quota:</strong> ' + response.company.availed_jobs_quota + '/' + response.company.jobs_quota + '</p>';
                     html += '<p><strong>Start Date:</strong> ' + (response.company.package_start_date ? new Date(response.company.package_start_date).toLocaleDateString() : 'N/A') + '</p>';
@@ -403,10 +411,18 @@
                     html += '<h5><strong><span class="label label-success">CV Search Package</span></strong></h5><br>';
                     html += '<p><strong>Package:</strong> ' + response.cv_package.package_title + '</p>';
                     var paidCv = response.payment ? parseFloat(response.payment.package_price) : parseFloat(response.cv_package.package_price);
-                    html += '<p><strong>Amount paid:</strong> $' + paidCv.toFixed(2) + '</p>';
-                    if (response.payment && response.payment.package_list_price && parseFloat(response.payment.package_list_price) > paidCv + 0.001) {
-                        html += '<p><strong>List price:</strong> $' + parseFloat(response.payment.package_list_price).toFixed(2) + '</p>';
+                    var listPriceCv = response.payment && response.payment.package_list_price ? parseFloat(response.payment.package_list_price) : paidCv;
+                    var hasDiscountCv = listPriceCv > paidCv + 0.001;
+                    
+                    if (hasDiscountCv) {
+                        var discountCv = listPriceCv - paidCv;
+                        html += '<p><strong>Regular price:</strong> <span style="text-decoration: line-through;">$' + listPriceCv.toFixed(2) + '</span></p>';
+                        html += '<p><strong>Discount:</strong> <span style="color: #17D27C;">-$' + discountCv.toFixed(2) + '</span></p>';
+                        html += '<p><strong>Total paid:</strong> <strong style="color: #17D27C; font-size: 18px;">$' + paidCv.toFixed(2) + '</strong></p>';
+                    } else {
+                        html += '<p><strong>Amount paid:</strong> $' + paidCv.toFixed(2) + '</p>';
                     }
+                    
                     html += '<p><strong>Duration:</strong> ' + response.cv_package.package_num_days + ' days</p>';
                     html += '<p><strong>CVs Quota:</strong> ' + response.company.availed_cvs_quota + '/' + response.company.cvs_quota + '</p>';
                     html += '<p><strong>Start Date:</strong> ' + (response.company.cvs_package_start_date ? new Date(response.company.cvs_package_start_date).toLocaleDateString() : 'N/A') + '</p>';

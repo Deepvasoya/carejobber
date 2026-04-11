@@ -15,15 +15,19 @@
             <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Package') }}</th>
             <td style="padding: 10px 14px;">{{ $package->package_title }}</td>
         </tr>
-        @if($listPrice !== null && abs($listPrice - $amountPaid) > 0.009)
         <tr>
             <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Regular price') }}</th>
-            <td style="padding: 10px 14px;">{{ $currencyCode }} {{ number_format($listPrice, 2) }}</td>
+            <td style="padding: 10px 14px;">{{ $currencyCode }} {{ number_format($listPrice ?? $amountPaid, 2) }}</td>
+        </tr>
+        @if($listPrice !== null && abs($listPrice - $amountPaid) > 0.009)
+        <tr style="background: #f8fafc;">
+            <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Discount') }}</th>
+            <td style="padding: 10px 14px; color: #17D27C;"><strong>-{{ $currencyCode }} {{ number_format($listPrice - $amountPaid, 2) }}</strong></td>
         </tr>
         @endif
         <tr>
-            <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Amount paid') }}</th>
-            <td style="padding: 10px 14px;"><strong>{{ $currencyCode }} {{ number_format($amountPaid, 2) }}</strong></td>
+            <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Total paid') }}</th>
+            <td style="padding: 10px 14px;"><strong style="color: #17D27C; font-size: 18px;">{{ $currencyCode }} {{ number_format($amountPaid, 2) }}</strong></td>
         </tr>
         <tr style="background: #f8fafc;">
             <th style="text-align: left; padding: 10px 14px; font-weight: 600;">{{ __('Reference') }}</th>

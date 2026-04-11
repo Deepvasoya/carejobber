@@ -123,8 +123,17 @@
             <ul class="sub-menu">
                 @if(APAuthHelp::can('faq.view'))<li class="side-nav-item"><a href="{{ route('list.faqs') }}" class="side-nav-link">List FAQs</a></li>@endif
                 @if(APAuthHelp::can('faq.manage'))<li class="side-nav-item"><a href="{{ route('create.faq') }}" class="side-nav-link">Add FAQ</a></li>@endif
+                @if(APAuthHelp::can('faq.manage'))<li class="side-nav-item"><a href="{{ route('list.faq.categories') }}" class="side-nav-link">FAQ Categories</a></li>@endif
             </ul>
         </div>
+    </li>
+    @endif
+    @if(APAuthHelp::can('site_settings.manage'))
+    <li class="side-nav-item">
+        <a href="{{ route('list.email.templates') }}" class="side-nav-link">
+            <span class="menu-icon"><i class="ri ri-mail-settings-line"></i></span>
+            <span class="menu-text">Email Templates</span>
+        </a>
     </li>
     @endif
     @if(APAuthHelp::can('videos.view') || APAuthHelp::can('videos.manage'))

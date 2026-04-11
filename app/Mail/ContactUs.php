@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Services\EmailTemplateService;
 
 class ContactUs extends Mailable
 {
@@ -32,19 +33,42 @@ class ContactUs extends Mailable
      */
     public function build()
     {
-       $recipientAddress = config('mail.recieve_to.address');
+        $recipientAddress = config('mail.recieve_to.address');
         $recipientName = config('mail.recieve_to.name');
-        
-       return $this->from([
-        'address' => config('mail.recieve_to.address'),
-        'name' => config('mail.recieve_to.name'),
-    ])
-    
-    ->to($recipientAddress, $recipientName)
-    ->replyTo($this->data['email'], $this->data['full_name'])
-    ->subject($this->data['subject'])
-    ->view('emails.send_contact_message')
-    ->with($this->data);
+
+        // Prepare data for template
+        $templateData = [
+            'FULL_NAME' => $this->data['full_name'],
+            'EMAIL' => $this->data['email'],
+            'PHONE' => $this->data['phone'] ?? 'N/A',
+            'SUBJECT' => $this->data['subject'],
+            'MESSAGE' => $this->data['message']
+        ];
+
+        // Get parsed template
+        $parsed = EmailTemplateService::parseTemplate('contact-form', $templateData);
+
+        if (!$parsed) {
+            // Fallback to old method if template not found
+            return $this->from([
+                'address' => config('mail.recieve_to.address'),
+                'name' => config('mail.recieve_to.name'),
+            ])
+            ->to($recipientAddress, $recipientName)
+            ->replyTo($this->data['email'], $this->data['full_name'])
+            ->subject($this->data['subject'])
+            ->view('emails.send_contact_message')
+            ->with($this->data);
+        }
+
+        return $this->from([
+            'address' => config('mail.recieve_to.address'),
+            'name' => config('mail.recieve_to.name'),
+        ])
+        ->to($recipientAddress, $recipientName)
+        ->replyTo($this->data['email'], $this->data['full_name'])
+        ->subject($parsed['subject'])
+        ->html($parsed['body']);
     }
 
 }

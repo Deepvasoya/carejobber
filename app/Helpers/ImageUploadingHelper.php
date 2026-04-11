@@ -33,6 +33,23 @@ class ImageUploadingHelper
         $extension = $field->getClientOriginalExtension();
         $fileName = Str::slug($newName, '-') . '-' . time() . '-' . rand(1, 999) . '.' . $extension;
         $field->move($destinationPath, $fileName);
+        
+        // Check if file is SVG - skip resizing for SVG files
+        if (strtolower($extension) === 'svg') {
+            // For SVG files, just copy to mid and thumb folders without resizing
+            if ($makeOtherSizesImages === true) {
+                if (!file_exists($midImagePath)) {
+                    mkdir($midImagePath, 0755, true);
+                }
+                if (!file_exists($thumbImagePath)) {
+                    mkdir($thumbImagePath, 0755, true);
+                }
+                copy($destinationPath . '/' . $fileName, $midImagePath . '/' . $fileName);
+                copy($destinationPath . '/' . $fileName, $thumbImagePath . '/' . $fileName);
+            }
+            return $fileName;
+        }
+        
         /*         * **** Resizing Images ******** */
         $imageToResize = Image::make($destinationPath . '/' . $fileName);
         $imageToResize->resize(self::$mainImgWidth, self::$mainImgHeight, function ($constraint) {

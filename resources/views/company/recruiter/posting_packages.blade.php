@@ -134,10 +134,10 @@
                                 <p class="small text-muted mt-2 mb-0">{{ __('30 days, 3 job posts — one free activation every 30 days.') }}</p>
                             @endif
                         @else
-                            <a href="{{ route('recruiter.checkout.package', ['packageId' => $pkg->id, 'cc' => $country_code, 'tab' => $tab]) }}" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModalEmployer{{$pkg->id}}">
                                 {{ __('Buy now') }}
                                 <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
+                            </button>
                             <ul class="list-inline d-inline ms-3 mt-2 mb-0">
                                 <li class="list-inline-item"><i class="fab fa-cc-visa text-muted" title="Visa"></i></li>
                                 <li class="list-inline-item"><i class="fab fa-cc-mastercard text-muted" title="Mastercard"></i></li>
@@ -159,6 +159,52 @@
         <p>{{ __('Please') }} <a href="{{ url('/contact-us') }}">{{ __('contact us') }}</a> {{ __("and we'll find a personalised solution for you.") }}</p>
     </section>
 </div>
+
+<!-- Payment Gateway Modals for Employer Packages -->
+@foreach($packages as $pkg)
+@if($pkg->package_price > 0)
+<div class="modal fade" id="paymentModalEmployer{{$pkg->id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ __('Select Payment Method') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="mb-3">{{ __('Package') }}: <strong>{{$pkg->package_title}} ({{ $siteSetting->default_currency_code ?? 'CAD' }} {{number_format($pkg->package_price, 2)}})</strong></h6>
+                <div class="payment-methods" style="display: flex; flex-direction: column; gap: 10px;">
+                    @if((bool)($siteSetting->is_stripe_active ?? false))
+                    <a href="{{ route('recruiter.checkout.package', ['packageId' => $pkg->id, 'cc' => $country_code, 'tab' => $tab]) }}" class="btn btn-outline-primary text-start" style="padding: 12px 20px;">
+                        <i class="fab fa-cc-stripe me-2"></i> {{ __('Pay with Stripe') }}
+                    </a>
+                    @endif
+                    @if((bool)($siteSetting->is_paypal_active ?? false))
+                    <a href="javascript:void(0)" onclick="alert('PayPal integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
+                        <i class="fab fa-cc-paypal me-2"></i> {{ __('Pay with PayPal') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    </a>
+                    @endif
+                    @if((bool)($siteSetting->is_paystack_active ?? false))
+                    <a href="javascript:void(0)" onclick="alert('Paystack integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
+                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Paystack') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    </a>
+                    @endif
+                    @if((bool)($siteSetting->is_iyzico_active ?? false))
+                    <a href="javascript:void(0)" onclick="alert('Iyzico integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
+                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Iyzico') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    </a>
+                    @endif
+                </div>
+                @if(!(bool)($siteSetting->is_stripe_active ?? false))
+                <div class="alert alert-warning mt-3">
+                    {{ __('No payment gateways are currently configured. Please contact the administrator.') }}
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
 
 @include('includes.footer')
 @endsection

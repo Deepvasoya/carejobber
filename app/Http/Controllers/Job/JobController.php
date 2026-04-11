@@ -109,7 +109,7 @@ class JobController extends Controller
         $is_featured = $request->query('is_featured', 2);
         $order_by = $request->query('order_by', 'id');        
         $limit = 24;
-        $feature_jobs = Job::where('is_featured', 1)->notExpire()->get();
+        $feature_jobs = Job::wherePromotionFeaturedActive()->notExpire()->get();
         
 
         

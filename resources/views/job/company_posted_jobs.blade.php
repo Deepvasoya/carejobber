@@ -19,7 +19,7 @@
                     <h3>{{__('Manage Jobs')}}</h3>
                     @php
                         $listTab = request('tab', 'active');
-                        if (! in_array($listTab, ['active', 'expired', 'drafts'], true)) {
+                        if (! in_array($listTab, ['active', 'pending', 'expired', 'drafts'], true)) {
                             $listTab = 'active';
                         }
                     @endphp
@@ -28,6 +28,9 @@
                     <ul class="nav nav-tabs mt-4" id="jobTabs">
                         <li class="nav-item">
                             <a class="nav-link {{ $listTab === 'active' ? 'active' : '' }}" id="active-tab" data-toggle="tab" href="#active-jobs">{{__('Active Jobs')}}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ $listTab === 'pending' ? 'active' : '' }}" id="pending-tab" data-toggle="tab" href="#pending-jobs">{{__('Pending Jobs')}}</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ $listTab === 'expired' ? 'active' : '' }}" id="expired-tab" data-toggle="tab" href="#expired-jobs">{{__('Expired Jobs')}}</a>
@@ -48,7 +51,7 @@
                                             $company = $job->getCompany(); 
                                             $appliedUsersCount = $job->appliedUsers->count();
                                         @endphp
-                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date >= now())
+                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date >= now() && $job->is_active == 1)
 
                                         <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
                                             <div class="jobint">
@@ -100,6 +103,57 @@
                         </div>
                         <!-- Active Jobs end -->
 
+                        <!-- Pending Jobs start -->
+                        <div class="tab-pane fade {{ $listTab === 'pending' ? 'show active' : '' }}" id="pending-jobs">
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle"></i> {{__('These jobs are awaiting admin approval before they become active.')}}
+                            </div>
+                            <ul class="featuredlist row">
+                                @if(isset($jobs) && count($jobs))
+                                    @foreach($jobs as $job)
+                                        @php 
+                                            $company = $job->getCompany(); 
+                                        @endphp
+                                        @if(null !== $company && ! $job->is_draft && $job->is_active == 0)
+
+                                        <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
+                                            <div class="jobint" style="opacity: 0.8; border-left: 4px solid #ffc107;">
+
+                                                <div class="d-flex">
+                                                    <div class="fticon" style="background-color: #ffc107;"><i class="fas fa-clock"></i> {{__('Pending Approval')}}</div>                        
+                                                </div>
+                                                <h4><a href="javascript:void(0);" title="{{$job->title}}">{!! \Illuminate\Support\Str::limit($job->title, $limit = 20, $end = '...') !!}</a>
+                                                </h4>
+                                                @if(!(bool)$job->hide_salary)                    
+                                                <div class="salary mb-2">Salary: <strong>{{$job->salary_currency.''.$job->salary_from}} - {{$job->salary_currency.''.$job->salary_to}}/{{$job->getSalaryPeriod('salary_period')}}</strong></div>
+                                                @endif 
+                                                <strong><i class="fas fa-map-marker-alt"></i> {{$job->getCity('city')}}</strong>    
+                                                <span>{{$job->created_at->format('M d, Y')}}</span>
+                                                <div class="d-flex mt-3 compjobslinks">
+                                                    <a class="btn btn-warning me-2" href="{{route('edit.front.job', [$job->id])}}"><i class="fas fa-edit"></i> {{__('Edit')}}</a>
+                                                    <a class="btn btn-danger me-2" href="javascript:;" onclick="deleteJob({{$job->id}});"><i class="fas fa-trash"></i></a>                                    
+                                                </div>
+                                                
+                                                <!-- Job Stats Bar -->
+                                                <div class="job-stats-bar">
+                                                    <div class="job-stat-item">
+                                                        <i class="fas fa-hourglass-half"></i>
+                                                        <span class="job-stat-label">{{__('Status')}}:</span>
+                                                        <span class="job-stat-value text-warning">{{__('Awaiting Approval')}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <p>{{__('No Pending Jobs')}}</p>
+                                @endif
+                            </ul>
+                        </div>
+                        <!-- Pending Jobs end -->
+
                         <!-- Expired Jobs start -->
                         <div class="tab-pane fade {{ $listTab === 'expired' ? 'show active' : '' }}" id="expired-jobs">
                             <ul class="featuredlist row">
@@ -109,7 +163,7 @@
                                             $company = $job->getCompany(); 
                                             $appliedUsersCount = $job->appliedUsers->count();
                                         @endphp
-                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date < now())
+                                        @if(null !== $company && ! $job->is_draft && $job->expiry_date && $job->expiry_date < now() && $job->is_active == 1)
                                            
                                             <li class="col-lg-6 col-md-6" id="job_li_{{$job->id}}">
                                             <div class="jobint">

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
 use App\Faq;
+use App\FaqCategory;
 use App\Helpers\MiscHelper;
 use App\Helpers\DataArrayHelper;
 use App\Language;
@@ -46,12 +47,20 @@ class FaqController extends Controller
     public function createFaq()
     {
         $languages = DataArrayHelper::languagesNativeCodeArray();
-        return view('admin.faq.add')->with('languages', $languages);
+        $categories = FaqCategory::where('is_active', 1)
+                                  ->where('lang', config('default_lang'))
+                                  ->orderBy('sort_order')
+                                  ->pluck('name', 'id')
+                                  ->toArray();
+        return view('admin.faq.add')
+                    ->with('languages', $languages)
+                    ->with('categories', $categories);
     }
 
     public function storeFaq(FaqFormRequest $request)
     {
         $faq = new Faq();
+        $faq->faq_category_id = $request->input('faq_category_id');
         $faq->faq_question = $request->input('faq_question');
         $faq->faq_answer = $request->input('faq_answer');
         $faq->lang = $request->input('lang');
@@ -67,14 +76,21 @@ class FaqController extends Controller
     {
         $languages = DataArrayHelper::languagesNativeCodeArray();
         $faq = Faq::findOrFail($id);
+        $categories = FaqCategory::where('is_active', 1)
+                                  ->where('lang', $faq->lang)
+                                  ->orderBy('sort_order')
+                                  ->pluck('name', 'id')
+                                  ->toArray();
         return view('admin.faq.edit')
                         ->with('languages', $languages)
-                        ->with('faq', $faq);
+                        ->with('faq', $faq)
+                        ->with('categories', $categories);
     }
 
     public function updateFaq($id, FaqFormRequest $request)
     {
         $faq = Faq::findOrFail($id);
+        $faq->faq_category_id = $request->input('faq_category_id');
         $faq->faq_question = $request->input('faq_question');
         $faq->faq_answer = $request->input('faq_answer');
         $faq->lang = $request->input('lang');
@@ -186,6 +202,17 @@ class FaqController extends Controller
             $faq->update();
             $count++;
         }
+    }
+
+    public function getCategoriesByLang(Request $request)
+    {
+        $lang = $request->input('lang', config('default_lang'));
+        $categories = FaqCategory::where('is_active', 1)
+                                  ->where('lang', $lang)
+                                  ->orderBy('sort_order')
+                                  ->pluck('name', 'id')
+                                  ->toArray();
+        return response()->json($categories);
     }
 
 }

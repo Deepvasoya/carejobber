@@ -24,13 +24,13 @@ $company = $job->getCompany();
 
     <div class="row jobPagetitle">
             <div class="col-lg-8">
-                <div class="jobinfo @if(!empty($job->is_highlighted)) job-detail-highlight-wrap @endif">
+                <div class="jobinfo @if($job->isPromotionHighlightedActive()) job-detail-highlight-wrap @endif">
                     <h2>{{$job->title}}</h2>
-                    @if(!empty($job->is_urgent) || !empty($job->is_featured) || !empty($job->is_highlighted))
+                    @if($job->isPromotionUrgentActive() || $job->isPromotionFeaturedActive() || $job->isPromotionHighlightedActive())
                     <div class="mb-2">
-                        @if(!empty($job->is_urgent))<span class="badge bg-danger me-1"><i class="fas fa-fire"></i> {{__('Urgent')}}</span>@endif
-                        @if(!empty($job->is_featured))<span class="badge bg-warning text-dark me-1"><i class="fas fa-bolt"></i> {{__('Featured')}}</span>@endif
-                        @if(!empty($job->is_highlighted))<span class="badge bg-info text-dark">{{__('Highlighted')}}</span>@endif
+                        @if($job->isPromotionUrgentActive())<span class="badge bg-danger me-1"><i class="fas fa-fire"></i> {{__('Urgent')}}</span>@endif
+                        @if($job->isPromotionFeaturedActive())<span class="badge bg-warning text-dark me-1"><i class="fas fa-bolt"></i> {{__('Featured')}}</span>@endif
+                        @if($job->isPromotionHighlightedActive())<span class="badge bg-info text-dark">{{__('Highlighted')}}</span>@endif
                     </div>
                     @endif
                     <div class="ptext">{{__('Date Posted')}}: {{$job->created_at->format('M d, Y')}}</div>
@@ -278,12 +278,12 @@ $company = $job->getCompany();
             <?php $relatedJobCompany = $relatedJob->getCompany(); ?>
             @if(null !== $relatedJobCompany)
             <!--Job start-->
-            <li class="col-lg-3 col-md-6 @if($relatedJob->is_featured == 1) featured @endif">
-                <div class="jobint @if(!empty($relatedJob->is_highlighted)) job-card-highlighted @endif">
-                    @if($relatedJob->is_urgent == 1)
+            <li class="col-lg-3 col-md-6 @if($relatedJob->isPromotionFeaturedActive()) featured @endif">
+                <div class="jobint @if($relatedJob->isPromotionHighlightedActive()) job-card-highlighted @endif">
+                    @if($relatedJob->isPromotionUrgentActive())
                         <span class="promotepof-badge-left" title="{{__('Urgent')}}"><i class="fas fa-fire"></i></span>
                     @endif
-                    @if($relatedJob->is_featured == 1)
+                    @if($relatedJob->isPromotionFeaturedActive())
                         <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured')}}"></i></span>
                     @endif
 

@@ -3,9 +3,9 @@
     $company = $job->company ?? null;
 @endphp
 @if($job && $company)
-    <li class="col-lg-4 col-md-6 @if($job->is_featured == 1) featured @endif">
+    <li class="col-lg-4 col-md-6 @if($job->isPromotionFeaturedActive()) featured @endif">
         <div class="jobint mt-0 mb-3">
-            @if($job->is_featured == 1)
+            @if($job->isPromotionFeaturedActive())
                 <span class="promotepof-badge"><i class="fa fa-bolt" title="{{__('Featured Job')}}"></i></span>
             @endif
             <div class="d-flex justify-content-between align-items-center">

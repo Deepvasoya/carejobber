@@ -318,43 +318,95 @@
             @php
                 $promoCfg = \App\Services\JobPromotionPricing::config();
                 $promoCur = $siteSetting->default_currency_code ?? strtoupper($promoCfg['currency']);
+                $hlDays = (int) $promoCfg['highlighted_days'];
             @endphp
             <p class="text-muted" style="font-size: 14px;">
-                {{__('Urgent jobs appear first in search, then featured. Highlight adds a coloured background to your card.') }}
-                <strong>{{ __('Selecting any option below requires payment via Stripe after you submit this form.') }}</strong>
+                {{ __('Choose how long each upgrade runs. Urgent appears first in search, then featured. Highlight adds a coloured background to your card.') }}
+                <strong>{{ __('Paid options are charged via Stripe after you submit this form.') }}</strong>
             </p>
             @php
                 $isErr = isset($errors) && $errors->any();
-                $pu = $isErr ? (bool) old('promote_urgent') : (isset($job) && !empty($job->is_urgent));
-                $pf = $isErr ? (bool) old('promote_featured') : (isset($job) && !empty($job->is_featured));
-                $ph = $isErr ? (bool) old('promote_highlighted') : (isset($job) && !empty($job->is_highlighted));
-                $promoJobFeatured = isset($job) && ! empty($job->is_featured);
-                $promoJobUrgent = isset($job) && ! empty($job->is_urgent);
-                $promoJobHighlighted = isset($job) && ! empty($job->is_highlighted);
+                $defaultUrgent = old('promote_urgent_days',0);
+                $defaultFeatured = old('promote_featured_days', 0);
+                $defaultHl = (int) old('promote_highlighted', 0);
+                $promoJobUrgent = isset($job) && $job->isPromotionUrgentActive();
+                $promoJobFeatured = isset($job) && $job->isPromotionFeaturedActive();
+                $promoJobHighlighted = isset($job) && $job->isPromotionHighlightedActive();
                 $__jobPromoPricesForJs = [
-                    'featured' => (float) $promoCfg['featured'],
-                    'urgent' => (float) $promoCfg['urgent'],
-                    'highlighted' => (float) $promoCfg['highlighted'],
+                    'urgent_7' => (float) $promoCfg['urgent_7_price'],
+                    'urgent_15' => (float) $promoCfg['urgent_15_price'],
+                    'featured_15' => (float) $promoCfg['featured_15_price'],
+                    'featured_30' => (float) $promoCfg['featured_30_price'],
+                    'highlighted' => (float) $promoCfg['highlighted_price'],
                 ];
             @endphp
+            @if(isset($job) && ($promoJobUrgent || $promoJobFeatured || $promoJobHighlighted))
+                <div class="alert alert-light border small mb-3">
+                    @if($promoJobUrgent)
+                        @php $uEnd = $job->promotion_urgent_until ?? $job->display_end_date; @endphp
+                        <div><i class="fas fa-fire text-danger"></i> {{ __('Urgent active until :date', ['date' => $uEnd ? $uEnd->format('M d, Y') : '—']) }}</div>
+                    @endif
+                    @if($promoJobFeatured)
+                        @php $fEnd = $job->promotion_featured_until ?? $job->display_end_date; @endphp
+                        <div><i class="fas fa-bolt text-warning"></i> {{ __('Featured active until :date', ['date' => $fEnd ? $fEnd->format('M d, Y') : '—']) }}</div>
+                    @endif
+                    @if($promoJobHighlighted)
+                        @php $hEnd = $job->promotion_highlighted_until ?? $job->display_end_date; @endphp
+                        <div><i class="fas fa-highlighter text-info"></i> {{ __('Highlighted active until :date', ['date' => $hEnd ? $hEnd->format('M d, Y') : '—']) }}</div>
+                    @endif
+                    <div class="mt-1 text-muted">{{ __('You can renew a boost after it expires.') }}</div>
+                </div>
+            @endif
             <div class="row">
-                <div class="col-md-4 col-sm-12 mb-2">
-                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
-                        <input type="checkbox" name="promote_urgent" value="1" class="mt-1 me-2" @if($pu) checked @endif>
-                        <span><i class="fas fa-fire text-danger"></i> {{__('Urgent')}} — <strong>{{ $promoCur }}{{ number_format($promoCfg['urgent'], 2) }}</strong><br><small class="text-muted">{{__('Top of search results')}}</small></span>
-                    </label>
+                <div class="col-lg-4 col-md-12 mb-3">
+                    <div class="fw-semibold mb-2"><i class="fas fa-fire text-danger"></i> {{ __('Urgent') }}</div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_urgent_days" value="0" class="mt-0" @if((int)$defaultUrgent === 0) checked @endif>
+                            <span>{{ __('No urgent boost') }}</span>
+                        </label>
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_urgent_days" value="7" class="mt-0" @if((int)$defaultUrgent === 7) checked @endif>
+                            <span>{{ __('7 days') }} — <strong>{{ $promoCur }}{{ number_format($promoCfg['urgent_7_price'], 2) }}</strong></span>
+                        </label>
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_urgent_days" value="15" class="mt-0" @if((int)$defaultUrgent === 15) checked @endif>
+                            <span>{{ __('15 days') }} — <strong>{{ $promoCur }}{{ number_format($promoCfg['urgent_15_price'], 2) }}</strong></span>
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-1">{{ __('Top of search results') }}</small>
                 </div>
-                <div class="col-md-4 col-sm-12 mb-2">
-                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
-                        <input type="checkbox" name="promote_featured" value="1" class="mt-1 me-2" @if($pf) checked @endif>
-                        <span><i class="fas fa-bolt text-warning"></i> {{__('Featured listing')}} — <strong>{{ $promoCur }}{{ number_format($promoCfg['featured'], 2) }}</strong><br><small class="text-muted">{{__('Shown after urgent jobs')}}</small></span>
-                    </label>
+                <div class="col-lg-4 col-md-12 mb-3">
+                    <div class="fw-semibold mb-2"><i class="fas fa-bolt text-warning"></i> {{ __('Featured listing') }}</div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_featured_days" value="0" class="mt-0" @if((int)$defaultFeatured === 0) checked @endif>
+                            <span>{{ __('No featured boost') }}</span>
+                        </label>
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_featured_days" value="15" class="mt-0" @if((int)$defaultFeatured === 15) checked @endif>
+                            <span>{{ __('15 days') }} — <strong>{{ $promoCur }}{{ number_format($promoCfg['featured_15_price'], 2) }}</strong></span>
+                        </label>
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_featured_days" value="30" class="mt-0" @if((int)$defaultFeatured === 30) checked @endif>
+                            <span>{{ __('30 days') }} — <strong>{{ $promoCur }}{{ number_format($promoCfg['featured_30_price'], 2) }}</strong></span>
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-1">{{ __('Shown after urgent jobs') }}</small>
                 </div>
-                <div class="col-md-4 col-sm-12 mb-2">
-                    <label class="d-flex align-items-start" style="cursor: pointer; font-weight: 500;">
-                        <input type="checkbox" name="promote_highlighted" value="1" class="mt-1 me-2" @if($ph) checked @endif>
-                        <span><i class="fas fa-highlighter text-info"></i> {{__('Highlighted')}} — <strong>{{ $promoCur }}{{ number_format($promoCfg['highlighted'], 2) }}</strong><br><small class="text-muted">{{__('Distinct background on listings')}}</small></span>
-                    </label>
+                <div class="col-lg-4 col-md-12 mb-3">
+                    <div class="fw-semibold mb-2"><i class="fas fa-highlighter text-info"></i> {{ __('Highlighted') }}</div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_highlighted" value="0" class="mt-0" @if($defaultHl !== 1) checked @endif>
+                            <span>{{ __('No highlight') }}</span>
+                        </label>
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-weight: 500;">
+                            <input type="radio" name="promote_highlighted" value="1" class="mt-0" @if($defaultHl === 1) checked @endif>
+                            <span>{{ __(':days days', ['days' => $hlDays]) }} — <strong>{{ $promoCur }}{{ number_format($promoCfg['highlighted_price'], 2) }}</strong></span>
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-1">{{ __('Distinct background on listings') }}</small>
                 </div>
             </div>
             <div id="job-promotion-total-panel" class="mt-3 p-3" style="display: none; background: #fff; border: 1px solid #c7d2fe; border-radius: 8px;">
@@ -573,13 +625,20 @@
             };
             function jobPromoPayableTotal() {
                 var t = 0;
-                if ($('input[name="promote_featured"]').is(':checked') && ! already.featured) {
-                    t += prices.featured;
+                var u = parseInt($('input[name="promote_urgent_days"]:checked').val() || '0', 10);
+                if (u === 7 && !already.urgent) {
+                    t += prices.urgent_7;
+                } else if (u === 15 && !already.urgent) {
+                    t += prices.urgent_15;
                 }
-                if ($('input[name="promote_urgent"]').is(':checked') && ! already.urgent) {
-                    t += prices.urgent;
+                var f = parseInt($('input[name="promote_featured_days"]:checked').val() || '0', 10);
+                if (f === 15 && !already.featured) {
+                    t += prices.featured_15;
+                } else if (f === 30 && !already.featured) {
+                    t += prices.featured_30;
                 }
-                if ($('input[name="promote_highlighted"]').is(':checked') && ! already.highlighted) {
+                var h = parseInt($('input[name="promote_highlighted"]:checked').val() || '0', 10);
+                if (h === 1 && !already.highlighted) {
                     t += prices.highlighted;
                 }
                 return t;
@@ -595,7 +654,7 @@
                     $panel.hide();
                 }
             }
-            $(document).on('change', 'input[name="promote_featured"], input[name="promote_urgent"], input[name="promote_highlighted"]', refreshJobPromoTotal);
+            $(document).on('change', 'input[name="promote_featured_days"], input[name="promote_urgent_days"], input[name="promote_highlighted"]', refreshJobPromoTotal);
             refreshJobPromoTotal();
         })();
 

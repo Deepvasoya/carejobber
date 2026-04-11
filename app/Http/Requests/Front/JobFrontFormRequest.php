@@ -61,6 +61,9 @@ class JobFrontFormRequest extends Request
                             'job_type_id' => 'nullable',
                             'expiry_date' => 'nullable',
                             'job_experience_id' => 'nullable',
+                            'promote_urgent_days' => 'nullable|in:0,7,15',
+                            'promote_featured_days' => 'nullable|in:0,15,30',
+                            'promote_highlighted' => 'nullable|in:0,1',
                         ];
                     }
 
@@ -91,6 +94,9 @@ class JobFrontFormRequest extends Request
                         "expiry_date" => "required",
                         //"degree_level_id" => "required",
                         "job_experience_id" => "required",
+                        'promote_urgent_days' => 'nullable|in:0,7,15',
+                        'promote_featured_days' => 'nullable|in:0,15,30',
+                        'promote_highlighted' => 'nullable|in:0,1',
                     ];
                 }
             default:break;

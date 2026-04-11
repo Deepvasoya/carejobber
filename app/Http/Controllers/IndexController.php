@@ -67,19 +67,14 @@ class IndexController extends Controller
         $topCityIds = $this->getCityIdsAndNumJobs(10);
         //$topCityIds = $this->getCityIdsAndNumJobs();
         
-        $featuredJobs = Job::active()->notExpire()
-            ->where(function ($q) {
-                $q->where('is_urgent', 1)->orWhere('is_featured', 1);
-            })
-            ->orderBy('is_urgent', 'desc')
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('id', 'desc')
+        $featuredJobs = Job::orderByPromotionPriority(
+            Job::active()->notExpire()->wherePromotionUrgentOrFeaturedActive()
+        )
             ->limit(9)
             ->get();
-        $latestJobs = Job::active()->notExpire()
-            ->orderBy('is_urgent', 'desc')
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('id', 'desc')
+        $latestJobs = Job::orderByPromotionPriority(
+            Job::active()->notExpire()
+        )
             ->limit(9)
             ->get();
         $blogs = Blog::orderBy('id', 'desc')->where('lang', 'like', \App::getLocale())->limit(3)->get();
