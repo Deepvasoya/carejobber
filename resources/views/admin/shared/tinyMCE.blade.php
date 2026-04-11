@@ -5,8 +5,8 @@ tinymce.init({
     selector: '#industry,#faq_question,#faq_answer,#slider_description',
     height: 150,
     forced_root_block: '',
-    language: '{{ $lang }}',
-    directionality: '{{ $direction }}',
+    language: '{{ app()->getLocale() }}',
+    directionality: '{{ session('localeDir', 'ltr') }}',
     entity_encoding : "raw",
     plugins: [
         'advlist autolink lists link image charmap print preview anchor',
