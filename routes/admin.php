@@ -12,6 +12,7 @@ include_once($real_path . 'role.php');
 include_once($real_path . 'site_user.php');
 include_once($real_path . 'faq.php');
 include_once($real_path . 'faq_category.php');
+include_once($real_path . 'faq_section.php');
 include_once($real_path . 'faq_ajax.php');
 include_once($real_path . 'email_template.php');
 include_once($real_path . 'seo.php');

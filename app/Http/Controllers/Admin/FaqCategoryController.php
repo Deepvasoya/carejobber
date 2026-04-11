@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
 use App\FaqCategory;
+use App\FaqSection;
 use App\Helpers\MiscHelper;
 use App\Helpers\DataArrayHelper;
 use App\Language;
@@ -45,12 +46,16 @@ class FaqCategoryController extends Controller
     public function createFaqCategory()
     {
         $languages = DataArrayHelper::languagesNativeCodeArray();
-        return view('admin.faq_category.add')->with('languages', $languages);
+        $sections = FaqSection::where('is_active', 1)->orderBy('sort_order')->pluck('name', 'id')->toArray();
+        return view('admin.faq_category.add')
+                        ->with('languages', $languages)
+                        ->with('sections', $sections);
     }
 
     public function storeFaqCategory(FaqCategoryFormRequest $request)
     {
         $faqCategory = new FaqCategory();
+        $faqCategory->faq_section_id = $request->input('faq_section_id');
         $faqCategory->name = $request->input('name');
         $faqCategory->slug = Str::slug($request->input('name'));
         $faqCategory->description = $request->input('description');
@@ -68,15 +73,18 @@ class FaqCategoryController extends Controller
     public function editFaqCategory($id)
     {
         $languages = DataArrayHelper::languagesNativeCodeArray();
+        $sections = FaqSection::where('is_active', 1)->orderBy('sort_order')->pluck('name', 'id')->toArray();
         $faqCategory = FaqCategory::findOrFail($id);
         return view('admin.faq_category.edit')
                         ->with('languages', $languages)
+                        ->with('sections', $sections)
                         ->with('faqCategory', $faqCategory);
     }
 
     public function updateFaqCategory($id, FaqCategoryFormRequest $request)
     {
         $faqCategory = FaqCategory::findOrFail($id);
+        $faqCategory->faq_section_id = $request->input('faq_section_id');
         $faqCategory->name = $request->input('name');
         $faqCategory->slug = Str::slug($request->input('name'));
         $faqCategory->description = $request->input('description');
@@ -105,6 +113,7 @@ class FaqCategoryController extends Controller
         $faqCategories = FaqCategory::select(
                         [
                             'faq_categories.id',
+                            'faq_categories.faq_section_id',
                             'faq_categories.name',
                             'faq_categories.description',
                             'faq_categories.sort_order',
@@ -113,7 +122,7 @@ class FaqCategoryController extends Controller
                             'faq_categories.created_at',
                             'faq_categories.updated_at'
                         ]
-        );
+        )->with('section:id,name');
         
         return Datatables::of($faqCategories)
                         ->filter(function ($query) use ($request) {
@@ -123,6 +132,9 @@ class FaqCategoryController extends Controller
                             if ($request->has('lang') && !empty($request->get('lang'))) {
                                 $query->where('faq_categories.lang', 'like', "%{$request->get('lang')}%");
                             }
+                        })
+                        ->addColumn('section', function ($faqCategory) {
+                            return $faqCategory->section ? '<span class="badge bg-primary">' . $faqCategory->section->name . '</span>' : '<span class="badge bg-secondary">No Section</span>';
                         })
                         ->addColumn('name', function ($faqCategory) {
                             $direction = MiscHelper::getLangDirection($faqCategory->lang);
@@ -152,7 +164,7 @@ class FaqCategoryController extends Controller
                     </ul>
                 </div>';
                         })
-                        ->rawColumns(['name', 'description', 'is_active', 'action'])
+                        ->rawColumns(['section', 'name', 'description', 'is_active', 'action'])
                         ->setRowId(function($faqCategory) {
                             return 'faq_category_dt_row_' . $faqCategory->id;
                         })

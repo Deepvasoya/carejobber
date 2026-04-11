@@ -21,6 +21,14 @@ class FaqCategory extends Model
     protected $dates = ['created_at', 'updated_at'];
 
     /**
+     * Get the section that owns the category.
+     */
+    public function section()
+    {
+        return $this->belongsTo(FaqSection::class, 'faq_section_id', 'id');
+    }
+
+    /**
      * Get the FAQs for the category.
      */
     public function faqs()

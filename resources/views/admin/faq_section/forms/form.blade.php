@@ -1,7 +1,7 @@
 <?php
 $lang = config('default_lang');
-if (isset($faqCategory))
-    $lang = $faqCategory->lang;
+if (isset($faqSection))
+    $lang = $faqSection->lang;
 $lang = MiscHelper::getLang($lang);
 $direction = MiscHelper::getLangDirection($lang);
 $queryString = MiscHelper::getLangQueryStr();
@@ -13,22 +13,22 @@ $queryString = MiscHelper::getLangQueryStr();
         {!! Form::label('lang', 'Language', ['class' => 'bold']) !!}                    
         {!! Form::select('lang', ['' => 'Select Language']+$languages, $lang, array('class'=>'form-control', 'id'=>'lang', 'onchange'=>'setLang(this.value)')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'lang') !!}                                       
-    </div>
-    <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'faq_section_id') !!}">
-        {!! Form::label('faq_section_id', 'FAQ Section', ['class' => 'bold']) !!}                    
-        {!! Form::select('faq_section_id', ['' => 'Select Section']+$sections, null, array('class'=>'form-control', 'id'=>'faq_section_id')) !!}
-        {!! APFrmErrHelp::showErrors($errors, 'faq_section_id') !!}
-        <small class="form-text text-muted">Select which section this category belongs to (e.g., JOBSEEKER, EMPLOYERS)</small>                                       
     </div>      
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'name') !!}">
-        {!! Form::label('name', 'Category Name', ['class' => 'bold']) !!}                    
-        {!! Form::text('name', null, array('class'=>'form-control', 'id'=>'name', 'placeholder'=>'Category Name')) !!}
+        {!! Form::label('name', 'Section Name', ['class' => 'bold']) !!}                    
+        {!! Form::text('name', null, array('class'=>'form-control', 'id'=>'name', 'placeholder'=>'Section Name (e.g., JOBSEEKER, EMPLOYERS, TRAINING)')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'name') !!}                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'description') !!}">
         {!! Form::label('description', 'Description (Optional)', ['class' => 'bold']) !!}                    
         {!! Form::textarea('description', null, array('class'=>'form-control', 'id'=>'description', 'placeholder'=>'Description', 'rows' => 3)) !!}
         {!! APFrmErrHelp::showErrors($errors, 'description') !!}                                       
+    </div>
+    <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'sort_order') !!}">
+        {!! Form::label('sort_order', 'Sort Order', ['class' => 'bold']) !!}                    
+        {!! Form::number('sort_order', null, array('class'=>'form-control', 'id'=>'sort_order', 'placeholder'=>'Sort Order')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'sort_order') !!}
+        <small class="form-text text-muted">Lower numbers appear first</small>                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'is_active') !!}">
         {!! Form::label('is_active', 'Status', ['class' => 'bold']) !!}                    
