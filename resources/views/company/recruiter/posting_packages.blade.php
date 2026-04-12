@@ -179,18 +179,18 @@
                     </a>
                     @endif
                     @if((bool)($siteSetting->is_paypal_active ?? false))
-                    <a href="javascript:void(0)" onclick="alert('PayPal integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
-                        <i class="fab fa-cc-paypal me-2"></i> {{ __('Pay with PayPal') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    <a href="{{ route('order.package', $pkg->id) }}" class="btn btn-outline-primary text-start" style="padding: 12px 20px;">
+                        <i class="fab fa-cc-paypal me-2"></i> {{ __('Pay with PayPal') }}
                     </a>
                     @endif
                     @if((bool)($siteSetting->is_paystack_active ?? false))
-                    <a href="javascript:void(0)" onclick="alert('Paystack integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
-                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Paystack') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    <a href="{{ route('paystack.order.form', [$pkg->id, 'new']) }}" class="btn btn-outline-primary text-start" style="padding: 12px 20px;">
+                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Paystack') }}
                     </a>
                     @endif
                     @if((bool)($siteSetting->is_iyzico_active ?? false))
-                    <a href="javascript:void(0)" onclick="alert('Iyzico integration for employer packages coming soon. Please use Stripe.');" class="btn btn-outline-secondary text-start" style="padding: 12px 20px;">
-                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Iyzico') }} <small class="text-muted">({{ __('Coming soon') }})</small>
+                    <a href="{{ route('iyzico.order.form', [$pkg->id, 'new']) }}" class="btn btn-outline-primary text-start" style="padding: 12px 20px;">
+                        <i class="fas fa-credit-card me-2"></i> {{ __('Pay with Iyzico') }}
                     </a>
                     @endif
                 </div>
