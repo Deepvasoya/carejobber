@@ -171,8 +171,18 @@ class RecruiterStripeCheckoutController extends Controller
         }
 
         $productDescription = $countryCode ? __('Country') . ': ' . $countryCode : '';
-        if ($discountAmount > 0) {
-            $productDescription = trim($productDescription . ' | ' . __('Coupon discount'));
+        if ($discountAmount > 0 && !empty($eval['coupon'])) {
+            $couponCode = $eval['coupon']->code ?? '';
+            $originalPrice = number_format((float) $package->package_price, 2);
+            $discountFormatted = number_format($discountAmount, 2);
+            $finalPrice = number_format((float) $eval['total'], 2);
+            
+            $discountInfo = __('Regular Price') . ': ' . strtoupper($currency) . $originalPrice . ' | ' 
+                          . __('Coupon') . ': ' . $couponCode . ' | '
+                          . __('Discount') . ': -' . strtoupper($currency) . $discountFormatted . ' | '
+                          . __('Final Price') . ': ' . strtoupper($currency) . $finalPrice;
+            
+            $productDescription = $productDescription ? ($productDescription . ' | ' . $discountInfo) : $discountInfo;
         }
 
         if ($isSubscription) {
