@@ -206,37 +206,7 @@
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'expiry_date') !!}"> {!! Form::text('expiry_date', null, array('class'=>'form-control datepicker', 'id'=>'expiry_date', 'placeholder'=>__('Application Deadline date'), 'autocomplete'=>'off')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'expiry_date') !!} </div>
     </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'display_duration_days') !!}">
-            <label for="display_duration_days" class="bold">
-                <i class="fas fa-calendar-alt"></i> {{__('Job Display Duration (optional)')}}
-            </label>
-            @php
-                // Get duration options from site settings (or use defaults)
-                $availableDurations = json_decode($siteSetting->job_duration_options ?? '[30,60,90,120,180,365]', true);
-                $durationOptions = [];
-                foreach ($availableDurations as $days) {
-                    if ($days >= 365) {
-                        $durationOptions[$days] = ($days / 365) . ' ' . __('Year') . (($days / 365) > 1 ? 's' : '');
-                    } elseif ($days >= 30) {
-                        $months = round($days / 30);
-                        $durationOptions[$days] = $days . ' ' . __('Days') . ' (~' . $months . ' ' . __('months') . ')';
-                    } else {
-                        $durationOptions[$days] = $days . ' ' . __('Days');
-                    }
-                }
-                $defaultDuration = old('display_duration_days', (isset($job) ? $job->display_duration_days : ($siteSetting->default_job_duration ?? 30)));
-            @endphp
-            {!! Form::select('display_duration_days', $durationOptions, $defaultDuration, array('class'=>'form-control', 'id'=>'display_duration_days')) !!}
-            <small class="form-text text-muted">
-                <i class="fas fa-info-circle"></i> {{__('How long this job will be visible on the site')}}
-                @if(isset($job) && $job->display_end_date)
-                 <br><strong>{{ __('Current display ends') }}: {{ \Carbon\Carbon::parse($job->display_end_date)->format('M d, Y') }}</strong>
-                @endif
-            </small>
-            {!! APFrmErrHelp::showErrors($errors, 'display_duration_days') !!}
-        </div>
-    </div>
+    
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'degree_level_id') !!}" id="degree_level_id_div"> {!! Form::select('degree_level_id', ['' =>__('Select Required Degree Level')]+$degreeLevels, null, array('class'=>'form-control', 'id'=>'degree_level_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'degree_level_id') !!} </div>
