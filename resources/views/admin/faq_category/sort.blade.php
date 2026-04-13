@@ -1,4 +1,49 @@
 @extends('admin.layouts.admin_layout')
+
+@push('styles')
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<style>
+    #sortable {
+        list-style-type: none;
+        margin: 20px 0;
+        padding: 0;
+        width: 100%;
+    }
+    #sortable li {
+        margin: 5px 0;
+        padding: 15px;
+        font-size: 14px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    #sortable li:hover {
+        background: #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #sortable li i {
+        margin-right: 10px;
+        color: #6c757d;
+    }
+    #sortable .ui-sortable-helper {
+        opacity: 0.8;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #sortable .ui-sortable-placeholder {
+        border: 2px dashed #007bff;
+        background: #e7f3ff;
+        visibility: visible !important;
+        height: 50px !important;
+    }
+
+    .ui-sortable-handle{
+        cursor: pointer;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="page-content-wrapper"> 
     <!-- BEGIN CONTENT BODY -->
@@ -40,3 +85,7 @@
     <!-- END CONTENT BODY --> 
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+@endpush

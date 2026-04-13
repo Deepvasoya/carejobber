@@ -38,41 +38,50 @@ class CustomConfigServiceProvider extends ServiceProvider
 
 
 
-            $this->app['config']['mail'] = [
-
-                'driver' => $settings->mail_driver,
-
-                'host' => $settings->mail_host,
-
-                'port' => $settings->mail_port,
-
-                'from' => [
-
-                    'address' => $settings->mail_from_address,
-
-                    'name' => $settings->mail_from_name
-
-                ],
-
-                'recieve_to' => [
-
-                    'address' => $settings->mail_to_address,
-
-                    'name' => $settings->mail_to_name
-
-                ],
-
-                'encryption' => $settings->mail_encryption,
-
-                'username' => $settings->mail_username,
-
-                'password' => $settings->mail_password,
-
-                'sendmail' => $settings->mail_sendmail,
-
-                'pretend' => $settings->mail_pretend
-
-            ];
+            // Check if we should use database mail config
+            $useDbMailConfig = env('USE_DB_MAIL_CONFIG', true);
+            
+            if ($useDbMailConfig && !empty($settings->mail_host)) {
+                // Use database values if flag is true and DB values exist
+                $this->app['config']['mail'] = [
+                    'driver' => $settings->mail_driver,
+                    'host' => $settings->mail_host,
+                    'port' => $settings->mail_port,
+                    'from' => [
+                        'address' => $settings->mail_from_address,
+                        'name' => $settings->mail_from_name
+                    ],
+                    'recieve_to' => [
+                        'address' => $settings->mail_to_address,
+                        'name' => $settings->mail_to_name
+                    ],
+                    'encryption' => $settings->mail_encryption,
+                    'username' => $settings->mail_username,
+                    'password' => $settings->mail_password,
+                    'sendmail' => $settings->mail_sendmail,
+                    'pretend' => $settings->mail_pretend
+                ];
+            } else {
+                // Use .env values with database as fallback
+                $this->app['config']['mail'] = [
+                    'driver' => env('MAIL_MAILER', $settings->mail_driver ?? 'smtp'),
+                    'host' => env('MAIL_HOST', $settings->mail_host ?? 'smtp.mailgun.org'),
+                    'port' => env('MAIL_PORT', $settings->mail_port ?? 587),
+                    'from' => [
+                        'address' => env('MAIL_FROM_ADDRESS', $settings->mail_from_address ?? 'hello@example.com'),
+                        'name' => env('MAIL_FROM_NAME', $settings->mail_from_name ?? 'Example')
+                    ],
+                    'recieve_to' => [
+                        'address' => $settings->mail_to_address ?? null,
+                        'name' => $settings->mail_to_name ?? null
+                    ],
+                    'encryption' => env('MAIL_ENCRYPTION', $settings->mail_encryption ?? 'tls'),
+                    'username' => env('MAIL_USERNAME', $settings->mail_username ?? null),
+                    'password' => env('MAIL_PASSWORD', $settings->mail_password ?? null),
+                    'sendmail' => $settings->mail_sendmail ?? '/usr/sbin/sendmail -bs',
+                    'pretend' => $settings->mail_pretend ?? false
+                ];
+            }
 
             $this->app['config']['services'] = [
 

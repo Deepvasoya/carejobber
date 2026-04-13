@@ -177,12 +177,12 @@ class RecruiterStripeCheckoutController extends Controller
             $discountFormatted = number_format($discountAmount, 2);
             $finalPrice = number_format((float) $eval['total'], 2);
             
-            $discountInfo = __('Regular Price') . ': ' . strtoupper($currency) . $originalPrice . ' | ' 
-                          . __('Coupon') . ': ' . $couponCode . ' | '
-                          . __('Discount') . ': -' . strtoupper($currency) . $discountFormatted . ' | '
+            $discountInfo = __('Regular Price') . ': ' . strtoupper($currency) . $originalPrice . "\n" 
+                          . __('Coupon') . ': ' . $couponCode . "\n"
+                          . __('Discount') . ': -' . strtoupper($currency) . $discountFormatted . "\n"
                           . __('Final Price') . ': ' . strtoupper($currency) . $finalPrice;
             
-            $productDescription = $productDescription ? ($productDescription . ' | ' . $discountInfo) : $discountInfo;
+            $productDescription = $productDescription ? ($productDescription . "\n" . $discountInfo) : $discountInfo;
         }
 
         if ($isSubscription) {

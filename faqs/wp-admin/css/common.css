@@ -3645,6 +3645,7 @@ img {
 .ui-draggable-handle,
 .ui-sortable-handle {
 	touch-action: none;
+	cursor: pointer;
 }
 
 /* Accordion */
