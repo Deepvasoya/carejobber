@@ -44,11 +44,33 @@ class CompanyResetPassword extends Notification
      */
     public function toMail($notifiable)
     {
+        $resetLink = url('company/password/reset/' . $this->token . '?email=' . urlencode($notifiable->email));
+        
+        // Try to use custom email template
+        $template = \App\EmailTemplate::where('slug', 'password-reset')->where('is_active', 1)->first();
+        
+        if ($template) {
+            $data = [
+                'NAME' => $notifiable->name,
+                'RESET_LINK' => $resetLink,
+                'SITE_NAME' => config('app.name'),
+                'SITE_URL' => url('/')
+            ];
+            
+            $parsed = $template->parseShortcodes($data);
+            
+            return (new MailMessage)
+                ->subject($parsed['subject'])
+                ->from(config('mail.from.address'), config('mail.from.name'))
+                ->view('emails.custom-html', ['content' => $parsed['body']]);
+        }
+        
+        // Fallback to default
         return (new MailMessage)
                         ->subject('Company Password Reset')
                         ->from(config('mail.from.address'), config('mail.from.name'))
                         ->line('You are receiving this email because we received a password reset request for your account.')
-                        ->action('Reset Password', url('company/password/reset/' . $this->token . '?email=' . urlencode($notifiable->email)))
+                        ->action('Reset Password', $resetLink)
                         ->line('If you did not request a password reset, no further action is required.');
     }
 

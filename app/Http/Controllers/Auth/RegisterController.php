@@ -66,7 +66,10 @@ use RegistersUsers;
         event(new UserRegistered($user));
         $this->guard()->login($user);
         UserVerification::generate($user);
-        UserVerification::send($user, 'User Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
+        
+        // Send verification email using our custom template
+        $user->sendEmailVerificationNotification();
+        
         return $this->registered($request, $user) ?: redirect($this->redirectPath());
     }
     

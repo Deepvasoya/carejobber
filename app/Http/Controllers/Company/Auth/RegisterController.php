@@ -87,7 +87,10 @@ use RegistersUsers;
         event(new CompanyRegistered($company));
         $this->guard()->login($company);
         UserVerification::generate($company);
-        UserVerification::send($company, 'Company Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
+        
+        // Send verification email using our custom template
+        $company->sendEmailVerificationNotification();
+        
         return $this->registered($request, $company) ?: redirect($this->redirectPath());
     }
 

@@ -124,8 +124,10 @@ class RegisterController extends BaseController
         event(new UserRegistered($user));
         $this->guard()->login($user);
         UserVerification::generate($user);
-      //  UserVerification::send($user, 'User Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
-        UserVerification::send($user, 'User Verification', $user->email, $user->name);
+        
+        // Send verification email using our custom template
+        $user->sendEmailVerificationNotification();
+        
         $success['token'] =  $user->createToken('MyApp')->accessToken;
         $success['name'] =  $user->name;
 
@@ -238,7 +240,8 @@ class RegisterController extends BaseController
 
         UserVerification::generate($company);
 
-        UserVerification::send($company, 'Company Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
+        // Send verification email using our custom template
+        $company->sendEmailVerificationNotification();
 
         $success['token'] =  $company->createToken('MyApp')->accessToken;
 

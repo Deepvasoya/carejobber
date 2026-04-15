@@ -324,8 +324,24 @@ class EmailTemplatesSeeder extends Seeder
             ],
 
             // Password Reset
+            // Password Reset (Web - Link based)
             [
                 'slug' => 'password-reset',
+                'name' => 'Password Reset Link',
+                'subject' => 'Reset Password - {SITE_NAME}',
+                'body' => '<p>Hello <strong>{NAME}</strong>,</p><p>You requested to reset your password for your {SITE_NAME} account. Click the button below to reset your password:</p><div style="text-align: center; margin: 30px 0;"><a href="{RESET_LINK}" style="display: inline-block; background: #17D27C; color: #fff; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-size: 16px;">Reset Password</a></div><p>Or copy and paste this URL in your browser:</p><p style="word-break: break-all; color: #666; font-size: 14px;">{RESET_LINK}</p><p><strong>Important:</strong> This password reset link will expire in 60 minutes. If you didn\'t request this password reset, please ignore this email.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{NAME}' => 'User name',
+                    '{RESET_LINK}' => 'Password reset link'
+                ]),
+                'category' => 'authentication'
+            ],
+
+            // Password Reset Code (Mobile App)
+            [
+                'slug' => 'password-reset-code',
                 'name' => 'Password Reset Code',
                 'subject' => 'Password Reset Code - {SITE_NAME}',
                 'body' => '<p>Hello <strong>{NAME}</strong>,</p><p>You requested to reset your password for your {SITE_NAME} account. Use the verification code below to reset your password:</p><div style="background-color: #F0FDF4; border: 2px solid #17D27C; padding: 20px; text-align: center; margin: 30px 0;"><p style="margin: 0 0 10px 0;">Your verification code is:</p><div style="font-size: 36px; font-weight: bold; color: #17D27C; letter-spacing: 8px;">{CODE}</div><p style="margin: 10px 0 0 0; font-size: 14px;">Enter this code in the app to reset your password</p></div><p><strong>Important:</strong> This code will expire at <strong>{EXPIRES_AT}</strong>. Please use it within 30 minutes.</p><p>If you didn\'t request this password reset, please ignore this email.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',

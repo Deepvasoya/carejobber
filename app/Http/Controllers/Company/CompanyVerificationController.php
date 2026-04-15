@@ -29,9 +29,9 @@ class CompanyVerificationController extends Controller
         $company = Auth::guard('company')->user();
         
         UserVerification::generate($company);
-        UserVerification::send($company, 'Company Verification', config('mail.recieve_to.address'), config('mail.recieve_to.name'));
-
-       // Auth::guard('company')->user()->sendEmailVerificationNotification();
+        
+        // Send verification email using our custom template
+        $company->sendEmailVerificationNotification();
 
         return back()->with('resent', true);
     }

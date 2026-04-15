@@ -12,6 +12,7 @@ use App\Traits\CountryStateCity;
 use App\Traits\CommonUserFunctions;
 use Illuminate\Support\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\UserResetPassword;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
@@ -593,5 +594,14 @@ class User extends Authenticatable implements MustVerifyEmail
         
         // Send using our custom Mailable that uses EmailTemplateService
         \Mail::send(new \App\Mail\WebEmailVerificationMailable($this, $verificationLink));
+    }
+
+    /**
+     * Send the password reset notification.
+     * Override Laravel's default to use our admin email template system
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new UserResetPassword($token));
     }
 }
