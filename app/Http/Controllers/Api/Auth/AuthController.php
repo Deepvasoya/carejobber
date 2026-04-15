@@ -147,14 +147,11 @@ class AuthController extends Controller
 
         // Send verification email
         try {
-            Mail::send('emails.verification-code', [
-                'name' => $user->name,
-                'verification_code' => $verificationCode,
-                'expires_at' => $expiresAt->format('M d, Y H:i')
-            ], function ($message) use ($user) {
-                $message->to($user->email, $user->name)
-                        ->subject('Email Verification Code - Jobs Portal');
-            });
+            Mail::send(new \App\Mail\EmailVerificationMailable(
+                $user,
+                $verificationCode,
+                $expiresAt->format('M d, Y H:i')
+            ));
 
             return response()->json([
                 'success' => true,
@@ -440,14 +437,11 @@ class AuthController extends Controller
 
         // Send verification email
         try {
-            Mail::send('emails.verification-code', [
-                'name' => $user->name,
-                'verification_code' => $verificationCode,
-                'expires_at' => $expiresAt->format('M d, Y H:i')
-            ], function ($message) use ($user) {
-                $message->to($user->email, $user->name)
-                        ->subject('Email Verification Code - Jobs Portal');
-            });
+            Mail::send(new \App\Mail\EmailVerificationMailable(
+                $user,
+                $verificationCode,
+                $expiresAt->format('M d, Y H:i')
+            ));
 
             return response()->json([
                 'success' => true,
@@ -535,14 +529,11 @@ class AuthController extends Controller
 
         // Send email
         try {
-            Mail::send('emails.password-reset-code', [
-                'name' => $user->name,
-                'code' => $resetCode,
-                'expires_at' => $expiresAt->format('M d, Y H:i')
-            ], function ($message) use ($user) {
-                $message->to($user->email, $user->name)
-                        ->subject('Password Reset Code - Jobs Portal');
-            });
+            Mail::send(new \App\Mail\PasswordResetMailable(
+                $user,
+                $resetCode,
+                $expiresAt->format('M d, Y H:i')
+            ));
 
             return response()->json([
                 'success' => true,

@@ -1542,17 +1542,12 @@ class JobController extends BaseController
                 if ($file_name && $request->has('company_email')) {
                     try {
                         $cv_filename = public_path() . '/uploads/' . $file_name;
-                        Mail::send('emails.job_apply_email', [
-                            'applicant_name' => $user_name,
-                            'job_title' => $job->title
-                        ], function($message) use ($request, $cv_filename, $file_name) {
-                            $message->to($request->company_email);
-                            $message->subject('New Job Application');
-                            $message->attach($cv_filename, [
-                                'as' => $file_name,
-                                'mime' => 'application/pdf'
-                            ]);
-                        });
+                        Mail::send(new \App\Mail\JobApplicationWithCVMailable(
+                            $job,
+                            $user,
+                            $cv_filename,
+                            $file_name
+                        ));
                     } catch (\Exception $e) {
                         // Log email error but don't fail the application
                         \Log::error('Failed to send job application email: ' . $e->getMessage());

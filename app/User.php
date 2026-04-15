@@ -575,4 +575,23 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return \App\Models\ResumeUnlock::isUnlockedBy($this->id, $companyId);
     }
+
+    /**
+     * Send the email verification notification.
+     * Override Laravel's default to use our admin email template system
+     */
+    public function sendEmailVerificationNotification()
+    {
+        // Ensure verification token exists
+        if (!$this->verification_token) {
+            $this->verification_token = \Illuminate\Support\Str::random(40);
+            $this->save();
+        }
+        
+        // Generate verification link
+        $verificationLink = route('email-verification.check', $this->verification_token) . '?email=' . urlencode($this->email);
+        
+        // Send using our custom Mailable that uses EmailTemplateService
+        \Mail::send(new \App\Mail\WebEmailVerificationMailable($this, $verificationLink));
+    }
 }

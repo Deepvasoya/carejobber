@@ -411,6 +411,140 @@ class EmailTemplatesSeeder extends Seeder
                 ]),
                 'category' => 'recommendation'
             ],
+
+            // Applicant Contact Message
+            [
+                'slug' => 'applicant-contact',
+                'name' => 'Applicant Contact Message',
+                'subject' => 'Contact from: {FROM_NAME}',
+                'body' => '<p>Dear {TO_NAME},</p><p>{SUBJECT}</p><p>{MESSAGE}</p><p><span style="color: #fff;text-decoration: none;background: #f25a55; padding: 7px 10px;text-align: center;display: inline-block;margin-top: 20px;">You can respond to this email by replying to this email.</span></p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{TO_NAME}' => 'Recipient name',
+                    '{FROM_NAME}' => 'Sender name',
+                    '{SUBJECT}' => 'Message subject',
+                    '{MESSAGE}' => 'Message content'
+                ]),
+                'category' => 'messaging'
+            ],
+
+            // Company Contact Message
+            [
+                'slug' => 'company-contact',
+                'name' => 'Company Contact Message',
+                'subject' => 'Enquiry about: {COMPANY_NAME}',
+                'body' => '<p>Dear {TO_NAME},</p><p>{SUBJECT}</p><p>{MESSAGE}</p><p><span style="color: #fff;text-decoration: none;background: #f25a55; padding: 7px 10px;text-align: center;display: inline-block;margin-top: 20px;">You can respond to this email by replying to this email.</span></p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{TO_NAME}' => 'Recipient name',
+                    '{FROM_NAME}' => 'Sender name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{SUBJECT}' => 'Message subject',
+                    '{MESSAGE}' => 'Message content'
+                ]),
+                'category' => 'messaging'
+            ],
+
+            // Document Upload - Account Approved
+            [
+                'slug' => 'document-account-approved',
+                'name' => 'Document Upload - Account Approved',
+                'subject' => 'Account Approved - Start Posting Jobs',
+                'body' => '<p>Dear {FULL_NAME},</p><p>Congratulations! Your account on {SITE_NAME} has been approved by our Super Administrator. You are now ready to begin posting job listings and connecting with potential candidates.</p><h3>Company/Employer Details:</h3><p><strong>Company Public link:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><h3>Getting Started:</h3><ol><li>Login to your {SITE_NAME} account.</li><li>Navigate to the Jobs section.</li><li>Click on "Post a New Job" to create your job listing.</li></ol><p>If you have any questions or need assistance, feel free to reach out to our support team with your {SITE_NAME} public profile url.</p><p>Thank you for choosing {SITE_NAME} for your recruitment needs!</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link',
+                    '{COMPANY_ADMIN_LINK}' => 'Company admin link'
+                ]),
+                'category' => 'company'
+            ],
+
+            // Document Upload - Resubmit Request
+            [
+                'slug' => 'document-resubmit-request',
+                'name' => 'Document Upload - Resubmit Request',
+                'subject' => 'Resubmit Job Posting Request Declined',
+                'body' => '<p>Dear {FULL_NAME},</p><p>Thank you for your interest in posting jobs on {SITE_NAME}. Unfortunately, your recent application was declined due to insufficient documentation to verify your business status.</p><h3>Company/Employer Details:</h3><p><strong>Company Public link:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><h3>Next Steps:</h3><ol><li><strong>Review Your Documents:</strong> Please ensure that you provide clear and valid documents that establish your company\'s legitimacy.</li><li><strong>Resubmit Your Application:</strong> Once you have the necessary documents, login to your {SITE_NAME} account and resubmit your application.</li><li><strong>Prompt Review:</strong> Our team will expedite the review process upon receiving your updated application.</li></ol><p>We appreciate your commitment to {SITE_NAME} and apologize for any inconvenience. If you have any questions or need assistance, feel free to reach out to our support team.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link'
+                ]),
+                'category' => 'company'
+            ],
+
+            // Document Upload - Pending Verification (To Company)
+            [
+                'slug' => 'document-pending-company',
+                'name' => 'Document Upload - Pending Verification (Company)',
+                'subject' => 'Registration Verification in Progress',
+                'body' => '<p>Dear {FULL_NAME},</p><p>Thank you for submitting your application to register as an employer on {SITE_NAME}. We have received your request and attached documents.</p><h3>Company/Employer Details:</h3><p><strong>Company Public link:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><p>Our review team is currently assessing your submission. Please allow some time for the verification process. You will receive a notification email once your account has been verified.</p><p>If you have any questions or need further assistance, feel free to reach out to us.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link'
+                ]),
+                'category' => 'company'
+            ],
+
+            // Document Upload - New Registration (To Admin)
+            [
+                'slug' => 'document-pending-admin',
+                'name' => 'Document Upload - New Registration (Admin)',
+                'subject' => 'New Employer Registration Approval Required',
+                'body' => '<p>Dear Super Admin,</p><p>We hope this message finds you well. We would like to bring to your attention that a new company or employer has recently registered on {SITE_NAME}. Before they can begin posting job listings, we kindly request your approval.</p><h3>Company/Employer Details:</h3><p><strong>Company Public link:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><p><strong>Administrator\'s backend link:</strong> <a href="{COMPANY_ADMIN_LINK}">{COMPANY_ADMIN_LINK}</a></p><p>Please login to your Super Administrator account on {SITE_NAME} and review the registration details. If everything appears satisfactory, kindly approve their account to enable them to start posting jobs.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link',
+                    '{COMPANY_ADMIN_LINK}' => 'Company admin backend link'
+                ]),
+                'category' => 'company'
+            ],
+
+            // Job Seeker Rejected
+            [
+                'slug' => 'job-seeker-rejected',
+                'name' => 'Job Seeker Application Rejected',
+                'subject' => 'Application Status Update - {JOB_TITLE}',
+                'body' => '<p>Dear {USER_NAME},</p><p>Thank you for your interest in the <strong>{JOB_TITLE}</strong> position at <strong>{COMPANY_NAME}</strong>.</p><p>After careful consideration, we regret to inform you that your application was not selected for this position. We appreciate your interest and encourage you to apply for other opportunities on {SITE_NAME}.</p><p><strong>Job Link:</strong> <a href="{JOB_LINK}">{JOB_LINK}</a></p><p><strong>Company Profile:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><p>We wish you the best in your job search.</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{USER_NAME}' => 'Job seeker name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company profile link',
+                    '{JOB_TITLE}' => 'Job title',
+                    '{JOB_LINK}' => 'Job detail page link'
+                ]),
+                'category' => 'application'
+            ],
+
+            // Web Email Verification (with link)
+            [
+                'slug' => 'web-email-verification',
+                'name' => 'Web Email Verification (Link)',
+                'subject' => 'Email Verification - {SITE_NAME}',
+                'body' => '<p>Dear {TO_NAME},</p><p>Thank you for registering with {SITE_NAME}! We\'re excited to have you on board. To get started, please verify your email address by clicking the button below.</p><div style="text-align: center; margin: 30px 0;"><a href="{VERIFICATION_LINK}" style="display: inline-block; background: #5E2DFA; color: #fff; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-size: 16px;">Click here to verify your account</a></div><p>Or copy and paste this URL in your browser:</p><p style="word-break: break-all; color: #666; font-size: 14px;">{VERIFICATION_LINK}</p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{TO_NAME}' => 'User name',
+                    '{VERIFICATION_LINK}' => 'Email verification link'
+                ]),
+                'category' => 'authentication'
+            ],
         ];
 
         foreach ($templates as $template) {

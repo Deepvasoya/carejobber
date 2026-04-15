@@ -35,15 +35,38 @@ class ApplicantContactMail extends Mailable
     $recipientAddress = config('mail.recieve_to.address');
     $recipientName = config('mail.recieve_to.name');
 
+    // Prepare data for template
+    $templateData = [
+        'TO_NAME' => $this->data['to_name'],
+        'FROM_NAME' => $this->data['from_name'],
+        'SUBJECT' => $this->data['subject'] ?? '',
+        'MESSAGE' => $this->data['message_txt'] ?? ''
+    ];
+
+    // Get parsed template
+    $parsed = \App\Services\EmailTemplateService::parseTemplate('applicant-contact', $templateData);
+
+    if (!$parsed) {
+        // Fallback to old method if template not found
+        return $this->from([
+            'address' => $recipientAddress,
+            'name' => $recipientName,
+        ])
+        ->replyTo($recipientAddress, $recipientName)
+        ->to($this->data['to_email'], $this->data['to_name'])
+        ->subject('Contact from: ' . $this->data['from_name'])
+        ->view('emails.send_applicant_contact_message')
+        ->with($this->data);
+    }
+
     return $this->from([
         'address' => $recipientAddress,
         'name' => $recipientName,
     ])
     ->replyTo($recipientAddress, $recipientName)
     ->to($this->data['to_email'], $this->data['to_name'])
-    ->subject('Contact from: ' . $this->data['from_name'])
-    ->view('emails.send_applicant_contact_message')
-    ->with($this->data);
+    ->subject($parsed['subject'])
+    ->html($parsed['body']);
 }
 
 
