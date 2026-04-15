@@ -46,7 +46,7 @@
         </div>
         
         <p style="font-size: 12px; color: #666; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-            <em>This job matches your profile based on your functional area and career level. If you're not interested in receiving these recommendations, you can update your job alert preferences in your account settings.</em>
+            <em>This job matches your profile based on your job category and career level. If you're not interested in receiving these recommendations, you can update your job alert preferences in your account settings.</em>
         </p>
         
         <p style="font-size: 14px; margin-top: 20px;">

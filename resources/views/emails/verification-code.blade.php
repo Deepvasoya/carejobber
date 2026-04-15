@@ -59,13 +59,13 @@
 <body>
     <div class="header">
         <h1>Email Verification</h1>
-        <p>Jobs Portal</p>
+        <p>Medojob</p>
     </div>
     
     <div class="content">
         <h2>Hello {{ $name }},</h2>
         
-        <p>Thank you for registering with Jobs Portal! To complete your registration, please use the verification code below:</p>
+        <p>Thank you for registering with Medojob! To complete your registration, please use the verification code below:</p>
         
         <div class="verification-code">
             <p><strong>Your verification code is:</strong></p>
@@ -79,10 +79,10 @@
             <strong>Important:</strong> This code is valid for 30 minutes only. If you don't verify your email within this time, you'll need to request a new code.
         </div>
         
-        <p>If you didn't create an account with Jobs Portal, please ignore this email.</p>
+        <p>If you didn't create an account with Medojob, please ignore this email.</p>
         
         <p>Best regards,<br>
-        The Jobs Portal Team</p>
+        The Medojob Team</p>
     </div>
     
     <div class="footer">
