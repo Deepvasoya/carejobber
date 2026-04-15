@@ -7,50 +7,110 @@ $link = route('company.email-verification.check', $user->verification_token);
 $link = route('email-verification.check', $user->verification_token);
 }
 @endphp
-<table border="0" cellpadding="0" cellspacing="0" class="force-row" style="width: 100%;    border-bottom: solid 1px #ccc;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f7; padding:40px 0; font-family: Arial, sans-serif;">
     <tr>
-        <td class="content-wrapper" style="padding-left:24px;padding-right:24px"><br>
-            <div class="title" style="font-family: Helvetica, Arial, sans-serif; font-size: 18px;font-weight:400;color: #000;text-align: left; padding-top: 20px;">Dear {{ $user->name }} ,</div></td>
-    </tr>
-    <tr>
-        <td class="cols-wrapper" style="padding-left:12px;padding-right:12px">
-            <!--[if mso]>
-             <table border="0" width="576" cellpadding="0" cellspacing="0" style="width: 576px;">
+        <td align="center">
+
+            <!-- Main Container -->
+            <table width="700" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+
+                <!-- Card (Content Area) -->
                 <tr>
-                   <td width="192" style="width: 192px;" valign="top">
-                      <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" align="left" class="force-row" style="width: 100%;">
-                <tr>
-                    <td class="row" valign="top" style="padding-left:12px;padding-right:12px;padding-top:18px;padding-bottom:12px"><table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+                    <td style="background:#ffffff; border-radius:10px; padding:40px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
 
+                        <!-- Logo -->
+                        <div style="text-align:center; margin-bottom:25px;">
+                            <img src="https://yourdomain.com/logo.png" alt="Medojob" style="max-width:160px;">
+                        </div>
 
-                    <tr>
-                        <td>
-                            <p style="font-family:Helvetica, Arial, sans-serif;font-size:16px;line-height:24px;font-weight:400;color:#333;padding-bottom:30px; text-align: left;">Thank you for registering with us! We're excited to have you on board. To get started, please verify your email address by clicking the button below.</p>
-                        </td>
-                    </tr>
+                        <!-- Content -->
+                        <p style="font-size:16px;">Hello <strong>{{ $user->name }}</strong>,</p>
 
-                            <tr>
-                                <td class="subtitle" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:22px;font-weight:400;color:#333;padding-bottom:30px; text-align: left;"><a href="{{ $link . '?email=' . urlencode($user->email) }}" style="color: #fff;text-decoration: none;background: #000; padding: 12px 25px;text-align: center;display: inline-block;margin-top: 20px;">Click here to verify your account</a></td>
-                            </tr>
-                            <tr>
-                                <td class="subtitle" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:22px;font-weight:400;color:#333;padding-bottom:30px; text-align: left;">Or copy and paste this URL in browser <br> {{ $link . '?email=' . urlencode($user->email) }} </td>
-                            </tr>
-                            <tr>
-                                <td style="font-family: Helvetica, Arial, sans-serif;font-size: 14px;line-height: 22px;font-weight: 400;color: #333; padding-bottom: 30px;text-align: left;"> 
-                                <p style="margin-top:10px; font-family: Helvetica, Arial, sans-serif;font-size: 14px; color: #333;">                               
-                               
-Warm regards, <br>
-{{ $siteSetting->site_name }} Team 
-                                </p>
-                               
-                               </td>
-                            </tr>
-                        </table>
-                        <br></td>
+                        <p style="font-size:16px; line-height:1.6;">
+                            Thank you for registering with <strong>{{ $siteSetting->site_name }}</strong>. 
+                            We're excited to have you on board.
+                        </p>
+
+                        <p style="font-size:16px; line-height:1.6;">
+                            To complete your registration and activate your account, please verify your email address by clicking the button below.
+                        </p>
+
+                        <!-- Button -->
+                        <div style="text-align:center; margin:35px 0;">
+                            <a href="{{ $link . '?email=' . urlencode($user->email) }}" 
+                               style="background: linear-gradient(135deg, #0b3d91, #0f9d58); color:#ffffff; padding:14px 32px; text-decoration:none; border-radius:6px; font-weight:bold; display:inline-block;">
+                                Verify Your Account
+                            </a>
+                        </div>
+
+                        <!-- Fallback -->
+                        <p style="font-size:14px; color:#666;">
+                            If the button above does not work, copy and paste this link into your browser:
+                        </p>
+
+                        <p style="font-size:14px; word-break:break-all; color:#0b3d91;">
+                            {{ $link . '?email=' . urlencode($user->email) }}
+                        </p>
+
+                        <p style="margin-top:30px;">
+                            Warm regards,<br>
+                            <strong>{{ $siteSetting->site_name }} Team</strong>
+                        </p>
+
+                    </td>
                 </tr>
-            </table>      
-            <!--[if mso]>
+
+                <!-- Footer (Separate Background) -->
+                <tr>
+                    <td style="background:#f7f9fc; padding:30px; border-radius:0 0 10px 10px; text-align:center;">
+
+                        <p style="max-width:520px; margin:10px auto; font-size:13px; color:#666; line-height:1.6;">
+                            This email has been sent to you as a registered user of <strong>Medojob.com</strong> and is part of our automated communication process.
+                        </p>
+
+                        <p style="max-width:520px; margin:10px auto; font-size:13px; color:#666; line-height:1.6;">
+                            <strong>Disclaimer:</strong> Medojob connects healthcare professionals and employers. We do not guarantee job placements or hiring outcomes.
+                        </p>
+
+                        <p style="max-width:520px; margin:10px auto; font-size:13px; color:#666;">
+                            Report suspicious activity: 
+                            <a href="mailto:support@medojob.com" style="color:#0b3d91;">support@medojob.com</a>
+                        </p>
+
+                        <!-- Address -->
+                        <p style="font-size:12px; color:#777; margin-top:15px;">
+                            Medojob Inc.<br>
+                            16004 - 54 Street NW, Edmonton, AB, Canada T5Y 0R1<br>
+                            1 (888) 338 2332
+                        </p>
+
+                        <!-- Links -->
+                        <p style="margin:15px 0;">
+                            <a href="https://medojob.com" style="margin:0 6px; color:#0b3d91;">Home</a> |
+                            <a href="https://medojob.com/search-jobs" style="margin:0 6px; color:#0b3d91;">Jobs</a> |
+                            <a href="https://medojob.com/faq" style="margin:0 6px; color:#0b3d91;">FAQs</a> |
+                            <a href="https://medojob.com/blog" style="margin:0 6px; color:#0b3d91;">Blog</a>
+                        </p>
+
+                        <!-- Social -->
+                        <div style="margin:20px 0;">
+                            <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg" width="20"></a>
+                            <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitter.svg" width="20"></a>
+                            <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg" width="20"></a>
+                            <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/pinterest.svg" width="20"></a>
+                        </div>
+
+                        <p style="font-size:12px; color:#999;">
+                            © 2026 Medojob Inc. All rights reserved.
+                        </p>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+        <!--[if mso]>
                </td>
             </tr>
          </table>

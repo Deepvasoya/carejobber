@@ -52,8 +52,8 @@
     </div>
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'industry_id') !!}">
-			<label>{{__('Industry')}} <span>*</span></label>
-			{!! Form::select('industry_id', ['' => __('Select Industry')]+$industries, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
+			<label>{{__('Facility Type')}} <span>*</span></label>
+			{!! Form::select('industry_id', ['' => __('Select Facility Type')]+$industries, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'industry_id') !!} </div>
     </div>
     <div class="col-md-6">
