@@ -133,6 +133,13 @@ class CompanyController extends Controller
         Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
         $company = Auth::guard('company')->user();
         
+        // Check if company needs to upload verification documents
+        // Redirect to document upload if business registration is not uploaded
+        if (!$company->hasBusinessRegistration()) {
+            return redirect()->route('company.verification.upload')
+                ->with('info', __('Please upload your business registration document to complete your profile verification.'));
+        }
+        
         // Suggested candidates: profile job category (functional_area) matches an active job's category
         $suggestedCandidates = $this->fetchJobSeekersMatchingPostedFunctionalAreas((int) $company->id, 6);
         
@@ -407,7 +414,7 @@ public function downloadReceipt($companyId)
         $data['email'] = $company->email;
         $data['phone'] = $company->phone;
         $data['subject'] = 'Company Documents Uploaded by '.$company->name;
-        $data['message_txt'] = $company->name.' has uploaded there documents please verify <a href="'.url('admin/public-company/'.$company->id).'">View Detail</a>';
+        $data['message_txt'] = $company->name.' has uploaded there documents please verify <a href="'.route('admin.public.company', $company->id).'">View Detail</a>';
         $data['is_admin'] = false;
         $when = Carbon::now()->addMinutes(5);
         Mail::send(new DocumentsUpload($data));
@@ -421,6 +428,7 @@ public function downloadReceipt($companyId)
     public function updateCompanyProfile(CompanyFrontFormRequest $request)
 
     {
+        app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedProfileRequest($request);
 
         $company = Company::findOrFail(Auth::guard('company')->user()->id);
 

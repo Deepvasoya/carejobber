@@ -129,6 +129,16 @@
                         <span>{{ (bool)$company->verified ? __('Yes') : __('No') }}</span>
                     </li>
                     <li>
+                        <span class="text-muted">{{ __('Company Verified') }}</span>
+                        <span>
+                            @if($company->isVerified())
+                                <span class="badge bg-success"><i class="ri ri-checkbox-circle-line me-1"></i>Verified</span>
+                            @else
+                                <span class="badge bg-warning"><i class="ri ri-time-line me-1"></i>Pending</span>
+                            @endif
+                        </span>
+                    </li>
+                    <li>
                         <span class="text-muted">{{ __('Total Employees') }}</span>
                         <span>{{ $company->no_of_employees ?? '–' }}</span>
                     </li>
@@ -143,6 +153,57 @@
                 </ul>
             </div>
         </div>
+
+        {{-- Verification Documents --}}
+        <?php $verificationDocs = $company->verificationDocuments; ?>
+        @if($verificationDocs->count() > 0)
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="ri ri-file-shield-line me-1"></i> {{ __('Verification Documents') }}</h5>
+                @if(!$company->isVerified())
+                <button type="button" class="btn btn-sm btn-success" id="approveVerificationBtn">
+                    <i class="ri ri-checkbox-circle-line me-1"></i>Approve Verification
+                </button>
+                @endif
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    @foreach($verificationDocs as $doc)
+                    <li class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">
+                                    @if($doc->document_type === 'business_registration')
+                                        <i class="ri ri-file-text-line me-1"></i>Business Registration
+                                    @elseif($doc->document_type === 'tax_document')
+                                        <i class="ri ri-file-list-line me-1"></i>Tax Document
+                                    @elseif($doc->document_type === 'establishment_photo')
+                                        <i class="ri ri-image-line me-1"></i>Establishment Photo
+                                    @endif
+                                </h6>
+                                <p class="small text-muted mb-1">{{ $doc->original_filename }}</p>
+                                <p class="small text-muted mb-0">
+                                    <i class="ri ri-calendar-line me-1"></i>{{ $doc->uploaded_at->format('M d, Y h:i A') }}
+                                </p>
+                            </div>
+                            <a href="{{ route('company.verification.document.show', $doc->id) }}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               target="_blank">
+                                <i class="ri ri-download-line me-1"></i>View
+                            </a>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+                @if($company->isVerified())
+                <div class="alert alert-success mb-0 mt-2">
+                    <i class="ri ri-checkbox-circle-line me-1"></i>
+                    Company verified on {{ $company->verified_at->format('M d, Y') }}
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
 
         {{-- Company Person --}}
         <div class="card mt-3">
@@ -269,6 +330,48 @@ $(function() {
             error: function() {
                 Swal.fire('Error!', 'There was an error updating the status.', 'error');
                 if (statusModal) statusModal.hide();
+            }
+        });
+    });
+
+    // Approve company verification
+    $('#approveVerificationBtn').on('click', function() {
+        Swal.fire({
+            title: 'Approve Company Verification?',
+            text: 'This will mark the company as verified and grant them a verified badge.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Approve',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.company.approve.verification', $company->id) }}",
+                    type: 'POST',
+                    data: { _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Approved!',
+                                text: 'Company has been verified successfully.',
+                                icon: 'success'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error!', response.message || 'There was an error approving the verification.', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        var message = 'There was an error approving the verification.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        Swal.fire('Error!', message, 'error');
+                    }
+                });
             }
         });
     });

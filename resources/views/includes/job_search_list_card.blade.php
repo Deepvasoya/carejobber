@@ -123,6 +123,7 @@
                     <div class="job-list-company-text">
                         <a href="{{ route('company.detail', $company->slug) }}" class="job-list-company-name"
                             title="{{ $company->name }}">{{ $company->name }}</a>
+                        @include('components.verified-badge', ['company' => $company])
                         <div class="job-list-posted">{{ __('Posted') }}:
                             {{ $job->created_at->format('M d, Y') }}</div>
                     </div>

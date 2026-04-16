@@ -5,6 +5,7 @@ namespace App\Services;
 use App\City;
 use App\FunctionalArea;
 use App\Helpers\LocationHelper;
+use App\Industry;
 use App\JobSkill;
 use App\State;
 use Illuminate\Http\Request;
@@ -20,6 +21,12 @@ class UserSubmittedLookupService
     public function mergeUserSubmittedProfileRequest(Request $request): void
     {
         DB::transaction(function () use ($request) {
+            if ((int) $request->input('industry_id') === 0) {
+                $name = (string) $request->input('custom_industry', '');
+                $id = $this->findOrCreateIndustry($name);
+                $request->merge(['industry_id' => $id]);
+            }
+
             if ((int) $request->input('functional_area_id') === 0) {
                 $name = (string) $request->input('custom_functional_area', '');
                 $id = $this->findOrCreateFunctionalArea($name);
@@ -41,6 +48,12 @@ class UserSubmittedLookupService
     public function mergeUserSubmittedJobRequest(Request $request): void
     {
         DB::transaction(function () use ($request) {
+            if ((int) $request->input('industry_id') === 0) {
+                $name = (string) $request->input('custom_industry', '');
+                $id = $this->findOrCreateIndustry($name);
+                $request->merge(['industry_id' => $id]);
+            }
+
             if ((int) $request->input('functional_area_id') === 0) {
                 $name = (string) $request->input('custom_functional_area', '');
                 $id = $this->findOrCreateFunctionalArea($name);
@@ -158,6 +171,39 @@ class UserSubmittedLookupService
         $row->save();
 
         return (int) $row->functional_area_id;
+    }
+
+    public function findOrCreateIndustry(string $name): int
+    {
+        $name = trim($name);
+        if (mb_strlen($name) < 2) {
+            throw new \InvalidArgumentException('Industry name too short.');
+        }
+        $name = mb_substr($name, 0, 200);
+        $lang = app()->getLocale();
+
+        $existing = Industry::query()
+            ->where('lang', $lang)
+            ->whereRaw('LOWER(TRIM(industry)) = ?', [mb_strtolower($name)])
+            ->orderByDesc('is_default')
+            ->first();
+        if ($existing) {
+            $iid = (int) ($existing->industry_id ?: $existing->id);
+
+            return $iid > 0 ? $iid : (int) $existing->id;
+        }
+
+        $row = new Industry();
+        $row->industry = $name;
+        $row->is_active = 1;
+        $row->lang = $lang;
+        $row->is_default = 1;
+        $row->sort_order = 99999;
+        $row->save();
+        $row->industry_id = $row->id;
+        $row->save();
+
+        return (int) $row->industry_id;
     }
 
     public function findOrCreateJobSkill(string $name): int

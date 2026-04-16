@@ -47,6 +47,7 @@
                         <span>{{ __('Posted') }}: {{ $job->created_at->format('M d, Y') }}</span>
                     @endisset
                     <a href="{{ route('company.detail', $company->slug) }}" title="{{ $company->name }}">{{ $company->name }}</a>
+                    @include('components.verified-badge', ['company' => $company])
                 </div>
                 <a href="{{ route('company.detail', $company->slug) }}" class="company-logo" title="{{ $company->name }}">{{ $company->printCompanyImage() }}</a>
             </div>

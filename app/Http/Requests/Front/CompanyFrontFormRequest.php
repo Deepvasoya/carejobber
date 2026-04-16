@@ -38,6 +38,7 @@ class CompanyFrontFormRequest extends Request
                         'email' => 'required|unique:companies,email' . $unique_id . '|email|max:100',
                         "ceo" => "required|max:60",
                         "industry_id" => "required",
+                        "custom_industry" => "nullable|string|max:200",
                         "ownership_type_id" => "required",
                         "description" => "required",
                         //"location" => "required|max:150",
@@ -64,6 +65,9 @@ class CompanyFrontFormRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($v) {
+            if ((int) $this->input('industry_id') === 0 && mb_strlen(trim((string) $this->input('custom_industry', ''))) < 2) {
+                $v->errors()->add('custom_industry', __('Please enter a facility type.'));
+            }
             app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_COMPANY_PROFILE, $v);
         });
     }
@@ -77,7 +81,7 @@ class CompanyFrontFormRequest extends Request
             'email.unique' => __('This Email has already been taken'),
             'password.required' => __('Password is required'),
             'ceo.required' => __('CEO name is required'),
-            'industry_id.required' => __('Please select Industry'),
+            'industry_id.required' => __('Please select Facility Type'),
             'ownership_type_id.required' => __('Please select Ownership Type'),
             'description.required' => __('Description required'),
             //'location.required' => __('Location required'),

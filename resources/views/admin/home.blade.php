@@ -368,7 +368,7 @@
                                 <li>
                                     <div class="feed-badge feed-badge-img">{!! $company->printCompanyImage(36, 36) !!}</div>
                                     <div class="feed-desc">
-                                        <a href="{{ url('admin/public-company/'.$company->id) }}">{{ $company->name }}</a> ({{ $company->email }}) &middot; {{ $company->getLocation() }}
+                                        <a href="{{ route('admin.public.company', $company->id) }}">{{ $company->name }}</a> ({{ $company->email }}) &middot; {{ $company->getLocation() }}
                                     </div>
                                 </li>
                                 @endforeach

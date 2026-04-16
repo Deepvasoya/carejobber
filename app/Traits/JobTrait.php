@@ -218,6 +218,8 @@ trait JobTrait
 
         $job->hide_salary = $request->input('hide_salary');
 
+        $job->industry_id = $request->input('industry_id');
+
         $job->functional_area_id = $request->input('functional_area_id');
 
         $job->job_type_id = $request->input('job_type_id');
@@ -520,6 +522,8 @@ trait JobTrait
 
         $salaryPeriods = DataArrayHelper::langSalaryPeriodsArray();
 
+        $industries = DataArrayHelper::langIndustriesArray();
+
 
 
         $jobSkillIds = array();
@@ -548,7 +552,9 @@ trait JobTrait
 
                         ->with('degreeLevels', $degreeLevels)
 
-                        ->with('salaryPeriods', $salaryPeriods);
+                        ->with('salaryPeriods', $salaryPeriods)
+
+                        ->with('industries', $industries);
 
     }
 
@@ -681,6 +687,8 @@ trait JobTrait
 
         $salaryPeriods = DataArrayHelper::langSalaryPeriodsArray();
 
+        $industries = DataArrayHelper::langIndustriesArray();
+
 
 
         $company = Auth::guard('company')->user();
@@ -713,6 +721,8 @@ trait JobTrait
                         ->with('degreeLevels', $degreeLevels)
 
                         ->with('salaryPeriods', $salaryPeriods)
+
+                        ->with('industries', $industries)
 
                         ->with('job', $job);
 
@@ -945,8 +955,7 @@ trait JobTrait
                 return DB::table('jobs')->where('company_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'industry_id') {
-                $company_ids = Company::where('industry_id', '=', $value)->where('is_active', '=', 1)->pluck('id')->toArray();
-                return DB::table('jobs')->whereIn('company_id', $company_ids)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
+                return DB::table('jobs')->where('industry_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'job_skill_id') {
                 $job_ids = JobSkillManager::where('job_skill_id', '=', $value)->pluck('job_id')->toArray();

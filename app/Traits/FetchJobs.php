@@ -37,6 +37,7 @@ trait FetchJobs
         'jobs.salary_from',
         'jobs.salary_to',
         'jobs.hide_salary',
+        'jobs.industry_id',
         'jobs.functional_area_id',
         'jobs.job_type_id',
         'jobs.job_shift_id',
@@ -87,11 +88,7 @@ trait FetchJobs
         //dd($company_ids);
 		$company_ids_array=array();
         if (isset($industry_ids[0])) {
-            $company_ids_array = Company::whereIn('industry_id', $industry_ids)->pluck('id')->toArray();
-            if (isset($company_ids[0]) && isset($company_ids_array[0])) {
-                $company_ids = array_intersect($company_ids_array, $company_ids);
-            }
-            $company_ids = $company_ids_array;
+            $query->whereIn('jobs.industry_id', $industry_ids);
         }
         
         
@@ -178,10 +175,12 @@ trait FetchJobs
         return array_unique($array);
     }
 
-    public function fetchIndustryIdsArray($companyIdsArray = array())
+    public function fetchIndustryIdsArray($jobIdsArray = array())
     {
-        $query = Company::select('industry_id');
-        $query->whereIn('id', $companyIdsArray);
+        $query = Job::select('industry_id')->where('is_active', 1)->notExpire();
+        if (isset($jobIdsArray[0])) {
+            $query->whereIn('id', $jobIdsArray);
+        }
 
         $array = $query->pluck('industry_id')->toArray();
         return array_unique($array);

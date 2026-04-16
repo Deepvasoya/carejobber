@@ -132,6 +132,96 @@ if (!isset($seo)) {
     .search-ac-job-bold { font-weight: 600; color: #111; }
     .search-ac-loc-prefix { font-weight: 600; }
     .search-ac-loc-rest { font-weight: 400; color: #333; }
+
+    /* Page Loader Styles */
+    #page-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #page-loader.loaded {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .loader-content {
+        text-align: center;
+    }
+
+    .loader-spinner {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+
+    .loader-spinner::before,
+    .loader-spinner::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #28a745;
+        animation: spin 1.2s linear infinite;
+    }
+
+    .loader-spinner::before {
+        width: 60px;
+        height: 60px;
+        top: 0;
+        left: 0;
+    }
+
+    .loader-spinner::after {
+        width: 45px;
+        height: 45px;
+        top: 7.5px;
+        left: 7.5px;
+        border-top-color: #17a2b8;
+        animation-duration: 0.8s;
+        animation-direction: reverse;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+        margin-top: 10px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .loader-logo {
+        max-width: 150px;
+        margin-bottom: 20px;
+        opacity: 0.9;
+    }
+
+    /* Blur content while loading */
+    body.loading .page-content {
+        filter: blur(5px);
+        pointer-events: none;
+    }
     </style>
 </head>
 
@@ -139,7 +229,20 @@ if (!isset($seo)) {
 
 <body>
 
-    @yield('content')
+    <!-- Page Loader -->
+    <div id="page-loader">
+        <div class="loader-content">
+            @if(!empty($siteSetting->site_logo))
+            <img src="{{ asset('sitesetting_images/thumb/' . $siteSetting->site_logo) }}" alt="{{ $siteSetting->site_name }}" class="loader-logo">
+            @endif
+            <div class="loader-spinner"></div>
+            <div class="loader-text">{{ __('Loading') }}...</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        @yield('content')
+    </div>
 
     {{-- jQuery must load first. Use consistent asset() paths so production (ASSET_URL/APP_URL) serves from public/ --}}
     <script src="{{ asset('/js/jquery.min.js') }}"></script>
@@ -448,6 +551,32 @@ if (!isset($seo)) {
 
     })(jQuery);
     }
+    </script>
+
+    <!-- Page Loader Script -->
+    <script>
+        // Show loader immediately
+        document.body.classList.add('loading');
+
+        // Hide loader when page is fully loaded
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('page-loader');
+            document.body.classList.remove('loading');
+            
+            // Add a small delay for smooth transition
+            setTimeout(function() {
+                loader.classList.add('loaded');
+            }, 300);
+        });
+
+        // Fallback: Hide loader after 5 seconds if something goes wrong
+        setTimeout(function() {
+            const loader = document.getElementById('page-loader');
+            if (loader && !loader.classList.contains('loaded')) {
+                document.body.classList.remove('loading');
+                loader.classList.add('loaded');
+            }
+        }, 5000);
     </script>
 
 </body>

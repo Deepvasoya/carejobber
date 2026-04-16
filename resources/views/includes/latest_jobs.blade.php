@@ -22,7 +22,7 @@
                         </div>
                         <div class="col-md-9 col-9">
                             <h4><a href="{{route('job.detail', [$latestJob->slug])}}" title="{{$latestJob->title}}">{{$latestJob->title}}</a></h4>
-                            <div class="company"><a href="{{route('company.detail', $company->slug)}}" title="{{$company->name}}">{{$company->name}}</a> - <span>{{$latestJob->getCity('city')}}</span></div>
+                            <div class="company"><a href="{{route('company.detail', $company->slug)}}" title="{{$company->name}}">{{$company->name}}</a> @include('components.verified-badge', ['company' => $company]) - <span>{{$latestJob->getCity('city')}}</span></div>
                             <div class="jobloc">
                                 <label class="fulltime" title="{{$latestJob->getJobType('job_type')}}">{{$latestJob->getJobType('job_type')}}</label> </div>
                         </div>                       

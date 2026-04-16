@@ -1,4 +1,4 @@
-<div class="col-lg-3">
+<div class="col-lg-3" style="flex: 0 0 auto; min-width: 280px;">
 	<div class="usernavwrap">
     <ul class="usernavdash">
         <li class="{{ Request::url() == route('company.home') ? 'active' : '' }}"><a href="{{route('company.home')}}"><i class="fas fa-tachometer" aria-hidden="true"></i> {{__('Dashboard')}}</a></li>
@@ -9,6 +9,18 @@
 
         <li class="{{ Request::routeIs('recruiter.posting.*') ? 'active' : '' }}"><a href="{{ route('recruiter.posting.packages') }}"><i class="fas fa-credit-card" aria-hidden="true"></i> {{__('Packages & Subscriptions')}}</a></li>
         <li class="{{ Request::url() == route('company.packages') ? 'active' : '' }}"><a href="{{ route('company.packages') }}"><i class="fas fa-search" aria-hidden="true"></i> {{__('CV Search Packages')}}</a></li>
+        <li class="{{ Request::url() == route('company.verification.upload') ? 'active' : '' }}">
+            <a href="{{ route('company.verification.upload') }}">
+                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                @if(Auth::guard('company')->user()->isVerified())
+                    {{ __('Company Verification') }} <span class="text-success">({{ __('Verified') }})</span>
+                @elseif(Auth::guard('company')->user()->hasBusinessRegistration())
+                    {{ __('Company Verification') }} <span class="text-warning">({{ __('Under Review') }})</span>
+                @else
+                    {{ __('Company Verification') }}
+                @endif
+            </a>
+        </li>
 
         <li class="{{ Request::url() == url('/list-payment-history') ? 'active' : '' }}"><a href="{{ url('/list-payment-history') }}"><i class="fas fa-file-invoice"></i> {{__('Payment History')}}</a></li>
         

@@ -50,6 +50,8 @@ class JobFrontFormRequest extends Request
                             'title' => 'nullable|string|max:180',
                             'description' => 'nullable|string',
                             'skills' => 'nullable|array',
+                            'industry_id' => 'nullable',
+                            'custom_industry' => 'nullable|string|max:200',
                             'custom_functional_area' => 'nullable|string|max:200',
                             'custom_city_name' => 'nullable|string|max:30',
                             'custom_job_skills_lines' => 'nullable|string|max:10000',
@@ -72,6 +74,8 @@ class JobFrontFormRequest extends Request
                         "title" => "required|max:180",
                         "description" => "required",
                         "skills" => "nullable|array",
+                        "industry_id" => "required",
+                        "custom_industry" => "nullable|string|max:200",
                         "custom_functional_area" => "nullable|string|max:200",
                         "custom_city_name" => "nullable|string|max:30",
                         "custom_job_skills_lines" => "nullable|string|max:10000",
@@ -114,6 +118,11 @@ class JobFrontFormRequest extends Request
                     $v->errors()->add('custom_functional_area', __('Please enter a custom job category.'));
                 }
             }
+            if ((int) $this->input('industry_id') === 0) {
+                if (mb_strlen(trim((string) $this->input('custom_industry', ''))) < 2) {
+                    $v->errors()->add('custom_industry', __('Please enter a facility type.'));
+                }
+            }
             if (LocationHelper::showCity() && (int) $this->input('city_id') === 0) {
                 $sid = app(\App\Services\UserSubmittedLookupService::class)->resolveStateIdForCity($this);
                 if ($sid <= 0) {
@@ -143,6 +152,7 @@ class JobFrontFormRequest extends Request
             'title.required' => __('Please enter Job title'),
             'description.required' => __('Please enter Job description'),
             'skills.required' => __('Please select or enter job skills'),
+            'industry_id.required' => __('Please select Facility Type'),
             'country_id.required' => __('Please select Country'),
             'state_id.required' => __('Please select State'),
             'city_id.required' => __('Please select City'),

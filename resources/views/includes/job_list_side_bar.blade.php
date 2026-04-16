@@ -228,6 +228,33 @@
 
 
         <!-- Jobs By Industry -->
+        <div class="widget">
+            <h4 class="widget-title">{{__('Facility Type')}}</h4>
+            <ul class="optionlist view_more_ul">
+                @if(isset($industryIdsArray) && count($industryIdsArray))
+                @foreach($industryIdsArray as $key=>$industry_id)
+                @php
+                $industry = App\Industry::where('industry_id','=',$industry_id)->lang()->active()->first();
+                if (null === $industry) {
+                    $industry = App\Industry::where('industry_id','=',$industry_id)->first();
+                }
+                @endphp
+                @if(null !== $industry)
+                @php
+                $checked = (in_array($industry->industry_id, Request::get('industry_id', array())))? 'checked="checked"':'';
+                @endphp
+                <li>
+                    <input type="checkbox" name="industry_id[]" id="industry_{{$industry->industry_id}}" value="{{$industry->industry_id}}" {{$checked}}>
+                    <label for="industry_{{$industry->industry_id}}"></label>
+                    {{$industry->industry}} <span>{{App\Job::countNumJobs('industry_id', $industry->industry_id)}}</span>
+                </li>
+                @endif
+                @endforeach
+                @endif
+            </ul>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span>
+        </div>
         <!-- Jobs By Industry end --> 
 
         <!-- Jobs By Skill -->

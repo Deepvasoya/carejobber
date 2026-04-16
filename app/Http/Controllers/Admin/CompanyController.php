@@ -31,6 +31,7 @@ use App\Traits\CompanyPackageTrait;
 use Illuminate\Support\Str;
 use App\Mail\DocumentsUpload;
 use App\UnlockedUser;
+use App\VerificationDocument;
 use Mail;
 class CompanyController extends Controller
 {
@@ -661,7 +662,7 @@ public function updateCompany($id, CompanyFormRequest $request)
 							<a class="dropdown-item text-danger" href="javascript:void(0);" onclick="deleteCompany(' . $companies->id . ');"><i class="ri ri-delete-bin-line me-1"></i>Delete</a>
 						</li>
                         <li>
-                            <a class="dropdown-item" href="' . route('public.company', ['id' => $companies->id]) . '"><i class="ri ri-eye-line me-1"></i>View Company Details</a>
+                            <a class="dropdown-item" href="' . route('admin.public.company', ['id' => $companies->id]) . '"><i class="ri ri-eye-line me-1"></i>View Company Details</a>
                         </li>
                         <li>
                             <a class="dropdown-item" href="' . route('admin.company.unlocked.candidates', ['id' => $companies->id]) . '"><i class="ri ri-team-line me-1"></i>View Unlocked Candidates</a>
@@ -753,5 +754,155 @@ public function updateCompany($id, CompanyFormRequest $request)
         }
         
         return view('admin.company.unlocked_candidates')->with($data);
+    }
+
+    /**
+     * Display verification requests page
+     */
+    public function verificationRequests()
+    {
+        $pendingCompanyIds = VerificationDocument::query()
+            ->select('company_id')
+            ->groupBy('company_id')
+            ->pluck('company_id');
+
+        $pendingVerifications = Company::whereIn('id', $pendingCompanyIds)
+            ->where(function ($query) {
+                $query->where('verification_status', 'pending')
+                    ->orWhere(function ($fallback) {
+                        $fallback->whereNull('verification_status')
+                            ->where(function ($status) {
+                                $status->where('verified', false)
+                                    ->orWhereNull('verified');
+                            });
+                    });
+            })
+            ->with(['verificationDocuments' => function ($query) {
+                $query->orderBy('uploaded_at', 'desc');
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $recentlyVerified = Company::where('verified', true)
+            ->whereNotNull('verified_at')
+            ->orderBy('verified_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        $recentlyRejected = Company::where('verification_status', 'rejected')
+            ->with(['verificationDocuments' => function ($query) {
+                $query->orderBy('uploaded_at', 'desc');
+            }])
+            ->orderBy('verification_reviewed_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.company.verification_requests')
+            ->with('pendingVerifications', $pendingVerifications)
+            ->with('recentlyVerified', $recentlyVerified)
+            ->with('recentlyRejected', $recentlyRejected);
+    }
+
+    /**
+     * Approve company verification
+     */
+    public function approveVerification($id)
+    {
+        try {
+            $company = Company::findOrFail($id);
+            
+            // Check if company has uploaded business registration (mandatory)
+            if (!$company->hasBusinessRegistration()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company must upload business registration document before verification can be approved.'
+                ], 400);
+            }
+            
+            // Check if already verified
+            if ($company->isVerified()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Company is already verified.'
+                ], 400);
+            }
+            
+            // Approve verification
+            $company->verified = true;
+            $company->verified_at = Carbon::now();
+            $company->verification_status = 'approved';
+            $company->verification_rejection_reason = null;
+            $company->verification_reviewed_at = Carbon::now();
+            $company->save();
+
+            $payload = [
+                'success' => true,
+                'message' => 'Company verification approved successfully.'
+            ];
+
+            if (request()->expectsJson()) {
+                return response()->json($payload);
+            }
+
+            return redirect()->back()->with('success', $payload['message']);
+            
+        } catch (\Exception $e) {
+            $payload = [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ];
+
+            if (request()->expectsJson()) {
+                return response()->json($payload, 500);
+            }
+
+            return redirect()->back()->with('error', $payload['message']);
+        }
+    }
+
+    public function rejectVerification(Request $request, $id)
+    {
+        try {
+            $company = Company::findOrFail($id);
+
+            if (!$company->verificationDocuments()->exists()) {
+                $message = 'Company has no verification documents to reject.';
+
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 400);
+                }
+
+                return redirect()->back()->with('error', $message);
+            }
+
+            $company->verified = false;
+            $company->verified_at = null;
+            $company->verification_status = 'rejected';
+            $company->verification_rejection_reason = $request->input('reason');
+            $company->verification_reviewed_at = Carbon::now();
+            $company->save();
+
+            $payload = [
+                'success' => true,
+                'message' => 'Company verification rejected successfully.'
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json($payload);
+            }
+
+            return redirect()->back()->with('success', $payload['message']);
+        } catch (\Exception $e) {
+            $payload = [
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json($payload, 500);
+            }
+
+            return redirect()->back()->with('error', $payload['message']);
+        }
     }
 }

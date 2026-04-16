@@ -52,6 +52,7 @@
             <ul class="sub-menu">
                 @if(APAuthHelp::can('companies.view'))<li class="side-nav-item"><a href="{{ route('list.companies') }}" class="side-nav-link">List Companies</a></li>@endif
                 @if(APAuthHelp::can('companies.create'))<li class="side-nav-item"><a href="{{ route('create.company') }}" class="side-nav-link">Add New Company</a></li>@endif
+                @if(APAuthHelp::can('companies.view'))<li class="side-nav-item"><a href="{{ route('admin.verification.requests') }}" class="side-nav-link">Verification Requests</a></li>@endif
             </ul>
         </div>
     </li>

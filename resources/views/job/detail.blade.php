@@ -118,6 +118,15 @@ $company = $job->getCompany();
                                     </div>
                                 </li>
                                 <li class="col-lg-4 col-md-6 col-6">
+                                    <div class="jbitlist">
+                                    <span class="material-symbols-outlined">domain</span>
+                                    <div class="jbitdata">
+                                        <strong>{{__('Facility Type')}}:</strong>
+                                        <span>{{$job->getIndustry('industry')}}</span>
+                                    </div>
+                                    </div>
+                                </li>
+                                <li class="col-lg-4 col-md-6 col-6">
                                     <div class="jbitlist"> 
                                     <span class="material-symbols-outlined">schedule</span>                                                                          
                                     <div class="jbitdata">
@@ -235,7 +244,7 @@ $company = $job->getCompany();
 				<div class="companyinfo">
 					<h3><i class="fas fa-building" aria-hidden="true"></i> {{__('Company Overview')}}</h3>
                             <div class="companylogo"><a href="{{route('company.detail',$company->slug)}}">{{$company->printCompanyImage()}}</a></div>
-                            <div class="title"><a href="{{route('company.detail',$company->slug)}}">{{$company->name}}</a></div>
+                            <div class="title"><a href="{{route('company.detail',$company->slug)}}">{{$company->name}}</a> @include('components.verified-badge', ['company' => $company])</div>
                             <div class="ptext">{{$company->getLocation()}}</div>
                             <div class="opening">
                                 <a href="{{route('company.detail',$company->slug)}}">
@@ -299,9 +308,10 @@ $company = $job->getCompany();
                     <div class="jobcompany">
                      <div class="ftjobcomp">
                         <span>{{$relatedJob->created_at->format('M d, Y')}}</span>
-                        <a href="{{route('company.detail', $relatedJobCompany->slug)}}" title="{{$company->name}}">{{$company->name}}</a>
+                        <a href="{{route('company.detail', $relatedJobCompany->slug)}}" title="{{$relatedJobCompany->name}}">{{$relatedJobCompany->name}}</a>
+                        @include('components.verified-badge', ['company' => $relatedJobCompany])
                      </div>
-                    <a href="{{route('company.detail', $relatedJobCompany->slug)}}" class="company-logo" title="{{$company->name}}">{{$company->printCompanyImage()}} </a>
+                    <a href="{{route('company.detail', $relatedJobCompany->slug)}}" class="company-logo" title="{{$relatedJobCompany->name}}">{{$relatedJobCompany->printCompanyImage()}} </a>
                     </div>
                 </div>
             </li>

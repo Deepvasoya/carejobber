@@ -162,7 +162,7 @@ class JobController extends BaseController
 
         /*         * ************************************************** */
 
-        $industryIdsArray = $this->fetchIndustryIdsArray($companyIdsArray);
+        $industryIdsArray = $this->fetchIndustryIdsArray($jobIdsArray);
 
         /*         * ************************************************** */
 

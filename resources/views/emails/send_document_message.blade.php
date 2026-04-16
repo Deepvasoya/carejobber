@@ -54,7 +54,7 @@ have any questions or need assistance, feel free to reach out to our support tea
             <?php }else{ ?>
             @if(!$is_admin)
            
-            <p><strong>Administrator's backend link: {{route('public.company', ['id' => $company->id])}}</strong></p>
+            <p><strong>Administrator's backend link: {{route('admin.public.company', ['id' => $company->id])}}</strong></p>
             <p>Please login to your Super Administrator account on {{ $siteSetting->site_name }} and review the registration
 details. If everything appears satisfactory, kindly approve their account to enable them to start
 posting jobs. </p>

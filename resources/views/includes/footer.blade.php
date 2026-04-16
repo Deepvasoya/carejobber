@@ -1,3 +1,46 @@
+<section class="footer-app-cta">
+    <div class="container">
+        <div class="footer-app-cta__inner">
+            <div class="footer-app-cta__copy">
+                <span class="footer-app-cta__eyebrow">{{ __('Mobile App') }}</span>
+                <h2>{{ __('Take Jobs in Your Pocket!') }}</h2>
+                <p>{{ __('Apply anytime, anywhere with Medojob free apps') }}</p>
+                <a href="#" class="footer-app-cta__note">{{ __('Download Free App') }}</a>
+            </div>
+            <div class="footer-app-cta__qr">
+                <span class="footer-app-cta__label">{{ __('Scan QR Code') }}</span>
+                <div class="footer-app-cta__qr-card">
+                    <img src="{{ asset('theme/images/qr.png') }}" alt="{{ __('Scan QR Code') }}">
+                </div>
+            </div>
+            <div class="footer-app-cta__stores">
+                <span class="footer-app-cta__label">{{ __('Download App') }}</span>
+                <div class="footer-app-cta__store-list">
+                    <a href="#" class="footer-app-cta__store footer-app-cta__store--play">
+                        <img src="{{ asset('images/andriod-btn.png') }}" alt="{{ __('Get it on Google Play') }}">
+                    </a>
+                    <a href="#" class="footer-app-cta__store footer-app-cta__store--apple">
+                        <span class="footer-app-cta__store-icon"><i class="fab fa-apple" aria-hidden="true"></i></span>
+                        <span class="footer-app-cta__store-text">
+                            <small>{{ __('Download on the') }}</small>
+                            <strong>{{ __('App Store') }}</strong>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-app-cta__phone" aria-hidden="true">
+                <div class="footer-app-cta__device">
+                    <div class="footer-app-cta__device-notch"></div>
+                    <div class="footer-app-cta__device-screen">
+                        <div class="footer-app-cta__screen-card footer-app-cta__screen-card--top"></div>
+                        <div class="footer-app-cta__screen-brand">medojob</div>
+                        <div class="footer-app-cta__screen-card footer-app-cta__screen-card--bottom"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <div class="footerWrap"> 
     <div class="container">
         <div class="row"> 

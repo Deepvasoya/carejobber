@@ -135,7 +135,8 @@ Route::prefix('chat/status')->group(function () {
 
 // Sociallite End
 /* * ***************************** */
-Route::get('/for-employers', function () {return view('for_employers');});
+Route::redirect('/for-employers', '/employer-zone', 301);
+Route::get('/employer-zone', 'EmployerLandingController@index')->name('employer.landing');
 Route::get('/for-jobseekers', function () {return view('for_jobseekers');});
 Route::post('tinymce-image_upload-front', 'TinyMceController@uploadImage')->name('tinymce.image_upload.front');
 Route::get('cronjob/send-alerts', 'AlertCronController@index')->name('send-alerts');

@@ -1,9 +1,9 @@
 
 
-@if(Auth::check() && Auth::guard('company')->check())
-<a href="{{route('register')}}" class="userloginbox postjobbox">
+@if(Auth::guard('company')->check())
+<a href="{{ route('post.job') }}" class="userloginbox postjobbox">
 @else
-<a href="javascript:void();" data-bs-toggle="modal" data-bs-target="#prejobpost" class="userloginbox postjobbox">
+<a href="{{ route('employer.landing') }}" class="userloginbox postjobbox">
 @endif		
 
 <h3>{{__('Post a Job Today')}}</h3>

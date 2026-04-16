@@ -32,7 +32,7 @@
 
                             </div>
 
-                            <div class="title">{{$company->name}}</div>
+                            <div class="title">{{$company->name}} @include('components.verified-badge', ['company' => $company])</div>
 
                             <div class="desi">{{$company->getIndustry('industry')}}</div>
 

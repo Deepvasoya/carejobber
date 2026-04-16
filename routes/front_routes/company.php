@@ -1,5 +1,4 @@
 <?php
-Route::get('admin/public-company/{id}','AjaxController@companyprofile')->name('public.company');
 Route::get('company/{slug}', 'Company\CompanyController@companyDetail')->name('company.detail');
 Route::get('companies', 'Company\CompaniesController@company_listing')->name('company.listing');
 
@@ -11,6 +10,13 @@ Route::get('job/promotions/success', 'Company\JobPromotionCheckoutController@suc
 // Resume unlock: pricing page and Stripe checkout
 Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.page');
 Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.checkout');
+
+// Employer Verification Routes
+Route::middleware(['auth:company'])->group(function () {
+    Route::get('company/verification/upload', 'Company\VerificationController@showUploadForm')->name('company.verification.upload');
+    Route::post('company/verification/store', 'Company\VerificationController@store')->name('company.verification.store');
+    Route::get('company/verification/document/{id}', 'Company\VerificationController@show')->name('company.verification.document.show');
+});
 
 Route::middleware(['auth:company', 'company.verified'])->group(function () {
 Route::get('company-documents', 'Company\CompanyController@company_documents')->name('company.documents');

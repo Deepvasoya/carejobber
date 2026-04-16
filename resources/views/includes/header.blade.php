@@ -40,7 +40,7 @@
                         
                             <li class="nav-item {{ Request::url() == route('contact.us') ? 'active' : '' }}"><a href="{{ route('contact.us') }}" class="nav-link">{{__('Contact Us')}}</a> </li>
                             <li class="nav-item"><a href="{{ route('help.centre') }}" class="nav-link" target="_blank" rel="noopener noreferrer">{{ __('Help Centre') }}</a></li>
-                            <li class="nav-item"><a href="{{ route('company.login.landing') }}" class="nav-link">{{ __('Employers/Post Job') }}</a></li>
+                            <li class="nav-item"><a href="{{ route('employer.landing') }}" class="nav-link">{{ __('Employers/Post Job') }}</a></li>
                             {{-- Instant Chat Addon - Header Icon --}}
                             @include('includes.chat-header-icon')
                             
@@ -74,8 +74,8 @@
                             @endif 
                             
                             @if(!Auth::user() && !Auth::guard('company')->user())
-                            <li class="nav-item loginbtn"><a href="javascript:void();" data-bs-toggle="modal" data-bs-target="#headlogin" class="nav-link">{{__('Sign in')}}</a> </li>
-							              <li class="nav-item register"><a href="javascript:void();" data-bs-toggle="modal" data-bs-target="#headregister" class="nav-link register">{{__('Register')}}</a> </li>                            
+                            <li class="nav-item loginbtn"><a href="{{ route('login') }}" class="nav-link">{{__('Sign in')}}</a> </li>
+							              <li class="nav-item register"><a href="{{ route('register') }}" class="nav-link register">{{__('Register')}}</a> </li>                            
                             @endif
                             <li class="dropdown userbtn"><a href="{{url('/')}}"><img src="{{asset('/')}}images/lang.png" alt="Change Language" class="userimg" /></a>
                                 <ul class="dropdown-menu">
@@ -124,45 +124,6 @@
 
 
 
-<!-- Login -->
-<div class="modal fade mypremodal" id="headlogin" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-       
-      <div class="modal-body">
-        <div class="preuserinfo">
-        <h3>{{__('Login as')}}</h3>
-        <a href="{{route('login')}}" class="btn btn-yellow mt-3">{{__('Job Seeker')}}</a>
-        <a href="{{url('company-login')}}" class="btn btn-dark mt-3">{{__('Company')}}</a>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
-
-<!-- Register -->
-<div class="modal fade mypremodal" id="headregister" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-       
-      <div class="modal-body">
-        <div class="preuserinfo p-2 pb-4">
-        <h3>{{__('Register as a')}}</h3>
-        <a href="{{route('register')}}" class="btn btn-yellow mt-3">{{__('Job Seeker')}}</a>
-        <a href="{{url('company-register')}}" class="btn btn-dark mt-3">{{__('Company')}}</a>
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
-
-
 <!-- Modal -->
 <div class="modal fade mypremodal" id="preresume" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -180,34 +141,6 @@
     </div>
   </div>
 </div>
-
-<div class="modal fade mypremodal" id="prejobpost" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-       
-      <div class="modal-body">
-        <div class="preuserinfo ps-0 pe-0">
-        <h3>{{__('Welcome to Employer Portal')}}</h3>
-        <p>{{__('Earn our user\'s trust. Get your account approved to start posting jobs')}}</p>
-
-        @if(!Auth::user() && !Auth::guard('company')->user())
-        <a href="{{url('company-login')}}" class="btn btn-yellow mt-3">{{__('Login')}}</a>
-        <a href="{{url('company-register')}}" class="btn btn-dark mt-3">{{__('Register')}}</a>
-
-       
-        @endif
-
-
-
-
-        </div>
-      </div>
-      
-    </div>
-  </div>
-</div>
-
 
 <div class="mobilenav">
   <ul>
@@ -246,7 +179,7 @@
 
 
     <li>
-      <a href="javascript:void();" data-bs-toggle="modal" data-bs-target="#headlogin">
+      <a href="{{ route('login') }}">
     <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#5f6368"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
     <span>Login</span>
     </a>
@@ -323,6 +256,7 @@
         <li class="nav-item"><a href="{{ route('posted.jobs') }}" class="nav-link"><i class="fab fa-black-tie"></i> {{__('Manage Jobs')}}</a></li>
 
         <li class="nav-item"><a href="{{ route('company.packages') }}" class="nav-link"><i class="fas fa-search" aria-hidden="true"></i> {{__('CV Search Packages')}}</a></li>
+        <li class="nav-item"><a href="{{ route('company.verification.upload') }}" class="nav-link"><i class="fas fa-shield-alt" aria-hidden="true"></i> {{__('Company Verification')}}</a></li>
 
         <li class="nav-item"><a href="{{ url('/list-payment-history') }}" class="nav-link"><i class="fas fa-file-invoice"></i> {{__('Payment History')}}</a></li>
         

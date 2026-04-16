@@ -79,6 +79,9 @@ class Company extends Authenticatable
 
     protected $casts = [
         'custom_field_data' => 'array',
+        'email_verified_at' => 'datetime',
+        'verified_at' => 'datetime',
+        'verification_reviewed_at' => 'datetime',
     ];
 
 
@@ -104,7 +107,7 @@ class Company extends Authenticatable
         }
         
         // Generate verification link
-        $verificationLink = route('email-verification.check', $this->verification_token) . '?email=' . urlencode($this->email);
+        $verificationLink = route('company.email-verification.check', $this->verification_token) . '?email=' . urlencode($this->email);
         
         // Send using our custom Mailable that uses EmailTemplateService
         \Mail::send(new \App\Mail\CompanyEmailVerificationMailable($this, $verificationLink));
@@ -731,5 +734,42 @@ class Company extends Authenticatable
         return $this->referral_bonus_jobs ?? 0;
     }
 
-}
+    /**
+     * Get verification documents for this company
+     */
+    public function verificationDocuments()
+    {
+        return $this->hasMany('App\VerificationDocument', 'company_id', 'id');
+    }
 
+    /**
+     * Check if company is verified
+     */
+    public function isVerified(): bool
+    {
+        if ($this->verification_status === 'approved') {
+            return true;
+        }
+
+        return $this->verified === true && $this->verified_at !== null;
+    }
+
+    /**
+     * Check if company has uploaded business registration document
+     */
+    public function hasBusinessRegistration(): bool
+    {
+        return $this->verificationDocuments()
+            ->where('document_type', \App\VerificationDocument::TYPE_BUSINESS_REGISTRATION)
+            ->exists();
+    }
+
+    public function hasPendingVerification(): bool
+    {
+        return $this->hasBusinessRegistration()
+            && !$this->isVerified()
+            && $this->verification_status !== 'rejected';
+    }
+
+
+}

@@ -53,8 +53,14 @@
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'industry_id') !!}">
 			<label>{{__('Facility Type')}} <span>*</span></label>
-			{!! Form::select('industry_id', ['' => __('Select Facility Type')]+$industries, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
+			{!! Form::select('industry_id', ['' => __('Select Facility Type'), '0' => __('Other (specify)')]+$industries, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'industry_id') !!} </div>
+    </div>
+    <div class="col-md-6" id="custom_industry_wrap_company" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_industry') !!}">
+			<label>{{__('Custom Facility Type')}} <span>*</span></label>
+			{!! Form::text('custom_industry', old('custom_industry'), array('class'=>'form-control', 'id'=>'custom_industry', 'maxlength'=>200, 'placeholder'=>__('Enter facility type'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_industry') !!} </div>
     </div>
     <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'ownership_type') !!}">
@@ -324,6 +330,13 @@
     $(document).ready(function () {
         var level = window.__companyProfileLocationLevel;
 
+        window.syncCompanyProfileOtherFields = function () {
+            var $industry = $('#industry_id');
+            if ($industry.length) {
+                $('#custom_industry_wrap_company').toggle(String($industry.val()) === '0');
+            }
+        };
+
         if (level === 1) {
             var cid = window.companyProfileFormCountryId();
             if (cid !== '') {
@@ -347,6 +360,11 @@
             });
             filterLangStates(window.__companyProfileInitialStateId);
         }
+
+        $(document).on('change', '#industry_id', function () {
+            window.syncCompanyProfileOtherFields();
+        });
+        window.syncCompanyProfileOtherFields();
 
         /*******************************/
         var fileInput = document.getElementById("logo");

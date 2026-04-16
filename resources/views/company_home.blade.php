@@ -16,12 +16,12 @@
 
 <div class="listpgWraper">
 
-    <div class="container">@include('flash::message')
+    <div class="container-fluid" style="padding-left: 5px; padding-right: 5px;">@include('flash::message')
 
-        <div class="row"> @include('includes.company_dashboard_menu')
+        <div class="row" style="gap: 20px; margin: 0;"> @include('includes.company_dashboard_menu')
         <?php $company = auth()->guard('company')->user(); ?>
 
-        <div class="col-lg-9"> 
+        <div class="col-lg-6" style="flex: 1; min-width: 0;"> 
             <?php if ($company->is_active == 1 && (($company->package_end_date === null) || 
                 (\Carbon\Carbon::parse($company->package_end_date)->lt(\Carbon\Carbon::now())) || 
                 ($company->jobs_quota <= $company->availed_jobs_quota))) { ?>    
@@ -480,6 +480,45 @@
 
 
         </div>
+
+        <!-- Third Column - Right Sidebar -->
+        <div class="col-lg-3" style="flex: 0 0 auto; min-width: 280px;">
+            
+            <!-- Mobile App CTA -->
+            <div class="sidebar-box mobile-app-cta" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); text-align: center; color: #fff;">
+                <div style="font-size: 48px; margin-bottom: 15px;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 600; color: #fff;">{{__('Download Medojob App')}}</h4>
+                <p style="margin: 0 0 20px 0; font-size: 14px; color: rgba(255,255,255,0.9);">{{__('Manage your jobs on the go! Download our mobile app now.')}}</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <i class="fab fa-apple"></i> {{__('App Store')}}
+                    </a>
+                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <i class="fab fa-google-play"></i> {{__('Google Play')}}
+                    </a>
+                </div>
+            </div>
+
+            <!-- Social Media CTA -->
+            <div class="sidebar-box social-cta" style="background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); text-align: center;">
+                <h4 style="margin: 0 0 15px 0; font-size: 18px; color: #333; font-weight: 600;">{{__('Follow Medojob')}}</h4>
+                <p style="margin: 0 0 20px 0; font-size: 14px; color: #666;">{{__('Stay connected with us on social media')}}</p>
+                <div style="display: flex; justify-content: center; gap: 15px;">
+                    <a href="https://facebook.com/medojob" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; background: #1877f2; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; transition: transform 0.3s;">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/medojob" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; background: #0077b5; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; transition: transform 0.3s;">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://youtube.com/@medojob" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; background: #ff0000; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; transition: transform 0.3s;">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
         </div>
     </div>
 </div>
@@ -490,6 +529,20 @@
 @include('includes.footer')
 
 @endsection
+
+@push('styles')
+<style>
+    .sidebar-box a[href*="facebook"]:hover { transform: scale(1.1); }
+    .sidebar-box a[href*="linkedin"]:hover { transform: scale(1.1); }
+    .sidebar-box a[href*="youtube"]:hover { transform: scale(1.1); }
+    
+    @media (max-width: 991px) {
+        .listpgWraper .row { flex-direction: column; }
+        .listpgWraper .col-lg-3,
+        .listpgWraper .col-lg-6 { flex: 1 1 100%; max-width: 100%; }
+    }
+</style>
+@endpush
 
 
 @push('scripts')

@@ -97,6 +97,23 @@
             'values' => old('custom_fields', (isset($job) ? ($job->custom_field_data ?? []) : [])),
         ])
     </div>
+    <div class="col-md-6">
+        @php
+            $industriesWithOther = $industries + ['0' => __('Other (specify)')];
+        @endphp
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'industry_id') !!}" id="industry_id_div">
+            <label>{{ __('Facility Type') }} <span>*</span></label>
+            {!! Form::select('industry_id', ['' => __('Select Facility Type')]+$industriesWithOther, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'industry_id') !!}
+        </div>
+    </div>
+    <div class="col-md-6" id="custom_industry_wrap_job" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_industry') !!}">
+            <label>{{ __('Custom facility type') }}</label>
+            {!! Form::text('custom_industry', old('custom_industry'), array('class'=>'form-control', 'id'=>'custom_industry', 'maxlength'=>200, 'placeholder'=>__('Enter facility type'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_industry') !!}
+        </div>
+    </div>
     @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}" id="country_id_div"> {!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($job))? $job->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
@@ -550,6 +567,10 @@
 })();
 
     window.syncJobPostingOtherFields = function () {
+        var $industry = $('#industry_id');
+        if ($industry.length) {
+            $('#custom_industry_wrap_job').toggle(String($industry.val()) === '0');
+        }
         var $fa = $('#functional_area_id');
         if ($fa.length) {
             $('#custom_functional_area_wrap_job').toggle(String($fa.val()) === '0');
@@ -577,7 +598,7 @@
         $('#skills').on('change', function () {
             window.syncJobPostingOtherFields();
         });
-        $(document).on('change', '#functional_area_id, #city_id', function () {
+        $(document).on('change', '#industry_id, #functional_area_id, #city_id', function () {
             window.syncJobPostingOtherFields();
         });
         window.syncJobPostingOtherFields();

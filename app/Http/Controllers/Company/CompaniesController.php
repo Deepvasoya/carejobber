@@ -203,6 +203,7 @@ class CompaniesController extends Controller
 
     public function updateCompanyProfile(CompanyFrontFormRequest $request)
     {
+        app(\App\Services\UserSubmittedLookupService::class)->mergeUserSubmittedProfileRequest($request);
         $company = Company::findOrFail(Auth::guard('company')->user()->id);
         /*         * **************************************** */
         if ($request->hasFile('logo')) {

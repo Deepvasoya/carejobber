@@ -18,4 +18,8 @@ Route::put('update-cmsContent/{id}', array_merge(['uses' => 'Admin\CmsContentCon
 Route::delete('delete-cmsContent', array_merge(['uses' => 'Admin\CmsContentController@deleteCmsContent'], $all_users))->name('delete.cmsContent');
 Route::get('fetch-cmsContent', array_merge(['uses' => 'Admin\CmsContentController@fetchCmsContentData'], $all_users))->name('fetch.data.cmsContent');
 /* * ****** End CmsContent Field ********** */
+/* * ******  Employer Landing Page Editor Start ********** */
+Route::get('employer-landing-page', array_merge(['uses' => 'Admin\EmployerLandingController@edit'], $all_users))->name('admin.employer-landing.edit');
+Route::post('employer-landing-page', array_merge(['uses' => 'Admin\EmployerLandingController@update'], $all_users))->name('admin.employer-landing.update');
+/* * ****** End Employer Landing Page Editor ********** */
 ?>
