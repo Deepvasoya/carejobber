@@ -38,12 +38,12 @@ class HomeController extends Controller
         if (Auth::check()) {
             $data['appliedJobIds'] = Auth::user()->getAppliedJobIdsArray();
 
-            // Get applied jobs with details (only 3 for dashboard)
+            // Get applied jobs with details (only 4 for dashboard)
             if (!empty($data['appliedJobIds'])) {
                 $data['appliedJobs'] = \App\JobApply::where('user_id', Auth::user()->id)
                     ->with(['job.company'])
                     ->orderBy('created_at', 'desc')
-                    ->take(3)
+                    ->take(4)
                     ->get();
             }
         }
@@ -58,7 +58,7 @@ class HomeController extends Controller
                 ->with(['company' => function ($query) {
                     $query->where('is_active', 1);
                 }])
-                ->take(6)
+                ->take(4)
                 ->get();
 
             $recQuery = $this->recommendedJobsQuery($user);
@@ -66,7 +66,7 @@ class HomeController extends Controller
                 ->with('company')
                 ->orderBy('is_featured', 'desc')
                 ->orderBy('created_at', 'desc')
-                ->limit(6)
+                ->limit(4)
                 ->get();
         }
 

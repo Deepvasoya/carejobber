@@ -1,19 +1,19 @@
 @extends('layouts.app')
-@section('content') 
-<!-- Header start --> 
-@include('includes.header') 
-<!-- Header end --> 
-<!-- Inner Page Title start --> 
-@include('includes.inner_page_title', ['page_title'=>__('My Messages')]) 
+@section('content')
+<!-- Header start -->
+@include('includes.header')
+<!-- Header end -->
+<!-- Inner Page Title start -->
+@include('includes.inner_page_title', ['page_title'=>__('My Messages')])
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row"> @include('includes.user_dashboard_menu')
             <div class="col-md-9 col-sm-8">
                 <div class="myads">
                     <h3>{{__('My Messages')}}</h3>
-                    <div class="panel-group"> 
-                        <!-- job start --> 
+                    <div class="panel-group">
+                        <!-- job start -->
                         @if(isset($message))
                         <div class="panel panel-info">
                             <div class="panel-body">
@@ -43,8 +43,9 @@
                                 </p>
                             </div>
                         </div>
-                        <!-- job end --> 
-                        @endif </div>
+                        <!-- job end -->
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

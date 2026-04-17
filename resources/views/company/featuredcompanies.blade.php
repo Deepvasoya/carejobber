@@ -49,7 +49,7 @@
 
 
 <div class="listpgWraper">
-<div class="container">
+<div class="container-fluid">
     <ul class="row compnaieslist">
         @if($companies->isEmpty())
             <p>No active and verified companies found.</p>

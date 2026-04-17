@@ -37,6 +37,12 @@ class AuthServiceProvider extends ServiceProvider
             if (!$company || !$jobSeeker) {
                 return false;
             }
+
+            if (method_exists($company, 'isVerified') && method_exists($company, 'hasBusinessRegistration')) {
+                if (! $company->hasBusinessRegistration() || ! $company->isVerified()) {
+                    return false;
+                }
+            }
             
             // Check if unlocked via Stripe or credits
             if (\App\Models\ResumeUnlock::isUnlockedBy($jobSeeker->id, $company->id)) {

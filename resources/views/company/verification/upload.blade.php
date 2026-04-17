@@ -7,7 +7,7 @@
 @include('includes.inner_page_title', ['page_title'=>__('Document Verification')]) 
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-10 col-lg-8"> 
                 <div class="userccount">
@@ -30,6 +30,10 @@
                                 {{ __('Your documents are under review by admin.') }}
                             </div>
                         @endif
+
+                        <div class="alert alert-info">
+                            {{ __('Job posting and candidate resume access stay locked until your business registration document is uploaded and approved by admin.') }}
+                        </div>
                         
                         <h5>{{__('Upload Verification Documents')}}</h5>
                         <p>{{__('Please upload the required documents to verify your company profile. This will help build trust with job seekers.')}}</p>

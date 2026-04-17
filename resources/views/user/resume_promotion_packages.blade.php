@@ -8,7 +8,7 @@
 <!-- Inner Page Title end -->
 
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         @include('flash::message')
 
         <div class="row justify-content-center">
@@ -38,9 +38,9 @@
                 @endif
 
                 @if((bool)($siteSetting->is_stripe_active ?? false))
-                    <div class="mb-4">
-                        @include('includes.package_coupon_resume_promotion')
-                    </div>
+                <div class="mb-4">
+                    @include('includes.package_coupon_resume_promotion')
+                </div>
                 @endif
 
                 <!-- Packages -->
@@ -57,25 +57,25 @@
                                 {{__('Popular')}}
                             </div>
                             @endif
-                            
+
                             <div class="card-body" style="padding: 30px; text-align: center;">
                                 <div style="margin-bottom: 20px;">
                                     <i class="fas fa-star" style="font-size: 48px; color: #ffc107;"></i>
                                 </div>
-                                
+
                                 <h4 style="font-weight: 600; color: #333; margin-bottom: 10px;">
                                     {{ $package->name }}
                                 </h4>
-                                
+
                                 <div style="margin-bottom: 20px;">
                                     <span style="font-size: 48px; font-weight: 700; color: #007bff;">${{ number_format($package->price, 0) }}</span>
                                     <span style="color: #666; font-size: 16px;">{{ $package->currency }}</span>
                                 </div>
-                                
+
                                 <p style="color: #666; margin-bottom: 25px;">
                                     {{ $package->description }}
                                 </p>
-                                
+
                                 <ul style="list-style: none; padding: 0; margin-bottom: 25px; text-align: left;">
                                     <li style="padding: 8px 0; color: #666;">
                                         <i class="fas fa-check text-success"></i> {{__('Top of search results')}}
@@ -87,11 +87,11 @@
                                         <i class="fas fa-check text-success"></i> {{__('More employer views')}}
                                     </li>
                                     <li style="padding: 8px 0; color: #666;">
-                                        <i class="fas fa-check text-success"></i> 
+                                        <i class="fas fa-check text-success"></i>
                                         <strong>{{ $package->duration_days }} {{__('days')}}</strong> {{__('promotion')}}
                                     </li>
                                 </ul>
-                                
+
                                 @if($hasActivePromotion)
                                 <button class="btn btn-secondary" disabled style="width: 100%; padding: 14px; border-radius: 8px; font-weight: 600;">
                                     {{__('Already Promoted')}}

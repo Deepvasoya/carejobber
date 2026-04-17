@@ -6,7 +6,7 @@
 <!-- Header end -->
 
 <div class="listpgWraper" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 80vh;">
-    <div class="container py-5">
+    <div class="container-fluid py-5">
         @include('flash::message')
 
         <!-- Back Button -->

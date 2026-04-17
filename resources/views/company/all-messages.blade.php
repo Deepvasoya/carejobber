@@ -6,7 +6,7 @@
 <!-- Inner Page Title start --> 
 @include('includes.inner_page_title', ['page_title'=>__('Company Messages')])
 <div class="listpgWraper messageWrap">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row"> @include('includes.company_dashboard_menu')
             <div class="col-md-9 col-sm-8">
                 <div class="myads message-body">

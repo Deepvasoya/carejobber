@@ -85,6 +85,7 @@
                 @if(APAuthHelp::can('cms.create'))<li class="side-nav-item"><a href="{{ route('create.cms') }}" class="side-nav-link">Add C.M.S Page</a></li>@endif
                 @if(APAuthHelp::can('cms.view'))<li class="side-nav-item"><a href="{{ route('list.cmsContent') }}" class="side-nav-link">List Translated Pages</a></li>@endif
                 @if(APAuthHelp::can('cms.create'))<li class="side-nav-item"><a href="{{ route('create.cmsContent') }}" class="side-nav-link">Add Translate Page</a></li>@endif
+                @if(APAuthHelp::can('cms.view'))<li class="side-nav-item"><a href="{{ route('admin.employer-landing.edit') }}" class="side-nav-link">Employer Landing Page</a></li>@endif
             </ul>
         </div>
     </li>

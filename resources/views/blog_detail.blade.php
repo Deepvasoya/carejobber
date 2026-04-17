@@ -9,7 +9,7 @@
 
 <div class="listpgWraper pt-5">
 <section id="blog-content">
-    <div class="container">
+    <div class="container-fluid">
         <?php
         $cate_ids = explode(",", $blog->cate_id);
         $data = DB::table('blog_categories')->whereIn('id', $cate_ids)->get();

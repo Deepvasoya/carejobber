@@ -10,22 +10,20 @@
             <div class="footer-app-cta__qr">
                 <span class="footer-app-cta__label">{{ __('Scan QR Code') }}</span>
                 <div class="footer-app-cta__qr-card">
-                    <img src="{{ asset('theme/images/qr.png') }}" alt="{{ __('Scan QR Code') }}">
+                    <img src="{{ asset('theme/images/qr.png') }}" style="width:80px;height:80px" alt="{{ __('Scan QR Code') }}">
                 </div>
             </div>
             <div class="footer-app-cta__stores">
                 <span class="footer-app-cta__label">{{ __('Download App') }}</span>
                 <div class="footer-app-cta__store-list">
-                    <a href="#" class="footer-app-cta__store footer-app-cta__store--play">
-                        <img src="{{ asset('images/andriod-btn.png') }}" alt="{{ __('Get it on Google Play') }}">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <i class="fab fa-apple"></i> {{__('App Store')}}
                     </a>
-                    <a href="#" class="footer-app-cta__store footer-app-cta__store--apple">
-                        <span class="footer-app-cta__store-icon"><i class="fab fa-apple" aria-hidden="true"></i></span>
-                        <span class="footer-app-cta__store-text">
-                            <small>{{ __('Download on the') }}</small>
-                            <strong>{{ __('App Store') }}</strong>
-                        </span>
+                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                        <i class="fab fa-google-play"></i> {{__('Google Play')}}
                     </a>
+                </div>
                 </div>
             </div>
             <div class="footer-app-cta__phone" aria-hidden="true">

@@ -127,7 +127,7 @@
                             @endif
                             <div class="verification-doc-links">
                                 @foreach($company->verificationDocuments as $doc)
-                                    <a href="{{ route('company.verification.document.show', $doc->id) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                    <a href="{{ route('admin.company.verification.document.show', $doc->id) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
                                         {{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}
                                     </a>
                                 @endforeach

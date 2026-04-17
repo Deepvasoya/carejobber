@@ -9,7 +9,7 @@
 
 <div class="listpgWraper">
 <section id="blog-content">
-    <div class="container">
+    <div class="container-fluid">
 
         <!-- Blog start -->
         <div class="row">

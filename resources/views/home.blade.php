@@ -27,7 +27,7 @@
 <div class="listpgWraper">
     <div class="container-fluid" style="padding-left: 5px; padding-right: 5px;">@include('flash::message')
         <div class="row" style="gap: 20px; margin: 0;"> @include('includes.user_dashboard_menu')
-            <div class="col-lg-6" style="flex: 1; min-width: 0;">
+            <div class="col-lg-7" style="flex: 1; min-width: 0;">
             @if(count(auth()->user()->getProfileProjectsArray())==0 || count(auth()->user()->getProfileCvsArray())==0 || count(auth()->user()->profileExperience()->get()) == 0 || count(auth()->user()->profileEducation()->get()) == 0 || count(auth()->user()->profileSkills()->get()) == 0)
 				<div class="userprofilealert"><h5><i class="fas fa-exclamation-triangle"></i> Your Resume is incomplete please update.</h5>
 				<div class="editbtbn"><a href="{{ route('build.resume') }}"><i class="fas fa-user-edit"></i> Complete CV </a></div>	</div>
@@ -127,7 +127,7 @@
                                         ->first();
                                 @endphp
                                 @if(isset($company))
-                                    <li class="col-lg-4 col-md-6">
+                                    <li class="col-lg-6 col-md-6">
                                         <div class="empint">
                                             <a href="{{route('company.detail', $company->slug)}}" title="{{$company->name}}">
                                                 <div class="emptbox">
@@ -161,7 +161,7 @@
 			</div>
 
             <!-- Third Column - Right Sidebar -->
-            <div class="col-lg-3" style="flex: 0 0 auto; min-width: 280px;">
+            <div class="col-lg-2" style="flex: 0 0 auto; min-width: 280px;">
                 
                 <!-- Top Employers Box -->
                 <div class="sidebar-box top-employers-box" style="background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">

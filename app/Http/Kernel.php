@@ -70,6 +70,7 @@ class Kernel extends HttpKernel
         'company.guest' => \App\Http\Middleware\RedirectIfCompanyAuthenticated::class,
         'verified' => \App\Http\Middleware\VerifiedMiddleware::class,
         'company.verified' => \App\Http\Middleware\CheckIfVerified::class,
+        'company.documents.approved' => \App\Http\Middleware\EnsureCompanyDocumentApproval::class,
         'json' => \App\Http\Middleware\ForceJsonResponse::class,
     ];
 

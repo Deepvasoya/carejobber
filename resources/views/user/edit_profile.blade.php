@@ -1,24 +1,24 @@
 @extends('layouts.app')
-@section('content') 
-<!-- Header start --> 
-@include('includes.header') 
-<!-- Header end --> 
-<!-- Inner Page Title start --> 
-@include('includes.inner_page_title', ['page_title'=>__('My Profile')]) 
+@section('content')
+<!-- Header start -->
+@include('includes.header')
+<!-- Header end -->
+<!-- Inner Page Title start -->
+@include('includes.inner_page_title', ['page_title'=>__('My Profile')])
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             @include('includes.user_dashboard_menu')
 
-            <div class="col-md-9 col-sm-8"> 
+            <div class="col-md-9 col-sm-8">
                 <!-- Resume Promotion Card -->
                 @php
-                    $hasActivePromotion = $user->is_resume_promoted && 
-                                         $user->promotion_end_date && 
-                                         \Carbon\Carbon::parse($user->promotion_end_date)->isFuture();
+                $hasActivePromotion = $user->is_resume_promoted &&
+                $user->promotion_end_date &&
+                \Carbon\Carbon::parse($user->promotion_end_date)->isFuture();
                 @endphp
-                
+
                 @if($hasActivePromotion)
                 <div class="alert alert-success mb-4" style="border-radius: 12px; border-left: 4px solid #28a745; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -56,38 +56,40 @@
                     </div>
                 </div>
                 @endif
-              
-                        <div class="userccount">
-                            <div class="formpanel mt0">
-                                @include('flash::message')
-                                @if(request()->get('profile_updated') == 1)
-                                    <div class="alert alert-success alert-dismissible" role="alert">
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                        {{ __('You have updated your profile successfully') }}
-                                    </div>
-                                @endif
-                                <!-- Personal Information -->
-                                @include('user.inc.profile')                              
-                            </div>
-                        </div>
-						
-						<div class="userccount">
-                            <div class="formpanel mt0">
-                                @include('user.inc.summary')                                
-                            </div>
-                        </div>
 
-                        @include('user.inc.build_resume_embed')
-						 
+                <div class="userccount">
+                    <div class="formpanel mt0">
+                        @include('flash::message')
+                        @if(request()->get('profile_updated') == 1)
+                        <div class="alert alert-success alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            {{ __('You have updated your profile successfully') }}
+                        </div>
+                        @endif
+                        <!-- Personal Information -->
+                        @include('user.inc.profile')
+                    </div>
+                </div>
+
+                <div class="userccount">
+                    <div class="formpanel mt0">
+                        @include('user.inc.summary')
+                    </div>
+                </div>
+
+                @include('user.inc.build_resume_embed')
+
             </div>
         </div>
-    </div>  
+    </div>
 </div>
 @include('includes.footer')
 @endsection
 @push('styles')
 <style type="text/css">
-    .userccount p{ text-align:left !important;}
+    .userccount p {
+        text-align: left !important;
+    }
 </style>
 @endpush
 @push('scripts')
@@ -95,12 +97,12 @@
 
 <script>
     $(document).on('click', '.btn-close', function() {
-        $('.modal').css('display','none');
+        $('.modal').css('display', 'none');
         $('.modal-backdrop').remove();
         $('.modal').removeAttr('style');
         $('body').removeClass('modal-open');
         $('.modal-backdrop').remove();
-        $('body').removeAttr('style');    
+        $('body').removeAttr('style');
     });
 </script>
 

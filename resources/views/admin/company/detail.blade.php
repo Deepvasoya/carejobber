@@ -186,7 +186,7 @@
                                     <i class="ri ri-calendar-line me-1"></i>{{ $doc->uploaded_at->format('M d, Y h:i A') }}
                                 </p>
                             </div>
-                            <a href="{{ route('company.verification.document.show', $doc->id) }}" 
+                            <a href="{{ route('admin.company.verification.document.show', $doc->id) }}" 
                                class="btn btn-sm btn-outline-primary" 
                                target="_blank">
                                 <i class="ri ri-download-line me-1"></i>View

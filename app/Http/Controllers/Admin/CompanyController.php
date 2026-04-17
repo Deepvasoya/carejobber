@@ -828,6 +828,7 @@ public function updateCompany($id, CompanyFormRequest $request)
             }
             
             // Approve verification
+            $company->is_active = 1;
             $company->verified = true;
             $company->verified_at = Carbon::now();
             $company->verification_status = 'approved';
@@ -875,6 +876,7 @@ public function updateCompany($id, CompanyFormRequest $request)
                 return redirect()->back()->with('error', $message);
             }
 
+            $company->is_active = 0;
             $company->verified = false;
             $company->verified_at = null;
             $company->verification_status = 'rejected';

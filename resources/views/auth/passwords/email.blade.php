@@ -7,7 +7,7 @@
 @include('includes.inner_page_title', ['page_title'=>'Reset Password'])
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row justify-content-center">
             <div class="col-md-5">
                 <div class="useraccountwrap">

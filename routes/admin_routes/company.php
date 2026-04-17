@@ -41,6 +41,7 @@ Route::get('list-applied-users/{job_id}', 'Admin\CompanyController@listAppliedUs
 Route::get('company-unlocked-candidates/{id}', array_merge(['uses' => 'Admin\CompanyController@viewUnlockedCandidates'], $all_users))->name('admin.company.unlocked.candidates');
 
 Route::get('company-verification-requests', array_merge(['uses' => 'Admin\CompanyController@verificationRequests'], $all_users))->name('admin.verification.requests');
+Route::get('company-verification-document/{id}', array_merge(['uses' => 'Company\VerificationController@show'], $all_users))->name('admin.company.verification.document.show');
 
 Route::post('company-approve-verification/{id}', array_merge(['uses' => 'Admin\CompanyController@approveVerification'], $all_users))->name('admin.company.approve.verification');
 Route::post('company-reject-verification/{id}', array_merge(['uses' => 'Admin\CompanyController@rejectVerification'], $all_users))->name('admin.company.reject.verification');

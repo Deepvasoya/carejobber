@@ -25,6 +25,7 @@ class JobPublishController extends Controller
     public function __construct()
     {
         $this->middleware('company');
+        $this->middleware('company.documents.approved');
     }
 
 }

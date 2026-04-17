@@ -1,4 +1,4 @@
-<div class="col-lg-3" style="flex: 0 0 auto; min-width: 280px;">
+<div class="col-lg-2" style="flex: 0 0 auto; min-width: 280px;">
 
     <!-- Featured Profile Package -->
     @if((bool) config('jobseeker.is_featured_package_active_jobseeker'))

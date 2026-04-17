@@ -2,16 +2,16 @@
 @section('content')
 <!-- Header start -->
 @include('includes.header')
-<!-- Header end --> 
+<!-- Header end -->
 <!-- Inner Page Title start -->
 @include('includes.inner_page_title', ['page_title'=>'Reset Password'])
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
-    <div class="row justify-content-center">
-    <div class="col-md-4">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
                 <div class="panel panel-default">
-                  
+
                     <div class="panel-body">
                         @if (session('status'))
                         <div class="alert alert-success">
@@ -22,21 +22,21 @@
                             {{ csrf_field() }}
                             <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                                 <label for="email" class="control-label mb-2">{{__('Email Address')}}</label>
-                               
-                                    <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
-                                    @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                    @endif
-                               
+
+                                <input id="email" type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+                                @if ($errors->has('email'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('email') }}</strong>
+                                </span>
+                                @endif
+
                             </div>
                             <div class="form-group mt-3 text-center">
-                               
-                                    <button type="submit" class="btn btn-primary">
-                                        {{__('Send Password Reset Link')}}
-                                    </button>
-                               
+
+                                <button type="submit" class="btn btn-primary">
+                                    {{__('Send Password Reset Link')}}
+                                </button>
+
                             </div>
                         </form>
                     </div>

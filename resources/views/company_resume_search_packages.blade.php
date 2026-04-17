@@ -9,7 +9,7 @@
 <?php $company = Auth::guard('company')->user(); ?>
 
 <div class="listpgWraper">
-    <div class="container">@include('flash::message')
+    <div class="container-fluid">@include('flash::message')
         <div class="row"> @include('includes.company_dashboard_menu')
             <div class="col-md-9 col-sm-8">
                 @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_cv_search'])

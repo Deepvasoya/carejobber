@@ -2,26 +2,26 @@
 @section('content')
 <!-- Header start -->
 @include('includes.header')
-<!-- Header end --> 
+<!-- Header end -->
 <!-- Inner Page Title start -->
 @include('includes.inner_page_title', ['page_title'=>__('Hired Applications')])
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             @include('includes.company_dashboard_menu')
 
-            <div class="col-md-9 col-sm-8"> 
+            <div class="col-md-9 col-sm-8">
                 <div class="myads">
                     <h3>{{__('Hired Applications')}}</h3>
                     <ul class="searchList">
-                        <!-- job start --> 
+                        <!-- job start -->
                         @if(isset($job_applications) && count($job_applications))
                         @foreach($job_applications as $job_application)
                         @php
                         $user = $job_application->getUser();
                         $job = $job_application->getJob();
-                        $company = $job->getCompany();             
+                        $company = $job->getCompany();
                         $profileCv = $job_application->getProfileCv();
                         @endphp
                         @if(null !== $job_application && null !== $user && null !== $job && null !== $company && null !== $profileCv)
@@ -44,7 +44,7 @@
                             </div>
                             <p>{{\Illuminate\Support\Str::limit($user->getProfileSummary('summary'),150,'...')}}</p>
                         </li>
-                        <!-- job end --> 
+                        <!-- job end -->
                         @endif
                         @endforeach
                         @endif

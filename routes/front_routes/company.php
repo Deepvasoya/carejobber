@@ -8,8 +8,8 @@ Route::get('resume/unlock/success', 'Company\ResumeUnlockController@success')->n
 Route::get('job/promotions/success', 'Company\JobPromotionCheckoutController@success')->name('job.promotions.success');
 
 // Resume unlock: pricing page and Stripe checkout
-Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.page');
-Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company', 'company.verified'])->name('resume.unlock.checkout');
+Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified', 'company.documents.approved'])->name('resume.unlock.page');
+Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company', 'company.verified', 'company.documents.approved'])->name('resume.unlock.checkout');
 
 // Employer Verification Routes
 Route::middleware(['auth:company'])->group(function () {
@@ -29,9 +29,6 @@ Route::post('recruiter/posting/apply-package-coupon', 'PackageCouponSessionContr
 Route::post('recruiter/posting/clear-package-coupon', 'PackageCouponSessionController@clearEmployer')->name('recruiter.posting.clear.coupon');
 Route::get('recruiter/checkout/package/{packageId}', 'Company\RecruiterStripeCheckoutController@redirectToCheckout')->name('recruiter.checkout.package');
 Route::get('recruiter/billing-information/new-client/{token}', 'Company\RecruiterStripeCheckoutController@createSession')->name('recruiter.stripe.checkout');
-Route::get('unloced-seekers', 'Company\CompanyController@UnlockedUser')->name('company.unloced-users');
-Route::get('unlock/{user}', 'Company\CompanyController@unlock')->name('company.unlock');
-Route::get('unlocked-users-change-status', 'Company\CompanyController@setUnlockedUserStatus')->name('unlocked.users.setStatus');
 Route::get('company-home', 'Company\CompanyController@index')->name('company.home');
 Route::get('list-payment-history', 'Company\CompanyController@indexCompaniesHistory')->name('company.list-payment-history');
 Route::get('fetch-payment-history', 'Company\CompanyController@fetchCompaniesHistory')->name('company.fetch.data.companiesHistory');
@@ -44,19 +41,6 @@ Route::get('posted-jobs', 'Company\CompanyController@postedJobs')->name('posted.
 Route::get('featured-companies', 'Company\CompanyController@featuredcompanies')->name('company.featuredcompanies');
 Route::post('contact-company-message-send', 'Company\CompanyController@sendContactForm')->name('contact.company.message.send');
 Route::post('contact-applicant-message-send', 'Company\CompanyController@sendApplicantContactForm')->name('contact.applicant.message.send');
-Route::get('list-applied-users/{job_id}', 'Company\CompanyController@listAppliedUsers')->name('list.applied.users');
-Route::get('list-hired-users/{job_id}', 'Company\CompanyController@listHiredUsers')->name('list.hired.users');
-Route::get('list-favourite-applied-users/{job_id}', 'Company\CompanyController@listFavouriteAppliedUsers')->name('list.favourite.applied.users');
-Route::get('add-to-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@addToFavouriteApplicant')->name('add.to.favourite.applicant');
-Route::get('remove-from-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@removeFromFavouriteApplicant')->name('remove.from.favourite.applicant');
-Route::get('hire-from-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@hireFromFavouriteApplicant')->name('hire.from.favourite.applicant');
-
-
-
-Route::get('removed-from-hired-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@removehireFromFavouriteApplicant')->name('remove.hire.from.favourite.applicant');
-Route::get('applicant-profile/{application_id}', 'Company\CompanyController@applicantProfile')->name('applicant.profile');
-Route::get('reject-applicant-profile/{application_id}', 'Company\CompanyController@rejectApplicantProfile')->name('reject.applicant.profile');
-Route::get('user-profile/{id}', 'Company\CompanyController@userProfile')->name('user.profile');
 Route::get('company-followers', 'Company\CompanyController@companyFollowers')->name('company.followers');
 /* Route::get('company-messages', 'Company\CompanyController@companyMessages')->name('company.messages'); */
 Route::post('submit-message-seeker', 'CompanyMessagesController@submitnew_message_seeker')->name('submit-message-seeker');
@@ -71,4 +55,20 @@ Route::get('company-message-detail/{id}', 'Company\CompanyController@companyMess
 Route::get('referral-program', 'Company\CompanyController@referralProgram')->name('company.referral.program');
 Route::get('fetch-referral-history', 'Company\CompanyController@fetchReferralHistory')->name('company.fetch.referral.history');
 Route::post('send-referral-invite', 'Company\CompanyController@sendReferralInvite')->name('company.send.referral.invite');
+});
+
+Route::middleware(['auth:company', 'company.verified', 'company.documents.approved'])->group(function () {
+Route::get('unloced-seekers', 'Company\CompanyController@UnlockedUser')->name('company.unloced-users');
+Route::get('unlock/{user}', 'Company\CompanyController@unlock')->name('company.unlock');
+Route::get('unlocked-users-change-status', 'Company\CompanyController@setUnlockedUserStatus')->name('unlocked.users.setStatus');
+Route::get('list-applied-users/{job_id}', 'Company\CompanyController@listAppliedUsers')->name('list.applied.users');
+Route::get('list-hired-users/{job_id}', 'Company\CompanyController@listHiredUsers')->name('list.hired.users');
+Route::get('list-favourite-applied-users/{job_id}', 'Company\CompanyController@listFavouriteAppliedUsers')->name('list.favourite.applied.users');
+Route::get('add-to-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@addToFavouriteApplicant')->name('add.to.favourite.applicant');
+Route::get('remove-from-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@removeFromFavouriteApplicant')->name('remove.from.favourite.applicant');
+Route::get('hire-from-favourite-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@hireFromFavouriteApplicant')->name('hire.from.favourite.applicant');
+Route::get('removed-from-hired-applicant/{application_id}/{user_id}/{job_id}/{company_id}', 'Company\CompanyController@removehireFromFavouriteApplicant')->name('remove.hire.from.favourite.applicant');
+Route::get('applicant-profile/{application_id}', 'Company\CompanyController@applicantProfile')->name('applicant.profile');
+Route::get('reject-applicant-profile/{application_id}', 'Company\CompanyController@rejectApplicantProfile')->name('reject.applicant.profile');
+Route::get('user-profile/{id}', 'Company\CompanyController@userProfile')->name('user.profile');
 });

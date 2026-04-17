@@ -16,7 +16,7 @@
 
 <div class="listpgWraper">
 
-    <div class="container">
+    <div class="container-fluid">
 
        
 

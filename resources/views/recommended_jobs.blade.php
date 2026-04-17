@@ -3,7 +3,7 @@
 @include('includes.header')
 @include('includes.inner_page_title', ['page_title' => __('Recommended Jobs')])
 <div class="listpgWraper">
-    <div class="container">@include('flash::message')
+    <div class="container-fluid">@include('flash::message')
         <div class="row">
             @include('includes.user_dashboard_menu')
             <div class="col-md-9 col-sm-8">
