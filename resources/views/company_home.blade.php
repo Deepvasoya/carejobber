@@ -47,6 +47,38 @@
             
             @include('includes.company_dashboard_stats')
 
+            @if(!$company->isVerified())
+                <div class="company-verification-reminder">
+                    <div class="company-verification-reminder__content">
+                        <div>
+                            <h4>{{ __('Verify your company registration') }}</h4>
+                            @if($company->verification_status === 'rejected')
+                                <p>{{ __('Your previous submission was rejected. Upload corrected documents so admin can review them again.') }}</p>
+                                @if($company->verification_rejection_reason)
+                                    <p class="company-verification-reminder__reason"><strong>{{ __('Reason:') }}</strong> {{ $company->verification_rejection_reason }}</p>
+                                @endif
+                            @elseif($company->hasPendingVerification())
+                                <p>{{ __('Your business registration has been uploaded and is currently under review. You can still update any document below if needed.') }}</p>
+                            @else
+                                <p>{{ __('You can use the dashboard now, but job posting and candidate resume access will stay locked until your company documents are approved.') }}</p>
+                            @endif
+                        </div>
+                        <div class="company-verification-reminder__actions">
+                            <button type="button" class="btn btn-primary" id="toggle-company-verification">
+                                {{ $company->hasBusinessRegistration() ? __('Manage verification documents') : __('Verify now') }}
+                            </button>
+                            <a href="{{ route('company.verification.upload') }}" class="btn btn-link">
+                                {{ __('Open full verification page') }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div id="company-verification-panel" class="company-verification-panel" style="display: {{ $errors->has('document_upload') || $errors->has('business_registration') || $errors->has('tax_document') || $errors->has('establishment_photo') ? 'block' : 'none' }};">
+                        @include('company.verification._upload_cards', ['latestVerificationDocuments' => $latestVerificationDocuments])
+                    </div>
+                </div>
+            @endif
+
 
             <!-- Suggested Candidates Section -->
             <div class="suggested-candidates-section mt-4 mb-4" style="background: #fff; border-radius: 12px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
@@ -529,6 +561,111 @@
 @include('includes.footer')
 
 @endsection
+
+@push('styles')
+<style type="text/css">
+    .company-verification-reminder {
+        background: linear-gradient(135deg, #fff8eb 0%, #fff 100%);
+        border: 1px solid #f3d9a4;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 25px;
+    }
+    .company-verification-reminder__content {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: flex-start;
+    }
+    .company-verification-reminder h4 {
+        margin: 0 0 8px;
+        font-weight: 700;
+        color: #7c4a03;
+    }
+    .company-verification-reminder p {
+        margin: 0;
+        color: #6b7280;
+    }
+    .company-verification-reminder__reason {
+        margin-top: 10px !important;
+        color: #991b1b !important;
+    }
+    .company-verification-reminder__actions {
+        min-width: 220px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .company-verification-panel {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #f3d9a4;
+    }
+    .verification-upload-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+    .verification-upload-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        background: #fff;
+    }
+    .verification-upload-card__meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        color: #6b7280;
+        margin: 15px 0;
+    }
+    .verification-upload-card__current {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    .verification-upload-card__actions {
+        margin-top: 15px;
+    }
+    .verification-required {
+        color: #dc2626;
+    }
+    .verification-optional {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+    @media (max-width: 767px) {
+        .company-verification-reminder__content {
+            flex-direction: column;
+        }
+        .company-verification-reminder__actions {
+            min-width: 0;
+            width: 100%;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var toggleButton = document.getElementById('toggle-company-verification');
+        var panel = document.getElementById('company-verification-panel');
+
+        if (!toggleButton || !panel) {
+            return;
+        }
+
+        toggleButton.addEventListener('click', function () {
+            var isHidden = panel.style.display === 'none' || panel.style.display === '';
+            panel.style.display = isHidden ? 'block' : 'none';
+        });
+    });
+</script>
+@endpush
 
 @push('styles')
 <style>

@@ -132,18 +132,19 @@ class CompanyController extends Controller
     {
         Auth::guard('company')->setUser(Auth::guard('company')->user()->fresh());
         $company = Auth::guard('company')->user();
-        
-        // Check if company needs to upload verification documents
-        // Redirect to document upload if business registration is not uploaded
-        if (!$company->hasBusinessRegistration()) {
-            return redirect()->route('company.verification.upload')
-                ->with('info', __('Please upload your business registration document to complete your profile verification.'));
-        }
-        
+
         // Suggested candidates: profile job category (functional_area) matches an active job's category
         $suggestedCandidates = $this->fetchJobSeekersMatchingPostedFunctionalAreas((int) $company->id, 6);
-        
-        return view('company_home', compact('suggestedCandidates'));
+        $verificationDocuments = $company->verificationDocuments()
+            ->orderBy('uploaded_at', 'desc')
+            ->get();
+        $latestVerificationDocuments = $verificationDocuments
+            ->groupBy('document_type')
+            ->map(function ($documents) {
+                return $documents->first();
+            });
+
+        return view('company_home', compact('suggestedCandidates', 'verificationDocuments', 'latestVerificationDocuments'));
     }
 
     public function company_listing()

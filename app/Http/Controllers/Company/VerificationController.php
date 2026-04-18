@@ -36,8 +36,11 @@ class VerificationController extends Controller
     {
         $company = Auth::guard('company')->user();
         $documents = $company->verificationDocuments()->orderBy('uploaded_at', 'desc')->get();
+        $latestVerificationDocuments = $documents->groupBy('document_type')->map(function ($group) {
+            return $group->first();
+        });
 
-        return view('company.verification.upload', compact('company', 'documents'));
+        return view('company.verification.upload', compact('company', 'documents', 'latestVerificationDocuments'));
     }
 
     /**
@@ -48,74 +51,77 @@ class VerificationController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate the request
-        $request->validate([
-            'business_registration' => 'required|file|mimes:png,jpg,jpeg,pdf|max:2048',
-            'tax_document' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:2048',
-            'establishment_photo' => 'nullable|file|mimes:png,jpg,jpeg,pdf|max:2048'
-        ], [
-            'business_registration.required' => 'Business registration document is required',
-            'business_registration.mimes' => 'Business registration must be png, jpg, jpeg, or pdf',
-            'business_registration.max' => 'Business registration must not exceed 2MB',
-            'tax_document.mimes' => 'Tax document must be png, jpg, jpeg, or pdf',
-            'tax_document.max' => 'Tax document must not exceed 2MB',
-            'establishment_photo.mimes' => 'Establishment photo must be png, jpg, jpeg, or pdf',
-            'establishment_photo.max' => 'Establishment photo must not exceed 2MB'
-        ]);
-
         $company = Auth::guard('company')->user();
+        $documentMap = [
+            'business_registration' => [
+                'type' => VerificationDocument::TYPE_BUSINESS_REGISTRATION,
+                'label' => 'Business registration',
+            ],
+            'tax_document' => [
+                'type' => VerificationDocument::TYPE_TAX_DOCUMENT,
+                'label' => 'Tax document',
+            ],
+            'establishment_photo' => [
+                'type' => VerificationDocument::TYPE_ESTABLISHMENT_PHOTO,
+                'label' => 'Establishment photo',
+            ],
+        ];
+        $uploadedFields = collect(array_keys($documentMap))
+            ->filter(function ($field) use ($request) {
+                return $request->hasFile($field);
+            })
+            ->values();
+
+        if ($uploadedFields->isEmpty()) {
+            return back()->withErrors([
+                'document_upload' => __('Please choose a document to upload.'),
+            ])->withInput();
+        }
+
+        $rules = [];
+        $messages = [];
+        foreach ($uploadedFields as $field) {
+            $label = $documentMap[$field]['label'];
+            $rules[$field] = 'file|mimes:png,jpg,jpeg,pdf|max:2048';
+            $messages[$field . '.mimes'] = __($label . ' must be png, jpg, jpeg, or pdf');
+            $messages[$field . '.max'] = __($label . ' must not exceed 2MB');
+        }
+
+        $request->validate($rules, $messages);
 
         // Scan all uploaded files for malware
-        $documentFields = ['business_registration', 'tax_document', 'establishment_photo'];
-        
-        foreach ($documentFields as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                
-                if (!$this->documentService->scanForMalware($file)) {
-                    return back()->withErrors([
-                        $field => 'File contains malicious content and cannot be uploaded'
-                    ])->withInput();
-                }
+        foreach ($uploadedFields as $field) {
+            $file = $request->file($field);
+
+            if (!$this->documentService->scanForMalware($file)) {
+                return back()->withErrors([
+                    $field => 'File contains malicious content and cannot be uploaded'
+                ])->withInput();
             }
         }
 
-        // Store business registration document (required)
+        foreach ($uploadedFields as $field) {
+            $this->documentService->storeDocument(
+                $company->id,
+                $documentMap[$field]['type'],
+                $request->file($field)
+            );
+        }
+
         if ($request->hasFile('business_registration')) {
-            $this->documentService->storeDocument(
-                $company->id,
-                VerificationDocument::TYPE_BUSINESS_REGISTRATION,
-                $request->file('business_registration')
-            );
+            $company->verified = null;
+            $company->verified_at = null;
+            $company->verification_status = 'pending';
+            $company->verification_rejection_reason = null;
+            $company->verification_reviewed_at = null;
+            $company->save();
+
+            return redirect()->back()
+                ->with('success', __('Business registration uploaded successfully. Your verification is now under review.'));
         }
 
-        // Store tax document (optional)
-        if ($request->hasFile('tax_document')) {
-            $this->documentService->storeDocument(
-                $company->id,
-                VerificationDocument::TYPE_TAX_DOCUMENT,
-                $request->file('tax_document')
-            );
-        }
-
-        // Store establishment photo (optional)
-        if ($request->hasFile('establishment_photo')) {
-            $this->documentService->storeDocument(
-                $company->id,
-                VerificationDocument::TYPE_ESTABLISHMENT_PHOTO,
-                $request->file('establishment_photo')
-            );
-        }
-
-        $company->verified = null;
-        $company->verified_at = null;
-        $company->verification_status = 'pending';
-        $company->verification_rejection_reason = null;
-        $company->verification_reviewed_at = null;
-        $company->save();
-
-        return redirect()->route('company.verification.upload')
-            ->with('success', __('Documents uploaded successfully! Your profile is now under review for verification.'));
+        return redirect()->back()
+            ->with('success', __('Document uploaded successfully.'));
     }
 
     /**

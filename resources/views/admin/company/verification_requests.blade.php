@@ -111,27 +111,7 @@
                         </td>
                         <td>{{ $company->email }}</td>
                         <td>
-                            <span class="doc-count">
-                                <i class="ri ri-file-line me-1"></i>
-                                {{ $company->verificationDocuments->count() }} document(s)
-                            </span>
-                            <br>
-                            @if($company->hasBusinessRegistration())
-                                <span class="badge bg-success bg-opacity-10 text-success">
-                                    <i class="ri ri-checkbox-circle-line me-1"></i>Has Business Reg.
-                                </span>
-                            @else
-                                <span class="badge bg-danger bg-opacity-10 text-danger">
-                                    <i class="ri ri-close-circle-line me-1"></i>Missing Business Reg.
-                                </span>
-                            @endif
-                            <div class="verification-doc-links">
-                                @foreach($company->verificationDocuments as $doc)
-                                    <a href="{{ route('admin.company.verification.document.show', $doc->id) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
-                                        {{ ucfirst(str_replace('_', ' ', $doc->document_type)) }}
-                                    </a>
-                                @endforeach
-                            </div>
+                            @include('admin.company.partials.verification_documents')
                         </td>
                         <td>
                             @if($firstDoc)
@@ -190,6 +170,7 @@
                     <tr>
                         <th>Company</th>
                         <th>Email</th>
+                        <th>Documents</th>
                         <th>Verified Date</th>
                         <th>Status</th>
                     </tr>
@@ -199,6 +180,9 @@
                     <tr>
                         <td>{{ $company->name }}</td>
                         <td>{{ $company->email }}</td>
+                        <td>
+                            @include('admin.company.partials.verification_documents')
+                        </td>
                         <td>
                             {{ $company->verified_at->format('M d, Y') }}<br>
                             <small class="text-muted">{{ $company->verified_at->diffForHumans() }}</small>
@@ -235,6 +219,7 @@
                     <tr>
                         <th>Company</th>
                         <th>Email</th>
+                        <th>Documents</th>
                         <th>Reviewed</th>
                         <th>Reason</th>
                         <th>Status</th>
@@ -245,6 +230,9 @@
                     <tr>
                         <td>{{ $company->name }}</td>
                         <td>{{ $company->email }}</td>
+                        <td>
+                            @include('admin.company.partials.verification_documents')
+                        </td>
                         <td>
                             @if($company->verification_reviewed_at)
                                 {{ $company->verification_reviewed_at->format('M d, Y') }}<br>

@@ -37,7 +37,6 @@ trait FetchJobs
         'jobs.salary_from',
         'jobs.salary_to',
         'jobs.hide_salary',
-        'jobs.industry_id',
         'jobs.functional_area_id',
         'jobs.job_type_id',
         'jobs.job_shift_id',
@@ -88,7 +87,19 @@ trait FetchJobs
         //dd($company_ids);
 		$company_ids_array=array();
         if (isset($industry_ids[0])) {
-            $query->whereIn('jobs.industry_id', $industry_ids);
+            $industryCompanyIds = Company::whereIn('industry_id', $industry_ids)
+                ->pluck('id')
+                ->toArray();
+
+            if (!empty($industryCompanyIds)) {
+                if (isset($company_ids[0])) {
+                    $company_ids = array_intersect($company_ids, $industryCompanyIds);
+                } else {
+                    $company_ids = $industryCompanyIds;
+                }
+            } else {
+                $query->whereRaw('1 = 0');
+            }
         }
         
         
@@ -177,13 +188,29 @@ trait FetchJobs
 
     public function fetchIndustryIdsArray($jobIdsArray = array())
     {
-        $query = Job::select('industry_id')->where('is_active', 1)->notExpire();
-        if (isset($jobIdsArray[0])) {
-            $query->whereIn('id', $jobIdsArray);
+        if (!isset($jobIdsArray[0])) {
+            return array();
         }
 
-        $array = $query->pluck('industry_id')->toArray();
-        return array_unique($array);
+        $companyIds = Job::where('is_active', 1)
+            ->notExpire()
+            ->whereIn('id', $jobIdsArray)
+            ->pluck('company_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (empty($companyIds)) {
+            return array();
+        }
+
+        return Company::whereIn('id', $companyIds)
+            ->whereNotNull('industry_id')
+            ->pluck('industry_id')
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     private function getSEO($functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array())

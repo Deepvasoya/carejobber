@@ -785,6 +785,9 @@ public function updateCompany($id, CompanyFormRequest $request)
 
         $recentlyVerified = Company::where('verified', true)
             ->whereNotNull('verified_at')
+            ->with(['verificationDocuments' => function ($query) {
+                $query->orderBy('uploaded_at', 'desc');
+            }])
             ->orderBy('verified_at', 'desc')
             ->limit(10)
             ->get();

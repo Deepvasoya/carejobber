@@ -955,7 +955,20 @@ trait JobTrait
                 return DB::table('jobs')->where('company_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'industry_id') {
-                return DB::table('jobs')->where('industry_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
+                $companyIds = Company::where('industry_id', '=', $value)
+                    ->where('is_active', '=', 1)
+                    ->pluck('id')
+                    ->toArray();
+
+                if (empty($companyIds)) {
+                    return 0;
+                }
+
+                return DB::table('jobs')
+                    ->whereIn('company_id', $companyIds)
+                    ->where('is_active', '=', 1)
+                    ->where('expiry_date', '>',  \Carbon\Carbon::now())
+                    ->count('id');
             }
             if ($field == 'job_skill_id') {
                 $job_ids = JobSkillManager::where('job_skill_id', '=', $value)->pluck('job_id')->toArray();

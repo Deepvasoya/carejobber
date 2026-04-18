@@ -8,8 +8,10 @@
 <!-- Inner Page Title end -->
 <div class="listpgWraper">
     <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-10 col-lg-8"> 
+        <div class="row" style="gap: 20px; margin: 0;">
+            @include('includes.company_dashboard_menu')
+
+            <div class="col-lg-7" style="flex: 1; min-width: 0;"> 
                 <div class="userccount">
                     <div class="formpanel mt0"> 
                         @include('flash::message')
@@ -32,69 +34,13 @@
                         @endif
 
                         <div class="alert alert-info">
-                            {{ __('Job posting and candidate resume access stay locked until your business registration document is uploaded and approved by admin.') }}
+                            {{ __('Upload your business registration document to begin company verification. Job posting and candidate resume access remain locked until admin approval.') }}
                         </div>
                         
                         <h5>{{__('Upload Verification Documents')}}</h5>
-                        <p>{{__('Please upload the required documents to verify your company profile. This will help build trust with job seekers.')}}</p>
-                        
-                        {!! Form::open(['method' => 'POST', 'route' => 'company.verification.store', 'class' => 'form', 'files' => true]) !!}
-                        
-                        <div class="row">
-                            <!-- Business Registration Document -->
-                            <div class="col-md-12">
-                                <div class="upload-section">
-                                    <h6>{{__('Business Registration Document')}} <span style="color: red;">*</span></h6>
-                                    <p class="text-muted small">{{__('Please ensure documents are clear, readable, well-lit, and in focus')}}</p>
-                                    <p class="text-muted small"><strong>{{__('Supported formats:')}}</strong> PNG, JPG, JPEG, PDF | <strong>{{__('Max size:')}}</strong> 2MB</p>
-                                    
-                                    <div class="formrow {!! APFrmErrHelp::hasError($errors, 'business_registration') !!}">
-                                        <input type="file" name="business_registration" id="business_registration" class="form-control" accept=".png,.jpg,.jpeg,.pdf" required>
-                                        {!! APFrmErrHelp::showErrors($errors, 'business_registration') !!}
-                                    </div>
-                                </div>
-                                <hr>
-                            </div>
+                        <p>{{__('Each document has its own upload button so you can submit or replace them separately.')}}</p>
 
-                            <!-- Tax Document -->
-                            <div class="col-md-12">
-                                <div class="upload-section">
-                                    <h6>{{__('Tax Document')}} <span class="text-muted">({{__('Optional')}})</span></h6>
-                                    <p class="text-muted small">{{__('Please ensure documents are clear, readable, well-lit, and in focus')}}</p>
-                                    <p class="text-muted small"><strong>{{__('Supported formats:')}}</strong> PNG, JPG, JPEG, PDF | <strong>{{__('Max size:')}}</strong> 2MB</p>
-                                    
-                                    <div class="formrow {!! APFrmErrHelp::hasError($errors, 'tax_document') !!}">
-                                        <input type="file" name="tax_document" id="tax_document" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
-                                        {!! APFrmErrHelp::showErrors($errors, 'tax_document') !!}
-                                    </div>
-                                </div>
-                                <hr>
-                            </div>
-
-                            <!-- Establishment Photo -->
-                            <div class="col-md-12">
-                                <div class="upload-section">
-                                    <h6>{{__('Establishment Photo')}} <span class="text-muted">({{__('Optional')}})</span></h6>
-                                    <p class="text-muted small">{{__('Please ensure documents are clear, readable, well-lit, and in focus')}}</p>
-                                    <p class="text-muted small"><strong>{{__('Supported formats:')}}</strong> PNG, JPG, JPEG, PDF | <strong>{{__('Max size:')}}</strong> 2MB</p>
-                                    
-                                    <div class="formrow {!! APFrmErrHelp::hasError($errors, 'establishment_photo') !!}">
-                                        <input type="file" name="establishment_photo" id="establishment_photo" class="form-control" accept=".png,.jpg,.jpeg,.pdf">
-                                        {!! APFrmErrHelp::showErrors($errors, 'establishment_photo') !!}
-                                    </div>
-                                </div>
-                                <hr>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="col-md-12">
-                                <div class="formrow">
-                                    <button type="submit" class="btn">{{__('Save and Continue')}} <i class="fa fa-arrow-circle-right" aria-hidden="true"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {!! Form::close() !!}
+                        @include('company.verification._upload_cards', ['latestVerificationDocuments' => $latestVerificationDocuments])
                     </div>
 
                     <div class="formpanel mt-4">
@@ -144,18 +90,41 @@
 
 @push('styles')
 <style type="text/css">
-    .upload-section {
-        margin-bottom: 20px;
+    .verification-upload-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
     }
-    .upload-section h6 {
-        font-weight: 600;
-        margin-bottom: 10px;
+    .verification-upload-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        background: #fff;
     }
-    .upload-section .text-muted {
-        margin-bottom: 8px;
+    .verification-upload-card__meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        color: #6b7280;
+        margin: 15px 0;
     }
-    .upload-section .formrow {
-        margin-top: 10px;
+    .verification-upload-card__current {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    .verification-upload-card__actions {
+        margin-top: 15px;
+    }
+    .verification-required {
+        color: #dc2626;
+    }
+    .verification-optional {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
     }
 </style>
 @endpush
