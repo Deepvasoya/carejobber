@@ -3,9 +3,7 @@
 @push('styles')
 <style>
 .employer-zone {
-    background:
-        radial-gradient(circle at top left, rgba(33, 128, 141, 0.16), transparent 32%),
-        linear-gradient(180deg, #f6fbff 0%, #ffffff 36%, #f7f8fc 100%);
+    background: #fff;
     color: #17324d;
 }
 .employer-zone__hero {
@@ -430,7 +428,7 @@
 <div class="employer-zone">
     @if($customContent)
         <section class="employer-zone__custom">
-            <div class="container">
+            <div class="container-fluid">
                 <div class="employer-zone__custom-body">
                     {!! $customContent !!}
                 </div>
