@@ -88,43 +88,4 @@
 @include('includes.footer')
 @endsection
 
-@push('styles')
-<style type="text/css">
-    .verification-upload-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 20px;
-    }
-    .verification-upload-card {
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px;
-        background: #fff;
-    }
-    .verification-upload-card__meta {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        font-size: 12px;
-        color: #6b7280;
-        margin: 15px 0;
-    }
-    .verification-upload-card__current {
-        background: #f8fafc;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 15px;
-    }
-    .verification-upload-card__actions {
-        margin-top: 15px;
-    }
-    .verification-required {
-        color: #dc2626;
-    }
-    .verification-optional {
-        font-size: 12px;
-        color: #6b7280;
-        font-weight: 500;
-    }
-</style>
-@endpush
+
