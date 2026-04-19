@@ -2,7 +2,9 @@
 <a href="javascript:void();" data-bs-toggle="modal" data-bs-target="#preresume" class="userloginbox">
 @else
 
-<a href="{{url('my-profile')}}" class="userloginbox">
+<a href="{{url('my-profile')}}" class="userloginbox" style="border-radius: 25px;
+  padding: 25px 20px;
+">
 @endif
 		
 		<h3>{{__('Search your desired Job')}}</h3>

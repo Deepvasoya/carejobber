@@ -34,54 +34,100 @@
     </div>
 </form>
 @else
-	<form action="{{route('job.list')}}" method="get">
-		<!-- Modern Search Form - Matches Screenshot -->
-		<div class="modern-search-form home-modern-search-form">
-			<div class="row g-2 align-items-center">
-				<!-- Job Title Input -->
-				<div class="col-md-5">
-					<div class="input-group home-search-input-wrap">
-						<span class="input-group-text home-search-input-icon">
-							<i class="fas fa-search" style="color: #999;"></i>
-						</span>
-						<input type="text" name="search" id="jbsearch" value="{{Request::get('search', '')}}" 
-							   class="form-control home-search-input" 
-							   placeholder="{{__('Job title, keywords...')}}" 
-							   autocomplete="off" />
-					</div>
-				</div>
-				
-				<!-- Location Text Input -->
-				<div class="col-md-5">
-					<div class="input-group home-search-input-wrap">
-						<span class="input-group-text home-search-input-icon">
-							<i class="fas fa-map-marker-alt" style="color: #999;"></i>
-						</span>
-						<input type="text" name="location_search" id="location_search" value="{{ \App\Helpers\MiscHelper::locationSearchFormValue() }}" 
-							   class="form-control home-search-input" 
-							   placeholder="{{__('City or postcode')}}" 
-							   autocomplete="off" />
-					</div>
-				</div>
-				
-				<!-- Find Jobs Button -->
-				<div class="col-md-2">
-					<button type="submit" class="btn btn-success w-100 home-search-submit-btn">
-						{{__('Find Jobs')}}
-					</button>
-				</div>
-			</div>
-		</div>
-		
-		<!-- Popular Searches -->
-		<div class="popular-searches home-popular-searches mt-3">
-			<span class="home-popular-label">{{__('Popular Searches')}} :</span>
-			<a href="{{route('job.list', ['search' => 'HCA'])}}" class="home-popular-link">HCA</a>,
-			<a href="{{route('job.list', ['search' => 'LPN'])}}" class="home-popular-link">LPN</a>,
-			<a href="{{route('job.list', ['search' => 'RN'])}}" class="home-popular-link">RN</a>,
-			<a href="{{route('job.list', ['search' => 'Home Care'])}}" class="home-popular-link">Home Care</a>,
-			<a href="{{route('job.list', ['search' => 'Recreation'])}}" class="home-popular-link">Recreation</a>
-		</div>
-	</form>
-@endif
+<form action="{{route('job.list')}}" method="get">
 
+    {{-- Outer pill container --}}
+    <div style="
+        background: #fff;
+        border-radius: 50px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+        padding: 10px 14px;
+        max-width: 760px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    ">
+        {{-- Job title input --}}
+        <div style="
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            overflow: hidden;
+            flex: 1;
+            background: #fff;
+        ">
+            <span style="padding: 0 10px; color: #aaa; font-size: 13px; line-height: 1;">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" name="search" id="jbsearch"
+                   value="{{Request::get('search', '')}}"
+                   placeholder="{{__('Job title, keywords...')}}"
+                   autocomplete="off"
+                   style="
+                       border: none;
+                       outline: none;
+                       box-shadow: none;
+                       padding: 10px 10px 10px 0;
+                       font-size: 15px;
+                       width: 100%;
+                       background: transparent;
+                   " />
+        </div>
+
+        {{-- Location input --}}
+        <div style="
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            overflow: hidden;
+            flex: 1;
+            background: #fff;
+        ">
+            <span style="padding: 0 10px; color: #aaa; font-size: 13px; line-height: 1;">
+                <i class="fas fa-map-marker-alt"></i>
+            </span>
+            <input type="text" name="location_search" id="location_search"
+                   value="{{ \App\Helpers\MiscHelper::locationSearchFormValue() }}"
+                   placeholder="{{__('City or postcode')}}"
+                   autocomplete="off"
+                   style="
+                       border: none;
+                       outline: none;
+                       box-shadow: none;
+                       padding: 10px 10px 10px 0;
+                       font-size: 15px;
+                       width: 100%;
+                       background: transparent;
+                   " />
+        </div>
+
+        {{-- Find Jobs button --}}
+        <button type="submit" style="
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+        ">{{__('Find Jobs')}}</button>
+    </div>
+
+    {{-- Popular Searches --}}
+    <div style="text-align: center; margin-top: 14px;">
+        <span style="color: rgba(255,255,255,0.9); font-size: 14px;">{{__('Popular Searches')}} :</span>
+        <a href="{{route('job.list', ['search' => 'HCA'])}}"   style="color:rgba(255,255,255,0.95);font-size:14px;margin-left:6px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.4);">HCA</a>,
+        <a href="{{route('job.list', ['search' => 'LPN'])}}"   style="color:rgba(255,255,255,0.95);font-size:14px;margin-left:6px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.4);">LPN</a>,
+        <a href="{{route('job.list', ['search' => 'RN'])}}"    style="color:rgba(255,255,255,0.95);font-size:14px;margin-left:6px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.4);">RN</a>,
+        <a href="{{route('job.list', ['search' => 'Home Care'])}}" style="color:rgba(255,255,255,0.95);font-size:14px;margin-left:6px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.4);">Home Care</a>,
+        <a href="{{route('job.list', ['search' => 'Recreation'])}}" style="color:rgba(255,255,255,0.95);font-size:14px;margin-left:6px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,0.4);">Recreation</a>
+    </div>
+
+</form>
+@endif

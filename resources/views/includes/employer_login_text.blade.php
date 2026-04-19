@@ -1,9 +1,9 @@
 
 
 @if(Auth::guard('company')->check())
-<a href="{{ route('post.job') }}" class="userloginbox postjobbox">
+<a href="{{ route('post.job') }}" class="userloginbox postjobbox" style="border-radius: 25px;padding: 25px 20px;">
 @else
-<a href="{{ route('employer.landing') }}" class="userloginbox postjobbox">
+<a href="{{ route('employer.landing') }}" class="userloginbox postjobbox" style="border-radius: 25px;padding: 25px 20px;">
 @endif		
 
 <h3>{{__('Post a Job Today')}}</h3>
