@@ -79,6 +79,7 @@ class Company extends Authenticatable
 
     protected $casts = [
         'custom_field_data' => 'array',
+        'verified' => 'boolean',
         'email_verified_at' => 'datetime',
         'verified_at' => 'datetime',
         'verification_reviewed_at' => 'datetime',
@@ -395,7 +396,7 @@ class Company extends Authenticatable
 
     {
 
-        return $this->belongsTo('App\Industry', 'industry_id', 'id');
+        return $this->belongsTo('App\Industry', 'industry_id', 'industry_id');
 
     }
 
@@ -751,7 +752,7 @@ class Company extends Authenticatable
             return true;
         }
 
-        return $this->verified === true && $this->verified_at !== null;
+        return (bool) $this->verified && $this->verified_at !== null;
     }
 
     /**

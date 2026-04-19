@@ -379,6 +379,9 @@ class Job extends Model
         if (null === $industry) {
             $industry = $this->industry()->first();
         }
+        if (null === $industry && null !== $this->company) {
+            return $this->company->getIndustry($field);
+        }
         if (null !== $industry) {
             if (!empty($field)) {
                 return $industry->$field;

@@ -45,6 +45,6 @@ class VerificationBadgeService
      */
     public function canDisplayBadge(Company $company): bool
     {
-        return $company->verified === true;
+        return $company->isVerified();
     }
 }

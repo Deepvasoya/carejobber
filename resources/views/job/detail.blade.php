@@ -18,7 +18,7 @@ $company = $job->getCompany();
 
 
 <div class="listpgWraper">
-    <div class="container-fluid">
+    <div class="container">
         @include('flash::message')
 
 

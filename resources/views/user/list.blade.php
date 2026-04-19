@@ -47,7 +47,7 @@
 
 
 <div class="listpgWraper">
-    <div class="container-fluid">
+    <div class="container">
 
         <form action="{{ route('job.seeker.list') }}" method="get">
 

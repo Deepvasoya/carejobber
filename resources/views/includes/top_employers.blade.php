@@ -23,7 +23,7 @@
                         <div class="emptbox">
                         <div class="comimg">{{$company->printCompanyImage()}}</div>
                             <div class="text-info-right">
-                            <h4>{{$company->name}}</h4>	
+                            <h4>{{$company->name}} @include('components.verified-badge', ['company' => $company])</h4>	
                             <div class="emloc"><i class="fas fa-map-marker-alt"></i> {{$company->getCountry('country')}}</div>
                             </div>	
                             		

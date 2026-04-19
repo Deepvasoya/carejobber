@@ -14,7 +14,7 @@
 
 
 <div class="listpgWraper">
-<div class="container-fluid">
+<div class="container">
 
     <div class="row">
         <div class="col-lg-3">
@@ -80,7 +80,7 @@
                             <div class="emptbox">
                             <div class="comimg">{{$company->printCompanyImage()}}</div>
                                 <div class="text-info-right">
-                                <h4>{{$company->name}}</h4>	
+                                <h4>{{$company->name}} @include('components.verified-badge', ['company' => $company])</h4>	
                                 @if($company->getIndustry('industry'))
                                     <div class="indst">                           
                                         {{ $company->getIndustry('industry') }}                         

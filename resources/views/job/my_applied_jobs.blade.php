@@ -58,6 +58,7 @@
                                     <div class="ftjobcomp">
                                         <span>{{__('Applied')}}: {{$appliedjob->created_at->format('M d, Y')}}</span>
                                         <a href="{{route('company.detail', $company->slug)}}" title="{{$company->name}}">{{$company->name}}</a>
+                                        @include('components.verified-badge', ['company' => $company])
                                     </div>
                                     <a href="{{route('company.detail', $company->slug)}}" class="company-logo" title="{{$company->name}}">{{$company->printCompanyImage()}}</a>
                                 </div>

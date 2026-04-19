@@ -190,6 +190,7 @@ class JobController extends Controller
         /*         * ************************************************** */
 
         $seo = Seo::where('seo.page_title', 'like', 'jobs')->first();
+        $facilityTypes = DataArrayHelper::langIndustriesArray();
         return view('job.list')
                         ->with('functionalAreas', $this->functionalAreas)
                         ->with('countries', $this->countries)
@@ -210,6 +211,7 @@ class JobController extends Controller
                         ->with('degreeLevelIdsArray', $degreeLevelIdsArray)
                         ->with('jobExperienceIdsArray', $jobExperienceIdsArray)
                         ->with('feature_jobs', $feature_jobs)
+                        ->with('facilityTypes', $facilityTypes)
                         ->with('seo', $seo);                        
     }
 
