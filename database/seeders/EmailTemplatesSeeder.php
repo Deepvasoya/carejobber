@@ -480,6 +480,23 @@ class EmailTemplatesSeeder extends Seeder
                 'category' => 'company'
             ],
 
+            // Company Verification Approved
+            [
+                'slug' => 'company-verification-approved',
+                'name' => 'Company Verification Approved',
+                'subject' => 'Your company verification has been approved',
+                'body' => '<p>Dear {FULL_NAME},</p><p>Your company verification on {SITE_NAME} has been approved.</p><p>You can now post jobs and access candidate resumes, subject to your package permissions.</p><p><strong>Company profile:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><p><strong>Employer dashboard:</strong> <a href="{VERIFICATION_PAGE_URL}">{VERIFICATION_PAGE_URL}</a></p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link',
+                    '{VERIFICATION_PAGE_URL}' => 'Employer verification page URL'
+                ]),
+                'category' => 'company'
+            ],
+
             // Document Upload - Resubmit Request
             [
                 'slug' => 'document-resubmit-request',
@@ -492,6 +509,24 @@ class EmailTemplatesSeeder extends Seeder
                     '{FULL_NAME}' => 'Company contact name',
                     '{COMPANY_NAME}' => 'Company name',
                     '{COMPANY_LINK}' => 'Company public profile link'
+                ]),
+                'category' => 'company'
+            ],
+
+            // Company Verification Rejected
+            [
+                'slug' => 'company-verification-rejected',
+                'name' => 'Company Verification Rejected',
+                'subject' => 'Your company verification needs changes',
+                'body' => '<p>Dear {FULL_NAME},</p><p>Your company verification on {SITE_NAME} was reviewed and could not be approved yet.</p><p><strong>Reason for rejection:</strong><br>{REJECTION_REASON}</p><p>Please upload corrected documents and submit them again for review.</p><p><strong>Employer verification page:</strong> <a href="{VERIFICATION_PAGE_URL}">{VERIFICATION_PAGE_URL}</a></p><p><strong>Company profile:</strong> <a href="{COMPANY_LINK}">{COMPANY_LINK}</a></p><p>Warm regards,<br>{SITE_NAME} Team</p>',
+                'shortcodes' => json_encode([
+                    '{SITE_NAME}' => 'Website name',
+                    '{SITE_URL}' => 'Website URL',
+                    '{FULL_NAME}' => 'Company contact name',
+                    '{COMPANY_NAME}' => 'Company name',
+                    '{COMPANY_LINK}' => 'Company public profile link',
+                    '{VERIFICATION_PAGE_URL}' => 'Employer verification page URL',
+                    '{REJECTION_REASON}' => 'Admin rejection reason'
                 ]),
                 'category' => 'company'
             ],

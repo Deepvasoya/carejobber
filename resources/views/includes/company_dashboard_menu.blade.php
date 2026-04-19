@@ -14,6 +14,8 @@
                 <i class="fas fa-shield-alt" aria-hidden="true"></i>
                 @if(Auth::guard('company')->user()->isVerified())
                     {{ __('Company Verification') }} <span class="text-success">({{ __('Verified') }})</span>
+                @elseif(Auth::guard('company')->user()->isVerificationRejected())
+                    {{ __('Company Verification') }} <span class="text-danger">({{ __('Rejected') }})</span>
                 @elseif(Auth::guard('company')->user()->hasBusinessRegistration())
                     {{ __('Company Verification') }} <span class="text-warning">({{ __('Under Review') }})</span>
                 @else

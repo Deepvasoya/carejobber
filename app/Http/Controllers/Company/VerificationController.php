@@ -108,7 +108,7 @@ class VerificationController extends Controller
             );
         }
 
-        if ($request->hasFile('business_registration')) {
+        if ($company->hasBusinessRegistration()) {
             $company->verified = null;
             $company->verified_at = null;
             $company->verification_status = 'pending';
@@ -117,7 +117,7 @@ class VerificationController extends Controller
             $company->save();
 
             return redirect()->back()
-                ->with('success', __('Business registration uploaded successfully. Your verification is now under review.'));
+                ->with('success', __('Verification document uploaded successfully. Your verification is now under review.'));
         }
 
         return redirect()->back()

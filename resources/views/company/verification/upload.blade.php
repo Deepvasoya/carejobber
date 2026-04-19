@@ -20,7 +20,7 @@
                             <div class="alert alert-success">
                                 {{ __('Your company is verified.') }}
                             </div>
-                        @elseif($company->verification_status === 'rejected')
+                        @elseif($company->isVerificationRejected())
                             <div class="alert alert-danger">
                                 {{ __('Your verification was rejected.') }}
                                 @if($company->verification_rejection_reason)
@@ -87,5 +87,4 @@
 </div>
 @include('includes.footer')
 @endsection
-
 

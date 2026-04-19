@@ -161,9 +161,14 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0"><i class="ri ri-file-shield-line me-1"></i> {{ __('Verification Documents') }}</h5>
                 @if(!$company->isVerified())
-                <button type="button" class="btn btn-sm btn-success" id="approveVerificationBtn">
-                    <i class="ri ri-checkbox-circle-line me-1"></i>Approve Verification
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-success" id="approveVerificationBtn">
+                        <i class="ri ri-checkbox-circle-line me-1"></i>Approve Verification
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" id="rejectVerificationBtn">
+                        <i class="ri ri-close-circle-line me-1"></i>Reject Verification
+                    </button>
+                </div>
                 @endif
             </div>
             <div class="card-body">
@@ -366,6 +371,60 @@ $(function() {
                     },
                     error: function(xhr) {
                         var message = 'There was an error approving the verification.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            message = xhr.responseJSON.message;
+                        }
+                        Swal.fire('Error!', message, 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    $('#rejectVerificationBtn').on('click', function() {
+        Swal.fire({
+            title: 'Reject Company Verification?',
+            input: 'textarea',
+            inputLabel: 'Rejection reason',
+            inputPlaceholder: 'Write the reason for rejection',
+            inputAttributes: {
+                'aria-label': 'Write the reason for rejection'
+            },
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Reject',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value || !value.trim()) {
+                    return 'Rejection reason is required.';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('admin.company.reject.verification', $company->id) }}",
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        reason: result.value
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Rejected!',
+                                text: 'Company verification has been rejected.',
+                                icon: 'success'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error!', response.message || 'There was an error rejecting the verification.', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        var message = 'There was an error rejecting the verification.';
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             message = xhr.responseJSON.message;
                         }

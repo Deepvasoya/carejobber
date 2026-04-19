@@ -33,11 +33,18 @@
                     </h5>
                 </div>
 
-            <?php } elseif ($company->is_active != 1) { ?> 
+            <?php } elseif ($company->isVerificationRejected()) { ?>
                 <div class="userprofilealert">
                     <h5>
                         <i class="fas fa-times"></i> 
-                        {{__('Your account is currently inactive due to pending verification.')}}
+                        {{__('Your company verification was rejected. Please review the reason and upload corrected documents.')}}
+                    </h5>
+                </div>
+            <?php } elseif ($company->hasPendingVerification()) { ?> 
+                <div class="userprofilealert">
+                    <h5>
+                        <i class="fas fa-clock"></i> 
+                        {{__('Your account is currently inactive because your business documents are under review.')}}
                     </h5>
                 </div>
             <?php } ?> 
@@ -52,7 +59,7 @@
                     <div class="company-verification-reminder__content">
                         <div>
                             <h4>{{ __('Verify your company registration') }}</h4>
-                            @if($company->verification_status === 'rejected')
+                            @if($company->isVerificationRejected())
                                 <p>{{ __('Your previous submission was rejected. Upload corrected documents so admin can review them again.') }}</p>
                                 @if($company->verification_rejection_reason)
                                     <p class="company-verification-reminder__reason"><strong>{{ __('Reason:') }}</strong> {{ $company->verification_rejection_reason }}</p>

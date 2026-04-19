@@ -30,6 +30,7 @@ use App\Traits\CompanyTrait;
 use App\Traits\CompanyPackageTrait;
 use Illuminate\Support\Str;
 use App\Mail\DocumentsUpload;
+use App\Services\EmailTemplateService;
 use App\UnlockedUser;
 use App\VerificationDocument;
 use Mail;
@@ -816,18 +817,30 @@ public function updateCompany($id, CompanyFormRequest $request)
             
             // Check if company has uploaded business registration (mandatory)
             if (!$company->hasBusinessRegistration()) {
-                return response()->json([
+                $payload = [
                     'success' => false,
                     'message' => 'Company must upload business registration document before verification can be approved.'
-                ], 400);
+                ];
+
+                if (request()->expectsJson()) {
+                    return response()->json($payload, 400);
+                }
+
+                return redirect()->back()->with('error', $payload['message']);
             }
             
             // Check if already verified
             if ($company->isVerified()) {
-                return response()->json([
+                $payload = [
                     'success' => false,
                     'message' => 'Company is already verified.'
-                ], 400);
+                ];
+
+                if (request()->expectsJson()) {
+                    return response()->json($payload, 400);
+                }
+
+                return redirect()->back()->with('error', $payload['message']);
             }
             
             // Approve verification
@@ -838,6 +851,8 @@ public function updateCompany($id, CompanyFormRequest $request)
             $company->verification_rejection_reason = null;
             $company->verification_reviewed_at = Carbon::now();
             $company->save();
+
+            $this->sendCompanyVerificationStatusEmail($company, 'company-verification-approved');
 
             $payload = [
                 'success' => true,
@@ -868,6 +883,7 @@ public function updateCompany($id, CompanyFormRequest $request)
     {
         try {
             $company = Company::findOrFail($id);
+            $reason = trim((string) $request->input('reason'));
 
             if (!$company->verificationDocuments()->exists()) {
                 $message = 'Company has no verification documents to reject.';
@@ -879,13 +895,25 @@ public function updateCompany($id, CompanyFormRequest $request)
                 return redirect()->back()->with('error', $message);
             }
 
+            if ($reason === '') {
+                $message = 'Rejection reason is required.';
+
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return redirect()->back()->with('error', $message);
+            }
+
             $company->is_active = 0;
             $company->verified = false;
             $company->verified_at = null;
             $company->verification_status = 'rejected';
-            $company->verification_rejection_reason = $request->input('reason');
+            $company->verification_rejection_reason = $reason;
             $company->verification_reviewed_at = Carbon::now();
             $company->save();
+
+            $this->sendCompanyVerificationStatusEmail($company, 'company-verification-rejected');
 
             $payload = [
                 'success' => true,
@@ -908,6 +936,31 @@ public function updateCompany($id, CompanyFormRequest $request)
             }
 
             return redirect()->back()->with('error', $payload['message']);
+        }
+    }
+
+    private function sendCompanyVerificationStatusEmail(Company $company, string $templateSlug): void
+    {
+        try {
+            EmailTemplateService::send(
+                $templateSlug,
+                $company->email,
+                $company->name,
+                [
+                    'FULL_NAME' => $company->name,
+                    'COMPANY_NAME' => $company->name,
+                    'COMPANY_LINK' => route('company.detail', $company->slug),
+                    'COMPANY_ADMIN_LINK' => route('edit.company', ['id' => $company->id]),
+                    'VERIFICATION_PAGE_URL' => route('company.verification.upload'),
+                    'REJECTION_REASON' => $company->verification_rejection_reason ?: 'No reason provided.',
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send company verification status email', [
+                'company_id' => $company->id,
+                'template' => $templateSlug,
+                'message' => $e->getMessage(),
+            ]);
         }
     }
 }

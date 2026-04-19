@@ -9,6 +9,7 @@
     .badge-rejected { background-color: #dc3545; color: #fff; }
     .doc-count { font-size: 0.875rem; color: #6c757d; }
     .verification-doc-links a { margin-right: 6px; margin-top: 6px; }
+    .verification-reason-box { min-width: 220px; }
 </style>
 @endpush
 @section('content')
@@ -136,8 +137,9 @@
                                     <i class="ri ri-checkbox-circle-line me-1"></i>Approve
                                 </button>
                             </form>
-                            <form action="{{ route('admin.company.reject.verification', $company->id) }}" method="POST" class="d-inline">
+                            <form action="{{ route('admin.company.reject.verification', $company->id) }}" method="POST" class="d-inline-flex align-items-start gap-2">
                                 @csrf
+                                <textarea name="reason" class="form-control form-control-sm verification-reason-box" rows="2" placeholder="Write rejection reason" required></textarea>
                                 <button type="submit" class="btn btn-sm btn-danger">
                                     <i class="ri ri-close-circle-line me-1"></i>Reject
                                 </button>
@@ -223,6 +225,7 @@
                         <th>Reviewed</th>
                         <th>Reason</th>
                         <th>Status</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -246,6 +249,17 @@
                             <span class="badge badge-rejected">
                                 <i class="ri ri-close-circle-line me-1"></i>Rejected
                             </span>
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ route('admin.public.company', $company->id) }}" class="btn btn-sm btn-primary">
+                                <i class="ri ri-eye-line me-1"></i>View Profile
+                            </a>
+                            <form action="{{ route('admin.company.approve.verification', $company->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="ri ri-checkbox-circle-line me-1"></i>Approve
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     @endforeach

@@ -767,9 +767,18 @@ class Company extends Authenticatable
 
     public function hasPendingVerification(): bool
     {
+        if ($this->verification_status === 'pending') {
+            return $this->hasBusinessRegistration() && ! $this->isVerified();
+        }
+
         return $this->hasBusinessRegistration()
-            && !$this->isVerified()
+            && ! $this->isVerified()
             && $this->verification_status !== 'rejected';
+    }
+
+    public function isVerificationRejected(): bool
+    {
+        return $this->verification_status === 'rejected';
     }
 
 
