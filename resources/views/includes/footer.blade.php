@@ -16,14 +16,14 @@
             <div class="footer-app-cta__stores">
                 <span class="footer-app-cta__label">{{ __('Download App') }}</span>
                 <div class="footer-app-cta__store-list">
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
-                        <i class="fab fa-apple"></i> {{__('App Store')}}
+                    <a href="#" class="footer-app-cta__store-button">
+                        <i class="fab fa-apple footer-app-cta__store-button-icon" aria-hidden="true"></i>
+                        <span>{{ __('App Store') }}</span>
                     </a>
-                    <a href="#" style="display: inline-block; background: #000; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600;">
-                        <i class="fab fa-google-play"></i> {{__('Google Play')}}
+                    <a href="#" class="footer-app-cta__store-button">
+                        <i class="fab fa-google-play footer-app-cta__store-button-icon" aria-hidden="true"></i>
+                        <span>{{ __('Google Play') }}</span>
                     </a>
-                </div>
                 </div>
             </div>
             <div class="footer-app-cta__phone" aria-hidden="true">

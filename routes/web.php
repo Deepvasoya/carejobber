@@ -99,8 +99,8 @@ Route::get('login/jobseeker/{provider}', 'Auth\LoginController@redirectToProvide
 Route::get('company-login', 'Auth\LoginController@companyLogin')->name('company.login.landing');
 Route::get('company-register', 'Auth\LoginController@companyRegister')->name('company.register.landing');
 
-// Help Centre (WordPress or static at /faqs/ — uses current APP_URL, not a hardcoded domain)
-Route::redirect('help-centre', '/faqs/', 302)->name('help.centre');
+// Help Centre should land on the Laravel FAQ page.
+Route::redirect('help-centre', '/faq', 302)->name('help.centre');
 Route::get('login/jobseeker/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
 Route::get('login/employer/{provider}', 'Company\Auth\LoginController@redirectToProvider');
 Route::get('login/employer/{provider}/callback', 'Company\Auth\LoginController@handleProviderCallback');
