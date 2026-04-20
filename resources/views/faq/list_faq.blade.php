@@ -282,42 +282,98 @@ function toggleFaq(faqId) {
     answerBody.classList.toggle('show');
 }
 
-// Category navigation
+function showCategoryInSection(sectionElement, categorySelector) {
+    if (!sectionElement || !categorySelector) {
+        return;
+    }
+
+    sectionElement.querySelectorAll('.faq-category-section').forEach(categorySection => {
+        categorySection.style.display = 'none';
+    });
+
+    const activeCategorySection = sectionElement.querySelector(categorySelector);
+    if (activeCategorySection) {
+        activeCategorySection.style.display = 'block';
+    }
+}
+
+function filterVisibleCategory(sectionElement, searchTerm) {
+    if (!sectionElement) {
+        return;
+    }
+
+    const activeCategorySection = sectionElement.querySelector('.faq-category-section[style*="display: block"]');
+    if (!activeCategorySection) {
+        return;
+    }
+
+    activeCategorySection.querySelectorAll('.faq-question-item').forEach(item => {
+        const questionText = (item.getAttribute('data-question') || '').toLowerCase();
+        item.style.display = questionText.includes(searchTerm) ? 'block' : 'none';
+    });
+}
+
+function initializeFaqSection(sectionElement) {
+    if (!sectionElement) {
+        return;
+    }
+
+    const firstCategoryLink = sectionElement.querySelector('.faq-sidebar .faq-category-link');
+    if (firstCategoryLink) {
+        sectionElement.querySelectorAll('.faq-sidebar .faq-category-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        firstCategoryLink.classList.add('active');
+        showCategoryInSection(sectionElement, firstCategoryLink.getAttribute('href'));
+    }
+
+    const searchInput = sectionElement.querySelector('.faq-search-input');
+    if (searchInput) {
+        searchInput.value = '';
+        filterVisibleCategory(sectionElement, '');
+    }
+}
+
 document.querySelectorAll('.faq-category-link').forEach(link => {
     link.addEventListener('click', function(e) {
         e.preventDefault();
-        
-        // Remove active class from all links in this sidebar
+
+        const sectionElement = this.closest('.tab-pane');
         const sidebar = this.closest('.faq-sidebar');
-        sidebar.querySelectorAll('.faq-category-link').forEach(l => l.classList.remove('active'));
-        
-        // Add active class to clicked link
-        this.classList.add('active');
-        
-        // Scroll to category
-        const categoryId = this.getAttribute('href');
-        const categoryElement = document.querySelector(categoryId);
-        if (categoryElement) {
-            categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!sectionElement || !sidebar) {
+            return;
         }
+
+        sidebar.querySelectorAll('.faq-category-link').forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+
+        const selectedCategory = this.getAttribute('href');
+        showCategoryInSection(sectionElement, selectedCategory);
+
+        const searchInput = sectionElement.querySelector('.faq-search-input');
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        filterVisibleCategory(sectionElement, searchTerm);
     });
 });
 
-// Search functionality
 document.querySelectorAll('.faq-search-input').forEach(input => {
     input.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        const sectionId = this.getAttribute('data-section');
-        const section = document.getElementById('section-' + sectionId);
-        
-        section.querySelectorAll('.faq-question-item').forEach(item => {
-            const questionText = item.getAttribute('data-question');
-            if (questionText.includes(searchTerm)) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
+        const sectionElement = this.closest('.tab-pane');
+        filterVisibleCategory(sectionElement, this.value.toLowerCase());
+    });
+});
+
+document.querySelectorAll('.tab-pane').forEach(sectionElement => {
+    initializeFaqSection(sectionElement);
+});
+
+document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tabButton => {
+    tabButton.addEventListener('shown.bs.tab', function(e) {
+        const targetSelector = e.target.getAttribute('data-bs-target');
+        const activeSection = document.querySelector(targetSelector);
+        if (activeSection) {
+            initializeFaqSection(activeSection);
+        }
     });
 });
 </script>
