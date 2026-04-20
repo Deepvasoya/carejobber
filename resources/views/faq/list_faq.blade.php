@@ -38,8 +38,8 @@
     gap: 30px;
 }
 .faq-sidebar {
-    flex: 0 0 280px;
-    background: #f8f9fa;
+    flex: 0 0 300px;
+    background: #F2F7F3;
     padding: 20px;
     border-radius: 8px;
     height: fit-content;
@@ -100,7 +100,7 @@
     width: 100%;
     padding: 12px 20px;
     border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 15px;
 }
 .faq-search input:focus {
@@ -127,7 +127,7 @@
 }
 .faq-question-title {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     color: #333;
     margin: 0;
 }
