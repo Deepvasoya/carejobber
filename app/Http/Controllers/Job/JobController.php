@@ -484,6 +484,19 @@ class JobController extends Controller
         $jobApply->status = 'applied';
         $jobApply->save();
 
+        // Save question answers if provided
+        if ($request->has('question_answers')) {
+            foreach ($request->input('question_answers') as $questionId => $answer) {
+                if (!empty($answer)) {
+                    $qa = new \App\JobQuestionAnswer();
+                    $qa->job_question_id = $questionId;
+                    $qa->job_apply_id = $jobApply->id;
+                    $qa->answer = $answer;
+                    $qa->save();
+                }
+            }
+        }
+
         // Fire JobApplied event if it exists
         try {
             event(new \App\Events\JobApplied($job, $jobApply));

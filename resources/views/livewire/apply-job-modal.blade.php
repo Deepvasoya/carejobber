@@ -102,6 +102,31 @@
                             </div>
                         </div>
 
+                        <!-- Additional Questions -->
+                        @if($job && $job->jobQuestions && $job->jobQuestions->count() > 0)
+                        <div class="mb-4">
+                            <label class="form-label" style="font-weight: 500; color: #666; font-size: 14px; margin-bottom: 15px;">
+                                <i class="fas fa-question-circle text-warning me-1"></i>{{__('Additional Questions')}}
+                            </label>
+                            @foreach($job->jobQuestions as $question)
+                            <div class="mb-3">
+                                <label class="form-label" style="font-weight: 500; color: #444; font-size: 14px;">
+                                    {{ $loop->iteration }}. {{ $question->question_title }}
+                                </label>
+                                <textarea wire:model="questionAnswers.{{ $question->id }}"
+                                          class="form-control @error('questionAnswers.'.$question->id) is-invalid @enderror"
+                                          rows="2"
+                                          maxlength="1000"
+                                          style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; font-size: 14px;"
+                                          placeholder="{{__('Your answer...')}}"></textarea>
+                                @error('questionAnswers.'.$question->id)
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
+
                         <!-- Terms and Conditions -->
                         <div class="mb-0">
                             <div class="form-check">

@@ -569,7 +569,7 @@ if (Auth::guard('company')->user()) {
     function send_message() {
         const el = document.createElement('div')
         el.innerHTML = "Please <a class='btn' href='{{route('login')}}' onclick='set_session()'>log in</a> as a Employer and try again."
-        @if(null !== (Auth::guard('company') - > user()))
+        @if(null !== (Auth::guard('company')->user()))
         $('#sendmessage').modal('show');
         @else
         swal({
@@ -604,7 +604,7 @@ if (Auth::guard('company')->user()) {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
-                @if(null !== (Auth::guard('company') - > user()))
+                @if(null !== (Auth::guard('company')->user()))
                 $.ajax({
                     url: "{{route('submit-message-seeker')}}",
                     type: "POST",

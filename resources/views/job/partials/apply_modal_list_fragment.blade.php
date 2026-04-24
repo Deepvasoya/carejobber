@@ -68,6 +68,28 @@
                 </div>
             </div>
 
+            <!-- Additional Questions -->
+            @if($job->jobQuestions && $job->jobQuestions->count() > 0)
+            <div class="mb-4">
+                <h6 class="mb-3" style="font-weight: 600; color: #333; font-size: 16px;">
+                    <i class="fas fa-question-circle text-warning me-2"></i>{{ __('Additional Questions') }}
+                </h6>
+                @foreach($job->jobQuestions as $question)
+                <div class="mb-3">
+                    <label class="form-label" style="font-weight: 500; color: #444; font-size: 14px;">
+                        {{ $loop->iteration }}. {{ $question->question_title }}
+                    </label>
+                    <textarea name="question_answers[{{ $question->id }}]"
+                              class="form-control"
+                              rows="2"
+                              maxlength="1000"
+                              style="border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 14px;"
+                              placeholder="{{ __('Your answer...') }}"></textarea>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
             <div class="form-check mb-3">
                 <input type="checkbox" class="form-check-input" id="apply_list_terms" name="terms" required style="width: 18px; height: 18px;">
                 <label class="form-check-label ms-2" for="apply_list_terms" style="color: #666; font-size: 14px;">
