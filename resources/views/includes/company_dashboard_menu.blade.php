@@ -1,4 +1,4 @@
-<div class="col-lg-2" style="flex: 0 0 auto; min-width: 280px;">
+<div class="col-lg-2" style="flex: 0 0 auto; ">
 	<div class="usernavwrap">
     <ul class="usernavdash">
         <li class="{{ Request::url() == route('company.home') ? 'active' : '' }}"><a href="{{route('company.home')}}"><i class="fas fa-tachometer" aria-hidden="true"></i> {{__('Dashboard')}}</a></li>

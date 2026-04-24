@@ -521,7 +521,7 @@
         </div>
 
         <!-- Third Column - Right Sidebar -->
-        <div class="col-lg-2" style="flex: 0 0 auto; min-width: 280px;">
+        <div class="col-lg-2" style="flex: 0 0 auto;">
             
             <!-- Mobile App CTA -->
             <div class="sidebar-box mobile-app-cta" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); text-align: center; color: #fff;">

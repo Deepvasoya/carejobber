@@ -1,4 +1,4 @@
-  <div class="col-lg-2" style="flex: 0 0 auto; min-width: 280px;">
+  <div class="col-lg-2" style="flex: 0 0 auto; ">
 
       <!-- Top Employers Box -->
       <div class="sidebar-box top-employers-box" style="background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
