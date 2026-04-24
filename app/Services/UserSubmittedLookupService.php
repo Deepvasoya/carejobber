@@ -19,28 +19,35 @@ class UserSubmittedLookupService
      * After validation: resolve "Other" (0) selections into real FK ids on the request.
      */
     public function mergeUserSubmittedProfileRequest(Request $request): void
-    {
-        DB::transaction(function () use ($request) {
-            if ((int) $request->input('industry_id') === 0) {
-                $name = (string) $request->input('custom_industry', '');
-                $id = $this->findOrCreateIndustry($name);
-                $request->merge(['industry_id' => $id]);
-            }
+        {
+            DB::transaction(function () use ($request) {
+                if ((int) $request->input('industry_id') === 0) {
+                    $name = (string) $request->input('custom_industry', '');
+                    if (mb_strlen(trim($name)) >= 2) {
+                        $id = $this->findOrCreateIndustry($name);
+                        $request->merge(['industry_id' => $id]);
+                    }
+                }
 
-            if ((int) $request->input('functional_area_id') === 0) {
-                $name = (string) $request->input('custom_functional_area', '');
-                $id = $this->findOrCreateFunctionalArea($name);
-                $request->merge(['functional_area_id' => $id]);
-            }
+                if ((int) $request->input('functional_area_id') === 0) {
+                    $name = (string) $request->input('custom_functional_area', '');
+                    if (mb_strlen(trim($name)) >= 2) {
+                        $id = $this->findOrCreateFunctionalArea($name);
+                        $request->merge(['functional_area_id' => $id]);
+                    }
+                }
 
-            if (LocationHelper::showCity() && (int) $request->input('city_id') === 0) {
-                $name = (string) $request->input('custom_city_name', '');
-                $stateId = $this->resolveStateIdForCity($request);
-                $id = $this->findOrCreateCity($name, $stateId);
-                $request->merge(['city_id' => $id]);
-            }
-        });
-    }
+                if (LocationHelper::showCity() && (int) $request->input('city_id') === 0) {
+                    $name = (string) $request->input('custom_city_name', '');
+                    $stateId = $this->resolveStateIdForCity($request);
+                    if (mb_strlen(trim($name)) >= 2 && $stateId > 0) {
+                        $id = $this->findOrCreateCity($name, $stateId);
+                        $request->merge(['city_id' => $id]);
+                    }
+                }
+            });
+        }
+
 
     /**
      * Employer job post / update: functional area, city, job skills multiselect.
@@ -50,21 +57,27 @@ class UserSubmittedLookupService
         DB::transaction(function () use ($request) {
             if ((int) $request->input('industry_id') === 0) {
                 $name = (string) $request->input('custom_industry', '');
-                $id = $this->findOrCreateIndustry($name);
-                $request->merge(['industry_id' => $id]);
+                if (mb_strlen(trim($name)) >= 2) {
+                    $id = $this->findOrCreateIndustry($name);
+                    $request->merge(['industry_id' => $id]);
+                }
             }
 
             if ((int) $request->input('functional_area_id') === 0) {
                 $name = (string) $request->input('custom_functional_area', '');
-                $id = $this->findOrCreateFunctionalArea($name);
-                $request->merge(['functional_area_id' => $id]);
+                if (mb_strlen(trim($name)) >= 2) {
+                    $id = $this->findOrCreateFunctionalArea($name);
+                    $request->merge(['functional_area_id' => $id]);
+                }
             }
 
             if (LocationHelper::showCity() && (int) $request->input('city_id') === 0) {
                 $name = (string) $request->input('custom_city_name', '');
                 $stateId = $this->resolveStateIdForCity($request);
-                $id = $this->findOrCreateCity($name, $stateId);
-                $request->merge(['city_id' => $id]);
+                if (mb_strlen(trim($name)) >= 2 && $stateId > 0) {
+                    $id = $this->findOrCreateCity($name, $stateId);
+                    $request->merge(['city_id' => $id]);
+                }
             }
 
             $skills = $request->input('skills');

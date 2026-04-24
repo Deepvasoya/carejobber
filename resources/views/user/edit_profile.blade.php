@@ -11,7 +11,7 @@
         <div class="row">
             @include('includes.user_dashboard_menu')
 
-            <div class="col-md-9 col-sm-8">
+            <div class="col-md-8 col-sm-8">
                 <!-- Resume Promotion Card -->
                 @php
                 $hasActivePromotion = $user->is_resume_promoted &&
@@ -80,6 +80,8 @@
                 @include('user.inc.build_resume_embed')
 
             </div>
+             <!-- Third Column - Right Sidebar -->
+            @include('rightsidebar')
         </div>
     </div>
 </div>

@@ -630,7 +630,7 @@ if (Auth::guard('company')->user()) {
 
         el.innerHTML = "Please <a class='btn' href='{{route('login')}}' onclick='set_session()'>log in</a> as a Employer and try again."
 
-        @if(null !== (Auth::guard('company') - > user()))
+        @if(null !== (Auth::guard('company')->user()))
 
         $('#sendmessage').modal('show');
 
@@ -700,7 +700,7 @@ if (Auth::guard('company')->user()) {
 
                 });
 
-                @if(null !== (Auth::guard('company') - > user()))
+                @if(null !== (Auth::guard('company')->user()))
 
                 $.ajax({
 
