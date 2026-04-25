@@ -71,14 +71,15 @@
             if (json.status === 422) {
             var resJSON = json.responseJSON;
             $('.help-block').html('');
+            var firstMsg = '';
             $.each(resJSON.errors, function (key, value) {
             $('.' + key + '-error').html('<strong>' + value + '</strong>');
             $('#div_' + key).addClass('has-error');
+            if (!firstMsg) firstMsg = value[0] || value;
             });
+            if (firstMsg) alert('Please fix: ' + firstMsg);
             } else {
-            // Error
-            // Incorrect credentials
-            // alert('Incorrect credentials. Please try again.')
+            alert('Save failed (status ' + json.status + '). Please try again.');
             }
             }
     });

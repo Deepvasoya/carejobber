@@ -8204,3 +8204,40 @@ Large Mobile Screen
         justify-content: space-between;
     }
 }
+
+/* =====================================================
+   Global 1200px max-width constraint
+   Applies to all front-end pages.
+   Dashboards (employer + job seeker) are excluded via
+   the .usernavwrap selector (sidebar nav present).
+   The site header is also excluded (full-width bar).
+   ===================================================== */
+
+/* Cap container-fluid to 1200px on all front-end pages */
+.listpgWraper > .container-fluid,
+.listpgWraper > div > .container-fluid,
+section#blog-content > .container-fluid,
+#blog-headerwrap > .container-fluid,
+#joblisting-headerwrap > .container-fluid,
+.container-fluid.py-5 {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+/* Header stays full-width */
+.header > .container-fluid {
+    max-width: none;
+    width: 100%;
+}
+
+/* Dashboard pages: employer + job seeker sidebars — restore full width */
+.listpgWraper > .container-fluid:has(.usernavwrap),
+.listpgWraper > .container-fluid:has(.usernavdash) {
+    max-width: none;
+    width: 100%;
+}
+
+/* Fallback for browsers without :has() support — dashboards use padding-left: 5px inline style */
+/* The dashboard container-fluid rows have the sidebar col-lg-2 with usernavwrap inside */

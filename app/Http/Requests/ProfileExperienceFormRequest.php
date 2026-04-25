@@ -30,7 +30,7 @@ class ProfileExperienceFormRequest extends Request
                     'date_start' => 'required|date',
                     'date_end' => 'required_if:is_currently_working,0|nullable|date',
                     'is_currently_working' => 'required|in:0,1',
-                    'description' => 'required|string|max:65535',
+                    'description' => 'nullable|string|max:65535',
                 ];
 
                 if ($this->isFrontExperienceRoute()) {
@@ -39,10 +39,11 @@ class ProfileExperienceFormRequest extends Request
                     $rules['state_id'] = 'nullable';
                     $rules['city_id'] = 'nullable';
                 } else {
+                    // Admin form — location fields are optional (dropdowns load via AJAX)
                     $rules['employer_address'] = 'nullable|string|max:500';
-                    $rules['country_id'] = LocationHelper::showCountry() ? 'required' : 'nullable';
-                    $rules['state_id'] = LocationHelper::showState() ? 'required' : 'nullable';
-                    $rules['city_id'] = LocationHelper::showCity() ? 'required' : 'nullable';
+                    $rules['country_id'] = 'nullable';
+                    $rules['state_id'] = 'nullable';
+                    $rules['city_id'] = 'nullable';
                 }
 
                 return $rules;

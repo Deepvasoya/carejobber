@@ -200,10 +200,12 @@ if (Auth::guard('company')->user()) {
 
                                     @if(Auth::guard('company')->user()->getRemainingCvsQuota() > 0)
                                     <div class="mt-3 pt-3 border-top">
-                                        <small class="text-success">
-                                            <i class="fas fa-coins me-1"></i>
-                                            {{__('Or use 1 of your')}} <strong>{{ Auth::guard('company')->user()->getRemainingCvsQuota() }}</strong> {{__('credits')}}
-                                        </small>
+                                        <a href="{{ route('company.unlock', $user->id) }}" class="text-success text-decoration-none d-block">
+                                            <small>
+                                                <i class="fas fa-coins me-1"></i>
+                                                {{__('Or use 1 of your')}} <strong>{{ Auth::guard('company')->user()->getRemainingCvsQuota() }}</strong> {{__('credits')}}
+                                            </small>
+                                        </a>
                                     </div>
                                     @endif
                                 </div>

@@ -29,7 +29,8 @@ class ProfileEducationFormRequest extends Request
                     'description' => 'nullable|string|max:5000',
                 ];
 
-                $rules['country_id'] = LocationHelper::showCountry() ? 'required' : 'nullable';
+                // Location is optional in admin forms (dropdowns load via AJAX)
+                $rules['country_id'] = 'nullable';
 
                 return $rules;
             default:
