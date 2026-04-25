@@ -115,7 +115,7 @@
                     </div>
 
                     <!-- Credits Option -->
-                    @if(Auth::guard('company')->user()->cvs_quota > Auth::guard('company')->user()->availed_cvs_quota)
+                    @if(Auth::guard('company')->user()->getRemainingCvsQuota() > 0)
                     <div class="col-md-6">
                         <div class="card shadow border-0 h-100" style="border-radius: 16px;">
                             <div class="card-body p-5 text-center">
@@ -128,7 +128,7 @@
                                 <!-- Credits Available -->
                                 <div class="mb-4">
                                     <div class="display-3 fw-bold text-warning">
-                                        {{ Auth::guard('company')->user()->cvs_quota - Auth::guard('company')->user()->availed_cvs_quota }}
+                                        {{ Auth::guard('company')->user()->getRemainingCvsQuota() }}
                                     </div>
                                     <p class="text-muted">{{__('credits available')}}</p>
                                 </div>

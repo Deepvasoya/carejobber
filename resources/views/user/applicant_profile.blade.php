@@ -142,14 +142,18 @@ if (Auth::guard('company')->user()) {
                     @if(!$isProfileComplete)
                     <p style="color: red;">{{ __('Candidate profile is not completed, so you can\'t unlock it.') }}</p>
                     @else
-                    <button type="button" class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#resumeUnlockModal">
-                        <i class="fa fa-unlock-alt me-2" aria-hidden="true"></i> {{__('Unlock Full Profile')}}
-                    </button>
-                    <a href="{{ route('resume.unlock.page', $user->id) }}" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-info-circle me-2"></i> {{__('View Pricing')}}
-                    </a>
-                    <span class="text-muted d-block mt-2">{{ __('One-time payment • Lifetime access • Secure checkout') }}</span>
-                    <p class="small text-muted mt-2 mb-0">{{ __('For CV search packages, apply your coupon on') }} <a href="{{ route('company.packages') }}">{{ __('CV search packages') }}</a> {{ __('before Stripe checkout.') }}</p>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#resumeUnlockModal">
+                            <i class="fa fa-unlock-alt me-2" aria-hidden="true"></i> {{__('Unlock Full Profile')}}
+                        </button>
+                        <a href="{{ route('resume.unlock.page', $user->id) }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-info-circle me-2"></i> {{__('View Pricing')}}
+                        </a>
+                    </div>
+                    <div class="mt-2">
+                        <span class="text-muted d-block">{{ __('One-time payment • Lifetime access • Secure checkout') }}</span>
+                        <p class="small text-muted mt-1 mb-0">{{ __('For CV search packages, apply your coupon on') }} <a href="{{ route('company.packages') }}">{{ __('CV search packages') }}</a> {{ __('before Stripe checkout.') }}</p>
+                    </div>
                     @endif
                     @endif
                     @endif
@@ -194,11 +198,11 @@ if (Auth::guard('company')->user()) {
                                         <i class="fas fa-shield-alt me-1"></i> {{__('Secure payment via Stripe')}}
                                     </small>
 
-                                    @if(Auth::guard('company')->user()->cvs_quota > Auth::guard('company')->user()->availed_cvs_quota)
+                                    @if(Auth::guard('company')->user()->getRemainingCvsQuota() > 0)
                                     <div class="mt-3 pt-3 border-top">
                                         <small class="text-success">
                                             <i class="fas fa-coins me-1"></i>
-                                            {{__('Or use 1 of your')}} <strong>{{ Auth::guard('company')->user()->cvs_quota - Auth::guard('company')->user()->availed_cvs_quota }}</strong> {{__('credits')}}
+                                            {{__('Or use 1 of your')}} <strong>{{ Auth::guard('company')->user()->getRemainingCvsQuota() }}</strong> {{__('credits')}}
                                         </small>
                                     </div>
                                     @endif

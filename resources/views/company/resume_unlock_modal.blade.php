@@ -72,10 +72,10 @@
                                         <i class="fas fa-credit-card me-2"></i> {{__('Pay with Stripe')}}
                                     </a>
                                     
-                                    @if(Auth::guard('company')->check() && Auth::guard('company')->user()->cvs_quota > Auth::guard('company')->user()->availed_cvs_quota)
+                                    @if(Auth::guard('company')->check() && Auth::guard('company')->user()->getRemainingCvsQuota() > 0)
                                     <a href="{{ route('company.unlock', $userId) }}" class="btn btn-outline-primary btn-lg" style="border-radius: 8px; padding: 14px;">
                                         <i class="fas fa-coins me-2"></i> {{__('Use 1 Credit')}} 
-                                        <small class="ms-2">({{ Auth::guard('company')->user()->cvs_quota - Auth::guard('company')->user()->availed_cvs_quota }} {{__('remaining')}})</small>
+                                        <small class="ms-2">({{ Auth::guard('company')->user()->getRemainingCvsQuota() }} {{__('remaining')}})</small>
                                     </a>
                                     @endif
                                 </div>
@@ -92,12 +92,12 @@
                         </div>
 
                         <!-- Alternative: Use Credits -->
-                        @if(Auth::guard('company')->check() && Auth::guard('company')->user()->cvs_quota > Auth::guard('company')->user()->availed_cvs_quota)
+                        @if(Auth::guard('company')->check() && Auth::guard('company')->user()->getRemainingCvsQuota() > 0)
                         <div class="text-center mt-3">
                             <p class="text-muted mb-2">{{__('Or use your package credits')}}</p>
                             <small class="text-success">
                                 <i class="fas fa-coins me-1"></i> 
-                                {{__('You have')}} <strong>{{ Auth::guard('company')->user()->cvs_quota - Auth::guard('company')->user()->availed_cvs_quota }}</strong> {{__('credits remaining')}}
+                                {{__('You have')}} <strong>{{ Auth::guard('company')->user()->getRemainingCvsQuota() }}</strong> {{__('credits remaining')}}
                             </small>
                         </div>
                         @endif

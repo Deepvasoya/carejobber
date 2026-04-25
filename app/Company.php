@@ -160,6 +160,9 @@ class Company extends Authenticatable
      */
     public function getRemainingCvsQuota(): int
     {
+        if (! $this->hasActiveCvSearchPackage()) {
+            return 0;
+        }
         $quota = (int) ($this->cvs_quota ?? 0);
         $availed = (int) ($this->availed_cvs_quota ?? 0);
         return max(0, $quota - $availed);
