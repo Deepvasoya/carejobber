@@ -264,6 +264,42 @@ if (!isset($seo)) {
     <script src="{{ asset('/admin_assets/global/plugins/select2/js/select2.full.min.js') }}" type="text/javascript"></script>
     <script src="{{ asset('/admin_assets/global/plugins/jquery.scrollTo.min.js') }}" type="text/javascript"></script>
 
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        if (typeof tinymce !== 'undefined') {
+          tinymce.init({
+            selector: 'textarea.tinymce, textarea#content, textarea[name="content"], textarea[name="description"], textarea[name="body"], textarea[name="terms_content"]',
+            valid_elements: '*[*]',
+            extended_valid_elements: '*[*]',
+            valid_styles: {
+              '*': 'color,background,background-color,font-size,font-family,font-weight,font-style,text-align,text-decoration,margin,margin-top,margin-right,margin-bottom,margin-left,padding,padding-top,padding-right,padding-bottom,padding-left,border,border-top,border-right,border-bottom,border-left,border-radius,border-color,border-style,border-width,width,height,max-width,min-width,display,line-height,letter-spacing,text-transform,white-space,vertical-align,text-indent,list-style'
+            },
+            verify_html: false,
+            cleanup: false,
+            cleanup_on_startup: false,
+            entity_encoding: 'raw',
+            forced_root_block: 'p',
+            remove_trailing_brs: false,
+            paste_as_text: false,
+            paste_data_images: true,
+            paste_retain_style_properties: 'all',
+            paste_merge_formats: false,
+            paste_webkit_styles: 'all',
+            paste_remove_styles_if_webkit: false,
+            height: 600,
+            menubar: 'file edit view insert format tools table',
+            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount paste',
+            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | code | help',
+            content_style: 'body { font-family: Georgia, serif; font-size: 15px; line-height: 1.7; }'
+          });
+        }
+      });
+    </script>
+
+    <!-- Revolution Slider -->
+    <script type="text/javascript" src="{{ asset('/js/revolution-slider/js/jquery.themepunch.tools.min.js') }}"></script>
     <!-- Revolution Slider -->
     <script type="text/javascript" src="{{ asset('/js/revolution-slider/js/jquery.themepunch.tools.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('/js/revolution-slider/js/jquery.themepunch.revolution.min.js') }}"></script>
