@@ -17,7 +17,7 @@ if (Auth::guard('company')->user()) {
             $true = TRUE;
         }
     }
-} elseif (auth()->user()->id == $user->id) {
+} elseif (auth()->check() && auth()->user()->id == $user->id) {
     $true = TRUE;
 }
 ?>
@@ -221,6 +221,7 @@ if (Auth::guard('company')->user()) {
                     <h3>{{__('About me')}}</h3>
                     <p>{{$user->getProfileSummary('summary')}}</p>
                 </div>
+                @endif
 
                 <div class="userdetailbox">
                     <h3>{{__('Skills')}}</h3>
@@ -231,7 +232,6 @@ if (Auth::guard('company')->user()) {
                     <h3>{{__('Languages')}}</h3>
                     <div id="language_div"></div>
                 </div>
-                @endif
 
                 <!-- Experience start (Always visible - partial data) -->
                 <div class="userdetailbox">
@@ -461,6 +461,8 @@ if (Auth::guard('company')->user()) {
 @endpush
 @push('scripts')
 <script type="text/javascript">
+
+
     $(document).ready(function() {
         $(document).on('click', '#send_applicant_message', function() {
             var postData = $('#send-applicant-message-form').serialize();
@@ -499,11 +501,7 @@ if (Auth::guard('company')->user()) {
 
     function showProjects() {
         $.post("{{ route('show.applicant.profile.projects', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -514,11 +512,7 @@ if (Auth::guard('company')->user()) {
 
     function showExperience() {
         $.post("{{ route('show.applicant.profile.experience', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -529,11 +523,7 @@ if (Auth::guard('company')->user()) {
 
     function showEducation() {
         $.post("{{ route('show.applicant.profile.education', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -544,11 +534,7 @@ if (Auth::guard('company')->user()) {
 
     function showLanguages() {
         $.post("{{ route('show.applicant.profile.languages', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -559,11 +545,7 @@ if (Auth::guard('company')->user()) {
 
     function showSkills() {
         $.post("{{ route('show.applicant.profile.skills', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })

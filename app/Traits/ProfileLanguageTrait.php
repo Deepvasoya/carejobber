@@ -43,23 +43,7 @@ trait ProfileLanguageTrait
     public function showApplicantProfileLanguages(Request $request, $user_id)
     {
         $user = User::find($user_id);
-        $companyUser = Auth::guard('company')->user();
 
-        // Check if viewer is allowed to see full resume
-        $canViewFull = false;
-        if ($companyUser && $user) {
-            $canViewFull = \Gate::forUser($companyUser, 'company')->allows('view-full-resume', $user);
-        } elseif (auth()->check() && auth()->id() == $user_id) {
-            $canViewFull = true; // job seeker viewing their own profile
-        } elseif (Auth::guard('admin')->check()) {
-            $canViewFull = true; // admin
-        }
-
-        if (!$canViewFull) {
-            echo '<div class="alert alert-warning"><i class="fas fa-lock"></i> ' . __('Unlock profile to view languages') . '</div>';
-            return;
-        }
-        
         $html = '<div class="profilelang">';
         if (isset($user) && count($user->profileLanguages)):
             foreach ($user->profileLanguages as $language):
