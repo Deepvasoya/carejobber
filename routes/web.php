@@ -67,6 +67,11 @@ Route::get('locations-autocomplete', [SearchAutocompleteController::class, 'loca
 Route::get('geocode-city', [SearchAutocompleteController::class, 'reverseGeocode'])->middleware('throttle:30,1')->name('geocode.city');
 /* * ******** IndexController ************ */
 Route::get('/', 'IndexController@index')->name('index');
+Route::get('sitemap.xml', 'SitemapController@index')->name('sitemap.index');
+Route::get('sitemap-jobs.xml', 'SitemapController@jobs')->name('sitemap.jobs');
+Route::get('employers/{company:slug}', 'Seo\ProgrammaticSeoController@employer')->name('seo.employer');
+Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
+Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
 
 
 Route::get('/check-time', 'IndexController@checkTime')->name('check-time');

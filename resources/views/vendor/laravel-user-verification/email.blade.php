@@ -87,7 +87,7 @@ $link = route('email-verification.check', $user->verification_token);
                         <!-- Links -->
                         <p style="margin:15px 0;">
                             <a href="https://medojob.com" style="margin:0 6px; color:#0b3d91;">Home</a> |
-                            <a href="https://medojob.com/search-jobs" style="margin:0 6px; color:#0b3d91;">Jobs</a> |
+                            <a href="https://medojob.com/jobs" style="margin:0 6px; color:#0b3d91;">Jobs</a> |
                             <a href="https://medojob.com/faq" style="margin:0 6px; color:#0b3d91;">FAQs</a> |
                             <a href="https://medojob.com/blog" style="margin:0 6px; color:#0b3d91;">Blog</a>
                         </p>

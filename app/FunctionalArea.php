@@ -8,6 +8,7 @@ use App\Traits\IsDefault;
 use App\Traits\Active;
 use App\Traits\Sorted;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class FunctionalArea extends Model
 {
@@ -22,6 +23,15 @@ class FunctionalArea extends Model
     protected $guarded = ['id'];
     //protected $dateFormat = 'U';
     protected $dates = ['created_at', 'updated_at'];
+
+    protected static function booted()
+    {
+        static::saving(function ($functionalArea) {
+            if (empty($functionalArea->slug) && ! empty($functionalArea->functional_area)) {
+                $functionalArea->slug = Str::slug($functionalArea->functional_area);
+            }
+        });
+    }
 
     public function jobs()
     {

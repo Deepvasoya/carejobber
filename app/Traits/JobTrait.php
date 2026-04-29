@@ -177,6 +177,63 @@ trait JobTrait
         return 'draft-' . $job->id;
     }
 
+    private function normalizeApplyType($type, $externalJob = 'no'): string
+    {
+        if (is_array($type)) {
+            $type = '';
+        }
+        if (is_array($externalJob)) {
+            $externalJob = 'no';
+        }
+
+        $type = (string) $type;
+        $allowed = ['internal', 'external', 'email', 'phone'];
+
+        if (! in_array($type, $allowed, true)) {
+            $type = ((string) $externalJob === 'yes') ? 'external' : 'internal';
+        }
+
+        return $type;
+    }
+
+    public function getEffectiveApplyType(): string
+    {
+        return $this->normalizeApplyType($this->apply_type ?? null, $this->external_job ?? 'no');
+    }
+
+    public function isExternalApplyType(): bool
+    {
+        return $this->getEffectiveApplyType() !== 'internal';
+    }
+
+    public function getApplyActionUrl(): ?string
+    {
+        $value = trim((string) ($this->job_link ?? ''));
+        if ($value === '' || ! $this->isExternalApplyType()) {
+            return null;
+        }
+
+        switch ($this->getEffectiveApplyType()) {
+            case 'email':
+                $email = preg_replace('/^mailto:/i', '', $value);
+                return 'mailto:' . trim($email);
+
+            case 'phone':
+                $phone = preg_replace('/^tel:/i', '', $value);
+                $phone = preg_replace('/(?!^)\+|[^\d+]/', '', $phone);
+                return $phone !== '' ? 'tel:' . $phone : null;
+
+            case 'external':
+                if (! preg_match('~^https?://~i', $value)) {
+                    $value = 'https://' . $value;
+                }
+
+                return $value;
+        }
+
+        return null;
+    }
+
     private function assignJobValues($job, $request)
 
     {
@@ -238,8 +295,10 @@ trait JobTrait
         $job->job_experience_id = $request->input('job_experience_id');
 
         $job->salary_period_id = $request->input('salary_period_id');
-        $job->external_job = $request->input('external_job');
-        $job->job_link = $request->input('job_link');
+        $applyType = $this->normalizeApplyType($request->input('apply_type'), $request->input('external_job'));
+        $job->apply_type = $applyType;
+        $job->external_job = ($applyType === 'internal') ? 'no' : 'yes';
+        $job->job_link = ($applyType === 'internal') ? null : $request->input('job_link');
 
         $cf = app(\App\Services\CustomFieldValueService::class);
         $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_JOB_LISTING);

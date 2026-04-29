@@ -57,6 +57,8 @@ class JobFormRequest extends Request
                         "expiry_date" => "required",
                         //"degree_level_id" => "required",
                         "job_experience_id" => "required",
+                        'apply_type' => 'nullable|in:internal,external,email,phone',
+                        'job_link' => 'nullable|string|max:255',
                         "is_active" => "required",
                         "is_featured" => "required",
                         "is_urgent" => "required",
@@ -65,6 +67,36 @@ class JobFormRequest extends Request
                 }
             default:break;
         }
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            $applyType = $this->input('apply_type', $this->input('external_job') === 'yes' ? 'external' : 'internal');
+            $applyValue = trim((string) $this->input('job_link', ''));
+
+            if (! in_array($applyType, ['internal', 'external', 'email', 'phone'], true)) {
+                $applyType = 'internal';
+            }
+
+            if ($applyType !== 'internal' && $applyValue === '') {
+                $v->errors()->add('job_link', 'Please enter the application contact for this apply type.');
+            }
+
+            if ($applyType === 'email' && $applyValue !== '') {
+                $email = preg_replace('/^mailto:/i', '', $applyValue);
+                if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $v->errors()->add('job_link', 'Please enter a valid application email address.');
+                }
+            }
+
+            if ($applyType === 'phone' && $applyValue !== '') {
+                $digits = preg_replace('/\D/', '', $applyValue);
+                if (strlen($digits) < 7) {
+                    $v->errors()->add('job_link', 'Please enter a valid application phone number.');
+                }
+            }
+        });
     }
 
     public function messages()

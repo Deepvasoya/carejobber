@@ -66,7 +66,7 @@
                                 <td colspan="3">
                                     <div class="nodatabox">
                                         <h4>{{__('No Job Alerts Found')}}</h4>
-                                        <div class="viewallbtn mt-2"><a href="{{url('/search-jobs')}}">{{__('Search Jobs')}}</a></div>
+                                        <div class="viewallbtn mt-2"><a href="{{route('job.list')}}">{{__('Search Jobs')}}</a></div>
                                     </div>
                                 </td>
                             </tr>

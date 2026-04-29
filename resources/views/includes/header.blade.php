@@ -24,8 +24,8 @@
                       <a href="{{url('/job-seekers')}}" class="nav-link">{{__('Resume Database')}}</a>
                   </li>
               @else
-                  <li class="nav-item {{ Request::url() == url('/search-jobs') ? 'active' : '' }}">
-                      <a href="{{url('/search-jobs')}}" class="nav-link">{{__('Search Jobs')}}</a>
+                  <li class="nav-item {{ Request::url() == route('job.list') ? 'active' : '' }}">
+                      <a href="{{route('job.list')}}" class="nav-link">{{__('Search Jobs')}}</a>
                   </li>
               @endif
 
@@ -159,7 +159,7 @@
               </li>
               @else
               <li>
-      <a href="{{url('/search-jobs')}}">
+      <a href="{{route('job.list')}}">
       <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#5f6368"><path d="M160-120q-33 0-56.5-23.5T80-200v-440q0-33 23.5-56.5T160-720h160v-80q0-33 23.5-56.5T400-880h160q33 0 56.5 23.5T640-800v80h160q33 0 56.5 23.5T880-640v440q0 33-23.5 56.5T800-120H160Zm0-80h640v-440H160v440Zm240-520h160v-80H400v80ZM160-200v-440 440Z"/></svg>
       <span>Jobs</span>  
     </a>

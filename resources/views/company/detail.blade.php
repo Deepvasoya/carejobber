@@ -227,7 +227,7 @@
     @else
     <div class="nodatabox">
     <h4>{{__('There are currently no open positions available.')}}</h4>
-    <div class="viewallbtn mt-2"><a href="{{url('/search-jobs')}}">{{__('Search Jobs')}}</a></div>
+    <div class="viewallbtn mt-2"><a href="{{route('job.list')}}">{{__('Search Jobs')}}</a></div>
 </div>
 
     @endif

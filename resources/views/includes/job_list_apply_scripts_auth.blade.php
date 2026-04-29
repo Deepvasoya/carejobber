@@ -149,6 +149,10 @@
                 $btn.prop('disabled', false);
                 if (res.success) {
                     applyJobListHideModal();
+                    if (res.redirect_url) {
+                        window.location.href = res.redirect_url;
+                        return;
+                    }
                     swal({
                         title: "{{ __('Success') }}",
                         text: res.message ||

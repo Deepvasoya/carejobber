@@ -11,6 +11,7 @@ use App\Traits\CountryStateCity;
 use App\Helpers\MiscHelper;
 use App\Helpers\DataArrayHelper;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class City extends Model
 {
@@ -26,6 +27,15 @@ class City extends Model
     protected $guarded = ['id'];
     //protected $dateFormat = 'U';
     protected $dates = ['created_at', 'updated_at'];
+
+    protected static function booted()
+    {
+        static::saving(function ($city) {
+            if (empty($city->slug) && ! empty($city->city)) {
+                $city->slug = Str::slug($city->city);
+            }
+        });
+    }
 
     public function getCountry($field)
     {

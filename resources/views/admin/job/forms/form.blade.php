@@ -166,32 +166,30 @@
 
 
     <div class="formrow">
-            {!! Form::label('external_job', 'Is this External Job?', ['class' => 'bold']) !!}
+            {!! Form::label('apply_type', 'Job Apply Type', ['class' => 'bold']) !!}
             <?php
-            $is_external_1 = '';
-            $is_external_2 = 'checked="checked"';
-            if (old('is_external', ((isset($job)) ? $job->external_job : 'no')) == 'yes') {
-                $is_external_1 = 'checked="checked"';
-                $is_external_2 = '';
+            $selectedApplyType = old('apply_type');
+            if (!$selectedApplyType) {
+                $selectedApplyType = isset($job)
+                    ? $job->getEffectiveApplyType()
+                    : (old('external_job', 'no') === 'yes' ? 'external' : 'internal');
             }
             ?>
-            <div class="radio-list">
-                <label class="radio-inline">
-                    <input id="external" name="external_job" type="radio" value="yes" {{$is_external_1}}>
-                    Yes
-                </label>
-                <label class="radio-inline">
-                    <input id="not_external" name="external_job" type="radio" value="no" {{$is_external_2}}>
-                    No
-                </label>
-            </div>
+            {!! Form::select('apply_type', [
+                'internal' => 'Internal',
+                'external' => 'Apply on the company site',
+                'email' => 'Through Email',
+                'phone' => 'Call To Apply'
+            ], $selectedApplyType, ['class' => 'form-control', 'id' => 'apply_type']) !!}
+            <input type="hidden" name="external_job" id="external_job" value="{{ $selectedApplyType === 'internal' ? 'no' : 'yes' }}">
         </div>
 
 
     <div class="form-group mb-3 mb-3">
-        <div id="externalLinkField" class="formrow" style="display: {{$is_external_1 ? 'block' : 'none'}}">
-            {!! Form::label('job_link', 'External Link', ['class' => 'bold']) !!}
-            {!! Form::text('job_link', isset($job) ? $job->job_link : '', ['class' => 'form-control']) !!}
+        <div id="externalLinkField" class="formrow" style="display: {{ $selectedApplyType !== 'internal' ? 'block' : 'none' }}">
+            {!! Form::label('job_link', 'External Application URL', ['class' => 'bold', 'id' => 'jobLinkLabel']) !!}
+            {!! Form::text('job_link', old('job_link', isset($job) ? $job->job_link : ''), ['class' => 'form-control', 'id' => 'job_link']) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_link') !!}
         </div>
 
         </div>
@@ -287,15 +285,39 @@
 <script>
     $(document).ready(function() {
         function toggleExternalLinkField() {
-            var isExternalChecked = $('#external').is(':checked');
-            if (isExternalChecked) {
+            var applyType = $('#apply_type').val() || 'internal';
+            var fieldConfig = {
+                external: {
+                    label: 'External Application URL',
+                    placeholder: 'https://company.com/apply',
+                    type: 'text'
+                },
+                email: {
+                    label: 'Application Email',
+                    placeholder: 'jobs@example.com',
+                    type: 'email'
+                },
+                phone: {
+                    label: 'Application Phone Number',
+                    placeholder: '+1 555 123 4567',
+                    type: 'tel'
+                }
+            };
+
+            $('#external_job').val(applyType === 'internal' ? 'no' : 'yes');
+
+            if (fieldConfig[applyType]) {
+                $('#jobLinkLabel').text(fieldConfig[applyType].label);
+                $('#job_link')
+                    .attr('type', fieldConfig[applyType].type)
+                    .attr('placeholder', fieldConfig[applyType].placeholder);
                 $('#externalLinkField').show();
             } else {
                 $('#externalLinkField').hide();
             }
         }
         toggleExternalLinkField();
-        $('input[name="external_job"]').change(function() {
+        $('#apply_type').change(function() {
             toggleExternalLinkField();
         });
     });

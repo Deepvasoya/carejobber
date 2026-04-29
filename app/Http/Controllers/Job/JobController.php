@@ -40,6 +40,7 @@ use App\Events\JobApplied;
 use Mail;
 use App\Mail\JobApplicantStatusMailable;
 use App\Models\JobApplication;
+use App\Services\ProgrammaticSeoService;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class JobController extends Controller
@@ -265,7 +266,7 @@ class JobController extends Controller
             'seo_title' => $job->title,
             'seo_description' => $seoArray['description'],
             'seo_keywords' => $seoArray['keywords'],
-            'seo_other' => ''
+            'seo_other' => app(ProgrammaticSeoService::class)->jobPostingJsonLd($job)
         );
         
         return view('job.detail')
@@ -506,6 +507,19 @@ class JobController extends Controller
 
         flash(__('You have successfully applied for this job'))->success();
 
+        $externalApplyUrl = $job->getApplyActionUrl();
+        if ($externalApplyUrl) {
+            if ($wantsJson) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('You have successfully applied for this job'),
+                    'redirect_url' => $externalApplyUrl,
+                ]);
+            }
+
+            return redirect()->away($externalApplyUrl);
+        }
+
         if ($wantsJson) {
             return response()->json([
                 'success' => true,
@@ -594,14 +608,10 @@ class JobController extends Controller
         $myCv = ProfileCv::find($request->post('cv_id'));
         
         if($job->external_job =='yes'){
-            $url = $job->job_link;
-
-            if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-                $url = "http://" . $url;
-                $request->session()->flash('message.url', $url);
+            $url = $job->getApplyActionUrl();
+            if ($url) {
+                return redirect()->away($url)->withHeaders(['target' => '_blank']);
             }
-
-            return redirect()->away($url)->withHeaders(['target' => '_blank']);
         }
         
         if ($myCv) {

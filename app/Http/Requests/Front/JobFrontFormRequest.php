@@ -63,6 +63,8 @@ class JobFrontFormRequest extends Request
                             'job_type_id' => 'nullable',
                             'expiry_date' => 'nullable',
                             'job_experience_id' => 'nullable',
+                            'apply_type' => 'nullable|in:internal,external,email,phone',
+                            'job_link' => 'nullable|string|max:255',
                             'promote_urgent_days' => 'nullable|in:0,7,15',
                             'promote_featured_days' => 'nullable|in:0,15,30',
                             'promote_highlighted' => 'nullable|in:0,1',
@@ -98,6 +100,8 @@ class JobFrontFormRequest extends Request
                         "expiry_date" => "required",
                         //"degree_level_id" => "required",
                         "job_experience_id" => "required",
+                        'apply_type' => 'nullable|in:internal,external,email,phone',
+                        'job_link' => 'nullable|string|max:255',
                         'promote_urgent_days' => 'nullable|in:0,7,15',
                         'promote_featured_days' => 'nullable|in:0,15,30',
                         'promote_highlighted' => 'nullable|in:0,1',
@@ -134,6 +138,26 @@ class JobFrontFormRequest extends Request
             $skills = $this->input('skills', []);
             if (! is_array($skills)) {
                 $skills = [];
+            }
+            $applyType = $this->input('apply_type', $this->input('external_job') === 'yes' ? 'external' : 'internal');
+            $applyValue = trim((string) $this->input('job_link', ''));
+            if (! in_array($applyType, ['internal', 'external', 'email', 'phone'], true)) {
+                $applyType = 'internal';
+            }
+            if ($applyType !== 'internal' && $applyValue === '') {
+                $v->errors()->add('job_link', __('Please enter the application contact for this apply type.'));
+            }
+            if ($applyType === 'email' && $applyValue !== '') {
+                $email = preg_replace('/^mailto:/i', '', $applyValue);
+                if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $v->errors()->add('job_link', __('Please enter a valid application email address.'));
+                }
+            }
+            if ($applyType === 'phone' && $applyValue !== '') {
+                $digits = preg_replace('/\D/', '', $applyValue);
+                if (strlen($digits) < 7) {
+                    $v->errors()->add('job_link', __('Please enter a valid application phone number.'));
+                }
             }
             $picked = array_filter($skills, function ($x) {
                 return (int) $x !== 0;

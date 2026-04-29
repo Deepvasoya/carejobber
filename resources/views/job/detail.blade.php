@@ -10,6 +10,9 @@
 
 @php
 $company = $job->getCompany();
+$applyType = $job->getEffectiveApplyType();
+$applyActionUrl = $job->getApplyActionUrl();
+$isExternalApply = $applyType !== 'internal' && $applyActionUrl;
 @endphp
 
 
@@ -45,6 +48,10 @@ $company = $job->getCompany();
                 <div class="jobButtons applybox">
                     @if($job->isJobExpired())
                     <span class="jbexpire"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Job is expired')}}</span>
+                    @elseif($isExternalApply)
+                    <a href="{{ $applyActionUrl }}" class="btn apply" @if($applyType === 'external') target="_blank" rel="noopener noreferrer" @endif>
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
+                    </a>
                     @elseif(Auth::check() && Auth::user()->isAppliedOnJob($job->id))
                     <a href="javascript:;" class="btn apply applied"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Already Applied')}}</a>
                     @else
@@ -325,7 +332,7 @@ $company = $job->getCompany();
                 @else
                 <div class="nodatabox">
                     <h4>{{__('There are currently no open positions available.')}}</h4>
-                    <div class="viewallbtn mt-2"><a href="{{url('/search-jobs')}}">{{__('Search Jobs')}}</a></div>
+                    <div class="viewallbtn mt-2"><a href="{{route('job.list')}}">{{__('Search Jobs')}}</a></div>
                 </div>
                 @endif
 
