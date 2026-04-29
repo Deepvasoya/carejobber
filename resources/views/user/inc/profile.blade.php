@@ -200,6 +200,14 @@
     </div>
 
     <div class="col-md-12">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'other_certifications') !!}">
+            <label for="other_certifications">{{__('Other Certifications')}}</label>
+            {!! Form::textarea('other_certifications', null, array('class'=>'form-control', 'id'=>'other_certifications', 'rows'=>4, 'placeholder'=>__('List any certifications, licenses, or credentials (e.g. CPR Certified, First Aid, BCLS, RN License #12345)'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'other_certifications') !!}
+        </div>
+    </div>
+
+    <div class="col-md-12">
         @include('includes.custom_fields_for_context', [
             'context' => \App\Models\CustomField::CONTEXT_PROFILE,
             'values' => old('custom_fields', $user->custom_field_data ?? []),

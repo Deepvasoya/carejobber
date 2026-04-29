@@ -169,6 +169,7 @@ class UserController extends Controller
         $user->expected_salary = $request->input('expected_salary');
         $user->salary_currency = $request->input('salary_currency');
         $user->video_link = $request->video_link;
+        $user->other_certifications = $request->input('other_certifications');
         $user->street_address = $request->input('street_address');
 		$user->is_subscribed = $request->input('is_subscribed', 0);
         $user->visible_in_employer_resume_search = $request->boolean('visible_in_employer_resume_search');

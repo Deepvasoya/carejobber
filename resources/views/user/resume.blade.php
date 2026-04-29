@@ -329,6 +329,19 @@ if (Auth::guard('company')->user()) {
                                             <div id="language_div"></div>
                                         </td>
                                     </tr>
+                                    @if(!empty($user->other_certifications))
+                                    <tr>
+                                        <td height="20">&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left:20px; padding-right:15px;">
+                                            <h2 style="font-size: 22px; color: #000; border-bottom: 2px solid #000; margin-top: 0;">
+                                                <span style="display:inline-block; color:#44546c; padding:10px 0">Other Certifications</span>
+                                            </h2>
+                                            <p style="font-size: 14px; line-height: 22px; color: #555; white-space: pre-wrap;">{{ $user->other_certifications }}</p>
+                                        </td>
+                                    </tr>
+                                    @endif
                                     <tr>
                                         <td></td>
                                     </tr>

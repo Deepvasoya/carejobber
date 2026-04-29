@@ -2828,7 +2828,7 @@ ul.skillslist li a:hover{text-decoration: none; background:#0357e9; color: #fff;
   }
   .jbdetail li span{font-weight: 700; display: block; margin-bottom: 10px;}
   .jbdetail li:last-child{margin-bottom: 0;}
-  .jbitlist{display: flex; flex-direction: column;}
+  .jbitlist{display: flex; flex-direction: row; align-items: flex-start; gap: 10px;}
   .jbdetail li a {
 	display: block;
 	color: #900;

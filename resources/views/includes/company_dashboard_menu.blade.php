@@ -1,4 +1,58 @@
-<div class="col-lg-2" style="flex: 0 0 auto; ">
+<style>
+    .custom-dashboard-sidebar {
+        flex: 0 0 300px !important;
+        max-width: 300px !important;
+        padding-right: 30px !important;
+    }
+    @media (min-width: 992px) {
+        .custom-dashboard-sidebar + div {
+            flex: 1 1 0% !important;
+            max-width: 100% !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+    }
+    @media (max-width: 991px) {
+        .custom-dashboard-sidebar {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-right: 15px !important;
+            margin-bottom: 20px;
+        }
+    }
+    .custom-dashboard-sidebar .usernavwrap {
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+        border-radius: 12px;
+        background: #fff;
+        padding-bottom: 20px;
+        border: none !important;
+    }
+    /* Scrollbar styling for sticky sidebar */
+    .custom-dashboard-sidebar .usernavwrap::-webkit-scrollbar {
+        width: 5px;
+    }
+    .custom-dashboard-sidebar .usernavwrap::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-dashboard-sidebar .usernavwrap::-webkit-scrollbar-thumb {
+        background: #e2e8f0; 
+        border-radius: 10px;
+    }
+    .custom-dashboard-sidebar .usernavwrap::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1; 
+    }
+    
+    .custom-dashboard-sidebar .dashbarad {
+        margin-top: 20px;
+        position: sticky;
+        top: calc(100vh - 250px);
+    }
+</style>
+<div class="custom-dashboard-sidebar">
 	<div class="usernavwrap">
     <ul class="usernavdash">
         <li class="{{ Request::url() == route('company.home') ? 'active' : '' }}"><a href="{{route('company.home')}}"><i class="fas fa-tachometer" aria-hidden="true"></i> {{__('Dashboard')}}</a></li>

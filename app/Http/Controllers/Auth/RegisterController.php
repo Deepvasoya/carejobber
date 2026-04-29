@@ -47,12 +47,44 @@ use RegistersUsers;
         $this->middleware('guest', ['except' => ['getVerification', 'getVerificationError', 'notVerified']]);
     }
 
+    public function showRegistrationForm()
+    {
+        $genders = \App\Helpers\DataArrayHelper::langGendersArray();
+        $functionalAreas = \App\Helpers\DataArrayHelper::langFunctionalAreasArray();
+        $careerLevels = \App\Helpers\DataArrayHelper::langCareerLevelsArray();
+        return view('auth.register', compact('genders', 'functionalAreas', 'careerLevels'));
+    }
+
     public function register(UserFrontRegisterFormRequest $request)
     {
         $user = new User();
         $user->first_name = $request->input('first_name');
         $user->middle_name = $request->input('middle_name');
         $user->last_name = $request->input('last_name');
+        $user->phone = $request->input('phone');
+        
+        // Step 1 optional fields
+        if ($request->has('date_of_birth')) {
+            $user->date_of_birth = $request->input('date_of_birth');
+        }
+        if ($request->has('gender_id')) {
+            $user->gender_id = $request->input('gender_id');
+        }
+        if ($request->has('street_address')) {
+            $user->street_address = $request->input('street_address');
+        }
+
+        // Step 2 fields
+        if ($request->has('job_title') && is_array($request->input('job_title'))) {
+            $user->job_title = implode(', ', $request->input('job_title'));
+        }
+        if ($request->has('functional_area_id')) {
+            $user->functional_area_id = $request->input('functional_area_id');
+        }
+        if ($request->has('career_level_id')) {
+            $user->career_level_id = $request->input('career_level_id');
+        }
+
         $user->email = $request->input('email');
         $user->password = bcrypt($request->input('password'));
         $user->is_active = 1;

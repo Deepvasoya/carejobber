@@ -94,7 +94,7 @@ $company = $job->getCompany();
 
 
                             <ul class="jbdetail row">
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">location_on</span>
                                         <div class="jbitdata">
@@ -108,7 +108,7 @@ $company = $job->getCompany();
                                     </div>
                                 </li>
 
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">desktop_windows</span>
                                         <div class="jbitdata">
@@ -117,7 +117,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">domain</span>
                                         <div class="jbitdata">
@@ -126,7 +126,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">schedule</span>
                                         <div class="jbitdata">
@@ -135,7 +135,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">analytics</span>
                                         <div class="jbitdata">
@@ -144,7 +144,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">group</span>
                                         <div class="jbitdata">
@@ -153,7 +153,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">calendar_view_day</span>
                                         <div class="jbitdata">
@@ -162,7 +162,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">male</span>
                                         <div class="jbitdata">
@@ -171,7 +171,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">school</span>
                                         <div class="jbitdata">
@@ -180,7 +180,7 @@ $company = $job->getCompany();
                                         </div>
                                     </div>
                                 </li>
-                                <li class="col-lg-4 col-md-6 col-6">
+                                <li class="col-lg-3 col-md-6 col-6">
                                     <div class="jbitlist">
                                         <span class="material-symbols-outlined">calendar_month</span>
                                         <div class="jbitdata">

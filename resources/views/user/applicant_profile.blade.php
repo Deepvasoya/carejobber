@@ -387,6 +387,16 @@ if (Auth::guard('company')->user()) {
                             </li>
                             @include('includes.custom_fields_public_grid', ['record' => $user, 'context' => \App\Models\CustomField::CONTEXT_PROFILE])
                         </ul>
+
+                        @if(!empty($user->other_certifications))
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                            <h5 style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px;">
+                                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle; margin-right:4px;">workspace_premium</span>
+                                {{__('Other Certifications')}}
+                            </h5>
+                            <p style="font-size: 14px; color: #555; white-space: pre-wrap; margin: 0;">{{ $user->other_certifications }}</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 

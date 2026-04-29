@@ -63,11 +63,21 @@ use RegistersUsers;
         return Auth::guard('company');
     }
 
+    public function showRegistrationForm()
+    {
+        $ownershipTypes = \App\Helpers\DataArrayHelper::langOwnershipTypesArray();
+        return view('auth.company-register', compact('ownershipTypes'));
+    }
+
     public function register(CompanyFrontRegisterFormRequest $request)
     {
         $settings = SiteSetting::findOrFail(1272);
         $company = new Company();
         $company->name = $request->input('name');
+        $company->phone = $request->input('phone');
+        $company->ownership_type_id = $request->input('ownership_type_id');
+        $company->contact_name = $request->input('contact_name');
+        $company->contact_phone = $request->input('contact_phone');
         $company->email = $request->input('email');
         $company->password = bcrypt($request->input('password'));
         if($settings->auto_approval_company == 1){

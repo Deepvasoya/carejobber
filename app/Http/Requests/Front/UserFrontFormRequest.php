@@ -60,6 +60,7 @@ class UserFrontFormRequest extends Request
             'custom_functional_area' => 'nullable|string|max:200',
             'custom_city_name' => 'nullable|string|max:30',
             'custom_fields' => 'nullable|array',
+            'other_certifications' => 'nullable|string|max:3000',
         ];
     }
 

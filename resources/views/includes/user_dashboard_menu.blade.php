@@ -1,6 +1,64 @@
-<div class="col-lg-2" style="flex: 0 0 auto; ">
-
-    <!-- Featured Profile Package -->
+<style>
+    .custom-dashboard-sidebar {
+        flex: 0 0 300px !important;
+        max-width: 300px !important;
+        padding-right: 30px !important;
+    }
+    @media (min-width: 992px) {
+        .custom-dashboard-sidebar + div {
+            flex: 1 1 0% !important;
+            max-width: 100% !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+    }
+    @media (max-width: 991px) {
+        .custom-dashboard-sidebar {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            padding-right: 15px !important;
+            margin-bottom: 20px;
+        }
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll {
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 40px);
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+        border-radius: 12px;
+        background: #fff;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile {
+        box-shadow: none;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 0;
+        border-radius: 12px 12px 0 0;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap {
+        box-shadow: none;
+        margin-bottom: 0;
+        padding-bottom: 20px;
+        border: none !important;
+    }
+    
+    /* Scrollbar styling for sticky sidebar */
+    .custom-dashboard-sidebar .sidebar-inner-scroll::-webkit-scrollbar {
+        width: 5px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll::-webkit-scrollbar-thumb {
+        background: #e2e8f0; 
+        border-radius: 10px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll::-webkit-scrollbar-thumb:hover {
+        background: #cbd5e1; 
+    }
+</style>
+<div class="custom-dashboard-sidebar">
+<div class="sidebar-inner-scroll">    <!-- Featured Profile Package -->
     @if((bool) config('jobseeker.is_featured_package_active_jobseeker'))
             <?php 
             $featured_package = App\Package::where('package_for', 'make_featured')->first();
@@ -277,4 +335,5 @@
     </div>
 
 
+</div>
 </div>

@@ -52,51 +52,45 @@
 @else
 {!! Form::open(array('method' => 'post', 'route' => array('store.front.job'), 'class' => 'form')) !!}
 @endif
-<div class="row">  
+<div class="row job-post-form">
     <div class="col-md-12">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'title') !!}"> {!! Form::text('title', null, array('class'=>'form-control', 'id'=>'title', 'placeholder'=>__('Job title'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'title') !!} </div>
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'title') !!}">
+            <label>{{ __('Job title') }} <span>*</span></label>
+            {!! Form::text('title', null, array('class'=>'form-control', 'id'=>'title', 'placeholder'=>__('Job title'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'title') !!}
+        </div>
     </div>
     <div class="col-md-12">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'description') !!}">
-           <label for="">Description</label>
+           <label for="description">{{ __('Description') }} <span>*</span></label>
         {!! Form::textarea('description', null, array('class'=>'form-control', 'id'=>'description', 'placeholder'=>__('Job description'))) !!}
             {!! APFrmErrHelp::showErrors($errors, 'description') !!} </div>
     </div>
 	
 	 <div class="col-md-12">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'benefits') !!}">
-        <label for="">Benefits</label>    
+        <label for="benefits">{{ __('Benefits') }}</label>    
         {!! Form::textarea('benefits', null, array('class'=>'form-control', 'id'=>'benefits', 'placeholder'=>__('Job Benefits'))) !!}
             {!! APFrmErrHelp::showErrors($errors, 'benefits') !!} </div>
     </div>
-	
-	
+
+    <!-- 2 Column Layout Starts -->
     <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'skills') !!}">
-        <label for="">Skills</label>    
-            <?php
-            $skills = old('skills', $jobSkillIds);
-            ?>
-            @php
-                $jobSkillsWithOther = $jobSkills + ['0' => __('Other — add custom skills below')];
-            @endphp
-            {!! Form::select('skills[]', $jobSkillsWithOther, $skills, array('class'=>'form-control select2-multiple', 'id'=>'skills', 'multiple'=>'multiple')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'skills') !!}
-            <small class="text-muted d-block mt-1">{{ __('If your skills are not listed, choose “Other” and type one skill per line below.') }}</small>
-            <div id="custom_job_skills_wrap_job" class="mt-2" style="display:none;">
-                <label>{{ __('Custom skills (one per line)') }}</label>
-                {!! Form::textarea('custom_job_skills_lines', old('custom_job_skills_lines'), array('class'=>'form-control', 'id'=>'custom_job_skills_lines', 'rows'=>3, 'placeholder'=>__('e.g. Pediatric care'))) !!}
-                {!! APFrmErrHelp::showErrors($errors, 'custom_job_skills_lines') !!}
-            </div>
-            </div>
+        @php
+            $functionalAreasWithOther = $functionalAreas + ['0' => __('Other (specify)')];
+        @endphp
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div">
+            <label>{{ __('Category') }} <span>*</span></label>
+            {!! Form::select('functional_area_id', ['' => __('Select Category')]+$functionalAreasWithOther, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!}
+        </div>
+        <div id="custom_functional_area_wrap_job" style="display:none;" class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
+            <label>{{ __('Custom Category') }}</label>
+            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'maxlength'=>200, 'placeholder'=>__('Enter category name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
+        </div>
     </div>
-    <div class="col-md-12">
-        @include('includes.custom_fields_for_context', [
-            'context' => \App\Models\CustomField::CONTEXT_JOB_LISTING,
-            'values' => old('custom_fields', (isset($job) ? ($job->custom_field_data ?? []) : [])),
-        ])
-    </div>
+
     <div class="col-md-6">
         @php
             $industriesWithOther = $industries + ['0' => __('Other (specify)')];
@@ -106,67 +100,195 @@
             {!! Form::select('industry_id', ['' => __('Select Facility Type')]+$industriesWithOther, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'industry_id') !!}
         </div>
-    </div>
-    <div class="col-md-6" id="custom_industry_wrap_job" style="display:none;">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_industry') !!}">
-            <label>{{ __('Custom facility type') }}</label>
+        <div id="custom_industry_wrap_job" style="display:none;" class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_industry') !!}">
+            <label>{{ __('Custom Facility Type') }}</label>
             {!! Form::text('custom_industry', old('custom_industry'), array('class'=>'form-control', 'id'=>'custom_industry', 'maxlength'=>200, 'placeholder'=>__('Enter facility type'))) !!}
             {!! APFrmErrHelp::showErrors($errors, 'custom_industry') !!}
         </div>
     </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_type_id') !!}" id="job_type_id_div">
+            <label>{{ __('Job Type') }} <span>*</span></label>
+            {!! Form::select('job_type_id', ['' => __('Select Job Type')]+$jobTypes, null, array('class'=>'form-control', 'id'=>'job_type_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_type_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'skills') !!}">
+            <label for="skills">{{ __('Skills / Tags') }} <span>*</span></label>    
+            <?php $skills = old('skills', $jobSkillIds); ?>
+            @php $jobSkillsWithOther = $jobSkills + ['0' => __('Other — add custom skills below')]; @endphp
+            {!! Form::select('skills[]', $jobSkillsWithOther, $skills, array('class'=>'form-control select2-multiple', 'id'=>'skills', 'multiple'=>'multiple')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'skills') !!}
+        </div>
+        <div id="custom_job_skills_wrap_job" style="display:none;" class="formrow">
+            <label>{{ __('Custom skills (one per line)') }}</label>
+            {!! Form::textarea('custom_job_skills_lines', old('custom_job_skills_lines'), array('class'=>'form-control', 'id'=>'custom_job_skills_lines', 'rows'=>3, 'placeholder'=>__('e.g. Pediatric care'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_job_skills_lines') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div">
+            <label>{{ __('Gender Needed') }}</label>
+            {!! Form::select('gender_id', ['' => __('No Preference')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'gender_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow">
+            <label>{{ __('Job Apply Type') }}</label>
+            <?php
+            $is_external_1 = '';
+            $is_external_2 = 'checked="checked"';
+            if (old('external_job', ((isset($job)) ? $job->external_job : 'no')) == 'yes') {
+                $is_external_1 = 'checked="checked"';
+                $is_external_2 = '';
+            }
+            ?>
+            <div class="radio-list d-flex gap-3 align-items-center" style="height: 45px;">
+                <label class="radio-inline mb-0" style="font-weight: normal;">
+                    <input id="not_external" name="external_job" type="radio" value="no" {{$is_external_2}}>
+                    {{ __('Internal') }}
+                </label>
+                <label class="radio-inline mb-0" style="font-weight: normal;">
+                    <input id="external" name="external_job" type="radio" value="yes" {{$is_external_1}}>
+                    {{ __('External Link') }}
+                </label>
+            </div>
+        </div>
+        <div id="externalLinkField" class="formrow" style="display: {{$is_external_1 ? 'block' : 'none'}}">
+            <label>{{ __('External Application URL') }}</label>
+            {!! Form::text('job_link', isset($job) ? $job->job_link : '', ['class' => 'form-control', 'placeholder'=>'https://']) !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_period_id') !!}" id="salary_period_id_div">
+            <label>{{ __('Salary Type') }} <span>*</span></label>
+            {!! Form::select('salary_period_id', ['' => __('Select Salary Type')]+$salaryPeriods, null, array('class'=>'form-control', 'id'=>'salary_period_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'salary_period_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_from') !!}" id="salary_from_div">
+            <label>{{ __('Min. Salary') }}</label>
+            {!! Form::number('salary_from', null, array('class'=>'form-control', 'id'=>'salary_from', 'placeholder'=>__('Min. Salary'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'salary_from') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_to') !!}" id="salary_to_div">
+            <label>{{ __('Max. Salary') }}</label>
+            {!! Form::number('salary_to', null, array('class'=>'form-control', 'id'=>'salary_to', 'placeholder'=>__('Max. Salary'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'salary_to') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_experience_id') !!}" id="job_experience_id_div">
+            <label>{{ __('Experience') }} <span>*</span></label>
+            {!! Form::select('job_experience_id', ['' => __('Select Experience')]+$jobExperiences, null, array('class'=>'form-control', 'id'=>'job_experience_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'degree_level_id') !!}" id="degree_level_id_div">
+            <label>{{ __('Qualification') }} <span>*</span></label>
+            {!! Form::select('degree_level_id', ['' =>__('Select Qualification')]+$degreeLevels, null, array('class'=>'form-control', 'id'=>'degree_level_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'degree_level_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_shift_id') !!}" id="job_shift_id_div">
+            <label>{{ __('Job Shift') }}</label>
+            {!! Form::select('job_shift_id', ['' => __('Select Job Shift')]+$jobShifts, null, array('class'=>'form-control', 'id'=>'job_shift_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_shift_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'num_of_positions') !!}" id="num_of_positions_div">
+            <label>{{ __('Positions Available') }}</label>
+            {!! Form::select('num_of_positions', ['' => __('Select Positions')]+MiscHelper::getNumPositions(), null, array('class'=>'form-control', 'id'=>'num_of_positions')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'num_of_positions') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'expiry_date') !!}">
+            <label>{{ __('Application Deadline') }}</label>
+            {!! Form::text('expiry_date', null, array('class'=>'form-control datepicker', 'id'=>'expiry_date', 'placeholder'=>__('Deadline date'), 'autocomplete'=>'off')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'expiry_date') !!}
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_currency') !!}" id="salary_currency_div">
+            <label>{{ __('Salary Currency') }}</label>
+            @php $salary_currency = Request::get('salary_currency', (isset($job))? $job->salary_currency:$siteSetting->default_currency_code); @endphp
+            {!! Form::select('salary_currency', ['' => __('Select Currency')]+$currencies, $salary_currency, array('class'=>'form-control', 'id'=>'salary_currency')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'salary_currency') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div">
+            <label>{{ __('Career Level') }}</label>
+            {!! Form::select('career_level_id', ['' => __('Select Career Level')]+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'career_level_id') !!}
+        </div>
+    </div>
+
+    <!-- Location Information -->
     @if(\App\Helpers\LocationHelper::showCountry())
     <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}" id="country_id_div"> {!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($job))? $job->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'country_id') !!} </div>
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'country_id') !!}" id="country_id_div">
+            <label>{{ __('Country') }}</label>
+            {!! Form::select('country_id', ['' => __('Select Country')]+$countries, old('country_id', (isset($job))? $job->country_id:$siteSetting->default_country_id), array('class'=>'form-control', 'id'=>'country_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'country_id') !!}
+        </div>
     </div>
     @elseif(\App\Helpers\LocationHelper::showState() || \App\Helpers\LocationHelper::showCity())
-    {{-- Country hidden: use default country from site settings (Canada, India, etc.) for state/city lists --}}
     {!! Form::hidden('country_id', old('country_id', (isset($job) ? $job->country_id : null) ?? $siteSetting->default_country_id), ['id' => 'country_id']) !!}
     @endif
     
     @if(\App\Helpers\LocationHelper::showState())
     <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'state_id') !!}" id="state_id_div"> <span id="default_state_dd"> {!! Form::select('state_id', ['' => __('Select State/Province')], null, array('class'=>'form-control', 'id'=>'state_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'state_id') !!} </div>
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'state_id') !!}" id="state_id_div">
+            <label>{{ __('State/Province') }}</label>
+            <span id="default_state_dd"> {!! Form::select('state_id', ['' => __('Select State/Province')], null, array('class'=>'form-control', 'id'=>'state_id')) !!} </span>
+            {!! APFrmErrHelp::showErrors($errors, 'state_id') !!}
+        </div>
     </div>
     @endif
     
     @if(\App\Helpers\LocationHelper::showCity())
     <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}" id="city_id_div"> <span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')]+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span> {!! APFrmErrHelp::showErrors($errors, 'city_id') !!} </div>
-    </div>
-    <div class="col-md-12" id="custom_city_name_wrap_job" style="display:none;">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_city_name') !!}">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'city_id') !!}" id="city_id_div">
+            <label>{{ __('City') }}</label>
+            <span id="default_city_dd"> {!! Form::select('city_id', ['' => __('Select City')]+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'city_id')) !!} </span>
+            {!! APFrmErrHelp::showErrors($errors, 'city_id') !!}
+        </div>
+        <div id="custom_city_name_wrap_job" style="display:none;" class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_city_name') !!}">
             <label>{{ __('Custom city') }}</label>
             {!! Form::text('custom_city_name', old('custom_city_name'), array('class'=>'form-control', 'id'=>'custom_city_name', 'maxlength'=>30)) !!}
             {!! APFrmErrHelp::showErrors($errors, 'custom_city_name') !!}
         </div>
     </div>
     @endif
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_from') !!}" id="salary_from_div"> {!! Form::number('salary_from', null, array('class'=>'form-control', 'id'=>'salary_from', 'placeholder'=>__('Salary from'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'salary_from') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_to') !!}" id="salary_to_div">
-            {!! Form::number('salary_to', null, array('class'=>'form-control', 'id'=>'salary_to', 'placeholder'=>__('Salary to'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'salary_to') !!} </div>
-    </div>
-    <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_currency') !!}" id="salary_currency_div">
-            @php
-            $salary_currency = Request::get('salary_currency', (isset($job))? $job->salary_currency:$siteSetting->default_currency_code);
-            @endphp
 
-            {!! Form::select('salary_currency', ['' => __('Select Salary Currency')]+$currencies, $salary_currency, array('class'=>'form-control', 'id'=>'salary_currency')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'salary_currency') !!} </div>
-    </div>
-    <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'salary_period_id') !!}" id="salary_period_id_div"> {!! Form::select('salary_period_id', ['' => __('Select Salary Period')]+$salaryPeriods, null, array('class'=>'form-control', 'id'=>'salary_period_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'salary_period_id') !!} </div>
-    </div>
-    <div class="col-md-4">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'hide_salary') !!}"> {!! Form::label('hide_salary', __('Hide Salary?'), ['class' => 'bold']) !!}
-            <div class="radio-list">
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'hide_salary') !!}">
+            <label>{{ __('Hide Salary?') }}</label>
+            <div class="radio-list d-flex gap-3 align-items-center" style="height: 45px;">
                 <?php
                 $hide_salary_1 = '';
                 $hide_salary_2 = 'checked="checked"';
@@ -175,67 +297,23 @@
                     $hide_salary_2 = '';
                 }
                 ?>
-                <label class="radio-inline">
+                <label class="radio-inline mb-0" style="font-weight: normal;">
                     <input id="hide_salary_yes" name="hide_salary" type="radio" value="1" {{$hide_salary_1}}>
-                    {{__('Yes')}} </label>
-                <label class="radio-inline">
+                    {{__('Yes')}}
+                </label>
+                <label class="radio-inline mb-0" style="font-weight: normal;">
                     <input id="hide_salary_no" name="hide_salary" type="radio" value="0" {{$hide_salary_2}}>
-                    {{__('No')}} </label>
+                    {{__('No')}}
+                </label>
             </div>
-            {!! APFrmErrHelp::showErrors($errors, 'hide_salary') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div"> {!! Form::select('career_level_id', ['' => __('Select Career level (optional)')]+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'career_level_id') !!} </div>
+            {!! APFrmErrHelp::showErrors($errors, 'hide_salary') !!}
+        </div>
     </div>
 
     <div class="col-md-6">
-        @php
-            $functionalAreasWithOther = $functionalAreas + ['0' => __('Other (specify)')];
-        @endphp
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div"> {!! Form::select('functional_area_id', ['' => __('Select Job Category')]+$functionalAreasWithOther, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!} </div>
-    </div>
-    <div class="col-md-12" id="custom_functional_area_wrap_job" style="display:none;">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
-            <label>{{ __('Custom job category') }}</label>
-            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'maxlength'=>200, 'placeholder'=>__('Enter category name'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_type_id') !!}" id="job_type_id_div"> {!! Form::select('job_type_id', ['' => __('Select Job Type')]+$jobTypes, null, array('class'=>'form-control', 'id'=>'job_type_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'job_type_id') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_shift_id') !!}" id="job_shift_id_div"> {!! Form::select('job_shift_id', ['' => __('Select Job Shift')]+$jobShifts, null, array('class'=>'form-control', 'id'=>'job_shift_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'job_shift_id') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'num_of_positions') !!}" id="num_of_positions_div"> {!! Form::select('num_of_positions', ['' => __('Select number of Positions')]+MiscHelper::getNumPositions(), null, array('class'=>'form-control', 'id'=>'num_of_positions')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'num_of_positions') !!} </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div"> {!! Form::select('gender_id', ['' => __('Gender (optional)')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'gender_id') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'expiry_date') !!}"> {!! Form::text('expiry_date', null, array('class'=>'form-control datepicker', 'id'=>'expiry_date', 'placeholder'=>__('Application Deadline date'), 'autocomplete'=>'off')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'expiry_date') !!} </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'degree_level_id') !!}" id="degree_level_id_div"> {!! Form::select('degree_level_id', ['' =>__('Select Required Degree Level')]+$degreeLevels, null, array('class'=>'form-control', 'id'=>'degree_level_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'degree_level_id') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_experience_id') !!}" id="job_experience_id_div"> {!! Form::select('job_experience_id', ['' => __('Select Required job experience')]+$jobExperiences, null, array('class'=>'form-control', 'id'=>'job_experience_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!} </div>
-    </div>
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'is_freelance') !!}"> {!! Form::label('is_freelance', __('Is Freelance?'), ['class' => 'bold']) !!}
-            <div class="radio-list">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'is_freelance') !!}">
+            <label>{{ __('Is Freelance?') }}</label>
+            <div class="radio-list d-flex gap-3 align-items-center" style="height: 45px;">
                 <?php
                 $is_freelance_1 = '';
                 $is_freelance_2 = 'checked="checked"';
@@ -244,51 +322,25 @@
                     $is_freelance_2 = '';
                 }
                 ?>
-                <label class="radio-inline">
+                <label class="radio-inline mb-0" style="font-weight: normal;">
                     <input id="is_freelance_yes" name="is_freelance" type="radio" value="1" {{$is_freelance_1}}>
-                    {{__('Yes')}} </label>
-                <label class="radio-inline">
+                    {{__('Yes')}}
+                </label>
+                <label class="radio-inline mb-0" style="font-weight: normal;">
                     <input id="is_freelance_no" name="is_freelance" type="radio" value="0" {{$is_freelance_2}}>
-                    {{__('No')}} </label>
+                    {{__('No')}}
+                </label>
             </div>
-            {!! APFrmErrHelp::showErrors($errors, 'is_freelance') !!} </div>
+            {!! APFrmErrHelp::showErrors($errors, 'is_freelance') !!}
+        </div>
     </div>
 
-
-
-    
-
     <div class="col-md-12">
-    <div class="formrow">
-            {!! Form::label('external_job', 'Do you want applicants to apply through an external application link?', ['class' => 'bold']) !!}
-            <?php
-            $is_external_1 = '';
-            $is_external_2 = 'checked="checked"';
-            if (old('is_external', ((isset($job)) ? $job->external_job : 'no')) == 'yes') {
-                $is_external_1 = 'checked="checked"';
-                $is_external_2 = '';
-            }
-            ?>
-            <div class="radio-list">
-                <label class="radio-inline">
-                    <input id="external" name="external_job" type="radio" value="yes" {{$is_external_1}}>
-                    Yes
-                </label>
-                <label class="radio-inline">
-                    <input id="not_external" name="external_job" type="radio" value="no" {{$is_external_2}}>
-                    No
-                </label>
-            </div>
-        </div>
-
-
-    <div class="form-group">
-        <div id="externalLinkField" class="formrow" style="display: {{$is_external_1 ? 'block' : 'none'}}">
-            {!! Form::label('job_link', 'External Link where applicant will visit and apply for this job.', ['class' => 'bold']) !!}
-            {!! Form::text('job_link', isset($job) ? $job->job_link : '', ['class' => 'form-control']) !!}
-        </div>
-
-        </div>
+        @include('includes.custom_fields_for_context', [
+            'context' => \App\Models\CustomField::CONTEXT_JOB_LISTING,
+            'values' => old('custom_fields', (isset($job) ? ($job->custom_field_data ?? []) : [])),
+        ])
+    </div>
 
 </div>
 
@@ -492,6 +544,64 @@
         background-color: #1d4ed8;
         border-color: #1d4ed8;
         color: #fff;
+    }
+    
+    /* Neater Form Styling */
+    .job-post-form .form-control {
+        background-color: #f4f7f6 !important;
+        border: 1px solid transparent !important;
+        border-radius: 8px !important;
+        min-height: 48px;
+        box-shadow: none !important;
+        font-size: 14px;
+        color: #333;
+    }
+    .job-post-form .form-control:focus {
+        background-color: #fff !important;
+        border-color: #2557a7 !important;
+    }
+    .job-post-form textarea.form-control {
+        min-height: 100px;
+    }
+    .job-post-form label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #4a5568;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .job-post-form .formrow {
+        margin-bottom: 24px;
+    }
+    
+    /* Select2 Overrides for Neat Layout */
+    .job-post-form .select2-container--default .select2-selection--multiple,
+    .job-post-form .select2-container--default .select2-selection--single {
+        background-color: #f4f7f6;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        min-height: 48px;
+    }
+    .job-post-form .select2-container--default.select2-container--focus .select2-selection--multiple,
+    .job-post-form .select2-container--default.select2-container--focus .select2-selection--single {
+        background-color: #fff;
+        border-color: #2557a7;
+    }
+    .job-post-form .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 48px;
+        padding-left: 15px;
+        color: #333;
+    }
+    .job-post-form .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+    }
+    .job-post-form .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #fff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 5px 10px;
+        margin-top: 7px;
+        margin-left: 7px;
     }
 </style>
 @endpush
