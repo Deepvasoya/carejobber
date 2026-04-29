@@ -72,7 +72,7 @@
     </div>
 	
 	
-    <div class="col-md-12">
+    <div class="col-md-6">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'skills') !!}">
         <label for="">Skills</label>    
             <?php
