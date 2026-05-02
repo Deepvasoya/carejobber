@@ -25,17 +25,16 @@ class UserFrontRegisterFormRequest extends Request
      */
     public function rules()
     {
-
         return [
             'first_name' => 'required|max:80',
             'last_name' => 'required|max:80',
             'phone' => 'required|max:20',
-            'date_of_birth' => 'nullable|date',
+            'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'gender_id' => 'nullable|integer',
             'street_address' => 'nullable|string|max:255',
             'job_title' => 'nullable|array',
             'job_title.*' => 'string|max:100',
-            'functional_area_id' => 'nullable|integer',
+            'job_category_id' => 'nullable|integer',
             'career_level_id' => 'nullable|integer',
             'email' => 'required|unique:users,email|email|max:100',
             'password' => 'required|confirmed|min:6|max:50',
@@ -49,6 +48,8 @@ class UserFrontRegisterFormRequest extends Request
             'first_name.required' => __('First Name is required'),
             'last_name.required' => __('Last Name is required'),
             'phone.required' => __('Phone Number is required'),
+            'date_of_birth.required' => __('Date of Birth is required'),
+            'date_of_birth.before_or_equal' => __('You must be at least 18 years old to register'),
             'email.required' => __('Email is required'),
             'email.email' => __('The email must be a valid email address'),
             'email.unique' => __('This Email has already been taken'),

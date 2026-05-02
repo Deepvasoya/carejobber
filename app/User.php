@@ -401,6 +401,12 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo('App\FunctionalArea', 'functional_area_id', 'functional_area_id');
     }
+    
+    public function jobCategory()
+    {
+        return $this->belongsTo('App\JobCategory', 'job_category_id', 'job_category_id');
+    }
+    
     public function getFunctionalArea($field = '')
     {
         $functionalArea = $this->functionalArea()->lang()->first();
@@ -412,6 +418,20 @@ class User extends Authenticatable implements MustVerifyEmail
                 return $functionalArea->$field;
             else
                 return $functionalArea;
+        }
+    }
+    
+    public function getJobCategory($field = '')
+    {
+        $jobCategory = $this->jobCategory()->lang()->first();
+        if (null === $jobCategory) {
+            $jobCategory = $this->jobCategory()->first();
+        }
+        if (null !== $jobCategory) {
+            if (!empty($field))
+                return $jobCategory->$field;
+            else
+                return $jobCategory;
         }
     }
     public function countUserMessages()

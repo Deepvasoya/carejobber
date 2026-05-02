@@ -50,9 +50,9 @@ use RegistersUsers;
     public function showRegistrationForm()
     {
         $genders = \App\Helpers\DataArrayHelper::langGendersArray();
-        $functionalAreas = \App\Helpers\DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = \App\Helpers\DataArrayHelper::langJobCategoriesArray();
         $careerLevels = \App\Helpers\DataArrayHelper::langCareerLevelsArray();
-        return view('auth.register', compact('genders', 'functionalAreas', 'careerLevels'));
+        return view('auth.register', compact('genders', 'jobCategories', 'careerLevels'));
     }
 
     public function register(UserFrontRegisterFormRequest $request)
@@ -78,8 +78,8 @@ use RegistersUsers;
         if ($request->has('job_title') && is_array($request->input('job_title'))) {
             $user->job_title = implode(', ', $request->input('job_title'));
         }
-        if ($request->has('functional_area_id')) {
-            $user->functional_area_id = $request->input('functional_area_id');
+        if ($request->has('job_category_id')) {
+            $user->job_category_id = $request->input('job_category_id');
         }
         if ($request->has('career_level_id')) {
             $user->career_level_id = $request->input('career_level_id');

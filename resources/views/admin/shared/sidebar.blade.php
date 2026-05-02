@@ -352,6 +352,14 @@
             <span class="menu-text">Functional Areas</span>
         </a>
     </li>
+    @if(APAuthHelp::can('job_attributes.manage'))
+    <li class="side-nav-item">
+        <a href="{{ route('list.job.categories') }}" class="side-nav-link">
+            <span class="menu-icon"><i class="ri ri-folder-line"></i></span>
+            <span class="menu-text">Job Categories</span>
+        </a>
+    </li>
+    @endif
     <li class="side-nav-item">
         <a href="{{ route('list.genders') }}" class="side-nav-link">
             <span class="menu-icon"><i class="ri ri-user-smile-line"></i></span>

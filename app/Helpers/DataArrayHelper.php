@@ -36,6 +36,8 @@ use App\Industry;
 
 use App\FunctionalArea;
 
+use App\JobCategory;
+
 use App\MajorSubject;
 
 use App\ResultType;
@@ -551,11 +553,24 @@ class DataArrayHelper
 
     }
 
-
-
     /*     * **************************** */
 
+    public static function defaultJobCategoriesArray()
+    {
+        $array = JobCategory::select('job_categories.job_category', 'job_categories.job_category_id')->isDefault()->active()->sorted()->pluck('job_categories.job_category', 'job_categories.job_category_id')->toArray();
+        return $array;
+    }
 
+    public static function langJobCategoriesArray()
+    {
+        $array = JobCategory::select('job_categories.job_category', 'job_categories.job_category_id')->lang()->active()->sorted()->pluck('job_categories.job_category', 'job_categories.job_category_id')->toArray();
+        if ((int) count($array) === 0) {
+            $array = self::defaultJobCategoriesArray();
+        }
+        return $array;
+    }
+
+    /*     * **************************** */
 
     public static function defaultDegreelevelsArray()
 

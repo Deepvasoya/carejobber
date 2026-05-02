@@ -79,6 +79,19 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
 .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #e0edff; border: 1px solid #cce0ff; color: #0056b3; border-radius: 4px; padding: 4px 8px; font-size: 13px; margin-top: 5px; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: #0056b3; margin-right: 5px; }
 .select2-icon { position: absolute; left: 15px; top: 38px; color: #0056b3; z-index: 10; }
+
+/* Age validation styling */
+.help-block.text-success { color: #28a745 !important; font-size: 12px; }
+.help-block.text-danger { color: #dc3545 !important; font-size: 12px; }
+#age-validation-message, #age-success-message { 
+    animation: fadeIn 0.3s ease-in-out; 
+    padding: 8px 12px; 
+    border-radius: 4px; 
+    background: rgba(255,255,255,0.9);
+}
+#age-validation-message { border-left: 3px solid #dc3545; background-color: #f8d7da; }
+#age-success-message { border-left: 3px solid #28a745; background-color: #d4edda; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 <div class="useraccountwrap" style="background: transparent; box-shadow: none;">
@@ -103,7 +116,7 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
             </div>
         </div>
 
-        <form class="form-horizontal mt-3" method="POST" action="{{ route('register') }}" id="multiStepForm">
+        <form class="form-horizontal mt-3" method="POST" action="{{ route('register') }}" id="multiStepForm" onsubmit="return validateFormBeforeSubmit()">
             @csrf
             <input type="hidden" name="candidate_or_employer" value="candidate" />
 
@@ -139,16 +152,33 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 </div>
 
                 <div class="formrow{{ $errors->has('date_of_birth') ? ' has-error' : '' }}">
-                    <label>{{__('Date of Birth')}}</label>
+                    <label>{{__('Date of Birth')}} *</label>
                     <i class="far fa-calendar-alt fa-icon"></i>
-                    <input type="date" name="date_of_birth" class="form-control with-icon" placeholder="{{__('Date of Birth')}}" value="{{old('date_of_birth')}}">
+                    <input type="date" name="date_of_birth" class="form-control with-icon" required placeholder="{{__('Date of Birth')}}" value="{{old('date_of_birth')}}" onchange="validateAge(this)" max="{{ date('Y-m-d') }}">
                     @if ($errors->has('date_of_birth')) <span class="help-block text-danger"> <strong>{{ $errors->first('date_of_birth') }}</strong> </span> @endif
+                    <div id="age-validation-message" style="display: none; margin-top: 5px;">
+                        <span class="help-block text-danger">
+                            <strong><i class="fas fa-exclamation-triangle"></i> {{__('You must be at least 18 years old to register')}}</strong>
+                        </span>
+                    </div>
+                    <div id="age-success-message" style="display: none; margin-top: 5px;">
+                        <span class="help-block text-success">
+                            <strong><i class="fas fa-check-circle"></i> <span id="calculated-age"></span></strong>
+                        </span>
+                    </div>
                 </div>
 
                 <div class="formrow{{ $errors->has('gender_id') ? ' has-error' : '' }}">
                     <label>{{__('Gender')}}</label>
                     <div class="radio-box-group">
+                        @php
+                        $i=1;
+                        @endphp
                         @foreach($genders as $key => $gender)
+                            @continue($i > 3)
+                            @php
+                                $i++;
+                            @endphp
                             <label class="radio-box {{ old('gender_id') == $key ? 'active' : '' }}" onclick="selectGender(this)">
                                 <input type="radio" name="gender_id" value="{{$key}}" {{ old('gender_id') == $key ? 'checked' : '' }}>
                                 {{$gender}}
@@ -190,17 +220,17 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                     @if ($errors->has('job_title')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_title') }}</strong> </span> @endif
                 </div>
 
-                <div class="formrow{{ $errors->has('functional_area_id') ? ' has-error' : '' }}">
-                    <label>{{__('Choose Appropriate Job Function')}}</label>
+                <div class="formrow{{ $errors->has('job_category_id') ? ' has-error' : '' }}">
+                    <label>{{__('Choose Appropriate Job Category')}}</label>
                     <i class="fas fa-list-alt fa-icon"></i>
-                    <select name="functional_area_id" class="form-control with-icon">
-                        <option value="">{{__('Choose Appropriate Job Function')}}</option>
-                        @foreach($functionalAreas as $key => $area)
-                            <option value="{{$key}}" {{old('functional_area_id') == $key ? 'selected' : ''}}>{{$area}}</option>
+                    <select name="job_category_id" class="form-control with-icon">
+                        <option value="">{{__('Choose Appropriate Job Category')}}</option>
+                        @foreach($jobCategories as $key => $category)
+                            <option value="{{$key}}" {{old('job_category_id') == $key ? 'selected' : ''}}>{{$category}}</option>
                         @endforeach
                     </select>
                     <i class="fas fa-chevron-down select-arrow"></i>
-                    @if ($errors->has('functional_area_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('functional_area_id') }}</strong> </span> @endif
+                    @if ($errors->has('job_category_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_category_id') }}</strong> </span> @endif
                     <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('You\'ll now see matching jobs aligned with this input.')}}</p>
                 </div>
                 
@@ -345,6 +375,21 @@ function validateStep(step) {
         }
     });
 
+    // Additional age validation for date of birth in step 1
+    if (step === 1) {
+        const dobInput = currentStepDiv.querySelector('input[name="date_of_birth"]');
+        if (dobInput && dobInput.value) {
+            // Trigger the age validation function
+            validateAge(dobInput);
+            
+            // Check if age validation failed (error message is visible)
+            const errorMessage = document.getElementById('age-validation-message');
+            if (errorMessage && errorMessage.style.display !== 'none') {
+                isValid = false;
+            }
+        }
+    }
+
     return isValid;
 }
 
@@ -405,16 +450,82 @@ document.addEventListener('DOMContentLoaded', function() {
     if(hasReferralYes) hasReferralYes.addEventListener('change', toggleReferralField);
     if(hasReferralNo) hasReferralNo.addEventListener('change', toggleReferralField);
     
+    // Validate age on page load if date is already filled
+    const dobInput = document.querySelector('input[name="date_of_birth"]');
+    if (dobInput && dobInput.value) {
+        validateAge(dobInput);
+    }
+    
     // Auto-open step with errors if validation failed
     @if($errors->any())
         @if($errors->has('email') || $errors->has('password') || $errors->has('terms_of_use') || $errors->has('g-recaptcha-response'))
             nextStep(2);
             nextStep(3);
-        @elseif($errors->has('job_title') || $errors->has('functional_area_id') || $errors->has('career_level_id'))
+        @elseif($errors->has('job_title') || $errors->has('job_category_id') || $errors->has('career_level_id'))
             nextStep(2);
         @endif
     @endif
 });
+
+// Age validation function that triggers on date change
+function validateAge(input) {
+    const dobValue = input.value;
+    const errorMessage = document.getElementById('age-validation-message');
+    const successMessage = document.getElementById('age-success-message');
+    const calculatedAgeSpan = document.getElementById('calculated-age');
+    
+    // Reset messages and input styling
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
+    input.style.borderColor = '#d1e3ff';
+    
+    if (!dobValue) {
+        return;
+    }
+    
+    const dob = new Date(dobValue);
+    const today = new Date();
+    
+    // Check if date is in the future
+    if (dob > today) {
+        input.style.borderColor = 'red';
+        errorMessage.querySelector('strong').innerHTML = '<i class="fas fa-exclamation-triangle"></i> {{__("Date of birth cannot be in the future")}}';
+        errorMessage.style.display = 'block';
+        return;
+    }
+    
+    // Calculate age
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+    
+    if (age < 18) {
+        input.style.borderColor = 'red';
+        errorMessage.querySelector('strong').innerHTML = '<i class="fas fa-exclamation-triangle"></i> {{__("You must be at least 18 years old to register")}}';
+        errorMessage.style.display = 'block';
+    } else {
+        input.style.borderColor = '#28a745';
+        calculatedAgeSpan.textContent = '{{__("Age")}}: ' + age + ' {{__("years old - Valid")}}';
+        successMessage.style.display = 'block';
+    }
+}
+
+// Final form validation before submission
+function validateFormBeforeSubmit() {
+    const dobInput = document.querySelector('input[name="date_of_birth"]');
+    if (dobInput && dobInput.value) {
+        validateAge(dobInput);
+        const errorMessage = document.getElementById('age-validation-message');
+        if (errorMessage && errorMessage.style.display !== 'none') {
+            alert('{{__("Please correct the date of birth error before submitting.")}}');
+            return false;
+        }
+    }
+    return true;
+}
 </script>
 @endpush
 
