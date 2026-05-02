@@ -359,6 +359,12 @@
             <span class="menu-text">Job Categories</span>
         </a>
     </li>
+    <li class="side-nav-item">
+        <a href="{{ route('list.certifications') }}" class="side-nav-link">
+            <span class="menu-icon"><i class="ri ri-award-line"></i></span>
+            <span class="menu-text">Other Certifications</span>
+        </a>
+    </li>
     @endif
     <li class="side-nav-item">
         <a href="{{ route('list.genders') }}" class="side-nav-link">

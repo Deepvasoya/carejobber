@@ -96,6 +96,7 @@ class UserController extends Controller
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
         $industries = DataArrayHelper::langIndustriesArray();
         $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $certifications  = DataArrayHelper::certificationsArray();
 
         $upload_max_filesize = UploadedFile::getMaxFilesize() / (1048576);
         $user = User::findOrFail(Auth::user()->id);
@@ -108,6 +109,7 @@ class UserController extends Controller
                         ->with('careerLevels', $careerLevels)
                         ->with('industries', $industries)
                         ->with('functionalAreas', $functionalAreas)
+                        ->with('certifications', $certifications)
                         ->with('user', $user)
                         ->with('upload_max_filesize', $upload_max_filesize);
     }
@@ -169,8 +171,18 @@ class UserController extends Controller
         $user->expected_salary = $request->input('expected_salary');
         $user->salary_currency = $request->input('salary_currency');
         $user->video_link = $request->video_link;
-        $user->other_certifications = $request->input('other_certifications');
         $user->street_address = $request->input('street_address');
+
+        // ── Certifications (pivot) ──
+        $certIds = array_filter((array) $request->input('certification_ids', []), fn($v) => $v !== '0');
+        // If user typed a custom cert, create it and add to selection
+        $customCertName = trim((string) $request->input('custom_certification', ''));
+        if ($customCertName !== '') {
+            $newCert = \App\Certification::firstOrCreate(['name' => $customCertName], ['is_active' => 1, 'sort_order' => 99999]);
+            $certIds[] = $newCert->id;
+        }
+        // keep legacy text field empty — data now lives in pivot
+        $user->other_certifications = null;
 		$user->is_subscribed = $request->input('is_subscribed', 0);
         $user->visible_in_employer_resume_search = $request->boolean('visible_in_employer_resume_search');
 
@@ -179,6 +191,9 @@ class UserController extends Controller
         $user->custom_field_data = $cf->mergeStored($user->custom_field_data ?? null, $norm);
 
         $user->update();
+
+        // sync certifications pivot
+        $user->certifications()->sync($certIds);
 
         $this->updateUserFullTextSearch($user);
         

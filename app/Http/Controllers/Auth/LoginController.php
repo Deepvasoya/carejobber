@@ -105,7 +105,8 @@ use AuthenticatesUsers;
     }
     
     public function companyRegister(){
-        return view('auth.company-register');
+        $ownershipTypes = \App\Helpers\DataArrayHelper::langOwnershipTypesArray();
+        return view('auth.company-register', compact('ownershipTypes'));
     }
 
     public function login(Request $request)

@@ -207,31 +207,30 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <h4>{{__('Job Preferences')}}</h4>
                 <p class="sub-title">{{__('Choose your preferences to get matching job recommendations')}}</p>
 
-                <div class="formrow{{ $errors->has('job_title') ? ' has-error' : '' }}">
-                    <label>{{__('Enter Preferred Job Title')}}</label>
-                    <i class="fas fa-briefcase select2-icon"></i>
-                    <select name="job_title[]" class="form-control select2-multiple" multiple="multiple" style="width: 100%;" data-placeholder="{{__('e.g. Dance Instructor, QA Engineer')}}">
-                        @if(old('job_title'))
-                            @foreach(old('job_title') as $oldTitle)
-                                <option value="{{$oldTitle}}" selected>{{$oldTitle}}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                    @if ($errors->has('job_title')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_title') }}</strong> </span> @endif
-                </div>
-
                 <div class="formrow{{ $errors->has('job_category_id') ? ' has-error' : '' }}">
-                    <label>{{__('Choose Appropriate Job Category')}}</label>
+                    <label>{{__('What is your job category?')}} *</label>
                     <i class="fas fa-list-alt fa-icon"></i>
-                    <select name="job_category_id" class="form-control with-icon">
-                        <option value="">{{__('Choose Appropriate Job Category')}}</option>
+                    <select name="job_category_id" class="form-control with-icon select2-single" id="job_category_select" data-placeholder="{{__('Start typing to search...')}}">
+                        <option value="">{{__('Select or type your job category')}}</option>
                         @foreach($jobCategories as $key => $category)
                             <option value="{{$key}}" {{old('job_category_id') == $key ? 'selected' : ''}}>{{$category}}</option>
                         @endforeach
                     </select>
                     <i class="fas fa-chevron-down select-arrow"></i>
                     @if ($errors->has('job_category_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_category_id') }}</strong> </span> @endif
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('You\'ll now see matching jobs aligned with this input.')}}</p>
+                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('User should be able to type and let it be auto complete. If job title not listed, it should create another one.')}}</p>
+                </div>
+
+                <div class="formrow{{ $errors->has('nationality_id') ? ' has-error' : '' }}">
+                    <label>{{__('What is your nationality?')}} *</label>
+                    <i class="fas fa-flag fa-icon"></i>
+                    <select name="nationality_id[]" class="form-control select2-multiple-nationality" multiple="multiple" style="width: 100%;" data-placeholder="{{__('Select one or more nationalities')}}">
+                        @foreach($nationalities as $key => $nationality)
+                            <option value="{{$key}}" {{is_array(old('nationality_id')) && in_array($key, old('nationality_id')) ? 'selected' : ''}}>{{$nationality}}</option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('nationality_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('nationality_id') }}</strong> </span> @endif
+                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('Please let this one be "What is your nationality?" Pulled from the database. Make it multiple select dropdown.')}}</p>
                 </div>
                 
                 <div class="formrow mt-4{{ $errors->has('career_level_id') ? ' has-error' : '' }}">
@@ -249,6 +248,20 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                     @endforeach
                     
                     @if ($errors->has('career_level_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('career_level_id') }}</strong> </span> @endif
+                </div>
+
+                <div class="formrow{{ $errors->has('job_title') ? ' has-error' : '' }}">
+                    <label>{{__('Enter Preferred Job Title')}}</label>
+                    <i class="fas fa-briefcase select2-icon"></i>
+                    <select name="job_title[]" class="form-control select2-multiple" multiple="multiple" style="width: 100%;" data-placeholder="{{__('e.g. Dance Instructor, QA Engineer')}}">
+                        @if(old('job_title'))
+                            @foreach(old('job_title') as $oldTitle)
+                                <option value="{{$oldTitle}}" selected>{{$oldTitle}}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                    @if ($errors->has('job_title')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_title') }}</strong> </span> @endif
+                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('This should move down under job title. Let it be the part of work experience. Pulled from the database.')}}</p>
                 </div>
 
                 <div class="action-buttons">
@@ -424,11 +437,23 @@ function prevStep(step) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Select2
+    // Initialize Select2 for job titles (tags/autocomplete)
     $('.select2-multiple').select2({
         tags: true,
         tokenSeparators: [',', ' '],
         placeholder: "{{__('e.g. Dance Instructor, QA Engineer')}}"
+    });
+
+    // Initialize Select2 for job category (single select with search)
+    $('#job_category_select').select2({
+        placeholder: "{{__('Start typing to search...')}}",
+        allowClear: true
+    });
+
+    // Initialize Select2 for nationality (multi-select)
+    $('.select2-multiple-nationality').select2({
+        placeholder: "{{__('Select one or more nationalities')}}",
+        allowClear: true
     });
 
     const hasReferralYes = document.getElementById('hasReferralYes');

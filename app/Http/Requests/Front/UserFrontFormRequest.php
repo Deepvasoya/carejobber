@@ -60,7 +60,9 @@ class UserFrontFormRequest extends Request
             'custom_functional_area' => 'nullable|string|max:200',
             'custom_city_name' => 'nullable|string|max:30',
             'custom_fields' => 'nullable|array',
-            'other_certifications' => 'nullable|string|max:3000',
+            'certification_ids' => 'nullable|array',
+            'certification_ids.*' => 'nullable|integer|exists:certifications,id',
+            'custom_certification' => 'nullable|string|max:200',
         ];
     }
 
@@ -78,6 +80,13 @@ class UserFrontFormRequest extends Request
                     $v->errors()->add('custom_city_name', __('Choose your country and state/province first, then add a custom city.'));
                 } elseif (mb_strlen(trim((string) $this->input('custom_city_name', ''))) < 2) {
                     $v->errors()->add('custom_city_name', __('Please enter your city name.'));
+                }
+            }
+            // Validate custom certification if "Other" is selected
+            $certIds = $this->input('certification_ids', []);
+            if (is_array($certIds) && in_array('0', $certIds)) {
+                if (mb_strlen(trim((string) $this->input('custom_certification', ''))) < 2) {
+                    $v->errors()->add('custom_certification', __('Please enter the certification name.'));
                 }
             }
             app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_PROFILE, $v);

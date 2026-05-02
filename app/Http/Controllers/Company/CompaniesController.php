@@ -67,10 +67,22 @@ class CompaniesController extends Controller
         $state_id = $request->get('state_id');
         $city_id = $request->get('city_id');
         $industry_id = $request->get('industry_id');
-        $date_joined = $request->get('date_joined');  // Get date joined filter
+        $date_joined = $request->get('date_joined');
+        $verified_filter = $request->get('verified_filter'); // new: 'verified', 'unverified', or null for all
     
         // Filter Companies
-        $companyQuery = Company::query();
+        $companyQuery = Company::query()->where('is_active', true);
+
+        // Verified filter
+        if ($verified_filter === 'verified') {
+            $companyQuery->where('verified', true);
+        } elseif ($verified_filter === 'unverified') {
+            $companyQuery->where('verified', false);
+        } else {
+            // default: show all active (verified + unverified)
+            // keep original behaviour of only showing verified unless filter chosen
+            $companyQuery->where('verified', true);
+        }
     
         if (!empty($search)) {
             $companyQuery->where('name', 'like', '%' . $search . '%');
@@ -93,7 +105,6 @@ class CompaniesController extends Controller
         }
     
         if (!empty($date_joined)) {
-            // Date range filters
             if (in_array('lasthour', $date_joined)) {
                 $companyQuery->where('created_at', '>=', now()->subHour());
             }
@@ -109,80 +120,58 @@ class CompaniesController extends Controller
             if (in_array('lastmonth', $date_joined)) {
                 $companyQuery->where('created_at', '>=', now()->subMonth());
             }
-            if (in_array('alldate', $date_joined)) {
-                // No additional filtering needed for 'All'
-            }
         }
-    
-        $companyQuery->where('is_active', true)->where('verified', true);
     
         // Fetch Companies with Pagination
         $data['companies'] = $companyQuery->paginate(20);
     
-        // Fetch Industries with Related Companies Count > 0
+        // Fetch Industries
         $filtersApplied = !empty($search) || !empty($country_id) || !empty($state_id) || !empty($city_id) || !empty($industry_id);
     
         if ($filtersApplied) {
             $filteredCompanyIds = $companyQuery->pluck('id')->toArray();
             $data['industries'] = Industry::select('industries.industry', 'industries.industry_id')
-                ->isDefault()
-                ->active()
-                ->sorted()
+                ->isDefault()->active()->sorted()
                 ->withCount(['companies' => function ($query) use ($filteredCompanyIds) {
                     $query->whereIn('id', $filteredCompanyIds);
                 }])
                 ->having('companies_count', '>', 0)
                 ->get()
-                ->mapWithKeys(function ($industry) {
-                    return [
-                        $industry->industry_id => [
-                            'name' => $industry->industry,
-                            'count' => $industry->companies_count,
-                        ],
-                    ];
-                })
+                ->mapWithKeys(fn($i) => [$i->industry_id => ['name' => $i->industry, 'count' => $i->companies_count]])
                 ->toArray();
         } else {
             $data['industries'] = Industry::select('industries.industry', 'industries.industry_id')
-                ->isDefault()
-                ->active()
-                ->sorted()
+                ->isDefault()->active()->sorted()
                 ->withCount(['companies' => function ($query) use ($companyQuery) {
                     $query->whereIn('id', $companyQuery->pluck('id'));
                 }])
                 ->having('companies_count', '>', 0)
                 ->get()
-                ->mapWithKeys(function ($industry) {
-                    return [
-                        $industry->industry_id => [
-                            'name' => $industry->industry,
-                            'count' => $industry->companies_count,
-                        ],
-                    ];
-                })
+                ->mapWithKeys(fn($i) => [$i->industry_id => ['name' => $i->industry, 'count' => $i->companies_count]])
                 ->toArray();
         }
     
-        // Get counts for Date Joined filters
-        $dateJoinedCounts = [
-            'lasthour' => Company::where('created_at', '>=', now()->subHour())->where('is_active', true)->where('verified', true)->count(),
-            'last24hour' => Company::where('created_at', '>=', now()->subDay())->where('is_active', true)->where('verified', true)->count(),
-            'lastweek' => Company::where('created_at', '>=', now()->subWeek())->where('is_active', true)->where('verified', true)->count(),
-            'last2weeks' => Company::where('created_at', '>=', now()->subWeeks(2))->where('is_active', true)->where('verified', true)->count(),
+        // Verified counts for sidebar filter
+        $data['verifiedCount']   = Company::where('is_active', true)->where('verified', true)->count();
+        $data['unverifiedCount'] = Company::where('is_active', true)->where('verified', false)->count();
+
+        $data['dateJoinedCounts'] = [
+            'lasthour'  => Company::where('created_at', '>=', now()->subHour())->where('is_active', true)->where('verified', true)->count(),
+            'last24hour'=> Company::where('created_at', '>=', now()->subDay())->where('is_active', true)->where('verified', true)->count(),
+            'lastweek'  => Company::where('created_at', '>=', now()->subWeek())->where('is_active', true)->where('verified', true)->count(),
+            'last2weeks'=> Company::where('created_at', '>=', now()->subWeeks(2))->where('is_active', true)->where('verified', true)->count(),
             'lastmonth' => Company::where('created_at', '>=', now()->subMonth())->where('is_active', true)->where('verified', true)->count(),
-            'alldate' => Company::count(),
+            'alldate'   => Company::count(),
         ];
     
-        $data['dateJoinedCounts'] = $dateJoinedCounts;
-    
-        $data['countries'] = DataArrayHelper::langCountriesArray();
-        $data['topCompanyIds'] = $this->getCompanyIdsAndNumJobs(16);       
-    
-        $data['search'] = $search;
-        $data['country_id'] = $country_id;
-        $data['state_id'] = $state_id;
-        $data['city_id'] = $city_id;
-        $data['industry_id'] = $industry_id;
+        $data['countries']      = DataArrayHelper::langCountriesArray();
+        $data['topCompanyIds']  = $this->getCompanyIdsAndNumJobs(16);
+        $data['search']         = $search;
+        $data['country_id']     = $country_id;
+        $data['state_id']       = $state_id;
+        $data['city_id']        = $city_id;
+        $data['industry_id']    = $industry_id;
+        $data['verified_filter']= $verified_filter;
     
         return view('company.listing')->with($data);
     }

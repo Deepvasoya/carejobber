@@ -200,10 +200,17 @@
     </div>
 
     <div class="col-md-12">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'other_certifications') !!}">
-            <label for="other_certifications">{{__('Other Certifications')}}</label>
-            {!! Form::textarea('other_certifications', null, array('class'=>'form-control', 'id'=>'other_certifications', 'rows'=>4, 'placeholder'=>__('List any certifications, licenses, or credentials (e.g. CPR Certified, First Aid, BCLS, RN License #12345)'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'other_certifications') !!}
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'certification_ids') !!}">
+            <label for="certification_ids">{{__('Certifications')}}</label>
+            {!! Form::select('certification_ids[]', $certifications+['0'=>__('Other (specify)')], $user->certifications->pluck('id')->toArray(), array('class'=>'form-control select2-multiple-certifications', 'id'=>'certification_ids', 'multiple'=>'multiple')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'certification_ids') !!}
+        </div>
+    </div>
+    <div class="col-md-12" id="custom_certification_wrap" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_certification') !!}">
+            <label for="custom_certification">{{ __('Custom certification name') }}</label>
+            {!! Form::text('custom_certification', old('custom_certification'), array('class'=>'form-control', 'id'=>'custom_certification', 'maxlength'=>200, 'placeholder'=>__('Enter the certification name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_certification') !!}
         </div>
     </div>
 
@@ -279,6 +286,11 @@
         if ($ct.length) {
             $('#custom_city_name_wrap').toggle(String($ct.val()) === '0');
         }
+        var $cert = $('#certification_ids');
+        if ($cert.length) {
+            var vals = $cert.val() || [];
+            $('#custom_certification_wrap').toggle(vals.indexOf('0') !== -1);
+        }
     }
 
     $(document).ready(function () {
@@ -292,6 +304,15 @@
                 });
             }
         });
+
+        // Initialize Select2 for certifications multi-select
+        if ($('#certification_ids').length) {
+            $('#certification_ids').select2({
+                placeholder: "{{__('Select certifications')}}",
+                allowClear: true,
+                width: '100%'
+            });
+        }
 
         var level = window.__userProfileLocationLevel;
 
@@ -321,6 +342,7 @@
         }
 
         $(document).on('change', '#functional_area_id, #city_id', syncUserProfileOtherFields);
+        $(document).on('change', '#certification_ids', syncUserProfileOtherFields);
         syncUserProfileOtherFields();
 
         /*******************************/

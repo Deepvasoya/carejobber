@@ -38,6 +38,8 @@ use App\FunctionalArea;
 
 use App\JobCategory;
 
+use App\Certification;
+
 use App\MajorSubject;
 
 use App\ResultType;
@@ -568,6 +570,11 @@ class DataArrayHelper
             $array = self::defaultJobCategoriesArray();
         }
         return $array;
+    }
+
+    public static function certificationsArray()
+    {
+        return Certification::active()->sorted()->pluck('name', 'id')->toArray();
     }
 
     /*     * **************************** */

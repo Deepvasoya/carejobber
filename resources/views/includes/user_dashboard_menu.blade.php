@@ -25,21 +25,81 @@
         top: 20px;
         max-height: calc(100vh - 40px);
         overflow-y: auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
-        border-radius: 12px;
-        background: #fff;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid #e8edf2;
     }
     .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile {
         box-shadow: none;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid #e8edf2;
         margin-bottom: 0;
-        border-radius: 12px 12px 0 0;
+        border-radius: 16px 16px 0 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        padding: 25px 20px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile h5 {
+        color: #fff;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile p {
+        color: rgba(255,255,255,0.95);
+        font-size: 14px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile .pckfeatlist li {
+        color: rgba(255,255,255,0.95);
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile .order a,
+    .custom-dashboard-sidebar .sidebar-inner-scroll .featuredprofile .order strong {
+        color: #fff;
     }
     .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap {
         box-shadow: none;
         margin-bottom: 0;
-        padding-bottom: 20px;
+        padding: 15px 0 20px 0;
         border: none !important;
+        background: #ffffff;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap .switchbox {
+        background: #f8fafc;
+        padding: 15px 20px;
+        margin: 0 0 10px 0;
+        border-radius: 12px;
+        border: 1px solid #e8edf2;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash {
+        padding: 0;
+        margin: 0;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li:hover {
+        background: #f8fafc;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li.active {
+        background: #eff6ff;
+        border-left: 3px solid #3b82f6;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li a {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        color: #475569;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li.active a {
+        color: #3b82f6;
+    }
+    .custom-dashboard-sidebar .sidebar-inner-scroll .usernavwrap ul.usernavdash li a i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
     }
     
     /* Scrollbar styling for sticky sidebar */

@@ -523,84 +523,101 @@
 
 @push('styles')
 <style type="text/css">
-    .datepicker>div {
+    /* ── Datepicker ── */
+    .datepicker > div { display: block; }
+
+    /* ── Page wrapper ── */
+    .formpanel { background: #f0f4f8; padding: 24px; border-radius: 12px; }
+
+    /* ── Section card ── */
+    .job-post-form .row > [class*="col-"] { margin-bottom: 0; }
+    .job-post-form { background: #fff; border-radius: 12px; padding: 28px 28px 8px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+
+    /* ── Labels ── */
+    .job-post-form label {
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        color: #1e3a5f;
+        margin-bottom: 6px;
         display: block;
     }
-    .job-post-form-actions .job-post-action-btn {
-        font-weight: 600;
-        padding-top: 0.65rem;
-        padding-bottom: 0.65rem;
-        border-radius: 8px;
-    }
-    .job-post-form-actions .job-post-action-btn--submit {
-        background-color: #2557a7;
-        border-color: #2557a7;
-        color: #fff;
-    }
-    .job-post-form-actions .job-post-action-btn--submit:hover,
-    .job-post-form-actions .job-post-action-btn--submit:focus {
-        background-color: #1d4ed8;
-        border-color: #1d4ed8;
-        color: #fff;
-    }
-    
-    /* Neater Form Styling */
+    .job-post-form label span { color: #e53e3e; margin-left: 2px; }
+
+    /* ── Inputs & selects ── */
     .job-post-form .form-control {
-        background-color: #f4f7f6 !important;
-        border: 1px solid transparent !important;
+        background: #f7faff !important;
+        border: 1.5px solid #d0dff0 !important;
         border-radius: 8px !important;
-        min-height: 48px;
-        box-shadow: none !important;
+        min-height: 46px;
         font-size: 14px;
-        color: #333;
+        color: #1a2332;
+        box-shadow: none !important;
+        transition: border-color .2s, background .2s;
     }
     .job-post-form .form-control:focus {
-        background-color: #fff !important;
+        background: #fff !important;
         border-color: #2557a7 !important;
+        box-shadow: 0 0 0 3px rgba(37,87,167,.12) !important;
     }
-    .job-post-form textarea.form-control {
-        min-height: 100px;
-    }
-    .job-post-form label {
-        font-weight: 600;
-        font-size: 13px;
-        color: #4a5568;
-        margin-bottom: 8px;
-        display: block;
-    }
-    .job-post-form .formrow {
-        margin-bottom: 24px;
-    }
-    
-    /* Select2 Overrides for Neat Layout */
-    .job-post-form .select2-container--default .select2-selection--multiple,
-    .job-post-form .select2-container--default .select2-selection--single {
-        background-color: #f4f7f6;
-        border: 1px solid transparent;
+    .job-post-form textarea.form-control { min-height: 110px; }
+
+    /* ── Formrow spacing ── */
+    .job-post-form .formrow { margin-bottom: 22px; }
+
+    /* ── Select2 ── */
+    .job-post-form .select2-container--default .select2-selection--single,
+    .job-post-form .select2-container--default .select2-selection--multiple {
+        background: #f7faff;
+        border: 1.5px solid #d0dff0;
         border-radius: 8px;
-        min-height: 48px;
+        min-height: 46px;
     }
-    .job-post-form .select2-container--default.select2-container--focus .select2-selection--multiple,
-    .job-post-form .select2-container--default.select2-container--focus .select2-selection--single {
-        background-color: #fff;
+    .job-post-form .select2-container--default.select2-container--focus .select2-selection--single,
+    .job-post-form .select2-container--default.select2-container--focus .select2-selection--multiple {
+        background: #fff;
         border-color: #2557a7;
+        box-shadow: 0 0 0 3px rgba(37,87,167,.12);
     }
     .job-post-form .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 48px;
-        padding-left: 15px;
-        color: #333;
+        line-height: 44px;
+        padding-left: 14px;
+        color: #1a2332;
+        font-size: 14px;
     }
-    .job-post-form .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 46px;
-    }
+    .job-post-form .select2-container--default .select2-selection--single .select2-selection__arrow { height: 44px; }
     .job-post-form .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #fff;
-        border: 1px solid #cbd5e1;
+        background: #e8f0fe;
+        border: 1px solid #b3c9f5;
         border-radius: 6px;
-        padding: 5px 10px;
-        margin-top: 7px;
-        margin-left: 7px;
+        color: #1e3a5f;
+        padding: 4px 10px;
+        margin: 6px 0 0 6px;
+        font-size: 13px;
     }
+    .job-post-form .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: #2557a7; margin-right: 5px; }
+
+    /* ── Section divider ── */
+    .job-post-form hr { border-color: #e2eaf4; margin: 28px 0; }
+
+    /* ── Submit buttons ── */
+    .job-post-form-actions .job-post-action-btn {
+        font-weight: 600;
+        padding: .65rem 1.2rem;
+        border-radius: 8px;
+        font-size: 14px;
+    }
+    .job-post-form-actions .job-post-action-btn--submit {
+        background: #2557a7;
+        border-color: #2557a7;
+        color: #fff;
+    }
+    .job-post-form-actions .job-post-action-btn--submit:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+    /* ── Promotion panel ── */
+    .job-promotion-options { background: #f7faff !important; border: 1.5px solid #d0dff0 !important; border-radius: 12px !important; }
+    .job-promotion-options h5 { color: #1e3a5f; font-weight: 700; }
 </style>
 @endpush
 @push('scripts')

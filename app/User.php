@@ -406,6 +406,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo('App\JobCategory', 'job_category_id', 'job_category_id');
     }
+
+    public function certifications()
+    {
+        return $this->belongsToMany('App\Certification', 'user_certifications', 'user_id', 'certification_id');
+    }
     
     public function getFunctionalArea($field = '')
     {

@@ -25,11 +25,43 @@
         top: 20px;
         max-height: calc(100vh - 40px);
         overflow-y: auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
-        border-radius: 12px;
-        background: #fff;
-        padding-bottom: 20px;
-        border: none !important;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+        border-radius: 16px;
+        background: #ffffff;
+        padding-bottom: 0;
+        border: 1px solid #e8edf2 !important;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash {
+        padding: 15px 0;
+        margin: 0;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li {
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li:hover {
+        background: #f8fafc;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li.active {
+        background: #eff6ff;
+        border-left: 3px solid #3b82f6;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li a {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        color: #475569;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li.active a {
+        color: #3b82f6;
+    }
+    .custom-dashboard-sidebar .usernavwrap ul.usernavdash li a i {
+        margin-right: 12px;
+        width: 20px;
+        text-align: center;
+        font-size: 16px;
     }
     /* Scrollbar styling for sticky sidebar */
     .custom-dashboard-sidebar .usernavwrap::-webkit-scrollbar {
@@ -48,8 +80,11 @@
     
     .custom-dashboard-sidebar .dashbarad {
         margin-top: 20px;
-        position: sticky;
-        top: calc(100vh - 250px);
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e8edf2;
     }
 </style>
 <div class="custom-dashboard-sidebar">

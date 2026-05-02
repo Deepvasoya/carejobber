@@ -23,6 +23,7 @@ include_once($real_path . 'country.php');
 include_once($real_path . 'country_detail.php');
 include_once($real_path . 'functional_area.php');
 include_once($real_path . 'job_category.php');
+include_once($real_path . 'certification.php');
 include_once($real_path . 'gender.php');
 include_once($real_path . 'industry.php');
 include_once($real_path . 'job_experience.php');
