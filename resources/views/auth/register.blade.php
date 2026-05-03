@@ -138,7 +138,7 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <div class="formrow{{ $errors->has('phone') ? ' has-error' : '' }}">
                     <label>{{__('Phone Number')}} *</label>
                     <i class="fas fa-phone fa-icon"></i>
-                    <input type="text" name="phone" class="form-control with-icon" required placeholder="{{__('Phone Number')}}" value="{{old('phone')}}">
+                    <input type="tel" name="phone" class="form-control with-icon" required placeholder="{{__('Phone Number')}}" value="{{old('phone')}}" pattern="[0-9]{7,20}" title="{{__('Please enter a valid phone number (7-20 digits)')}}" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     @if ($errors->has('phone')) <span class="help-block text-danger"> <strong>{{ $errors->first('phone') }}</strong> </span> @endif
                 </div>
 
@@ -369,9 +369,57 @@ function validateStep(step) {
                 isValid = false;
             }
         }
+        
+        // Phone number validation
+        const phoneInput = currentStepDiv.querySelector('input[name="phone"]');
+        if (phoneInput && phoneInput.value) {
+            if (!validatePhoneNumber(phoneInput)) {
+                isValid = false;
+            }
+        }
     }
 
     return isValid;
+}
+
+function validatePhoneNumber(input) {
+    const phoneValue = input.value.trim();
+    const phoneRegex = /^[0-9]{7,20}$/;
+    
+    // Remove any existing error message
+    let errorDiv = input.parentElement.querySelector('.phone-error-message');
+    if (errorDiv) {
+        errorDiv.remove();
+    }
+    
+    if (!phoneValue) {
+        input.style.borderColor = 'red';
+        showPhoneError(input, '{{__("Phone number is required")}}');
+        return false;
+    }
+    
+    if (!phoneRegex.test(phoneValue)) {
+        input.style.borderColor = 'red';
+        if (phoneValue.length < 7) {
+            showPhoneError(input, '{{__("Phone number must be at least 7 digits")}}');
+        } else if (phoneValue.length > 20) {
+            showPhoneError(input, '{{__("Phone number must not exceed 20 digits")}}');
+        } else {
+            showPhoneError(input, '{{__("Phone number must contain only numbers")}}');
+        }
+        return false;
+    }
+    
+    input.style.borderColor = '#28a745';
+    return true;
+}
+
+function showPhoneError(input, message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'phone-error-message';
+    errorDiv.style.cssText = 'color: #dc3545; font-size: 12px; margin-top: 5px; animation: fadeIn 0.3s;';
+    errorDiv.innerHTML = '<strong><i class="fas fa-exclamation-triangle"></i> ' + message + '</strong>';
+    input.parentElement.appendChild(errorDiv);
 }
 
 function nextStep(step) {
@@ -431,6 +479,23 @@ document.addEventListener('DOMContentLoaded', function() {
         validateAge(dobInput);
     }
     
+    // Real-time phone number validation
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('blur', function() {
+            validatePhoneNumber(this);
+        });
+        
+        phoneInput.addEventListener('input', function() {
+            // Remove error styling while typing
+            let errorDiv = this.parentElement.querySelector('.phone-error-message');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            this.style.borderColor = '#d1e3ff';
+        });
+    }
+    
     // Auto-open step with errors if validation failed
     @if($errors->any())
         @if($errors->has('email') || $errors->has('password') || $errors->has('terms_of_use') || $errors->has('g-recaptcha-response'))
@@ -438,6 +503,8 @@ document.addEventListener('DOMContentLoaded', function() {
             nextStep(3);
         @elseif($errors->has('job_category_id') || $errors->has('career_level_id') || $errors->has('nationality_id'))
             nextStep(2);
+        @elseif($errors->has('phone') || $errors->has('first_name') || $errors->has('last_name') || $errors->has('date_of_birth'))
+            // Stay on step 1
         @endif
     @endif
 });
@@ -499,6 +566,15 @@ function validateFormBeforeSubmit() {
             return false;
         }
     }
+    
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput && phoneInput.value) {
+        if (!validatePhoneNumber(phoneInput)) {
+            alert('{{__("Please enter a valid phone number (7-20 digits, numbers only).")}}');
+            return false;
+        }
+    }
+    
     return true;
 }
 </script>

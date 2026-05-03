@@ -28,7 +28,7 @@ class UserFrontRegisterFormRequest extends Request
         return [
             'first_name' => 'required|max:80',
             'last_name' => 'required|max:80',
-            'phone' => 'required|max:20',
+            'phone' => 'required|numeric|digits_between:7,20',
             'date_of_birth' => 'required|date|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
             'gender_id' => 'nullable|integer',
             'street_address' => 'nullable|string|max:255',
@@ -50,6 +50,8 @@ class UserFrontRegisterFormRequest extends Request
             'first_name.required' => __('First Name is required'),
             'last_name.required' => __('Last Name is required'),
             'phone.required' => __('Phone Number is required'),
+            'phone.numeric' => __('Phone Number must contain only numbers'),
+            'phone.digits_between' => __('Phone Number must be between 7 and 20 digits'),
             'date_of_birth.required' => __('Date of Birth is required'),
             'date_of_birth.before_or_equal' => __('You must be at least 18 years old to register'),
             'job_category_id.required' => __('Please select your job category'),
