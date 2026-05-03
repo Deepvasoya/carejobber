@@ -63,22 +63,13 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
 .radio-box i.fa-check-circle { position: absolute; top: -8px; right: -8px; color: #0056b3; font-size: 18px; display: none; background: #fff; border-radius: 50%; }
 .radio-box.active i.fa-check-circle { display: block; }
 
-/* Career level radio buttons */
-.career-radio-box { border: 1px solid #d1e3ff; border-radius: 6px; padding: 12px 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-.career-radio-box input { display: none; }
-.career-radio-box .title { font-weight: 600; font-size: 15px; color: #333; display: block; }
-.career-radio-box .desc { font-size: 12px; color: #777; }
-.career-radio-box .circle { width: 18px; height: 18px; border: 2px solid #ccc; border-radius: 50%; display: inline-block; position: relative; }
-.career-radio-box.active { border-color: #0056b3; background: #f0f7ff; }
-.career-radio-box.active .circle { border-color: #0056b3; }
-.career-radio-box.active .circle:after { content: ''; width: 10px; height: 10px; background: #0056b3; border-radius: 50%; position: absolute; top: 2px; left: 2px; }
-
 /* Select2 overrides */
 .select2-container--default .select2-selection--multiple { background-color: #f0f7ff; border: 1px solid #d1e3ff; border-radius: 6px; min-height: 45px; padding: 5px 35px 5px 10px; }
 .select2-container--default.select2-container--focus .select2-selection--multiple { border-color: #0056b3; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice { background-color: #e0edff; border: 1px solid #cce0ff; color: #0056b3; border-radius: 4px; padding: 4px 8px; font-size: 13px; margin-top: 5px; }
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove { color: #0056b3; margin-right: 5px; }
 .select2-icon { position: absolute; left: 15px; top: 38px; color: #0056b3; z-index: 10; }
+.select2-container { width: 100% !important; }
 
 /* Age validation styling */
 .help-block.text-success { color: #28a745 !important; font-size: 12px; }
@@ -210,58 +201,40 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <div class="formrow{{ $errors->has('job_category_id') ? ' has-error' : '' }}">
                     <label>{{__('What is your job category?')}} *</label>
                     <i class="fas fa-list-alt fa-icon"></i>
-                    <select name="job_category_id" class="form-control with-icon select2-single" id="job_category_select" data-placeholder="{{__('Start typing to search...')}}">
-                        <option value="">{{__('Select or type your job category')}}</option>
+                    <select name="job_category_id" class="form-control with-icon" id="job_category_select">
+                        <option value="">{{__('Select your job category')}}</option>
                         @foreach($jobCategories as $key => $category)
                             <option value="{{$key}}" {{old('job_category_id') == $key ? 'selected' : ''}}>{{$category}}</option>
                         @endforeach
                     </select>
                     <i class="fas fa-chevron-down select-arrow"></i>
                     @if ($errors->has('job_category_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_category_id') }}</strong> </span> @endif
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('User should be able to type and let it be auto complete. If job title not listed, it should create another one.')}}</p>
                 </div>
 
                 <div class="formrow{{ $errors->has('nationality_id') ? ' has-error' : '' }}">
                     <label>{{__('What is your nationality?')}} *</label>
                     <i class="fas fa-flag fa-icon"></i>
-                    <select name="nationality_id[]" class="form-control select2-multiple-nationality" multiple="multiple" style="width: 100%;" data-placeholder="{{__('Select one or more nationalities')}}">
+                    <select name="nationality_id" class="form-control with-icon" id="nationality_select">
+                        <option value="">{{__('Select your nationality')}}</option>
                         @foreach($nationalities as $key => $nationality)
-                            <option value="{{$key}}" {{is_array(old('nationality_id')) && in_array($key, old('nationality_id')) ? 'selected' : ''}}>{{$nationality}}</option>
+                            <option value="{{$key}}" {{old('nationality_id') == $key ? 'selected' : ''}}>{{$nationality}}</option>
                         @endforeach
                     </select>
+                    <i class="fas fa-chevron-down select-arrow"></i>
                     @if ($errors->has('nationality_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('nationality_id') }}</strong> </span> @endif
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('Please let this one be "What is your nationality?" Pulled from the database. Make it multiple select dropdown.')}}</p>
                 </div>
                 
-                <div class="formrow mt-4{{ $errors->has('career_level_id') ? ' has-error' : '' }}">
-                    <label style="margin-bottom: 15px; font-weight: 600; color: #333; text-align: center;">{{__('Choose the preferred level that best matches your work experience')}}</label>
-                    
-                    @foreach($careerLevels as $key => $level)
-                        <label class="career-radio-box {{ old('career_level_id') == $key ? 'active' : '' }}" onclick="selectCareerLevel(this)">
-                            <div>
-                                <span class="title">{{$level}}</span>
-                                <span class="desc">{{__('Select if this matches your experience')}}</span>
-                            </div>
-                            <input type="radio" name="career_level_id" value="{{$key}}" {{ old('career_level_id') == $key ? 'checked' : '' }}>
-                            <div class="circle"></div>
-                        </label>
-                    @endforeach
-                    
-                    @if ($errors->has('career_level_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('career_level_id') }}</strong> </span> @endif
-                </div>
-
-                <div class="formrow{{ $errors->has('job_title') ? ' has-error' : '' }}">
-                    <label>{{__('Enter Preferred Job Title')}}</label>
-                    <i class="fas fa-briefcase select2-icon"></i>
-                    <select name="job_title[]" class="form-control select2-multiple" multiple="multiple" style="width: 100%;" data-placeholder="{{__('e.g. Dance Instructor, QA Engineer')}}">
-                        @if(old('job_title'))
-                            @foreach(old('job_title') as $oldTitle)
-                                <option value="{{$oldTitle}}" selected>{{$oldTitle}}</option>
-                            @endforeach
-                        @endif
+                <div class="formrow{{ $errors->has('career_level_id') ? ' has-error' : '' }}">
+                    <label>{{__('Years of Job Experience')}} *</label>
+                    <i class="fas fa-briefcase fa-icon"></i>
+                    <select name="career_level_id" class="form-control with-icon" id="career_level_select">
+                        <option value="">{{__('Select your experience level')}}</option>
+                        @foreach($careerLevels as $key => $level)
+                            <option value="{{$key}}" {{old('career_level_id') == $key ? 'selected' : ''}}>{{$level}}</option>
+                        @endforeach
                     </select>
-                    @if ($errors->has('job_title')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_title') }}</strong> </span> @endif
-                    <p style="font-size: 11px; color: #999; margin-top: 5px;"><i class="fas fa-info-circle"></i> {{__('This should move down under job title. Let it be the part of work experience. Pulled from the database.')}}</p>
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                    @if ($errors->has('career_level_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('career_level_id') }}</strong> </span> @endif
                 </div>
 
                 <div class="action-buttons">
@@ -369,11 +342,6 @@ function selectGender(element) {
     element.classList.add('active');
 }
 
-function selectCareerLevel(element) {
-    document.querySelectorAll('.career-radio-box').forEach(el => el.classList.remove('active'));
-    element.classList.add('active');
-}
-
 function validateStep(step) {
     let isValid = true;
     const currentStepDiv = document.getElementById('step-' + step);
@@ -437,24 +405,6 @@ function prevStep(step) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Select2 for job titles (tags/autocomplete)
-    $('.select2-multiple').select2({
-        tags: true,
-        tokenSeparators: [',', ' '],
-        placeholder: "{{__('e.g. Dance Instructor, QA Engineer')}}"
-    });
-
-    // Initialize Select2 for job category (single select with search)
-    $('#job_category_select').select2({
-        placeholder: "{{__('Start typing to search...')}}",
-        allowClear: true
-    });
-
-    // Initialize Select2 for nationality (multi-select)
-    $('.select2-multiple-nationality').select2({
-        placeholder: "{{__('Select one or more nationalities')}}",
-        allowClear: true
-    });
 
     const hasReferralYes = document.getElementById('hasReferralYes');
     const hasReferralNo = document.getElementById('hasReferralNo');
@@ -486,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function() {
         @if($errors->has('email') || $errors->has('password') || $errors->has('terms_of_use') || $errors->has('g-recaptcha-response'))
             nextStep(2);
             nextStep(3);
-        @elseif($errors->has('job_title') || $errors->has('job_category_id') || $errors->has('career_level_id'))
+        @elseif($errors->has('job_category_id') || $errors->has('career_level_id') || $errors->has('nationality_id'))
             nextStep(2);
         @endif
     @endif

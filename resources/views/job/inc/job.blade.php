@@ -77,17 +77,17 @@
     <!-- 2 Column Layout Starts -->
     <div class="col-md-6">
         @php
-            $functionalAreasWithOther = $functionalAreas + ['0' => __('Other (specify)')];
+            $jobCategoriesWithOther = $jobCategories + ['0' => __('Other (specify)')];
         @endphp
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_category_id') !!}" id="job_category_id_div">
             <label>{{ __('Category') }} <span>*</span></label>
-            {!! Form::select('functional_area_id', ['' => __('Select Category')]+$functionalAreasWithOther, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!}
+            {!! Form::select('job_category_id', ['' => __('Select Category')]+$jobCategoriesWithOther, null, array('class'=>'form-control', 'id'=>'job_category_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_category_id') !!}
         </div>
-        <div id="custom_functional_area_wrap_job" style="display:none;" class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
+        <div id="custom_job_category_wrap_job" style="display:none;" class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_job_category') !!}">
             <label>{{ __('Custom Category') }}</label>
-            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'maxlength'=>200, 'placeholder'=>__('Enter category name'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
+            {!! Form::text('custom_job_category', old('custom_job_category'), array('class'=>'form-control', 'maxlength'=>200, 'placeholder'=>__('Enter category name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_job_category') !!}
         </div>
     </div>
 

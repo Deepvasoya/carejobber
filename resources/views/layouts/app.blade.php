@@ -265,37 +265,204 @@ if (!isset($seo)) {
     <script src="{{ asset('/admin_assets/global/plugins/jquery.scrollTo.min.js') }}" type="text/javascript"></script>
 
     <!-- TinyMCE Editor -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="{{ asset('/admin_assets/global/plugins/tinymce/js/tinymce/tinymce.min.js') }}"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        if (typeof tinymce !== 'undefined') {
-          tinymce.init({
-            selector: 'textarea.tinymce, textarea#content, textarea[name="content"], textarea[name="description"], textarea[name="body"], textarea[name="terms_content"]',
-            valid_elements: '*[*]',
-            extended_valid_elements: '*[*]',
-            valid_styles: {
-              '*': 'color,background,background-color,font-size,font-family,font-weight,font-style,text-align,text-decoration,margin,margin-top,margin-right,margin-bottom,margin-left,padding,padding-top,padding-right,padding-bottom,padding-left,border,border-top,border-right,border-bottom,border-left,border-radius,border-color,border-style,border-width,width,height,max-width,min-width,display,line-height,letter-spacing,text-transform,white-space,vertical-align,text-indent,list-style'
-            },
-            verify_html: false,
-            cleanup: false,
-            cleanup_on_startup: false,
+      (function () {
+        var editorSelector = [
+          'textarea.tinymce',
+          'textarea#content',
+          'textarea#summary',
+          'textarea[name="content"]',
+          'textarea[name="description"]',
+          'textarea[name="benefits"]',
+          'textarea[name="summary"]',
+          'textarea[name="Summary"]',
+          'textarea[name="body"]',
+          'textarea[name="terms_content"]'
+        ].join(',');
+        var generatedId = 0;
+
+        function getEditorHeight(element) {
+          if (element && element.getAttribute('data-tinymce-height')) {
+            return parseInt(element.getAttribute('data-tinymce-height'), 10) || 260;
+          }
+
+          if (element && (element.id === 'summary' || element.name === 'Summary' || element.name === 'summary')) {
+            return 260;
+          }
+
+          return 240;
+        }
+
+        function getEditorConfig(element) {
+          return {
+            target: element,
+            height: getEditorHeight(element),
+            menubar: false,
+            branding: false,
             entity_encoding: 'raw',
-            forced_root_block: 'p',
-            remove_trailing_brs: false,
+            forced_root_block: '',
+            convert_urls: false,
+            relative_urls: true,
             paste_as_text: false,
             paste_data_images: true,
-            paste_retain_style_properties: 'all',
-            paste_merge_formats: false,
-            paste_webkit_styles: 'all',
-            paste_remove_styles_if_webkit: false,
-            height: 600,
-            menubar: 'file edit view insert format tools table',
-            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount paste',
-            toolbar: 'undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | code | help',
-            content_style: 'body { font-family: Georgia, serif; font-size: 15px; line-height: 1.7; }'
+            plugins: [
+              'advlist autolink lists link image charmap preview anchor',
+              'searchreplace visualblocks code fullscreen',
+              'insertdatetime media table contextmenu paste help wordcount'
+            ],
+            toolbar: 'undo redo | styleselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | code',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+            images_upload_url: "{{ route('tinymce.image_upload.front') }}",
+            images_upload_handler: function (blobInfo, success, failure) {
+              var xhr = new XMLHttpRequest();
+              var formData = new FormData();
+
+              xhr.withCredentials = false;
+              xhr.open('POST', "{{ route('tinymce.image_upload.front') }}");
+              xhr.onload = function () {
+                var json;
+
+                if (xhr.status !== 200) {
+                  failure('HTTP Error: ' + xhr.status);
+                  return;
+                }
+
+                try {
+                  json = JSON.parse(xhr.responseText);
+                } catch (error) {
+                  failure('Invalid JSON: ' + xhr.responseText);
+                  return;
+                }
+
+                if (!json || typeof json.location !== 'string') {
+                  failure('Invalid JSON: ' + xhr.responseText);
+                  return;
+                }
+
+                success(json.location);
+              };
+              formData.append('image', blobInfo.blob(), blobInfo.filename());
+              xhr.send(formData);
+            }
+          };
+        }
+
+        function collectTextareas(context, selector) {
+          var root = context || document;
+          var matches = [];
+          var activeSelector = selector || editorSelector;
+
+          if (root.nodeType === 1 && root.matches && root.matches(activeSelector)) {
+            matches.push(root);
+          }
+
+          if (root.querySelectorAll) {
+            matches = matches.concat(Array.prototype.slice.call(root.querySelectorAll(activeSelector)));
+          }
+
+          return matches;
+        }
+
+        function initTinyMCE(context, selector) {
+          if (typeof tinymce === 'undefined') {
+            return;
+          }
+
+          collectTextareas(context, selector).forEach(function (element) {
+            var existingEditor;
+
+            if (!element.id) {
+              generatedId += 1;
+              element.id = 'tinymce_front_' + generatedId;
+            }
+
+            existingEditor = tinymce.get(element.id);
+            if (existingEditor) {
+              if (existingEditor.getElement() === element) {
+                return;
+              }
+
+              existingEditor.remove();
+            }
+
+            tinymce.init(getEditorConfig(element));
           });
         }
-      });
+
+        function removeDetachedEditors() {
+          if (typeof tinymce === 'undefined' || !tinymce.get) {
+            return;
+          }
+
+          tinymce.get().slice().forEach(function (editor) {
+            var element = editor.getElement();
+
+            if (!element || !document.documentElement.contains(element)) {
+              editor.remove();
+            }
+          });
+        }
+
+        function saveTinyMCE() {
+          if (typeof tinymce !== 'undefined') {
+            removeDetachedEditors();
+            tinymce.triggerSave();
+          }
+        }
+
+        function observeDynamicForms() {
+          if (!window.MutationObserver || !document.body) {
+            return;
+          }
+
+          var observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+              Array.prototype.forEach.call(mutation.addedNodes, function (node) {
+                if (node.nodeType === 1) {
+                  initTinyMCE(node);
+                }
+              });
+            });
+          });
+
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        function patchJquerySerialize() {
+          if (!window.jQuery || window.jQuery.fn.carejobberTinyMceSerializePatched) {
+            return;
+          }
+
+          var originalSerialize = window.jQuery.fn.serialize;
+          var originalSerializeArray = window.jQuery.fn.serializeArray;
+
+          window.jQuery.fn.serialize = function () {
+            saveTinyMCE();
+            return originalSerialize.apply(this, arguments);
+          };
+
+          window.jQuery.fn.serializeArray = function () {
+            saveTinyMCE();
+            return originalSerializeArray.apply(this, arguments);
+          };
+
+          window.jQuery.fn.carejobberTinyMceSerializePatched = true;
+        }
+
+        window.CarejobberTinyMCE = {
+          init: initTinyMCE,
+          save: saveTinyMCE,
+          selector: editorSelector
+        };
+
+        document.addEventListener('submit', saveTinyMCE, true);
+        document.addEventListener('DOMContentLoaded', function () {
+          initTinyMCE(document);
+          observeDynamicForms();
+          patchJquerySerialize();
+        });
+      })();
     </script>
 
     <!-- Revolution Slider -->

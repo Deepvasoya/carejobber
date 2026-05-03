@@ -37,11 +37,11 @@ class SendJobRecommendationsListener implements ShouldQueue
             return;
         }
 
-        // Find matching job seekers based on functional area and career level
+        // Find matching job seekers based on job category and career level
         $matchingUsers = User::where('is_active', 1)
             ->where('verified', 1)
-            ->whereNotNull('functional_area_id')
-            ->where('functional_area_id', $job->functional_area_id);
+            ->whereNotNull('job_category_id')
+            ->where('job_category_id', $job->job_category_id);
 
         // Also match career level if specified
         if ($job->career_level_id) {

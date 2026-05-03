@@ -117,6 +117,8 @@
     transition: background .15s, border-color .15s;
 }
 .verified-filter-btn:hover, .verified-filter-btn.active { background: #e8f0fe; border-color: #0056b3; color: #0056b3; }
+.verified-filter-btn.active.filter-unverified { background: #fff1f2; border-color: #dc3545; color: #9f1239; }
+.verified-filter-btn.active.filter-all { background: #f1f5f9; border-color: #64748b; color: #334155; }
 .verified-filter-btn .count-badge {
     background: #e8edf3;
     border-radius: 10px;
@@ -125,6 +127,8 @@
     font-weight: 600;
 }
 .verified-filter-btn.active .count-badge { background: #0056b3; color: #fff; }
+.verified-filter-btn.active.filter-unverified .count-badge { background: #dc3545; color: #fff; }
+.verified-filter-btn.active.filter-all .count-badge { background: #64748b; color: #fff; }
 .verified-filter-btn .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
 .dot-green { background: #28a745; }
 .dot-red   { background: #dc3545; }
@@ -182,12 +186,25 @@
                     $baseQuery = request()->except('verified_filter');
                     $allUrl      = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, []));
                     $verifiedUrl = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, ['verified_filter' => 'verified']));
+                    $unverifiedUrl = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, ['verified_filter' => 'unverified']));
                 @endphp
 
+                <a href="{{ $allUrl }}"
+                   class="verified-filter-btn filter-all {{ empty($verified_filter) ? 'active' : '' }}">
+                    <span><span class="dot dot-all"></span> {{__('All Employers')}}</span>
+                    <span class="count-badge">{{ $allEmployerStatusCount }}</span>
+                </a>
+
                 <a href="{{ $verifiedUrl }}"
-                   class="verified-filter-btn {{ request('verified_filter') === 'verified' ? 'active' : '' }}">
+                   class="verified-filter-btn filter-verified {{ $verified_filter === 'verified' ? 'active' : '' }}">
                     <span><span class="dot dot-green"></span> {{__('Verified')}}</span>
                     <span class="count-badge">{{ $verifiedCount }}</span>
+                </a>
+
+                <a href="{{ $unverifiedUrl }}"
+                   class="verified-filter-btn filter-unverified {{ $verified_filter === 'unverified' ? 'active' : '' }}">
+                    <span><span class="dot dot-red"></span> {{__('Unverified')}}</span>
+                    <span class="count-badge">{{ $unverifiedCount }}</span>
                 </a>
             </div>
         </div>

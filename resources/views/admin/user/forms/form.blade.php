@@ -123,10 +123,10 @@
         {!! Form::select('industry_id', [''=>'Select Industry']+$industries, null, array('class'=>'form-control', 'id'=>'industry_id')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'industry_id') !!}                                       
     </div>
-    <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}">
-        {!! Form::label('functional_area_id', 'Functional Area', ['class' => 'bold']) !!}                    
-        {!! Form::select('functional_area_id', [''=>'Select Functional Area']+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
-        {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!}                                       
+    <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'job_category_id') !!}">
+        {!! Form::label('job_category_id', 'Job Category', ['class' => 'bold']) !!}                    
+        {!! Form::select('job_category_id', [''=>'Select Job Category']+$jobCategories, null, array('class'=>'form-control', 'id'=>'job_category_id')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'job_category_id') !!}                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'current_salary') !!}">
         {!! Form::label('current_salary', 'Current Salary', ['class' => 'bold']) !!}                    

@@ -63,97 +63,78 @@ class CompaniesController extends Controller
     public function company_listing(Request $request)
     {
         $search = $request->get('search');
-        $country_id = $request->get('country_id');
-        $state_id = $request->get('state_id');
-        $city_id = $request->get('city_id');
-        $industry_id = $request->get('industry_id');
-        $date_joined = $request->get('date_joined');
-        $verified_filter = $request->get('verified_filter'); // new: 'verified', 'unverified', or null for all
-    
-        // Filter Companies
-        $companyQuery = Company::query()->where('is_active', true);
+        $country_id = $this->filledFilterValues($request->get('country_id'));
+        $state_id = $this->filledFilterValues($request->get('state_id'));
+        $city_id = $this->filledFilterValues($request->get('city_id'));
+        $industry_id = $this->filledFilterValues($request->get('industry_id'));
+        $date_joined = $this->filledFilterValues($request->get('date_joined'));
+        $verified_filter = in_array($request->get('verified_filter'), ['verified', 'unverified'], true)
+            ? $request->get('verified_filter')
+            : null;
 
-        // Verified filter
-        if ($verified_filter === 'verified') {
-            $companyQuery->where('verified', true);
-        } elseif ($verified_filter === 'unverified') {
-            $companyQuery->where('verified', false);
-        } else {
-            // default: show all active (verified + unverified)
-            // keep original behaviour of only showing verified unless filter chosen
-            $companyQuery->where('verified', true);
-        }
-    
+        $baseCompanyQuery = Company::query()->where('is_active', true);
+
         if (!empty($search)) {
-            $companyQuery->where('name', 'like', '%' . $search . '%');
+            $baseCompanyQuery->where('name', 'like', '%' . $search . '%');
         }
-    
+
         if (!empty($country_id)) {
-            $companyQuery->where('country_id', $country_id);
+            $baseCompanyQuery->whereIn('country_id', $country_id);
         }
-    
+
         if (!empty($state_id)) {
-            $companyQuery->where('state_id', $state_id);
+            $baseCompanyQuery->whereIn('state_id', $state_id);
         }
-    
+
         if (!empty($city_id)) {
-            $companyQuery->where('city_id', $city_id);
+            $baseCompanyQuery->whereIn('city_id', $city_id);
         }
-    
+
         if (!empty($industry_id)) {
-            $companyQuery->whereIn('industry_id', $industry_id);
+            $baseCompanyQuery->whereIn('industry_id', $industry_id);
         }
-    
+
         if (!empty($date_joined)) {
             if (in_array('lasthour', $date_joined)) {
-                $companyQuery->where('created_at', '>=', now()->subHour());
+                $baseCompanyQuery->where('created_at', '>=', now()->subHour());
             }
             if (in_array('last24hour', $date_joined)) {
-                $companyQuery->where('created_at', '>=', now()->subDay());
+                $baseCompanyQuery->where('created_at', '>=', now()->subDay());
             }
             if (in_array('lastweek', $date_joined)) {
-                $companyQuery->where('created_at', '>=', now()->subWeek());
+                $baseCompanyQuery->where('created_at', '>=', now()->subWeek());
             }
             if (in_array('last2weeks', $date_joined)) {
-                $companyQuery->where('created_at', '>=', now()->subWeeks(2));
+                $baseCompanyQuery->where('created_at', '>=', now()->subWeeks(2));
             }
             if (in_array('lastmonth', $date_joined)) {
-                $companyQuery->where('created_at', '>=', now()->subMonth());
+                $baseCompanyQuery->where('created_at', '>=', now()->subMonth());
             }
         }
-    
+
+        $companyQuery = clone $baseCompanyQuery;
+        $this->applyEmployerStatusFilter($companyQuery, $verified_filter);
+
+        $filteredCompanyIds = (clone $companyQuery)->pluck('id')->toArray();
+
         // Fetch Companies with Pagination
         $data['companies'] = $companyQuery->paginate(20);
-    
+
         // Fetch Industries
-        $filtersApplied = !empty($search) || !empty($country_id) || !empty($state_id) || !empty($city_id) || !empty($industry_id);
-    
-        if ($filtersApplied) {
-            $filteredCompanyIds = $companyQuery->pluck('id')->toArray();
-            $data['industries'] = Industry::select('industries.industry', 'industries.industry_id')
-                ->isDefault()->active()->sorted()
-                ->withCount(['companies' => function ($query) use ($filteredCompanyIds) {
-                    $query->whereIn('id', $filteredCompanyIds);
-                }])
-                ->having('companies_count', '>', 0)
-                ->get()
-                ->mapWithKeys(fn($i) => [$i->industry_id => ['name' => $i->industry, 'count' => $i->companies_count]])
-                ->toArray();
-        } else {
-            $data['industries'] = Industry::select('industries.industry', 'industries.industry_id')
-                ->isDefault()->active()->sorted()
-                ->withCount(['companies' => function ($query) use ($companyQuery) {
-                    $query->whereIn('id', $companyQuery->pluck('id'));
-                }])
-                ->having('companies_count', '>', 0)
-                ->get()
-                ->mapWithKeys(fn($i) => [$i->industry_id => ['name' => $i->industry, 'count' => $i->companies_count]])
-                ->toArray();
-        }
-    
+        $data['industries'] = Industry::select('industries.industry', 'industries.industry_id')
+            ->isDefault()->active()->sorted()
+            ->withCount(['companies' => function ($query) use ($filteredCompanyIds) {
+                $query->whereIn('id', $filteredCompanyIds);
+            }])
+            ->having('companies_count', '>', 0)
+            ->get()
+            ->mapWithKeys(fn($i) => [$i->industry_id => ['name' => $i->industry, 'count' => $i->companies_count]])
+            ->toArray();
+
         // Verified counts for sidebar filter
-        $data['verifiedCount']   = Company::where('is_active', true)->where('verified', true)->count();
-        $data['unverifiedCount'] = Company::where('is_active', true)->where('verified', false)->count();
+        $data['allEmployerStatusCount'] = (clone $baseCompanyQuery)->count();
+        $data['verifiedCount'] = $this->applyEmployerStatusFilter(clone $baseCompanyQuery, 'verified')->count();
+        $data['unverifiedCount'] = $this->applyEmployerStatusFilter(clone $baseCompanyQuery, 'unverified')->count();
 
         $data['dateJoinedCounts'] = [
             'lasthour'  => Company::where('created_at', '>=', now()->subHour())->where('is_active', true)->where('verified', true)->count(),
@@ -163,7 +144,7 @@ class CompaniesController extends Controller
             'lastmonth' => Company::where('created_at', '>=', now()->subMonth())->where('is_active', true)->where('verified', true)->count(),
             'alldate'   => Company::count(),
         ];
-    
+
         $data['countries']      = DataArrayHelper::langCountriesArray();
         $data['topCompanyIds']  = $this->getCompanyIdsAndNumJobs(16);
         $data['search']         = $search;
@@ -172,10 +153,49 @@ class CompaniesController extends Controller
         $data['city_id']        = $city_id;
         $data['industry_id']    = $industry_id;
         $data['verified_filter']= $verified_filter;
-    
+
         return view('company.listing')->with($data);
     }
-    
+
+    private function applyEmployerStatusFilter($query, ?string $verifiedFilter)
+    {
+        if ($verifiedFilter === 'verified') {
+            return $query->where(function ($statusQuery) {
+                $statusQuery->where('verification_status', 'approved')
+                    ->orWhere(function ($legacyQuery) {
+                        $legacyQuery->where('verified', true)
+                            ->whereNotNull('verified_at');
+                    });
+            });
+        }
+
+        if ($verifiedFilter === 'unverified') {
+            return $query->where(function ($statusQuery) {
+                $statusQuery->where(function ($reviewQuery) {
+                    $reviewQuery->whereNull('verification_status')
+                        ->orWhere('verification_status', '!=', 'approved');
+                })->where(function ($legacyQuery) {
+                    $legacyQuery->where('verified', false)
+                        ->orWhereNull('verified')
+                        ->orWhereNull('verified_at');
+                });
+            });
+        }
+
+        return $query;
+    }
+
+    private function filledFilterValues($value): array
+    {
+        if (is_null($value)) {
+            return [];
+        }
+
+        return array_values(array_filter((array) $value, function ($item) {
+            return $item !== null && $item !== '';
+        }));
+    }
+
 
     public function companyProfile()
     {

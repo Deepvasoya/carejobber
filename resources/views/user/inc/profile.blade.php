@@ -178,10 +178,10 @@
 
 <div class="row">
  <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_category_id') !!}">
 			<label for="">{{__('Your Job Category')}} <span>*</span></label>
-			{!! Form::select('functional_area_id', [''=>__('Select Job Category')]+$functionalAreas+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!} </div>
+			{!! Form::select('job_category_id', [''=>__('Select Job Category')]+$jobCategories+['0'=>__('Other (specify)')], null, array('class'=>'form-control', 'id'=>'job_category_id')) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_category_id') !!} </div>
     </div>
     
  <div class="col-md-6">

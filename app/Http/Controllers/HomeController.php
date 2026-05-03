@@ -113,8 +113,8 @@ class HomeController extends Controller
                     $added = true;
                 }
 
-                if ($user->functional_area_id) {
-                    $q->orWhere('functional_area_id', $user->functional_area_id);
+                if ($user->job_category_id) {
+                    $q->orWhere('job_category_id', $user->job_category_id);
                     $added = true;
                 }
 

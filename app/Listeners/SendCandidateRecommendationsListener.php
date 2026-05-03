@@ -32,16 +32,16 @@ class SendCandidateRecommendationsListener implements ShouldQueue
     {
         $user = $event->user;
 
-        // Only send recommendations if user has functional area set
-        if (!$user->functional_area_id) {
+        // Only send recommendations if user has job category set
+        if (!$user->job_category_id) {
             return;
         }
 
-        // Find matching active jobs based on functional area and career level
+        // Find matching active jobs based on job category and career level
         $matchingJobs = Job::where('is_active', 1)
             ->where('is_draft', 0)
-            ->whereNotNull('functional_area_id')
-            ->where('functional_area_id', $user->functional_area_id)
+            ->whereNotNull('job_category_id')
+            ->where('job_category_id', $user->job_category_id)
             ->where(function($query) {
                 $query->whereNull('expiry_date')
                       ->orWhere('expiry_date', '>=', now());
