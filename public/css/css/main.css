@@ -519,7 +519,7 @@ h6 {
     padding-left: 5px;
 }
 .navbar-expand-lg .navbar-nav .nav-item.register a{background: #0357e9; color: #fff; border-radius: 35px; padding: 10px 15px; border-bottom: none;}
-.navbar-expand-lg .navbar-nav .nav-item.loginbtn a{background: #17d27c; color: #fff; border-radius: 35px; padding: 10px 15px; border-bottom: none;}
+.navbar-expand-lg .navbar-nav .nav-item.loginbtn a{background: #0056b3; color: #fff; border-radius: 35px; padding: 10px 15px; border-bottom: none;}
 .navbar-expand-lg .navbar-nav .nav-item.foruserbtn a{background: #0357e9; color: #fff; border-radius: 35px; padding: 10px 15px; border-bottom: none;}
 .navbar-nav li.jobseeker a {
 	background: #666;
@@ -695,7 +695,7 @@ h3.seekertxt span{color: #009c46;}
 .form-control:focus{box-shadow: none;}
 .srchbtn{text-align: center;}
 .searchbar .btn {
-	background: #17d27c;
+	background: #0056b3;
 	color: #fff;
 	border: none;
 	font-size: 16px;
@@ -2285,7 +2285,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#F1EDFA", endC
 	appearance:auto;
 }
 .searchform .btn {
-	background:#17d27c;
+	background:#0056b3;
 	font-size: 16px;
 	color: #fff;
 	padding:14px 20px;
@@ -2733,7 +2733,7 @@ filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#F1EDFA", endC
 	border-color:#e01010;
 }
 .jobButtons a.apply {
-	background: #17d27c;
+	background: #0056b3;
 	color: #fff;
 	font-size: 20px;
 	margin-right: 0;
