@@ -135,7 +135,7 @@
                             position: relative;
                         }
 
-                        .formrow i {
+                        .formrow i.fas:not(.toggle-password):not(.select-arrow) {
                             position: absolute;
                             left: 15px;
                             top: 12px;
@@ -144,6 +144,7 @@
 
                         .form-control.with-icon {
                             padding-left: 40px;
+                            padding-right: 40px;
                             background-color: #f0f7ff;
                             border: 1px solid #d1e3ff;
                             height: 45px;
@@ -168,6 +169,20 @@
                             top: 15px;
                             color: #999;
                             pointer-events: none;
+                        }
+
+                        .toggle-password {
+                            position: absolute;
+                            right: 15px;
+                            top: 12px;
+                            cursor: pointer;
+                            color: #999;
+                            z-index: 10;
+                            transition: color 0.3s;
+                        }
+
+                        .toggle-password:hover {
+                            color: #0056b3;
                         }
 
                         .action-buttons {
@@ -342,20 +357,20 @@
                                         <strong>{{ $errors->first('email') }}</strong> </span> @endif
                                     </div>
 
-                                    <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}" style="position: relative;">
+                                    <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}">
                                         <i class="fas fa-lock"></i>
                                         <input type="password" name="password" id="company_password" class="form-control with-icon" required
                                             placeholder="{{__('Enter Password')}}">
-                                        <i class="fas fa-eye" onclick="togglePasswordCompany('company_password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10;"></i>
+                                        <i class="fas fa-eye toggle-password" onclick="togglePasswordCompany('company_password', this)"></i>
                                         @if ($errors->has('password')) <span class="help-block text-danger">
                                         <strong>{{ $errors->first('password') }}</strong> </span> @endif
                                     </div>
 
-                                    <div class="formrow{{ $errors->has('password_confirmation') ? ' has-error' : '' }}" style="position: relative;">
+                                    <div class="formrow{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
                                         <i class="fas fa-lock"></i>
                                         <input type="password" name="password_confirmation" id="company_password_confirmation" class="form-control with-icon"
                                             required placeholder="{{__('Re-enter Password')}}">
-                                        <i class="fas fa-eye" onclick="togglePasswordCompany('company_password_confirmation', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10;"></i>
+                                        <i class="fas fa-eye toggle-password" onclick="togglePasswordCompany('company_password_confirmation', this)"></i>
                                         @if ($errors->has('password_confirmation')) <span class="help-block text-danger">
                                         <strong>{{ $errors->first('password_confirmation') }}</strong> </span> @endif
                                     </div>

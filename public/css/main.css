@@ -3259,7 +3259,7 @@ ul.skillslist li a:hover{text-decoration: none; background:#0357e9; color: #fff;
 }
 .formpanel .btn {
 	width: 100%;
-	background: #17d27c;
+	background: #0056b3;
 	color: #fff;
 	border-radius: 5px;
 	padding: 10px;
@@ -3268,7 +3268,7 @@ ul.skillslist li a:hover{text-decoration: none; background:#0357e9; color: #fff;
 	text-transform: uppercase;
 }
 .formpanel .btn:hover {
-	background: #222;
+	background: #004494;
 }
 .formpanel .formrow .help-block{color:#e70000; display: block; margin-top: 5px;}
 .formpanel.mt0{margin-top: 0;}

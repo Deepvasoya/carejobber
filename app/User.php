@@ -30,7 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password_reset_code', 'password_reset_code_expires_at',
         'gdpr_consent_date', 'data_export_requested_at', 'account_deletion_requested_at',
         'referral_code', 'referred_by_user_id', 'referral_featured_days', 'featured_until',
-        'incomplete_profile_reminder_sent_at', 'partial_data'
+        'incomplete_profile_reminder_sent_at', 'partial_data', 'years_of_experience'
     ];
     protected $dates = ['created_at', 'updated_at', 'date_of_birth', 'package_start_date', 'package_end_date', 'gdpr_consent_date', 'data_export_requested_at', 'account_deletion_requested_at', 'incomplete_profile_reminder_sent_at'];
     

@@ -82,8 +82,8 @@ use RegistersUsers;
         if ($request->has('job_category_id')) {
             $user->job_category_id = $request->input('job_category_id');
         }
-        if ($request->has('career_level_id')) {
-            $user->career_level_id = $request->input('career_level_id');
+        if ($request->has('years_of_experience')) {
+            $user->years_of_experience = $request->input('years_of_experience');
         }
         // Handle nationality - store first selected or primary nationality
         if ($request->has('nationality_id') && is_array($request->input('nationality_id')) && count($request->input('nationality_id')) > 0) {

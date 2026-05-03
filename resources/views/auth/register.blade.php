@@ -224,17 +224,17 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                     @if ($errors->has('nationality_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('nationality_id') }}</strong> </span> @endif
                 </div>
                 
-                <div class="formrow{{ $errors->has('career_level_id') ? ' has-error' : '' }}">
+                <div class="formrow{{ $errors->has('years_of_experience') ? ' has-error' : '' }}">
                     <label>{{__('Years of Job Experience')}} *</label>
                     <i class="fas fa-briefcase fa-icon"></i>
-                    <select name="career_level_id" class="form-control with-icon" id="career_level_select">
-                        <option value="">{{__('Select your experience level')}}</option>
-                        @foreach($careerLevels as $key => $level)
-                            <option value="{{$key}}" {{old('career_level_id') == $key ? 'selected' : ''}}>{{$level}}</option>
-                        @endforeach
-                    </select>
-                    <i class="fas fa-chevron-down select-arrow"></i>
-                    @if ($errors->has('career_level_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('career_level_id') }}</strong> </span> @endif
+                    <input type="number" name="years_of_experience" class="form-control with-icon" 
+                           placeholder="{{__('Enter years of experience (e.g., 5)')}}" 
+                           value="{{old('years_of_experience')}}" 
+                           min="0" 
+                           max="50" 
+                           step="1" 
+                           required>
+                    @if ($errors->has('years_of_experience')) <span class="help-block text-danger"> <strong>{{ $errors->first('years_of_experience') }}</strong> </span> @endif
                 </div>
 
                 <div class="action-buttons">
