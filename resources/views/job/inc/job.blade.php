@@ -720,9 +720,9 @@
         if ($industry.length) {
             $('#custom_industry_wrap_job').toggle(String($industry.val()) === '0');
         }
-        var $fa = $('#functional_area_id');
-        if ($fa.length) {
-            $('#custom_functional_area_wrap_job').toggle(String($fa.val()) === '0');
+        var $jc = $('#job_category_id');
+        if ($jc.length) {
+            $('#custom_job_category_wrap_job').toggle(String($jc.val()) === '0');
         }
         var $ct = $('#city_id');
         if ($ct.length) {
@@ -747,7 +747,7 @@
         $('#skills').on('change', function () {
             window.syncJobPostingOtherFields();
         });
-        $(document).on('change', '#industry_id, #functional_area_id, #city_id', function () {
+        $(document).on('change', '#industry_id, #job_category_id, #city_id', function () {
             window.syncJobPostingOtherFields();
         });
         window.syncJobPostingOtherFields();
