@@ -191,11 +191,11 @@
             {!! APFrmErrHelp::showErrors($errors, 'job_experience_id') !!} </div>
     </div>
 
-    <div class="col-md-12" id="custom_functional_area_wrap" style="display:none;">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_functional_area') !!}">
-            <label for="custom_functional_area">{{ __('Custom job category') }}</label>
-            {!! Form::text('custom_functional_area', old('custom_functional_area'), array('class'=>'form-control', 'id'=>'custom_functional_area', 'maxlength'=>200, 'placeholder'=>__('Enter the category name'))) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'custom_functional_area') !!}
+    <div class="col-md-12" id="custom_job_category_wrap" style="display:none;">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'custom_job_category') !!}">
+            <label for="custom_job_category">{{ __('Custom job category') }}</label>
+            {!! Form::text('custom_job_category', old('custom_job_category'), array('class'=>'form-control', 'id'=>'custom_job_category', 'maxlength'=>200, 'placeholder'=>__('Enter the category name'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'custom_job_category') !!}
         </div>
     </div>
 
@@ -278,9 +278,9 @@
 })();
 
     function syncUserProfileOtherFields() {
-        var $fa = $('#functional_area_id');
-        if ($fa.length) {
-            $('#custom_functional_area_wrap').toggle(String($fa.val()) === '0');
+        var $jc = $('#job_category_id');
+        if ($jc.length) {
+            $('#custom_job_category_wrap').toggle(String($jc.val()) === '0');
         }
         var $ct = $('#city_id');
         if ($ct.length) {
@@ -341,7 +341,7 @@
             filterStates(window.__userProfileInitialStateId);
         }
 
-        $(document).on('change', '#functional_area_id, #city_id', syncUserProfileOtherFields);
+        $(document).on('change', '#job_category_id, #city_id', syncUserProfileOtherFields);
         $(document).on('change', '#certification_ids', syncUserProfileOtherFields);
         syncUserProfileOtherFields();
 

@@ -322,7 +322,7 @@ trait JobTrait
 
         $careerLevels = DataArrayHelper::defaultCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::defaultFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::defaultJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::defaultJobTypesArray();
 
@@ -350,7 +350,7 @@ trait JobTrait
 
                         ->with('careerLevels', $careerLevels)
 
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
 
                         ->with('jobTypes', $jobTypes)
 
@@ -432,7 +432,7 @@ trait JobTrait
 
         $careerLevels = DataArrayHelper::defaultCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::defaultFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::defaultJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::defaultJobTypesArray();
 
@@ -464,7 +464,7 @@ trait JobTrait
 
                         ->with('careerLevels', $careerLevels)
 
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
 
                         ->with('jobTypes', $jobTypes)
 
@@ -565,7 +565,7 @@ trait JobTrait
 
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::langJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::langJobTypesArray();
 
@@ -595,7 +595,7 @@ trait JobTrait
 
                         ->with('careerLevels', $careerLevels)
 
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
 
                         ->with('jobTypes', $jobTypes)
 
@@ -730,7 +730,7 @@ trait JobTrait
 
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::langJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::langJobTypesArray();
 
@@ -763,7 +763,7 @@ trait JobTrait
 
                         ->with('careerLevels', $careerLevels)
 
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
 
                         ->with('jobTypes', $jobTypes)
 

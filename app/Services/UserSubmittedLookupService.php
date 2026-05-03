@@ -29,11 +29,11 @@ class UserSubmittedLookupService
                     }
                 }
 
-                if ((int) $request->input('functional_area_id') === 0) {
-                    $name = (string) $request->input('custom_functional_area', '');
+                if ((int) $request->input('job_category_id') === 0) {
+                    $name = (string) $request->input('custom_job_category', '');
                     if (mb_strlen(trim($name)) >= 2) {
-                        $id = $this->findOrCreateFunctionalArea($name);
-                        $request->merge(['functional_area_id' => $id]);
+                        $id = $this->findOrCreateJobCategory($name);
+                        $request->merge(['job_category_id' => $id]);
                     }
                 }
 
@@ -63,11 +63,11 @@ class UserSubmittedLookupService
                 }
             }
 
-            if ((int) $request->input('functional_area_id') === 0) {
-                $name = (string) $request->input('custom_functional_area', '');
+            if ((int) $request->input('job_category_id') === 0) {
+                $name = (string) $request->input('custom_job_category', '');
                 if (mb_strlen(trim($name)) >= 2) {
-                    $id = $this->findOrCreateFunctionalArea($name);
-                    $request->merge(['functional_area_id' => $id]);
+                    $id = $this->findOrCreateJobCategory($name);
+                    $request->merge(['job_category_id' => $id]);
                 }
             }
 
@@ -184,6 +184,40 @@ class UserSubmittedLookupService
         $row->save();
 
         return (int) $row->functional_area_id;
+    }
+
+    public function findOrCreateJobCategory(string $name): int
+    {
+        $name = trim($name);
+        if (mb_strlen($name) < 2) {
+            throw new \InvalidArgumentException('Job category name too short.');
+        }
+        $name = mb_substr($name, 0, 200);
+        $lang = app()->getLocale();
+
+        $existing = \App\JobCategory::query()
+            ->where('lang', $lang)
+            ->whereRaw('LOWER(TRIM(job_category)) = ?', [mb_strtolower($name)])
+            ->orderByDesc('is_default')
+            ->first();
+        if ($existing) {
+            $jcid = (int) ($existing->job_category_id ?: $existing->id);
+
+            return $jcid > 0 ? $jcid : (int) $existing->id;
+        }
+
+        $row = new \App\JobCategory();
+        $row->job_category = $name;
+        $row->is_active = 1;
+        $row->lang = $lang;
+        $row->is_default = 1;
+        $row->sort_order = 99999;
+        $row->image = '';
+        $row->save();
+        $row->job_category_id = $row->id;
+        $row->save();
+
+        return (int) $row->job_category_id;
     }
 
     public function findOrCreateIndustry(string $name): int

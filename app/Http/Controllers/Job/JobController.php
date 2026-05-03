@@ -61,7 +61,7 @@ class JobController extends Controller
     {
         $this->middleware('auth', ['except' => ['jobsBySearch', 'jobDetail', 'setStatus','jobApplyExt','postJobApply']]);
 
-        $this->functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $this->jobCategories = DataArrayHelper::langJobCategoriesArray();
         $this->countries = DataArrayHelper::langCountriesArray();
     }
 
@@ -193,7 +193,7 @@ class JobController extends Controller
         $seo = Seo::where('seo.page_title', 'like', 'jobs')->first();
         $facilityTypes = DataArrayHelper::langIndustriesArray();
         return view('job.list')
-                        ->with('functionalAreas', $this->functionalAreas)
+                        ->with('jobCategories', $this->jobCategories)
                         ->with('countries', $this->countries)
                         ->with('currencies', array_unique($currencies))
                         ->with('jobs', $jobs)

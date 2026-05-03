@@ -266,7 +266,7 @@ trait JobApiTrait
 
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::langJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::langJobTypesArray();
 
@@ -433,7 +433,7 @@ trait JobApiTrait
 
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
 
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::langJobCategoriesArray();
 
         $jobTypes = DataArrayHelper::langJobTypesArray();
 
