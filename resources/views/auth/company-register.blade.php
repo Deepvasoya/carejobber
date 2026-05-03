@@ -342,18 +342,20 @@
                                         <strong>{{ $errors->first('email') }}</strong> </span> @endif
                                     </div>
 
-                                    <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}">
+                                    <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}" style="position: relative;">
                                         <i class="fas fa-lock"></i>
-                                        <input type="password" name="password" class="form-control with-icon" required
+                                        <input type="password" name="password" id="company_password" class="form-control with-icon" required
                                             placeholder="{{__('Enter Password')}}">
+                                        <i class="fas fa-eye" onclick="togglePasswordCompany('company_password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10;"></i>
                                         @if ($errors->has('password')) <span class="help-block text-danger">
                                         <strong>{{ $errors->first('password') }}</strong> </span> @endif
                                     </div>
 
-                                    <div class="formrow{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
+                                    <div class="formrow{{ $errors->has('password_confirmation') ? ' has-error' : '' }}" style="position: relative;">
                                         <i class="fas fa-lock"></i>
-                                        <input type="password" name="password_confirmation" class="form-control with-icon"
+                                        <input type="password" name="password_confirmation" id="company_password_confirmation" class="form-control with-icon"
                                             required placeholder="{{__('Re-enter Password')}}">
+                                        <i class="fas fa-eye" onclick="togglePasswordCompany('company_password_confirmation', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10;"></i>
                                         @if ($errors->has('password_confirmation')) <span class="help-block text-danger">
                                         <strong>{{ $errors->first('password_confirmation') }}</strong> </span> @endif
                                     </div>
@@ -514,6 +516,19 @@
                     @endif
                 @endif
                                                                                 });
+        
+        function togglePasswordCompany(fieldId, icon) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
         </script>
     @endpush
 

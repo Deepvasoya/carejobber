@@ -101,7 +101,7 @@ class UserController extends Controller
         $jobExperiences = DataArrayHelper::defaultJobExperiencesArray();
         $careerLevels = DataArrayHelper::defaultCareerLevelsArray();
         $industries = DataArrayHelper::defaultIndustriesArray();
-        $functionalAreas = DataArrayHelper::defaultFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::defaultJobCategoriesArray();
         
         // Get all jobseeker packages (both featured and job application packages)
         $packagesData = Package::select('id', 'package_title', 'package_price', 'package_num_days', 'package_num_listings')
@@ -128,7 +128,7 @@ class UserController extends Controller
                         ->with('jobExperiences', $jobExperiences)
                         ->with('careerLevels', $careerLevels)
                         ->with('industries', $industries)
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
                         ->with('upload_max_filesize', $upload_max_filesize)
                         ->with('packages', $packages);
     }
@@ -201,7 +201,7 @@ class UserController extends Controller
         $jobExperiences = DataArrayHelper::defaultJobExperiencesArray();
         $careerLevels = DataArrayHelper::defaultCareerLevelsArray();
         $industries = DataArrayHelper::defaultIndustriesArray();
-        $functionalAreas = DataArrayHelper::defaultFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::defaultJobCategoriesArray();
 
         $upload_max_filesize = UploadedFile::getMaxFilesize() / (1048576);
         $user = User::findOrFail($id);
@@ -231,7 +231,7 @@ class UserController extends Controller
                         ->with('jobExperiences', $jobExperiences)
                         ->with('careerLevels', $careerLevels)
                         ->with('industries', $industries)
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
                         ->with('user', $user)
                         ->with('upload_max_filesize', $upload_max_filesize)
                         ->with('packages', $packages)

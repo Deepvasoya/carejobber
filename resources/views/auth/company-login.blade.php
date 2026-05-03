@@ -49,8 +49,9 @@
                                             </span>
                                             @endif
                                         </div>
-                                        <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}">
+                                        <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}" style="position: relative;">
                                             <input id="password" type="password" class="form-control" name="password" value="" required placeholder="{{__('Password')}}">
+                                            <i class="fas fa-eye" onclick="togglePasswordLogin('password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; z-index: 10;"></i>
                                             @if ($errors->has('password'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('password') }}</strong>
@@ -90,5 +91,21 @@
 
 @include('includes.footer')
 
+@push('scripts')
+<script>
+function togglePasswordLogin(fieldId, icon) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+@endpush
 
 @endsection

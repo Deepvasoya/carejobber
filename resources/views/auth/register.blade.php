@@ -258,14 +258,16 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <div class="formrow{{ $errors->has('password') ? ' has-error' : '' }}">
                     <label>{{__('Password')}} *</label>
                     <i class="fas fa-lock fa-icon"></i>
-                    <input type="password" name="password" class="form-control with-icon" required placeholder="{{__('Password')}}">
+                    <input type="password" name="password" class="form-control with-icon" id="password" required placeholder="{{__('Password')}}">
+                    <i class="fas fa-eye password-toggle-icon" onclick="togglePassword('password', this)" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; z-index: 10;"></i>
                     @if ($errors->has('password')) <span class="help-block text-danger"> <strong>{{ $errors->first('password') }}</strong> </span> @endif
                 </div>
 
                 <div class="formrow{{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
                     <label>{{__('Confirm Password')}} *</label>
                     <i class="fas fa-lock fa-icon"></i>
-                    <input type="password" name="password_confirmation" class="form-control with-icon" required placeholder="{{__('Password Confirmation')}}">
+                    <input type="password" name="password_confirmation" class="form-control with-icon" id="password_confirmation" required placeholder="{{__('Password Confirmation')}}">
+                    <i class="fas fa-eye password-toggle-icon" onclick="togglePassword('password_confirmation', this)" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: #999; z-index: 10;"></i>
                     @if ($errors->has('password_confirmation')) <span class="help-block text-danger"> <strong>{{ $errors->first('password_confirmation') }}</strong> </span> @endif
                 </div>
 
@@ -340,6 +342,19 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
 function selectGender(element) {
     document.querySelectorAll('.radio-box').forEach(el => el.classList.remove('active'));
     element.classList.add('active');
+}
+
+function togglePassword(fieldId, icon) {
+    const field = document.getElementById(fieldId);
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
 }
 
 function validateStep(step) {

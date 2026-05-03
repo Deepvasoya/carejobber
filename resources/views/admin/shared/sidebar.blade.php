@@ -346,12 +346,6 @@
             <span class="menu-text">Career Levels</span>
         </a>
     </li>
-    <li class="side-nav-item">
-        <a href="{{ route('list.functional.areas') }}" class="side-nav-link">
-            <span class="menu-icon"><i class="ri ri-layout-grid-line"></i></span>
-            <span class="menu-text">Functional Areas</span>
-        </a>
-    </li>
     @if(APAuthHelp::can('job_attributes.manage'))
     <li class="side-nav-item">
         <a href="{{ route('list.job.categories') }}" class="side-nav-link">

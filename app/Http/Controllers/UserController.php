@@ -95,7 +95,7 @@ class UserController extends Controller
         $jobExperiences = DataArrayHelper::langJobExperiencesArray();
         $careerLevels = DataArrayHelper::langCareerLevelsArray();
         $industries = DataArrayHelper::langIndustriesArray();
-        $functionalAreas = DataArrayHelper::langFunctionalAreasArray();
+        $jobCategories = DataArrayHelper::langJobCategoriesArray();
         $certifications  = DataArrayHelper::certificationsArray();
 
         $upload_max_filesize = UploadedFile::getMaxFilesize() / (1048576);
@@ -108,7 +108,7 @@ class UserController extends Controller
                         ->with('jobExperiences', $jobExperiences)
                         ->with('careerLevels', $careerLevels)
                         ->with('industries', $industries)
-                        ->with('functionalAreas', $functionalAreas)
+                        ->with('jobCategories', $jobCategories)
                         ->with('certifications', $certifications)
                         ->with('user', $user)
                         ->with('upload_max_filesize', $upload_max_filesize);

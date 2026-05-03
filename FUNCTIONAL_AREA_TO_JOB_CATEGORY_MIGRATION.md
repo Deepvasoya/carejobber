@@ -27,6 +27,8 @@ This document outlines the consolidation of `functional_area` into `job_category
 ### 4. Routes Updated
 - **routes/admin.php**: Removed `include_once($real_path . 'functional_area.php');`
 - Job category routes remain active
+- **Admin Sidebar**: Removed "Functional Areas" menu item, kept "Job Categories"
+- **Deleted**: `resources/views/admin/shared/side_bars/functional_area.blade.php`
 
 ## Files That Still Need Updates
 
