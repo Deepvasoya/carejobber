@@ -53,7 +53,8 @@ use RegistersUsers;
         $jobCategories = \App\Helpers\DataArrayHelper::langJobCategoriesArray();
         $careerLevels = \App\Helpers\DataArrayHelper::langCareerLevelsArray();
         $nationalities = \App\Helpers\DataArrayHelper::langNationalitiesArray();
-        return view('auth.register', compact('genders', 'jobCategories', 'careerLevels', 'nationalities'));
+        $jobExperiences = \App\Helpers\DataArrayHelper::langJobExperiencesArray();
+        return view('auth.register', compact('genders', 'jobCategories', 'careerLevels', 'nationalities', 'jobExperiences'));
     }
 
     public function register(UserFrontRegisterFormRequest $request)
@@ -82,12 +83,11 @@ use RegistersUsers;
         if ($request->has('job_category_id')) {
             $user->job_category_id = $request->input('job_category_id');
         }
-        if ($request->has('years_of_experience')) {
-            $user->years_of_experience = $request->input('years_of_experience');
+        if ($request->has('job_experience_id')) {
+            $user->job_experience_id = $request->input('job_experience_id');
         }
-        // Handle nationality - store first selected or primary nationality
-        if ($request->has('nationality_id') && is_array($request->input('nationality_id')) && count($request->input('nationality_id')) > 0) {
-            $user->nationality_id = $request->input('nationality_id')[0]; // Store first selected nationality
+        if ($request->has('nationality_id')) {
+            $user->nationality_id = $request->input('nationality_id');
         }
 
         $user->email = $request->input('email');

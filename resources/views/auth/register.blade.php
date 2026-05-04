@@ -201,7 +201,7 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <div class="formrow{{ $errors->has('job_category_id') ? ' has-error' : '' }}">
                     <label>{{__('What is your job category?')}} *</label>
                     <i class="fas fa-list-alt fa-icon"></i>
-                    <select name="job_category_id" class="form-control with-icon" id="job_category_select">
+                    <select name="job_category_id" class="form-control with-icon" id="job_category_select" required>
                         <option value="">{{__('Select your job category')}}</option>
                         @foreach($jobCategories as $key => $category)
                             <option value="{{$key}}" {{old('job_category_id') == $key ? 'selected' : ''}}>{{$category}}</option>
@@ -214,7 +214,7 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                 <div class="formrow{{ $errors->has('nationality_id') ? ' has-error' : '' }}">
                     <label>{{__('What is your nationality?')}} *</label>
                     <i class="fas fa-flag fa-icon"></i>
-                    <select name="nationality_id" class="form-control with-icon" id="nationality_select">
+                    <select name="nationality_id" class="form-control with-icon" id="nationality_select" required>
                         <option value="">{{__('Select your nationality')}}</option>
                         @foreach($nationalities as $key => $nationality)
                             <option value="{{$key}}" {{old('nationality_id') == $key ? 'selected' : ''}}>{{$nationality}}</option>
@@ -224,17 +224,17 @@ select.form-control.with-icon { -webkit-appearance: none; -moz-appearance: none;
                     @if ($errors->has('nationality_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('nationality_id') }}</strong> </span> @endif
                 </div>
                 
-                <div class="formrow{{ $errors->has('years_of_experience') ? ' has-error' : '' }}">
-                    <label>{{__('Years of Job Experience')}} *</label>
+                <div class="formrow{{ $errors->has('job_experience_id') ? ' has-error' : '' }}">
+                    <label>{{__('Job Experience')}} *</label>
                     <i class="fas fa-briefcase fa-icon"></i>
-                    <input type="number" name="years_of_experience" class="form-control with-icon" 
-                           placeholder="{{__('Enter years of experience (e.g., 5)')}}" 
-                           value="{{old('years_of_experience')}}" 
-                           min="0" 
-                           max="50" 
-                           step="1" 
-                           required>
-                    @if ($errors->has('years_of_experience')) <span class="help-block text-danger"> <strong>{{ $errors->first('years_of_experience') }}</strong> </span> @endif
+                    <select name="job_experience_id" class="form-control with-icon" id="job_experience_select" required>
+                        <option value="">{{__('Select Job Experience')}}</option>
+                        @foreach($jobExperiences as $key => $jobExperience)
+                            <option value="{{$key}}" {{old('job_experience_id') == $key ? 'selected' : ''}}>{{$jobExperience}}</option>
+                        @endforeach
+                    </select>
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                    @if ($errors->has('job_experience_id')) <span class="help-block text-danger"> <strong>{{ $errors->first('job_experience_id') }}</strong> </span> @endif
                 </div>
 
                 <div class="action-buttons">
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
         @if($errors->has('email') || $errors->has('password') || $errors->has('terms_of_use') || $errors->has('g-recaptcha-response'))
             nextStep(2);
             nextStep(3);
-        @elseif($errors->has('job_category_id') || $errors->has('career_level_id') || $errors->has('nationality_id'))
+        @elseif($errors->has('job_category_id') || $errors->has('career_level_id') || $errors->has('nationality_id') || $errors->has('job_experience_id'))
             nextStep(2);
         @elseif($errors->has('phone') || $errors->has('first_name') || $errors->has('last_name') || $errors->has('date_of_birth'))
             // Stay on step 1
@@ -595,4 +595,4 @@ function validateFormBeforeSubmit() {
 </script>
 @endpush
 
-@endsection 
+@endsection
