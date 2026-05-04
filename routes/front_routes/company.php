@@ -7,18 +7,22 @@ Route::get('recruiter/stripe/success', 'Company\RecruiterStripeCheckoutControlle
 Route::get('resume/unlock/success', 'Company\ResumeUnlockController@success')->name('resume.unlock.success');
 Route::get('job/promotions/success', 'Company\JobPromotionCheckoutController@success')->name('job.promotions.success');
 
-// Resume unlock: pricing page and Stripe checkout
-Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company', 'company.verified', 'company.documents.approved'])->name('resume.unlock.page');
-Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company', 'company.verified', 'company.documents.approved'])->name('resume.unlock.checkout');
+// Resume unlock: pricing page and Stripe checkout (only for verified employers)
+Route::get('resume/unlock/page/{userId}', 'Company\ResumeUnlockController@showUnlockPage')->middleware(['auth:company'])->name('resume.unlock.page');
+Route::get('resume/unlock/{userId}', 'Company\ResumeUnlockController@createCheckout')->middleware(['auth:company'])->name('resume.unlock.checkout');
 
 // Employer Verification Routes
 Route::middleware(['auth:company'])->group(function () {
     Route::get('company/verification/upload', 'Company\VerificationController@showUploadForm')->name('company.verification.upload');
     Route::post('company/verification/store', 'Company\VerificationController@store')->name('company.verification.store');
     Route::get('company/verification/document/{id}', 'Company\VerificationController@show')->name('company.verification.document.show');
+    Route::post('set-verification-modal-shown', function() {
+        session(['verification_modal_shown' => true]);
+        return response()->json(['success' => true]);
+    })->name('set.verification.modal.shown');
 });
 
-Route::middleware(['auth:company', 'company.verified'])->group(function () {
+Route::middleware(['auth:company'])->group(function () {
 Route::get('company-documents', 'Company\CompanyController@company_documents')->name('company.documents');
 Route::get('company-packages', 'Company\CompanyController@resume_search_packages')->name('company.packages');
 
@@ -57,7 +61,7 @@ Route::get('fetch-referral-history', 'Company\CompanyController@fetchReferralHis
 Route::post('send-referral-invite', 'Company\CompanyController@sendReferralInvite')->name('company.send.referral.invite');
 });
 
-Route::middleware(['auth:company', 'company.verified', 'company.documents.approved'])->group(function () {
+Route::middleware(['auth:company'])->group(function () {
 Route::get('unloced-seekers', 'Company\CompanyController@UnlockedUser')->name('company.unloced-users');
 Route::get('unlock/{user}', 'Company\CompanyController@unlock')->name('company.unlock');
 Route::get('unlocked-users-change-status', 'Company\CompanyController@setUnlockedUserStatus')->name('unlocked.users.setStatus');

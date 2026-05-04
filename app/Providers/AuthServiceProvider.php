@@ -19,8 +19,6 @@ class AuthServiceProvider extends ServiceProvider
 
     /**
      * Register any authentication / authorization services.
-     *
-     * @return void
      */
     public function boot()
     {
@@ -30,6 +28,17 @@ class AuthServiceProvider extends ServiceProvider
             if (!$user) {
                 return false;
             }
+            // When job-package monetization is disabled, all employers can post for free
+            if (! (bool) config('company.is_company_package_active')) {
+                return true;
+            }
+            
+            // Use the new canPostJob method from Company model which handles trust status limits
+            if (method_exists($user, 'canPostJob')) {
+                return $user->canPostJob();
+            }
+            
+            // Fallback to old logic
             return method_exists($user, 'getRemainingJobsQuota') && $user->getRemainingJobsQuota() > 0;
         });
 

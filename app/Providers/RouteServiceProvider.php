@@ -26,6 +26,26 @@ class RouteServiceProvider extends ServiceProvider
     {
         //
         parent::boot();
+
+        Route::bind('medo_city', function ($value, $route) {
+            $province = $route->parameter('medo_province');
+            if (!$province) {
+                return \App\Models\Medo\City::where('slug', $value)->firstOrFail();
+            }
+            return \App\Models\Medo\City::where('slug', $value)
+                ->where('province_id', $province->id)
+                ->firstOrFail();
+        });
+
+        Route::bind('medo_job', function ($value, $route) {
+            $city = $route->parameter('medo_city');
+            if (!$city) {
+                return \App\Models\Medo\Job::where('slug', $value)->firstOrFail();
+            }
+            return \App\Models\Medo\Job::where('slug', $value)
+                ->where('city_id', $city->id)
+                ->firstOrFail();
+        });
     }
 
     /**

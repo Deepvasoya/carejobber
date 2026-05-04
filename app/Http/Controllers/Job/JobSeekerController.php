@@ -32,12 +32,31 @@ class JobSeekerController extends Controller
      */
     public function __construct()
     {
+        $this->middleware('company');
         $this->functionalAreas = DataArrayHelper::langFunctionalAreasArray();
         $this->countries = DataArrayHelper::langCountriesArray();
     }
 
     public function jobSeekersBySearch(Request $request)
     {
+        $company = Auth::guard('company')->user();
+        
+        // Only verified employers with active CV package can search/browse job seekers
+        if (!$company->canAccessResumeDatabase()) {
+            if (!$company->isEmployerVerified()) {
+                flash(__('Only verified employers can access the resume database. Please get verified first.'))->error();
+                return redirect()->route('company.verification.upload');
+            }
+            
+            if (!$company->hasActiveCvSearchPackage()) {
+                flash(__('You need an active CV search package to browse job seekers. Please purchase a package.'))->error();
+                return redirect()->route('company.packages');
+            }
+            
+            flash(__('You do not have access to the resume database.'))->error();
+            return redirect()->route('company.home');
+        }
+        
         $search = $request->query('search', '');
         $functional_area_ids = $request->query('functional_area_id', array());
         $country_ids = $request->query('country_id', array());

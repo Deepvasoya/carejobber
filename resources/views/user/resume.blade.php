@@ -533,11 +533,7 @@ if (Auth::guard('company')->user()) {
     {
 
         $.post("{{ route('show.applicant.profile.projects', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -555,11 +551,7 @@ if (Auth::guard('company')->user()) {
     {
 
         $.post("{{ route('show.applicant.profile.experience', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -578,11 +570,7 @@ if (Auth::guard('company')->user()) {
     {
 
         $.post("{{ route('show.applicant.profile.education', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -600,11 +588,7 @@ if (Auth::guard('company')->user()) {
     {
 
         $.post("{{ route('show.applicant.profile.languages', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })
@@ -622,11 +606,7 @@ if (Auth::guard('company')->user()) {
     {
 
         $.post("{{ route('show.applicant.profile.skills', $user->id) }}", {
-                user_id: {
-                    {
-                        $user - > id
-                    }
-                },
+                user_id: {{ $user->id }},
                 _method: 'POST',
                 _token: '{{ csrf_token() }}'
             })

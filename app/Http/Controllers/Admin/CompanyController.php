@@ -602,6 +602,7 @@ public function updateCompany($id, CompanyFormRequest $request)
                     'companies.city_id',
                     'companies.is_active',
                     'companies.is_featured',
+                    'companies.employer_trust_status',
         ]);
         return Datatables::of($companies)
                         ->filter(function ($query) use ($request) {
@@ -624,11 +625,19 @@ public function updateCompany($id, CompanyFormRequest $request)
                         ->addColumn('is_featured', function ($companies) {
                             return ((bool) $companies->is_featured) ? 'Yes' : 'No';
                         })
+                        ->addColumn('employer_trust_status', function ($companies) {
+                            $status = $companies->getEmployerTrustStatus();
+                            $badges = [
+                                'verified'   => '<span class="badge" style="background:#28a745;color:#fff;"><i class="fas fa-check-circle me-1"></i>Verified</span>',
+                                'reviewed'   => '<span class="badge" style="background:#ffc107;color:#000;"><i class="fas fa-clock me-1"></i>Reviewed</span>',
+                                'unverified' => '<span class="badge" style="background:#dc3545;color:#fff;"><i class="fas fa-times-circle me-1"></i>Unverified</span>',
+                            ];
+                            return $badges[$status] ?? $badges['unverified'];
+                        })
                         ->addColumn('checkbox', function ($companies) {
                             return '<input class="checkboxes" type="checkbox" id="check_'.$companies->id.'" name="company_ids[]" autocomplete="off" value="'.$companies->id.'">';
                         })
                         ->addColumn('action', function ($companies) {
-                            /*                             * ************************* */
                             $activeTxt = 'Make Active';
                             $activeHref = 'makeActive(' . $companies->id . ');';
                             $activeIcon = 'checkbox-blank-line';
@@ -637,7 +646,6 @@ public function updateCompany($id, CompanyFormRequest $request)
                                 $activeHref = 'makeNotActive(' . $companies->id . ');';
                                 $activeIcon = 'checkbox-line';
                             }
-                            /*                             * ************************* */
                             $featuredTxt = 'Make Featured';
                             $featuredHref = 'makeFeatured(' . $companies->id . ');';
                             $featuredIcon = 'checkbox-blank-line';
@@ -646,7 +654,6 @@ public function updateCompany($id, CompanyFormRequest $request)
                                 $featuredHref = 'makeNotFeatured(' . $companies->id . ');';
                                 $featuredIcon = 'checkbox-line';
                             }
-                            $company_name = "'".$companies->name."'";
                             return '
 				<div class="btn-group">
 					<button class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Action
@@ -667,19 +674,42 @@ public function updateCompany($id, CompanyFormRequest $request)
                         </li>
                         <li>
                             <a class="dropdown-item" href="' . route('admin.company.unlocked.candidates', ['id' => $companies->id]) . '"><i class="ri ri-team-line me-1"></i>View Unlocked Candidates</a>
-                        </li> 
+                        </li>
 <li><a class="dropdown-item" href="javascript:void(0);" onClick="' . $activeHref . '" id="onclickActive' . $companies->id . '"><i class="ri ri-' . $activeIcon . ' me-1"></i>' . $activeTxt . '</a></li>
 <li><a class="dropdown-item" href="javascript:void(0);" onClick="' . $featuredHref . '" id="onclickFeatured' . $companies->id . '"><i class="ri ri-' . $featuredIcon . ' me-1"></i>' . $featuredTxt . '</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item text-primary" href="javascript:void(0);" onclick="openTrustStatusModal(' . $companies->id . ', &apos;' . $companies->getEmployerTrustStatus() . '&apos;)"><i class="fas fa-shield-alt me-1"></i>Set Verification Status</a></li>
 					</ul>
 				</div>';
                         })
-                        ->rawColumns(['action', 'is_active', 'is_featured', 'checkbox'])
+                        ->rawColumns(['action', 'is_active', 'is_featured', 'employer_trust_status', 'checkbox'])
                         ->setRowId(function($companies) {
                             return 'companyDtRow' . $companies->id;
                         })
                         ->make(true);
-        //$query = $dataTable->getQuery()->get();
-        //return $query;
+    }
+
+    /**
+     * Assign employer trust/verification status (admin-only).
+     */
+    public function setEmployerTrustStatus(Request $request, $id)
+    {
+        $request->validate([
+            'trust_status' => 'required|in:unverified,reviewed,verified',
+        ]);
+
+        try {
+            $company = Company::findOrFail($id);
+            $company->employer_trust_status = $request->input('trust_status');
+            $company->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Employer verification status updated to "' . ucfirst($request->input('trust_status')) . '".',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
     public function makeActiveCompany(Request $request)
     {

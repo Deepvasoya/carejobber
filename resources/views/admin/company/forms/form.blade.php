@@ -202,6 +202,44 @@
                 Not Featured </label>
         </div>
         {!! APFrmErrHelp::showErrors($errors, 'is_featured') !!} </div>
+    
+    @if(isset($company))
+    <div class="form-group mb-3">
+        {!! Form::label('employer_trust_status', 'Employer Verification Status', ['class' => 'bold']) !!}
+        <div class="alert alert-info">
+            <strong>Current Status:</strong> 
+            <span class="badge {{ $company->getVerificationBadgeClass() }}">
+                {{ $company->getVerificationStatusText() }}
+            </span>
+        </div>
+        <div class="btn-group btn-group-justified" role="group">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-danger {{ $company->getEmployerTrustStatus() === 'unverified' ? 'active' : '' }}" 
+                        onclick="setEmployerTrustStatus({{ $company->id }}, 'unverified')">
+                    🔴 Unverified
+                </button>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-warning {{ $company->getEmployerTrustStatus() === 'reviewed' ? 'active' : '' }}" 
+                        onclick="setEmployerTrustStatus({{ $company->id }}, 'reviewed')">
+                    🟡 Reviewed
+                </button>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-success {{ $company->getEmployerTrustStatus() === 'verified' ? 'active' : '' }}" 
+                        onclick="setEmployerTrustStatus({{ $company->id }}, 'verified')">
+                    🟢 Verified
+                </button>
+            </div>
+        </div>
+        <small class="form-text text-muted mt-2">
+            <strong>Unverified:</strong> Max 2 active jobs, no resume access<br>
+            <strong>Reviewed:</strong> Max 3 active jobs, no resume access<br>
+            <strong>Verified:</strong> Unlimited jobs (with package), full resume access
+        </small>
+    </div>
+    @endif
+    
     <div class="form-actions"> {!! Form::button('Update <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>', array('class'=>'btn btn-large btn-primary', 'type'=>'submit')) !!} </div>
 </div>
 @push('scripts')
@@ -238,6 +276,32 @@
                         $('#default_city_dd').html(response);
                     });
         }
+    }
+    
+    function setEmployerTrustStatus(companyId, status) {
+        if (!confirm('Are you sure you want to set this employer\'s verification status to "' + status + '"?')) {
+            return;
+        }
+        
+        $.ajax({
+            url: "{{ url('admin/company') }}/" + companyId + "/set-trust-status",
+            type: 'POST',
+            data: {
+                trust_status: status,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                alert('Error updating status. Please try again.');
+            }
+        });
     }
 </script>
 @endpush

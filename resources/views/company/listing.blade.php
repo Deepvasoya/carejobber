@@ -83,6 +83,18 @@
     font-size: 11px;
     font-weight: 600;
 }
+.badge-reviewed {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
 .badge-unverified {
     display: inline-flex;
     align-items: center;
@@ -246,13 +258,20 @@
                             <a href="{{route('company.detail', $company->slug)}}" style="color:inherit;text-decoration:none;">
                                 {{$company->name}}
                             </a>
-                            @if($company->isVerified())
-                                <span class="badge-verified">
-                                    <i class="fas fa-check-circle"></i> {{__('Verified')}}
+                            @php
+                                $trustStatus = $company->getEmployerTrustStatus();
+                            @endphp
+                            @if($trustStatus === 'verified')
+                                <span class="badge-verified" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+                                    🟢 {{__('Verified')}}
+                                </span>
+                            @elseif($trustStatus === 'reviewed')
+                                <span class="badge-reviewed" style="background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
+                                    🟡 {{__('Reviewed')}}
                                 </span>
                             @else
-                                <span class="badge-unverified">
-                                    <i class="fas fa-times-circle"></i> {{__('Unverified')}}
+                                <span class="badge-unverified" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+                                    🔴 {{__('Unverified')}}
                                 </span>
                             @endif
                         </h4>

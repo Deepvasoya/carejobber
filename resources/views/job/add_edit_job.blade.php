@@ -27,6 +27,75 @@
     </div>
 </div>
 @include('includes.footer')
+
+{{-- Verification Modal for Unverified Employers --}}
+@if(Auth::guard('company')->check() && Auth::guard('company')->user()->getEmployerTrustStatus() === 'unverified')
+<div class="modal fade" id="verificationModal" tabindex="-1" role="dialog" aria-labelledby="verificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #f8f9fa; border-bottom: 2px solid #ffc107;">
+                <h5 class="modal-title" id="verificationModalLabel">
+                    <i class="fas fa-shield-alt text-warning"></i> 
+                    {{ __('Get More Applications with Verification') }}
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 30px;">
+                <div class="text-center mb-3">
+                    <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745;"></i>
+                </div>
+                <h6 class="text-center mb-3" style="font-size: 18px; font-weight: 600;">
+                    {{ __('Verified employers are trusted and get more applications.') }}
+                </h6>
+                <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                    <li style="padding: 8px 0;">
+                        <i class="fas fa-check text-success"></i> 
+                        {{ __('Build trust with healthcare professionals') }}
+                    </li>
+                    <li style="padding: 8px 0;">
+                        <i class="fas fa-check text-success"></i> 
+                        {{ __('Increase application rates by up to 3x') }}
+                    </li>
+                    <li style="padding: 8px 0;">
+                        <i class="fas fa-check text-success"></i> 
+                        {{ __('Access full resume database') }}
+                    </li>
+                    <li style="padding: 8px 0;">
+                        <i class="fas fa-check text-success"></i> 
+                        {{ __('Post unlimited jobs') }}
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 15px 30px;">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    {{ __('Continue Anyway') }}
+                </button>
+                <a href="{{ route('company.verification.upload') }}" class="btn btn-primary">
+                    <i class="fas fa-check-circle"></i> {{ __('Request Review') }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Show modal when page loads for unverified employers
+    @if(!session('verification_modal_shown'))
+        $('#verificationModal').modal('show');
+        // Set session flag to not show again in this session
+        $.post("{{ route('set.verification.modal.shown') }}", {
+            _token: '{{ csrf_token() }}'
+        });
+    @endif
+});
+</script>
+@endpush
+@endif
+
 @endsection
 @push('styles')
 <style type="text/css">

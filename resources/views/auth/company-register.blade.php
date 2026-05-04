@@ -296,7 +296,7 @@
 
                                     <div class="formrow{{ $errors->has('ownership_type_id') ? ' has-error' : '' }}">
                                         <i class="fas fa-industry"></i>
-                                        <select name="ownership_type_id" class="form-control with-icon" required>
+                                        <select name="ownership_type_id" id="ownership_type_id" class="form-control with-icon" required>
                                             <option value="">{{__('Select Industry Type')}}</option>
                                             @foreach($ownershipTypes as $key => $type)
                                                 <option value="{{$key}}" {{old('ownership_type_id') == $key ? 'selected' : ''}}>
@@ -307,6 +307,9 @@
                                         <i class="fas fa-chevron-down select-arrow"></i>
                                         @if ($errors->has('ownership_type_id')) <span class="help-block text-danger">
                                         <strong>{{ $errors->first('ownership_type_id') }}</strong> </span> @endif
+                                    </div>
+
+                                    <div id="industry-description-box" style="display: none; font-size: 13px; line-height: 1.5; background-color: #f0f7ff; border: 1px solid #d1e3ff; color: #0056b3; border-radius: 6px; padding: 12px 15px; margin-bottom: 15px; text-align: left;">
                                     </div>
 
                                     <div class="action-buttons">
@@ -505,6 +508,41 @@
                 const hasReferralNo = document.getElementById('hasReferralNo');
                 const referralCodeField = document.getElementById('referralCodeField');
                 const referralCodeInput = document.getElementById('referralCodeInput');
+                
+                const ownershipSelect = document.getElementById('ownership_type_id');
+                const descBox = document.getElementById('industry-description-box');
+
+                const industryDescriptions = {
+                    "private/individual": "<strong>Families or private individuals hiring directly</strong><br><small>Example: caregiver for parent, nanny with medical needs</small>",
+                    "individual": "<strong>Families or private individuals hiring directly</strong><br><small>Example: caregiver for parent, nanny with medical needs</small>",
+                    "healthcare provider": "<strong>Any facility directly delivering healthcare services</strong><br><small>Clinics, hospitals (private or non-profit), care homes</small>",
+                    "staffing agency": "<strong>Recruitment companies hiring on behalf of others</strong><br><small>Travel nurse agencies, temp staffing firms</small>",
+                    "public sector": "<strong>Government-run healthcare employers</strong><br><small>Corrections, health authorities (AHS etc.)</small>",
+                    "government/public sector": "<strong>Government-run healthcare employers</strong><br><small>Corrections, health authorities (AHS etc.)</small>",
+                    "education": "<strong>Universities, colleges, training institutions</strong><br><small>Nursing schools, healthcare instructors</small>",
+                    "corporate healthcare": "<strong>Large corporations hiring healthcare roles internally</strong><br><small>Insurance companies, pharma companies, occupational health units</small>"
+                };
+
+                if (ownershipSelect && descBox) {
+                    function updateIndustryDescription() {
+                        const selectedOption = ownershipSelect.options[ownershipSelect.selectedIndex];
+                        if (selectedOption && selectedOption.value) {
+                            const text = selectedOption.text.trim().toLowerCase();
+                            if (industryDescriptions[text]) {
+                                descBox.innerHTML = industryDescriptions[text];
+                                descBox.style.display = 'block';
+                            } else {
+                                descBox.style.display = 'none';
+                            }
+                        } else {
+                            descBox.style.display = 'none';
+                        }
+                    }
+                    
+                    ownershipSelect.addEventListener('change', updateIndustryDescription);
+                    // trigger on load if there's old value
+                    updateIndustryDescription();
+                }
 
                 function toggleReferralField() {
                     if (hasReferralYes.checked) {

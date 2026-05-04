@@ -150,6 +150,19 @@ Route::post('subscribe-newsletter', 'SubscriptionController@getSubscription')->n
 include_once($real_path . 'order.php');
 /* * ******** CmsController ************ */
 include_once($real_path . 'cms.php');
+/* * ******** Medojob pSEO Routes ************ */
+Route::group(['namespace' => 'Medo'], function () {
+    Route::get('/jobs', [\App\Http\Controllers\Medo\JobController::class, 'index'])->name('medo.jobs.index');
+    Route::get('/jobs/{medo_category:slug}', [\App\Http\Controllers\Medo\CategoryController::class, 'show'])
+        ->name('medo.jobs.category');
+    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}', [\App\Http\Controllers\Medo\CategoryProvinceController::class, 'show'])
+        ->name('medo.jobs.category.province');
+    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}/{medo_city:slug}', [\App\Http\Controllers\Medo\CategoryProvinceCityController::class, 'show'])
+        ->name('medo.jobs.category.province.city');
+    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}/{medo_city:slug}/{medo_job:slug}', [\App\Http\Controllers\Medo\JobDetailController::class, 'show'])
+        ->name('medo.jobs.detail');
+});
+
 /* * ******** JobController ************ */
 include_once($real_path . 'job.php');
 /* * ******** ContactController ************ */

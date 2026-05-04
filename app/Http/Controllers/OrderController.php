@@ -508,26 +508,9 @@ class OrderController extends Controller
                 $company = Auth::guard('company')->user();
 
                 if ($package->package_for === 'cv_search') {
-                    if (! $company->canActivateFreeCvSearchPackage()) {
-                        $until = $company->getFreeCvPackageNextAvailableAt();
-                        flash($until
-                            ? __('You can activate Silver again from :date.', ['date' => $until->format('d M Y H:i')])
-                            : __('You cannot activate Silver right now.'))->error();
-                        return Redirect::route($this->redirectTo);
-                    }
-                    $activated = DB::transaction(function () use ($company, $package) {
-                        $locked = Company::where('id', $company->id)->lockForUpdate()->first();
-                        if (! $locked || ! $locked->canActivateFreeCvSearchPackage()) {
-                            return false;
-                        }
-                        $this->addCompanySearchPackage($locked, $package, 'Free Package');
-
-                        return true;
-                    });
-                    if ($activated === false) {
-                        flash(__('Could not activate Silver.'))->error();
-                        return Redirect::route($this->redirectTo);
-                    }
+                    // Free CV packages are no longer available
+                    flash(__('Free CV packages are no longer available. Please purchase a paid CV search package.'))->error();
+                    return Redirect::route('company.packages');
                 } elseif ($package->package_for === 'employer') {
                     if (! $company->canActivateFreeEmployerJobPackage()) {
                         $until = $company->getFreeEmployerJobPackageNextAvailableAt();

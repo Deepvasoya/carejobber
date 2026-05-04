@@ -45,10 +45,10 @@
                 <hr>
 
                 <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'is_company_package_active') !!}">
-                    {!! Form::label('is_company_package_active', 'Is Package active for company?', ['class' => 'bold']) !!}
+                    {!! Form::label('is_company_package_active', 'Enable Job Package Monetization for Employers?', ['class' => 'bold']) !!}
                     <div class="radio-list">
-                        <label class="radio-inline">{!! Form::radio('is_company_package_active', 1, true, ['id' => 'is_company_package_active_yes']) !!} Yes </label>
-                        <label class="radio-inline">{!! Form::radio('is_company_package_active', 0, null, ['id' => 'is_company_package_active_no']) !!} No </label>
+                        <label class="radio-inline">{!! Form::radio('is_company_package_active', 1, true, ['id' => 'is_company_package_active_yes']) !!} Yes &mdash; <small class="text-muted">Employers must buy a package to post jobs (current rules apply)</small></label>
+                        <label class="radio-inline">{!! Form::radio('is_company_package_active', 0, null, ['id' => 'is_company_package_active_no']) !!} No &mdash; <small class="text-muted">Employers post for free with no package required</small></label>
                     </div>
 
                     {!! APFrmErrHelp::showErrors($errors, 'is_company_package_active') !!}

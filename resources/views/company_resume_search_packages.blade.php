@@ -4,7 +4,7 @@
 @include('includes.header')
 <!-- Header end -->
 <!-- Inner Page Title start -->
-@include('includes.inner_page_title', ['page_title'=>__('Cvs Search Packages')])
+@include('includes.inner_page_title', ['page_title'=>__('CV Search Packages')])
 <!-- Inner Page Title end -->
 <?php $company = Auth::guard('company')->user(); ?>
 
@@ -12,12 +12,42 @@
     <div class="container-fluid">@include('flash::message')
         <div class="row"> @include('includes.company_dashboard_menu')
             <div class="col-md-9 col-sm-8">
-                @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_cv_search'])
-                @if($company->isOnExhaustedFreeCvSearchPeriod())
-                    <div class="alert alert-warning" role="alert">
-                        {{ __('You have used all CV unlocks for your Silver package. You can activate Silver again from :date, or purchase a paid package below.', ['date' => ($d = $company->getFreeCvPackageNextAvailableAt()) ? $d->format('d M Y H:i') : '—']) }}
+                
+                {{-- Verification Required Notice --}}
+                @if(!$company->isEmployerVerified())
+                    <div class="alert alert-warning" style="border-left: 4px solid #ffc107;">
+                        <h4 style="margin-top: 0;">
+                            <i class="fas fa-lock"></i> 
+                            {{ __('Verification Required') }}
+                        </h4>
+                        <p>
+                            {{ __('Only verified employers can purchase CV search packages and access the resume database.') }}
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <strong>{{ __('Benefits of CV Search Packages:') }}</strong>
+                        </p>
+                        <ul style="margin: 10px 0;">
+                            <li>{{ __('Search all job seekers by skills (HCA, RN, caregiver, etc.)') }}</li>
+                            <li>{{ __('Filter by location, experience, and qualifications') }}</li>
+                            <li>{{ __('Browse profiles outside of applications') }}</li>
+                            <li>{{ __('Contact candidates directly') }}</li>
+                        </ul>
+                        <div style="margin-top: 15px;">
+                            <a href="{{ route('company.verification.upload') }}" class="btn btn-primary">
+                                <i class="fas fa-check-circle"></i> {{ __('Get Verified Now') }}
+                            </a>
+                            <a href="{{ route('cms.employer.verification.info') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-info-circle"></i> {{ __('Learn About Verification') }}
+                            </a>
+                        </div>
                     </div>
+                    
+                    {{-- Show packages but disabled --}}
+                    <div style="opacity: 0.5; pointer-events: none; filter: blur(2px);">
+                @else
+                    @include('includes.package_coupon_employer', ['couponApplyContext' => 'employer_cv_search'])
                 @endif
+                
                 @if(null!==($success_package) && !empty($success_package))
                     @php
                         $isExpired = $company->cvs_package_end_date ? \Carbon\Carbon::parse($company->cvs_package_end_date)->isPast() : true;
@@ -27,7 +57,7 @@
                         <!-- Expired Package Message -->
                         <div class="company-payment-no-records">
                             <i class="fas fa-exclamation-triangle" style="color: #ff6348; font-size: 64px; margin-bottom: 20px;"></i>
-                            <h3>{{__('Your CVs Package Has Expired')}}</h3>
+                            <h3>{{__('Your CV Package Has Expired')}}</h3>
                             <p>{{__('Your package expired on')}} <strong>{{ \Carbon\Carbon::parse($company->cvs_package_end_date)->format('d M, Y') }}</strong></p>
                             <p>{{__('Please purchase a new package to continue accessing candidate CVs')}}</p>
                             <a href="#package-list" class="btn btn-primary">
@@ -37,7 +67,7 @@
                     @else
                         <div class="company-cvs-package-details">
                             <div class="package-header">
-                                <h3><i class="fas fa-file-alt"></i> {{__('Purchased CVs Package Details')}}</h3>
+                                <h3><i class="fas fa-file-alt"></i> {{__('Active CV Package Details')}}</h3>
                             </div>
                             
                             <div class="package-info-grid">
@@ -206,34 +236,14 @@
                         </div>
                         </div>
                         </div>
-        @else
-        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <ul class="boxes">
-                                <li class="plan-name">{{$package->package_title}}</li>
-                                <li>
-                                    <div class="main-plan">
-                                        <div class="plan-price1-1">{{ $siteSetting->default_currency_code }}</div>
-                                        <div class="plan-price1-2">0</div>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Applicant CV Views')}} {{$package->package_num_listings}}</li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Premium Support 24/7')}}</li>
-                                @if(! $company->canActivateFreeCvSearchPackage())
-                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Silver — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
-                                @else
-                                    <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
-                                @endif
-                            </ul>
-                        </div>
         @endif
+            {{-- Free CV packages removed - only paid packages available --}}
             @endforeach </div>
     </div>
      @else
     <div class="four-plan">
         <h3>{{__('CV Search Packages')}}</h3>
-        <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Search candidates and unlock résumés. Paid: Buy Now. Silver: Activate Now when eligible.') }}</p>
+        <p class="text-muted small mb-3"><i class="fas fa-info-circle"></i> {{ __('Purchase a CV search package to browse and contact job seekers directly.') }}</p>
         <div class="row"> @foreach($packages as $package)
         @if((float) $package->package_price > 0)
         <div class="col-md-4 col-sm-6 col-xs-12">
@@ -368,6 +378,11 @@
         </div>
     </div>
 </div>
+
+{{-- Close disabled div for unverified employers --}}
+@if(!$company->isEmployerVerified())
+    </div>
+@endif
 
 @include('includes.footer')
 @endsection

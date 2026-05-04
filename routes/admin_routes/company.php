@@ -46,4 +46,6 @@ Route::get('company-verification-document/{id}', array_merge(['uses' => 'Company
 Route::post('company-approve-verification/{id}', array_merge(['uses' => 'Admin\CompanyController@approveVerification'], $all_users))->name('admin.company.approve.verification');
 Route::post('company-reject-verification/{id}', array_merge(['uses' => 'Admin\CompanyController@rejectVerification'], $all_users))->name('admin.company.reject.verification');
 
+Route::post('company/{id}/set-trust-status', array_merge(['uses' => 'Admin\CompanyController@setEmployerTrustStatus'], $all_users))->name('admin.company.set.trust.status');
+
 /* * ****** End Company ********** */

@@ -985,22 +985,20 @@ public function downloadReceipt($companyId)
 
 
     public function applicantProfile($application_id)
-
     {
-
-
-
+        $company = Auth::guard('company')->user();
         $job_application = JobApply::findOrFail($application_id);
-
-        $user = $job_application->getUser();
-
+        
+        // Verify the application belongs to this company's job
         $job = $job_application->getJob();
-
-        $company = $job->getCompany();
-
+        if ($job->company_id !== $company->id) {
+            flash(__('You do not have permission to view this applicant.'))->error();
+            return redirect()->route('company.home');
+        }
+        
+        // ALL employers can view applicants who applied to their jobs (no verification required)
+        $user = $job_application->getUser();
         $profileCv = $job_application->getProfileCv();
-
-
 
         /*         * ********************************************** */
 
@@ -1085,16 +1083,28 @@ public function downloadReceipt($companyId)
 
 
     public function userProfile($id)
-
     {
-
-
+        $company = Auth::guard('company')->user();
+        
+        // Only verified employers with active CV package can browse profiles outside applications
+        if (!$company->canAccessResumeDatabase()) {
+            if (!$company->isEmployerVerified()) {
+                flash(__('Only verified employers can access the resume database. Please get verified first.'))->error();
+                return redirect()->route('company.verification.upload');
+            }
+            
+            if (!$company->hasActiveCvSearchPackage()) {
+                flash(__('You need an active CV search package to view job seeker profiles. Please purchase a package.'))->error();
+                return redirect()->route('company.packages');
+            }
+            
+            flash(__('You do not have access to view this profile.'))->error();
+            return redirect()->route('company.home');
+        }
 
         $user = User::findOrFail($id);
 
         $profileCv = $user->getDefaultCv();
-
-
 
         /*         * ********************************************** */
 

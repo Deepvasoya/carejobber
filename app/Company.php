@@ -66,7 +66,8 @@ class Company extends Authenticatable
         'name', 'email', 'password', 'slug', 'email_verified_at', 'verified',
         'cvs_package_id', 'cvs_package_start_date', 'cvs_package_end_date', 
         'cvs_quota', 'availed_cvs_quota', 'referral_code', 'referred_by_company_id', 'referral_bonus_jobs',
-        'stripe_customer_id', 'stripe_subscription_id', 'stripe_subscription_status', 'stripe_subscription_ends_at'
+        'stripe_customer_id', 'stripe_subscription_id', 'stripe_subscription_status', 'stripe_subscription_ends_at',
+        'employer_trust_status',
     ];
     
     
@@ -142,6 +143,208 @@ class Company extends Authenticatable
 
 
 
+    // =========================================================
+    // Employer Trust Status helpers
+    // =========================================================
+
+    /**
+     * The 3-tier trust status: 'unverified' | 'reviewed' | 'verified'.
+     */
+    public function getEmployerTrustStatus(): string
+    {
+        $status = $this->employer_trust_status ?? 'unverified';
+        if (! in_array($status, ['unverified', 'reviewed', 'verified'], true)) {
+            return 'unverified';
+        }
+        return $status;
+    }
+
+    public function isEmployerVerified(): bool
+    {
+        return $this->getEmployerTrustStatus() === 'verified';
+    }
+
+    public function isEmployerReviewed(): bool
+    {
+        return in_array($this->getEmployerTrustStatus(), ['reviewed', 'verified'], true);
+    }
+
+    /**
+     * Maximum number of active jobs allowed by trust tier.
+     * Returns null for unlimited (verified with active package).
+     */
+    public function getMaxJobPostings(): ?int
+    {
+        $status = $this->getEmployerTrustStatus();
+        
+        // Check if employer is private/individual
+        if ($this->isPrivateIndividual()) {
+            return 3; // Private/individual always limited to 3
+        }
+        
+        switch ($status) {
+            case 'verified': 
+                // Verified employers: unlimited when no package, package-based when active
+                return null;
+            case 'reviewed': 
+                return 3;
+            default:         
+                return 2; // unverified
+        }
+    }
+    
+    /**
+     * Check if employer is private/individual type
+     */
+    public function isPrivateIndividual(): bool
+    {
+        // Check if ownership_type_id corresponds to private/individual
+        // Assuming ownership_type_id for private/individual is stored
+        $privateOwnershipTypes = ['Private/Individual', 'Individual', 'Private'];
+        
+        if ($this->ownershipType) {
+            $ownershipTypeName = $this->getOwnershipType('ownership_type');
+            return in_array($ownershipTypeName, $privateOwnershipTypes, true);
+        }
+        
+        return false;
+    }
+
+    /**
+     * Count of currently active (non-expired) jobs posted by this company.
+     */
+    public function countActiveJobs(): int
+    {
+        return \App\Job::where('company_id', $this->id)
+            ->where('is_active', 1)
+            ->where(function ($q) {
+                $q->whereNull('expiry_date')
+                  ->orWhere('expiry_date', '>', now());
+            })
+            ->count();
+    }
+
+    /**
+     * Whether the employer can access the resume/CV database for searching/browsing.
+     * Only verified employers with active CV package can search all job seekers.
+     */
+    public function canAccessResumeDatabase(): bool
+    {
+        // Private/individual employers cannot access resume database
+        if ($this->isPrivateIndividual()) {
+            return false;
+        }
+        
+        // Must be verified
+        if (!$this->isEmployerVerified()) {
+            return false;
+        }
+        
+        // Must have active CV search package
+        return $this->hasActiveCvSearchPackage();
+    }
+    
+    /**
+     * Whether employer can view applicant profiles (those who applied to their jobs).
+     * ALL employers can view their own applicants regardless of verification status.
+     */
+    public function canViewApplicantProfiles(): bool
+    {
+        // All employers can view applicants who applied to their jobs
+        return true;
+    }
+    
+    /**
+     * Check if employer can post more jobs based on their status and limits
+     */
+    public function canPostJob(): bool
+    {
+        $maxJobs = $this->getMaxJobPostings();
+        
+        // Verified non-private employers with active package use package quota
+        if ($this->isEmployerVerified() && !$this->isPrivateIndividual()) {
+            // Check if they have an active job package
+            if ($this->package_id && $this->package_end_date && \Carbon\Carbon::parse($this->package_end_date)->isFuture()) {
+                return $this->getRemainingJobsQuota() > 0;
+            }
+            // No active package = unlimited for verified
+            return true;
+        }
+        
+        // For unverified, reviewed, and private/individual: check against max limit
+        if ($maxJobs === null) {
+            return true; // unlimited
+        }
+        
+        $activeJobs = $this->countActiveJobs();
+        return $activeJobs < $maxJobs;
+    }
+    
+    /**
+     * Get remaining job slots for current status
+     */
+    public function getRemainingJobSlots(): ?int
+    {
+        $maxJobs = $this->getMaxJobPostings();
+        
+        if ($maxJobs === null) {
+            return null; // unlimited
+        }
+        
+        $activeJobs = $this->countActiveJobs();
+        return max(0, $maxJobs - $activeJobs);
+    }
+    
+    /**
+     * Get verification status badge HTML
+     */
+    public function getVerificationBadgeHtml(): string
+    {
+        $status = $this->getEmployerTrustStatus();
+        
+        $badges = [
+            'unverified' => '<span class="badge badge-danger">🔴 Unverified</span>',
+            'reviewed' => '<span class="badge badge-warning">🟡 Reviewed</span>',
+            'verified' => '<span class="badge badge-success">🟢 Verified</span>',
+        ];
+        
+        return $badges[$status] ?? $badges['unverified'];
+    }
+    
+    /**
+     * Get verification status badge class
+     */
+    public function getVerificationBadgeClass(): string
+    {
+        $status = $this->getEmployerTrustStatus();
+        
+        $classes = [
+            'unverified' => 'badge-danger',
+            'reviewed' => 'badge-warning',
+            'verified' => 'badge-success',
+        ];
+        
+        return $classes[$status] ?? 'badge-danger';
+    }
+    
+    /**
+     * Get verification status text
+     */
+    public function getVerificationStatusText(): string
+    {
+        $status = $this->getEmployerTrustStatus();
+        
+        $texts = [
+            'unverified' => 'Unverified',
+            'reviewed' => 'Reviewed',
+            'verified' => 'Verified',
+        ];
+        
+        return $texts[$status] ?? 'Unverified';
+    }
+
+    // =========================================================
+
     /**
      * Remaining job post credits (for canPostJob gate).
      */
@@ -181,104 +384,6 @@ class Company extends Authenticatable
         }
 
         return ! Carbon::parse($this->cvs_package_end_date)->endOfDay()->isPast();
-    }
-
-    /**
-     * Start of the most recent free CV search package activation (payment history), if any.
-     */
-    public function getLastFreeCvSearchPackageStartDate(): ?Carbon
-    {
-        $last = PaymentHistory::where('company_id', $this->id)
-            ->where('package_type', 'cv_search')
-            ->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
-            ->orderByDesc('id')
-            ->first();
-
-        if ($last && $last->package_start_date) {
-            return Carbon::parse($last->package_start_date);
-        }
-
-        if (empty($this->has_used_free_cv_package) || (int) $this->has_used_free_cv_package !== 1 || empty($this->cvs_package_start_date) || ! $this->cvs_package_id) {
-            return null;
-        }
-
-        $pkg = Package::find($this->cvs_package_id);
-        if (! $pkg || $pkg->package_for !== 'cv_search' || (float) $pkg->package_price > 0) {
-            return null;
-        }
-
-        return Carbon::parse($this->cvs_package_start_date);
-    }
-
-    /**
-     * When the current free-CV period ends (last free activation + N days), or null if never activated free.
-     */
-    public function getFreeCvPackagePeriodEndsAt(int $periodDays = 30): ?Carbon
-    {
-        $start = $this->getLastFreeCvSearchPackageStartDate();
-
-        return $start ? $start->copy()->addDays($periodDays) : null;
-    }
-
-    /**
-     * Earliest moment the free CV package can be activated again (after last free activation + period), or null if allowed now.
-     */
-    public function getFreeCvPackageNextAvailableAt(int $periodDays = 30): ?Carbon
-    {
-        if ($this->canActivateFreeCvSearchPackage($periodDays)) {
-            return null;
-        }
-
-        return $this->getFreeCvPackagePeriodEndsAt($periodDays);
-    }
-
-    /**
-     * @deprecated Use getFreeCvPackageNextAvailableAt(); kept for blade strings.
-     */
-    public function getFreeCvPackageCooldownEndsAt(int $periodDays = 30): ?Carbon
-    {
-        return $this->getFreeCvPackageNextAvailableAt($periodDays);
-    }
-
-    /**
-     * Free CV package: at most one activation every :periodDays (matches 30-day package length in addCompanySearchPackage).
-     */
-    public function canActivateFreeCvSearchPackage(int $periodDays = 30): bool
-    {
-        $start = $this->getLastFreeCvSearchPackageStartDate();
-        if ($start === null) {
-            return true;
-        }
-
-        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
-    }
-
-    /**
-     * Free tier: all CV unlock credits used but the 30-day free window (from last free activation) is still running — must wait or pay.
-     */
-    public function isOnExhaustedFreeCvSearchPeriod(int $periodDays = 30): bool
-    {
-        if ($this->getRemainingCvsQuota() > 0) {
-            return false;
-        }
-
-        $last = PaymentHistory::where('company_id', $this->id)
-            ->where('package_type', 'cv_search')
-            ->orderByDesc('id')
-            ->first();
-
-        if (! $last || ! $last->package_start_date || strcasecmp(trim((string) $last->payment_method), 'Free Package') !== 0) {
-            return false;
-        }
-
-        $start = Carbon::parse($last->package_start_date);
-        if (Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays))) {
-            return false;
-        }
-
-        return (int) $this->cvs_package_id > 0
-            && $this->cvs_package_end_date
-            && Carbon::parse($this->cvs_package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
     /**

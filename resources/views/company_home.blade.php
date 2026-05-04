@@ -22,6 +22,28 @@
         <?php $company = auth()->guard('company')->user(); ?>
 
         <div class="col-lg-7" style="flex: 1; min-width: 0;"> 
+            
+            {{-- Verification Status Banner for Unverified Employers --}}
+            @if($company->getEmployerTrustStatus() === 'unverified')
+            <div class="alert alert-warning" style="border-left: 4px solid #ffc107;">
+                <h5 style="margin-top: 0;">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    {{ __('Build trust and attract more healthcare candidates by getting verified.') }}
+                </h5>
+                <p style="margin-bottom: 15px;">
+                    {{ __('Verified employers receive more applications and access to our full resume database.') }}
+                </p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="{{ route('company.verification.upload') }}" class="btn btn-primary">
+                        <i class="fas fa-check-circle"></i> {{ __('Get Reviewed (Free)') }}
+                    </a>
+                    <a href="{{ url('/cms/employer-verification-info') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-info-circle"></i> {{ __('Learn What Verification Means') }}
+                    </a>
+                </div>
+            </div>
+            @endif
+            
             <?php if ($company->is_active == 1 && (($company->package_end_date === null) || 
                 (\Carbon\Carbon::parse($company->package_end_date)->lt(\Carbon\Carbon::now())) || 
                 ($company->jobs_quota <= $company->availed_jobs_quota))) { ?>    
@@ -168,7 +190,24 @@
      {{-- @include('includes.company_packages_upgrade') --}} <!---Remove the curly brackets to show job packages on the employer dashboardn-->
         <?php }elseif(null !== $packages){ ?>
         @include('includes.company_packages_new')
-        <?php }} ?>
+        <?php } ?>
+        <?php } else { ?>
+        {{-- Free-posting notice: shown when admin has disabled monetization --}}
+        <div class="free-posting-notice" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 1px solid #28a745; border-radius: 12px; padding: 20px 25px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+            <div style="font-size: 36px; color: #28a745; flex-shrink: 0;">
+                <i class="fas fa-gift"></i>
+            </div>
+            <div>
+                <h5 style="margin: 0 0 5px 0; color: #155724; font-weight: 700;">{{ __('Free Job Posting Active') }}</h5>
+                <p style="margin: 0; color: #155724; font-size: 14px;">{{ __('Job packages are currently disabled. You can post jobs for free with no limits.') }}</p>
+            </div>
+            <div style="margin-left: auto;">
+                <a href="{{ url('/post-job') }}" class="btn btn-success" style="font-weight: 600;">
+                    <i class="fas fa-plus-circle me-1"></i> {{ __('Post a Job') }}
+                </a>
+            </div>
+        </div>
+        <?php } ?>
         </div>
 
 

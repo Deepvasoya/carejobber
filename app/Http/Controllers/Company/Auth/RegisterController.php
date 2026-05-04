@@ -87,6 +87,22 @@ use RegistersUsers;
         }
         
         $company->verified = 0;
+        
+        // Auto-set employer_trust_status to 'reviewed' for private/individual
+        $ownershipType = \App\OwnershipType::find($request->input('ownership_type_id'));
+        if ($ownershipType) {
+            $ownershipTypeName = $ownershipType->ownership_type ?? '';
+            $privateTypes = ['Private/Individual', 'Individual', 'Private'];
+            
+            if (in_array($ownershipTypeName, $privateTypes, true)) {
+                $company->employer_trust_status = 'reviewed';
+            } else {
+                $company->employer_trust_status = 'unverified';
+            }
+        } else {
+            $company->employer_trust_status = 'unverified';
+        }
+        
         $company->save();
         /*         * ******************** */
         $company->slug = Str::slug($company->name, '-') . '-' . $company->id;

@@ -24,6 +24,20 @@ class ResumeUnlockController extends Controller
     public function showUnlockPage(int $userId)
     {
         $company = \Auth::guard('company')->user();
+        
+        // Check if employer can access resume database (verified + CV package)
+        if (!$company->canAccessResumeDatabase()) {
+            if (!$company->isEmployerVerified()) {
+                return redirect()->back()->with('error', __('Only verified employers can access the resume database. Please get verified first.'));
+            }
+            
+            if (!$company->hasActiveCvSearchPackage()) {
+                return redirect()->back()->with('error', __('You need an active CV search package to unlock resumes. Please purchase a package.'));
+            }
+            
+            return redirect()->back()->with('error', __('You do not have access to the resume database.'));
+        }
+        
         $user = User::findOrFail($userId);
 
         if (!$user->is_active || $user->verified != 1) {
@@ -44,6 +58,20 @@ class ResumeUnlockController extends Controller
     public function createCheckout(Request $request, int $userId)
     {
         $company = \Auth::guard('company')->user();
+        
+        // Check if employer can access resume database (verified + CV package)
+        if (!$company->canAccessResumeDatabase()) {
+            if (!$company->isEmployerVerified()) {
+                return redirect()->back()->with('error', __('Only verified employers can access the resume database. Please get verified first.'));
+            }
+            
+            if (!$company->hasActiveCvSearchPackage()) {
+                return redirect()->back()->with('error', __('You need an active CV search package to unlock resumes. Please purchase a package.'));
+            }
+            
+            return redirect()->back()->with('error', __('You do not have access to the resume database.'));
+        }
+        
         $user = User::findOrFail($userId);
 
         if (!$user->is_active || $user->verified != 1) {
