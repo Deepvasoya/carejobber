@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         'App\Console\Commands\CallRoute',
         'App\Console\Commands\SendIncompleteProfileReminders',
+        'App\Console\Commands\ScrapeJobFeeds',
     ];
 
     /**
@@ -32,6 +33,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('route:call check-package-validity')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
 		$schedule->command('route:call send-alerts')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
 		$schedule->command('send:incomplete-profile-reminders')->weekly()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/incomplete-profile-reminders.log');
+		
+		// Job feed scraper - runs every hour to fetch external job postings
+		$schedule->command('jobs:scrape')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper.log');
     }
 
     /**
