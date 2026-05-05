@@ -878,6 +878,7 @@ public function updateCompany($id, CompanyFormRequest $request)
             $company->verified = true;
             $company->verified_at = Carbon::now();
             $company->verification_status = 'approved';
+            $company->employer_trust_status = 'verified';
             $company->verification_rejection_reason = null;
             $company->verification_reviewed_at = Carbon::now();
             $company->save();
@@ -939,6 +940,7 @@ public function updateCompany($id, CompanyFormRequest $request)
             $company->verified = false;
             $company->verified_at = null;
             $company->verification_status = 'rejected';
+            $company->employer_trust_status = 'unverified';
             $company->verification_rejection_reason = $reason;
             $company->verification_reviewed_at = Carbon::now();
             $company->save();

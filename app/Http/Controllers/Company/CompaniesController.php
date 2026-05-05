@@ -68,7 +68,7 @@ class CompaniesController extends Controller
         $city_id = $this->filledFilterValues($request->get('city_id'));
         $industry_id = $this->filledFilterValues($request->get('industry_id'));
         $date_joined = $this->filledFilterValues($request->get('date_joined'));
-        $verified_filter = in_array($request->get('verified_filter'), ['verified', 'unverified'], true)
+        $verified_filter = in_array($request->get('verified_filter'), ['verified', 'reviewed', 'unverified'], true)
             ? $request->get('verified_filter')
             : null;
 
@@ -134,6 +134,7 @@ class CompaniesController extends Controller
         // Verified counts for sidebar filter
         $data['allEmployerStatusCount'] = (clone $baseCompanyQuery)->count();
         $data['verifiedCount'] = $this->applyEmployerStatusFilter(clone $baseCompanyQuery, 'verified')->count();
+        $data['reviewedCount'] = $this->applyEmployerStatusFilter(clone $baseCompanyQuery, 'reviewed')->count();
         $data['unverifiedCount'] = $this->applyEmployerStatusFilter(clone $baseCompanyQuery, 'unverified')->count();
 
         $data['dateJoinedCounts'] = [
@@ -161,24 +162,40 @@ class CompaniesController extends Controller
     {
         if ($verifiedFilter === 'verified') {
             return $query->where(function ($statusQuery) {
-                $statusQuery->where('verification_status', 'approved')
+                $statusQuery->where('employer_trust_status', 'verified')
                     ->orWhere(function ($legacyQuery) {
-                        $legacyQuery->where('verified', true)
-                            ->whereNotNull('verified_at');
+                        $legacyQuery->whereNull('employer_trust_status')
+                            ->where(function ($verifiedQuery) {
+                                $verifiedQuery->where('verification_status', 'approved')
+                                    ->orWhere(function ($fallbackQuery) {
+                                        $fallbackQuery->where('verified', true)
+                                            ->whereNotNull('verified_at');
+                                    });
+                            });
                     });
             });
         }
 
+        if ($verifiedFilter === 'reviewed') {
+            return $query->where('employer_trust_status', 'reviewed');
+        }
+
         if ($verifiedFilter === 'unverified') {
             return $query->where(function ($statusQuery) {
-                $statusQuery->where(function ($reviewQuery) {
-                    $reviewQuery->whereNull('verification_status')
-                        ->orWhere('verification_status', '!=', 'approved');
-                })->where(function ($legacyQuery) {
-                    $legacyQuery->where('verified', false)
-                        ->orWhereNull('verified')
-                        ->orWhereNull('verified_at');
-                });
+                $statusQuery->where('employer_trust_status', 'unverified')
+                    ->orWhereNotIn('employer_trust_status', ['verified', 'reviewed', 'unverified'])
+                    ->orWhere(function ($legacyQuery) {
+                        $legacyQuery->whereNull('employer_trust_status')
+                            ->where(function ($reviewQuery) {
+                                $reviewQuery->whereNull('verification_status')
+                                    ->orWhere('verification_status', '!=', 'approved');
+                            })
+                            ->where(function ($verifiedQuery) {
+                                $verifiedQuery->where('verified', false)
+                                    ->orWhereNull('verified')
+                                    ->orWhereNull('verified_at');
+                            });
+                    });
             });
         }
 

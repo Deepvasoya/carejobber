@@ -152,11 +152,16 @@ class Company extends Authenticatable
      */
     public function getEmployerTrustStatus(): string
     {
-        $status = $this->employer_trust_status ?? 'unverified';
-        if (! in_array($status, ['unverified', 'reviewed', 'verified'], true)) {
-            return 'unverified';
+        $status = $this->employer_trust_status;
+        if (in_array($status, ['unverified', 'reviewed', 'verified'], true)) {
+            return $status;
         }
-        return $status;
+
+        if ($this->isVerified()) {
+            return 'verified';
+        }
+
+        return 'unverified';
     }
 
     public function isEmployerVerified(): bool

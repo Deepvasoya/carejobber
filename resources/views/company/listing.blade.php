@@ -129,6 +129,7 @@
     transition: background .15s, border-color .15s;
 }
 .verified-filter-btn:hover, .verified-filter-btn.active { background: #e8f0fe; border-color: #0056b3; color: #0056b3; }
+.verified-filter-btn.active.filter-reviewed { background: #fff8e1; border-color: #ffc107; color: #856404; }
 .verified-filter-btn.active.filter-unverified { background: #fff1f2; border-color: #dc3545; color: #9f1239; }
 .verified-filter-btn.active.filter-all { background: #f1f5f9; border-color: #64748b; color: #334155; }
 .verified-filter-btn .count-badge {
@@ -139,10 +140,12 @@
     font-weight: 600;
 }
 .verified-filter-btn.active .count-badge { background: #0056b3; color: #fff; }
+.verified-filter-btn.active.filter-reviewed .count-badge { background: #ffc107; color: #1f2937; }
 .verified-filter-btn.active.filter-unverified .count-badge { background: #dc3545; color: #fff; }
 .verified-filter-btn.active.filter-all .count-badge { background: #64748b; color: #fff; }
 .verified-filter-btn .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
 .dot-green { background: #28a745; }
+.dot-yellow { background: #ffc107; }
 .dot-red   { background: #dc3545; }
 .dot-all   { background: #6c757d; }
 </style>
@@ -198,23 +201,40 @@
                     $baseQuery = request()->except('verified_filter');
                     $allUrl      = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, []));
                     $verifiedUrl = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, ['verified_filter' => 'verified']));
+                    $reviewedUrl = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, ['verified_filter' => 'reviewed']));
                     $unverifiedUrl = route('company.listing') . '?' . http_build_query(array_merge($baseQuery, ['verified_filter' => 'unverified']));
+                    $statusTitles = [
+                        'all' => __('Show all employers regardless of verification status.'),
+                        'verified' => __("Fully Verified Employer\nThis employer has been reviewed and confirmed as a trusted healthcare organization."),
+                        'reviewed' => __("Basic Verified Employer\nThis employer has been reviewed but has limited verification."),
+                        'unverified' => __("Unverified Employer\nThis employer has not yet been reviewed. Please apply with caution."),
+                    ];
                 @endphp
 
                 <a href="{{ $allUrl }}"
-                   class="verified-filter-btn filter-all {{ empty($verified_filter) ? 'active' : '' }}">
+                   class="verified-filter-btn filter-all {{ empty($verified_filter) ? 'active' : '' }}"
+                   title="{{ $statusTitles['all'] }}">
                     <span><span class="dot dot-all"></span> {{__('All Employers')}}</span>
                     <span class="count-badge">{{ $allEmployerStatusCount }}</span>
                 </a>
 
                 <a href="{{ $verifiedUrl }}"
-                   class="verified-filter-btn filter-verified {{ $verified_filter === 'verified' ? 'active' : '' }}">
+                   class="verified-filter-btn filter-verified {{ $verified_filter === 'verified' ? 'active' : '' }}"
+                   title="{{ $statusTitles['verified'] }}">
                     <span><span class="dot dot-green"></span> {{__('Verified')}}</span>
                     <span class="count-badge">{{ $verifiedCount }}</span>
                 </a>
 
+                <a href="{{ $reviewedUrl }}"
+                   class="verified-filter-btn filter-reviewed {{ $verified_filter === 'reviewed' ? 'active' : '' }}"
+                   title="{{ $statusTitles['reviewed'] }}">
+                    <span><span class="dot dot-yellow"></span> {{__('Reviewed')}}</span>
+                    <span class="count-badge">{{ $reviewedCount }}</span>
+                </a>
+
                 <a href="{{ $unverifiedUrl }}"
-                   class="verified-filter-btn filter-unverified {{ $verified_filter === 'unverified' ? 'active' : '' }}">
+                   class="verified-filter-btn filter-unverified {{ $verified_filter === 'unverified' ? 'active' : '' }}"
+                   title="{{ $statusTitles['unverified'] }}">
                     <span><span class="dot dot-red"></span> {{__('Unverified')}}</span>
                     <span class="count-badge">{{ $unverifiedCount }}</span>
                 </a>
@@ -262,15 +282,15 @@
                                 $trustStatus = $company->getEmployerTrustStatus();
                             @endphp
                             @if($trustStatus === 'verified')
-                                <span class="badge-verified" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
+                                <span class="badge-verified" title="{{ $statusTitles['verified'] }}" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb;">
                                     🟢 {{__('Verified')}}
                                 </span>
                             @elseif($trustStatus === 'reviewed')
-                                <span class="badge-reviewed" style="background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
+                                <span class="badge-reviewed" title="{{ $statusTitles['reviewed'] }}" style="background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;">
                                     🟡 {{__('Reviewed')}}
                                 </span>
                             @else
-                                <span class="badge-unverified" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+                                <span class="badge-unverified" title="{{ $statusTitles['unverified'] }}" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
                                     🔴 {{__('Unverified')}}
                                 </span>
                             @endif
