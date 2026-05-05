@@ -284,7 +284,7 @@
         }
         
         $.ajax({
-            url: "{{ url('admin/company') }}/" + companyId + "/set-trust-status",
+            url: "{{ route('admin.company.set.trust.status', ['id' => '__COMPANY_ID__']) }}".replace('__COMPANY_ID__', companyId),
             type: 'POST',
             data: {
                 trust_status: status,
