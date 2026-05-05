@@ -1,5 +1,6 @@
 <?php
 
+namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Medo\HealthAuthority;
 use App\Models\Medo\Province;
