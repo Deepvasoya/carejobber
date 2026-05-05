@@ -468,6 +468,11 @@ class OrderController extends Controller
                 if (Auth::guard('company')->check()) {
                     $company = Auth::guard('company')->user();
                     if($package->package_for=='cv_search'){
+                        // Only verified employers can purchase CV packages
+                        if (!$company->isEmployerVerified()) {
+                            flash(__('Only verified employers can purchase CV search packages. Please get verified first.'))->error();
+                            return Redirect::route('company.verification.upload');
+                        }
                         $this->addCompanySearchPackage($company, $package,'Paypal');
                     }else{
                         $this->addCompanyPackage($company, $package,'Paypal');

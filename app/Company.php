@@ -464,6 +464,85 @@ class Company extends Authenticatable
             && Carbon::parse($this->package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
     }
 
+    /**
+     * Get the start date of the last free CV search package activation.
+     */
+    public function getLastFreeCvSearchPackageStartDate(): ?Carbon
+    {
+        $last = PaymentHistory::where('company_id', $this->id)
+            ->where('package_type', 'cv_search')
+            ->where('payment_status', 'completed')
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(TRIM(payment_method)) = ?', ['free package'])
+                    ->orWhere('package_price', '<=', 0);
+            })
+            ->orderByDesc('id')
+            ->first();
+
+        if ($last && $last->package_start_date) {
+            return Carbon::parse($last->package_start_date);
+        }
+
+        if (empty($this->cvs_package_start_date) || ! $this->cvs_package_id) {
+            return null;
+        }
+
+        $pkg = Package::find($this->cvs_package_id);
+        if (! $pkg || $pkg->package_for !== 'cv_search' || (float) $pkg->package_price > 0) {
+            return null;
+        }
+
+        return Carbon::parse($this->cvs_package_start_date);
+    }
+
+    /**
+     * Check if the company can activate a free CV search package.
+     * Free CV search packages can only be activated once per period (default 30 days).
+     */
+    public function canActivateFreeCvSearchPackage(int $periodDays = 30): bool
+    {
+        $start = $this->getLastFreeCvSearchPackageStartDate();
+        if ($start === null) {
+            return true;
+        }
+
+        return Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays));
+    }
+
+    /**
+     * Get the next available date when a free CV search package can be activated.
+     */
+    public function getFreeCvPackageNextAvailableAt(int $periodDays = 30): ?Carbon
+    {
+        if ($this->canActivateFreeCvSearchPackage($periodDays)) {
+            return null;
+        }
+
+        $start = $this->getLastFreeCvSearchPackageStartDate();
+
+        return $start ? $start->copy()->addDays($periodDays) : null;
+    }
+
+    /**
+     * Check if the company is on an exhausted free CV search period.
+     */
+    public function isOnExhaustedFreeCvSearchPeriod(int $periodDays = 30): bool
+    {
+        if ($this->getRemainingCvsQuota() > 0) {
+            return false;
+        }
+
+        $start = $this->getLastFreeCvSearchPackageStartDate();
+        if ($start === null || Carbon::now()->greaterThanOrEqualTo($start->copy()->addDays($periodDays))) {
+            return false;
+        }
+
+        return ! empty($this->cvs_package_id)
+            && $this->cvs_package_end_date
+            && Carbon::parse($this->cvs_package_end_date)->startOfDay()->gte(Carbon::now()->startOfDay());
+    }
+
+
     public function jobs()
 
     {

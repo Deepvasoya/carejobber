@@ -327,27 +327,7 @@
                         </div>
                         </div>
                         </div>
-        @else
-        <div class="col-md-4 col-sm-6 col-xs-12">
-                            <ul class="boxes">
-                                <li class="plan-name">{{$package->package_title}}</li>
-                                <li>
-                                    <div class="main-plan">
-                                        <div class="plan-price1-1">{{ $siteSetting->default_currency_code }}</div>
-                                        <div class="plan-price1-2">0</div>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                </li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Applicant CV Views')}} {{$package->package_num_listings}}</li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('CV View Access')}} {{$package->package_num_days}} {{__('Days')}}</li>
-                                <li class="plan-pages"><i class="far fa-check-square"></i> {{__('Premium Support 24/7')}}</li>
-                                @if(! $company->canActivateFreeCvSearchPackage())
-                                    <li class="order paypal"><span class="reqbtn" style="opacity: 0.6; cursor: not-allowed;" title="{{ $company->getFreeCvPackageNextAvailableAt() ? __('Available again from :date', ['date' => $company->getFreeCvPackageNextAvailableAt()->format('d M Y H:i')]) : '' }}">{{__('Silver — one activation per 30 days')}} <i class="fas fa-check"></i></span></li>
-                                @else
-                                    <li class="order paypal"><a href="{{ route('order.free.package', $package->id) }}" class="reqbtn">{{__('Activate Now')}} <i class="fas fa-arrow-right"></i></a></li>
-                                @endif
-                            </ul>
-                        </div>
+        {{-- Free CV packages removed - only paid packages available for verified employers --}}
         @endif
             @endforeach </div>
     </div>

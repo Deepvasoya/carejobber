@@ -255,6 +255,11 @@ class IyzicoOrderController extends Controller
                 $company = Auth::guard('company')->user();
                 
                 if ($package->package_for == 'cv_search') {
+                    // Only verified employers can purchase CV packages
+                    if (!$company->isEmployerVerified()) {
+                        flash(__('Only verified employers can purchase CV search packages. Please get verified first.'))->error();
+                        return redirect()->route('company.verification.upload');
+                    }
                     if ($new_or_upgrade == 'new') {
                         $this->addCompanySearchPackage($company, $package, 'Iyzico');
                     } else {
