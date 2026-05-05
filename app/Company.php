@@ -153,14 +153,13 @@ class Company extends Authenticatable
     public function getEmployerTrustStatus(): string
     {
         $status = $this->employer_trust_status;
+        
+        // Always return 'unverified' as default if employer_trust_status is not explicitly set
         if (in_array($status, ['unverified', 'reviewed', 'verified'], true)) {
             return $status;
         }
 
-        if ($this->isVerified()) {
-            return 'verified';
-        }
-
+        // Default to unverified for any NULL or invalid status
         return 'unverified';
     }
 
