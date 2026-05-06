@@ -29,8 +29,8 @@
 @include('includes.footer')
 
 {{-- Verification Modal for Unverified Employers --}}
-@if(Auth::guard('company')->check() && Auth::guard('company')->user()->getEmployerTrustStatus() === 'unverified')
-<div class="modal fade" id="verificationModal" tabindex="-1" role="dialog" aria-labelledby="verificationModalLabel" aria-hidden="true">
+@if(Auth::guard('company')->check() && Auth::guard('company')->user()->getEmployerTrustStatus() === 'unverified' && !Auth::guard('company')->user()->isVerified())
+<div class="modal fade" id="verificationModal" tabindex="-1" role="dialog" aria-labelledby="verificationModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header" style="background: #f8f9fa; border-bottom: 2px solid #ffc107;">
@@ -69,7 +69,7 @@
                 </ul>
             </div>
             <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 15px 30px;">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="continueAnywayBtn">
                     {{ __('Continue Anyway') }}
                 </button>
                 <a href="{{ route('company.verification.upload') }}" class="btn btn-primary">
@@ -91,6 +91,15 @@ $(document).ready(function() {
             _token: '{{ csrf_token() }}'
         });
     @endif
+    
+    // Ensure Continue Anyway button works properly - force close modal
+    $('#continueAnywayBtn, #verificationModal .close').on('click', function(e) {
+        e.preventDefault();
+        $('#verificationModal').modal('hide');
+        // Remove backdrop manually if it persists
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+    });
 });
 </script>
 @endpush
