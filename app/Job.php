@@ -449,4 +449,57 @@ class Job extends Model
     }
 
     /*     * ***************************** */
+
+    public function medoCategory()
+    {
+        return $this->belongsTo('App\Models\Medo\Category', 'medo_category_id');
+    }
+
+    public function medoProvince()
+    {
+        return $this->belongsTo('App\Models\Medo\Province', 'medo_province_id');
+    }
+
+    public function medoCity()
+    {
+        return $this->belongsTo('App\Models\Medo\City', 'medo_city_id');
+    }
+
+    public function medoEmployer()
+    {
+        return $this->belongsTo('App\Models\Medo\Employer', 'medo_employer_id');
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($job) {
+            // Auto-map legacy functional area to medo category
+            if (!$job->medo_category_id && $job->functional_area_id) {
+                $categoryMapping = [
+                    655 => 1, // HCA
+                    656 => 2, // LPN
+                    657 => 3, // RN
+                ];
+                if (isset($categoryMapping[$job->functional_area_id])) {
+                    $job->medo_category_id = $categoryMapping[$job->functional_area_id];
+                }
+            }
+
+            // Auto-map legacy city to medo city and province
+            if (!$job->medo_city_id && $job->city_id) {
+                $cityMapping = [
+                    10125 => 2, // Edmonton
+                    10107 => 1, // Calgary
+                    10169 => 3, // Red Deer
+                    10150 => 4, // Lethbridge
+                    10156 => 5, // Medicine Hat
+                    10135 => 7, // Grande Prairie
+                ];
+                if (isset($cityMapping[$job->city_id])) {
+                    $job->medo_city_id = $cityMapping[$job->city_id];
+                    $job->medo_province_id = 1; // Alberta (default for launch)
+                }
+            }
+        });
+    }
 }

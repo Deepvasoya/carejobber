@@ -95,11 +95,27 @@ class ScrapeJobFeeds extends Command
      */
     private function runAdapter(JobFeedSource $source, bool $dryRun): array
     {
+        $classMap = [
+            'ahs' => \App\Services\Scrapers\Alberta\AhsScraper::class,
+            'covenant' => \App\Services\Scrapers\Alberta\CovenantScraper::class,
+            'bethany' => \App\Services\Scrapers\Alberta\BethanyScraper::class,
+            'agecare' => \App\Services\Scrapers\Alberta\AgeCareScraper::class,
+            'capitalcare' => \App\Services\Scrapers\Alberta\CapitalCareScraper::class,
+        ];
+
+        // Explicit scraper architecture
+        if (isset($classMap[$source->slug])) {
+            $scraper = new $classMap[$source->slug]();
+            $runner = new \App\Services\Scrapers\ScraperRunner();
+            return $runner->run($scraper, $source->slug, $dryRun);
+        }
+
+        // Legacy fallback
         $provider = strtolower(trim($source->provider ?? ''));
 
         switch ($provider) {
             case 'sitemap':
-            case 'custom': // existing seeded source uses "custom" — treat as sitemap
+            case 'custom':
                 if (! $source->source_url) {
                     throw new \RuntimeException('No source_url configured for sitemap provider.');
                 }
@@ -108,8 +124,7 @@ class ScrapeJobFeeds extends Command
 
             default:
                 throw new \RuntimeException(
-                    "No scraper adapter registered for provider \"{$provider}\". "
-                    . "Supported: sitemap, custom."
+                    "No explicit scraper class registered for slug \"{$source->slug}\" and no provider registered."
                 );
         }
     }

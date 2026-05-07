@@ -44,6 +44,62 @@
         </div>
     </div>
 
+    <!-- Scheduled Cron Jobs -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header border-bottom-0">
+                <h5 class="card-title mb-0">Configured Cron Schedules</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-centered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Command</th>
+                                <th>Expression</th>
+                                <th>Next Run Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($crons as $cron)
+                            <tr>
+                                <td><code>{{ $cron['command'] }}</code></td>
+                                <td><span class="badge bg-primary">{{ $cron['expression'] }}</span></td>
+                                <td>{{ $cron['next_run'] }}</td>
+                                <td>
+                                    @php
+                                        $valid = [
+                                            'jobs:scrape',
+                                            'jobs:scrape ahs',
+                                            'jobs:scrape covenant',
+                                            'jobs:scrape ab-ltc',
+                                            'jobs:scrape ab-agencies',
+                                            'jobs:expire',
+                                            'indexnow:ping'
+                                        ];
+                                    @endphp
+                                    @if(in_array($cron['command'], $valid))
+                                        <form action="{{ route('admin.scraper.run_command') }}" method="POST" style="display:inline;" onsubmit="return confirm('Run command: {{ $cron['command'] }}?');">
+                                            @csrf
+                                            <input type="hidden" name="command" value="{{ $cron['command'] }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="ri-play-fill"></i> Run Now</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No scheduled jobs found.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Feed Sources -->
     <div class="col-md-5">
         <div class="card mb-4">

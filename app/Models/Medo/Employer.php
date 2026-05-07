@@ -30,6 +30,6 @@ class Employer extends Model
 
     public function jobs()
     {
-        return $this->hasMany(Job::class);
+        return $this->hasMany(\App\Job::class, 'medo_employer_id');
     }
 }

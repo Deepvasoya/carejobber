@@ -34,8 +34,19 @@ class Kernel extends ConsoleKernel
 		$schedule->command('route:call send-alerts')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
 		$schedule->command('send:incomplete-profile-reminders')->weekly()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/incomplete-profile-reminders.log');
 		
-		// Job feed scraper - runs every hour to fetch external job postings
-		$schedule->command('jobs:scrape')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper.log');
+		// Alberta sources
+		$schedule->command('jobs:scrape ahs')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ahs.log');
+		$schedule->command('jobs:scrape covenant')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-covenant.log');
+		$schedule->command('jobs:scrape ab-ltc')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-ltc.log');
+		$schedule->command('jobs:scrape ab-agencies')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-agencies.log');
+		
+		// National maintenance
+		$schedule->command('jobs:expire')->daily()->sendOutputTo(storage_path() . '/logs/jobs-expire.log');
+		$schedule->command('indexnow:ping')->everyFifteenMinutes()->sendOutputTo(storage_path() . '/logs/indexnow-ping.log');
+		
+		// Note: cache:prune-stale-pages is handled by standard Laravel file cache expiration when using Cache::remember. 
+		// If using Redis or other drivers, standard TTL handles this.
+		// Note: sitemap:build is generated dynamically.
     }
 
     /**

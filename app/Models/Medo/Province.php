@@ -22,4 +22,9 @@ class Province extends Model
     {
         return $this->hasMany(City::class);
     }
+
+    public function jobs()
+    {
+        return $this->hasMany(\App\Job::class, 'medo_province_id');
+    }
 }

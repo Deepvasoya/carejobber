@@ -9,6 +9,7 @@ use App\Models\Medo\Job;
 use App\Models\Medo\Province;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -111,6 +112,7 @@ class SitemapScraper
                 $stats[$result]++;
                 if ($result === 'imported' || $result === 'updated') {
                     $stats['imported_list'][] = ['url' => $pageUrl, 'title' => $row['title'], 'status' => $result];
+                    Cache::forget("jobs.{$row['category_slug']}.{$this->alberta->slug}.{$row['city_slug']}");
                 } else {
                     $stats['skipped_list'][] = ['url' => $pageUrl, 'title' => $row['title'], 'reason' => 'Skipped during upsert'];
                 }
@@ -118,6 +120,9 @@ class SitemapScraper
                 $stats['errors'][] = $pageUrl . ': ' . $e->getMessage();
                 Log::error('[SitemapScraper] ' . $pageUrl . ': ' . $e->getMessage());
             }
+
+            // Rate limit: 1 request per 2 seconds
+            usleep(2000000);
         }
 
         return $stats;
