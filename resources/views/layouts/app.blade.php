@@ -25,7 +25,13 @@ if (!isset($seo)) {
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{__($seo->seo_title) }}</title>
+    @hasSection('page_title')
+        <title>@yield('page_title')</title>
+    @else
+        <title>{{__($seo->seo_title) }}</title>
+    @endif
+
+    @stack('robots_meta')
 
     <meta name="Description" content="{!! $seo->seo_description !!}">
 

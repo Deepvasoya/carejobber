@@ -281,15 +281,16 @@ use AuthenticatesUsers;
 
         public function logout(Request $request)
     {
-        $userEmail = Auth::guard('company')->user()->email;
-        Auth::guard('company')->logout();
+        $user = Auth::guard('company')->user();
 
-        $filePath = base_path('../shared/shared_session.txt');
+        if ($user) {
+            $userEmail = $user->email;
+            Auth::guard('company')->logout();
+
+            $filePath = base_path('../shared/shared_session.txt');
             $secretKey = '262646-mycode-4684927';
             if(file_exists($filePath)){
                 $sessionData = json_decode(file_get_contents($filePath), true) ?? [];
-
-
 
                 // Generate a token by encoding the email with HMAC
                 $token = hash_hmac('sha256', $userEmail, $secretKey);
@@ -297,7 +298,6 @@ use AuthenticatesUsers;
                 
                 // Save the updated session data back to the file
                 file_put_contents($filePath, json_encode($sessionData));
-
 
                 $cookieName = 'user_token';
                 $cookieValue = '';
@@ -307,6 +307,9 @@ use AuthenticatesUsers;
                 // Set the cookie
                 setcookie($cookieName, $cookieValue, $expiration, $path, '', false, true);   
             }
+        } else {
+            Auth::guard('company')->logout();
+        }
 
   
 

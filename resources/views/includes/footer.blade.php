@@ -68,11 +68,20 @@
                 <!--Quick Links menu Start-->
                 <ul class="quicklinks">
                     @php
-                    $functionalAreas = App\FunctionalArea::getUsingFunctionalAreas(10);
+                    $medoFooterCategories = App\Models\Medo\Category::all();
                     @endphp
-                    @foreach($functionalAreas as $functionalArea)
-                    <li><a href="{{ route('job.list', ['functional_area_id[]'=>$functionalArea->functional_area_id]) }}">{{$functionalArea->functional_area}}</a></li>
-                    @endforeach
+                    @if($medoFooterCategories->isNotEmpty())
+                        @foreach($medoFooterCategories as $medoFooterCat)
+                        <li><a href="{{ route('jobs.category', $medoFooterCat) }}">{{ $medoFooterCat->name }} Jobs</a></li>
+                        @endforeach
+                    @else
+                        @php
+                        $functionalAreas = App\FunctionalArea::getUsingFunctionalAreas(10);
+                        @endphp
+                        @foreach($functionalAreas as $functionalArea)
+                        <li><a href="{{ route('job.list', ['functional_area_id[]'=>$functionalArea->functional_area_id]) }}">{{$functionalArea->functional_area}}</a></li>
+                        @endforeach
+                    @endif
                 </ul>
             </div>
 

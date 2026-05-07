@@ -35,6 +35,7 @@
         <div class="collapse" id="job">
             <ul class="sub-menu">
                 @if(APAuthHelp::can('jobs.import'))<li class="side-nav-item"><a href="{{ route('list.jobsB') }}" class="side-nav-link">Import Jobs</a></li>@endif
+                @if(APAuthHelp::can('jobs.import'))<li class="side-nav-item"><a href="{{ route('admin.scraper.index') }}" class="side-nav-link">Job Scraper</a></li>@endif
                 @if(APAuthHelp::can('jobs.view'))<li class="side-nav-item"><a href="{{ route('list.jobs') }}" class="side-nav-link">List Jobs</a></li>@endif
                 @if(APAuthHelp::can('jobs.create'))<li class="side-nav-item"><a href="{{ route('create.job') }}" class="side-nav-link">Add New Job</a></li>@endif
             </ul>

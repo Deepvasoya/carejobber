@@ -114,6 +114,10 @@ Route::group(['namespace' => 'Admin'], function () {
 
     /*Widget data routes End*/
 
-
+    /*Scraper Page routes Start*/
+    Route::get('/scraper', 'ScraperController@index')->name('admin.scraper.index');
+    Route::post('/scraper/store', 'ScraperController@store')->name('admin.scraper.store');
+    Route::post('/scraper/run', 'ScraperController@run')->name('admin.scraper.run');
+    /*Scraper Page routes End*/
 
 });
