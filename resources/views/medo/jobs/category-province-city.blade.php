@@ -7,9 +7,9 @@
 <main class="medo-pseo-wrap">
     <div class="container">
         <nav class="medo-breadcrumbs">
-            <a href="{{ route('medo.jobs.category', $category) }}">{{ $category->name }}</a>
+            <a href="{{ route('jobs.category', $category) }}">{{ $category->name }}</a>
             <span>/ </span>
-            <a href="{{ route('medo.jobs.category.province', [$category, $province]) }}">{{ $province->name }}</a>
+            <a href="{{ route('jobs.category.province', [$category, $province]) }}">{{ $province->name }}</a>
             <span>/ {{ $city->name }}</span>
         </nav>
 
@@ -57,7 +57,7 @@
                         <ul>
                             @foreach($relatedCities as $relatedCity)
                                 <li>
-                                    <a href="{{ route('medo.jobs.category.province.city', [$category, $province, $relatedCity]) }}">
+                                    <a href="{{ route('jobs.category.province.city', [$category, $province, $relatedCity]) }}">
                                         {{ $relatedCity->name }}
                                     </a>
                                 </li>
@@ -72,7 +72,7 @@
                         <ul>
                             @foreach($relatedCategories as $relatedCategory)
                                 <li>
-                                    <a href="{{ route('medo.jobs.category.province.city', [$relatedCategory, $province, $city]) }}">
+                                    <a href="{{ route('jobs.category.province.city', [$relatedCategory, $province, $city]) }}">
                                         {{ $relatedCategory->name }}
                                     </a>
                                 </li>

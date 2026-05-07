@@ -69,7 +69,9 @@ Route::get('geocode-city', [SearchAutocompleteController::class, 'reverseGeocode
 Route::get('/', 'IndexController@index')->name('index');
 Route::get('sitemap.xml', 'SitemapController@index')->name('sitemap.index');
 Route::get('sitemap-jobs.xml', 'SitemapController@jobs')->name('sitemap.jobs');
-Route::get('employers/{company:slug}', 'Seo\ProgrammaticSeoController@employer')->name('seo.employer');
+Route::get('sitemap-categories.xml', 'SitemapController@categories')->name('sitemap.categories');
+Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitemap.employers');
+Route::get('employers/{slug}', [\App\Http\Controllers\Medo\EmployerController::class, 'resolve'])->name('employers.show');
 Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
 Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
 
@@ -152,15 +154,20 @@ include_once($real_path . 'order.php');
 include_once($real_path . 'cms.php');
 /* * ******** Medojob pSEO Routes ************ */
 Route::group(['namespace' => 'Medo'], function () {
-    Route::get('/jobs', [\App\Http\Controllers\Medo\JobController::class, 'index'])->name('medo.jobs.index');
-    Route::get('/jobs/{medo_category:slug}', [\App\Http\Controllers\Medo\CategoryController::class, 'show'])
-        ->name('medo.jobs.category');
-    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}', [\App\Http\Controllers\Medo\CategoryProvinceController::class, 'show'])
-        ->name('medo.jobs.category.province');
-    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}/{medo_city:slug}', [\App\Http\Controllers\Medo\CategoryProvinceCityController::class, 'show'])
-        ->name('medo.jobs.category.province.city');
-    Route::get('/jobs/{medo_category:slug}/{medo_province:slug}/{medo_city:slug}/{medo_job:slug}', [\App\Http\Controllers\Medo\JobDetailController::class, 'show'])
-        ->name('medo.jobs.detail');
+    Route::get('/jobs/{category:slug}', [\App\Http\Controllers\Medo\CategoryController::class, 'show'])
+        ->name('jobs.category');
+    Route::get('/jobs/{category:slug}/{province:slug}', [\App\Http\Controllers\Medo\CategoryProvinceController::class, 'show'])
+        ->name('jobs.category.province')
+        ->withoutScopedBindings();
+    Route::get('/jobs/{category:slug}/{province:slug}/{city:slug}', [\App\Http\Controllers\Medo\CategoryProvinceCityController::class, 'show'])
+        ->name('jobs.category.province.city')
+        ->withoutScopedBindings();
+    Route::get('/jobs/{category:slug}/{province:slug}/{city:slug}/{job:slug}', [\App\Http\Controllers\Medo\JobDetailController::class, 'show'])
+        ->name('jobs.detail')
+        ->withoutScopedBindings();
+    Route::get('/salary/{category:slug}/{province:slug}', [\App\Http\Controllers\Medo\SalaryController::class, 'show'])
+        ->name('salary.category.province')
+        ->withoutScopedBindings();
 });
 
 /* * ******** JobController ************ */

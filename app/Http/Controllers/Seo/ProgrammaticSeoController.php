@@ -83,8 +83,8 @@ class ProgrammaticSeoController extends Controller
         $salary = $this->seo->salaryStats($query);
         $content = $this->seo->landingContent($category, $city, $jobCount, $salary);
         $canonical = $city
-            ? route('seo.jobs.city', [$category->slug, $city->slug])
-            : route('seo.jobs.category', $category->slug);
+            ? route('jobs.category.province.city', [$category->slug, 'ab', $city->slug])
+            : route('jobs.category', $category->slug);
 
         \App\Job::orderByPromotionPriority($query);
         $jobs = $query->paginate(15);

@@ -12,8 +12,6 @@ Route::get('search-jobs', function (\Illuminate\Http\Request $request) {
     return redirect('/jobs' . ($query ? '?' . $query : ''), 301);
 });
 Route::get('jobs', 'Job\JobController@jobsBySearch')->name('job.list');
-Route::get('jobs/{category:slug}/{city:slug}', 'Seo\ProgrammaticSeoController@city')->name('seo.jobs.city');
-Route::get('jobs/{category:slug}', 'Seo\ProgrammaticSeoController@category')->name('seo.jobs.category');
 Route::get('add-to-favourite-job/{job_slug}', 'Job\JobController@addToFavouriteJob')->name('add.to.favourite');
 Route::get('remove-from-favourite-job/{job_slug}', 'Job\JobController@removeFromFavouriteJob')->name('remove.from.favourite');
 Route::get('my-job-applications', 'Job\JobController@myJobApplications')->name('my.job.applications');

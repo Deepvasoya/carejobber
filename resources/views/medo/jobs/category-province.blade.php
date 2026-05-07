@@ -7,7 +7,7 @@
 <main class="medo-pseo-wrap">
     <div class="container">
         <nav class="medo-breadcrumbs">
-            <a href="{{ route('medo.jobs.category', $category) }}">{{ $category->name }}</a>
+            <a href="{{ route('jobs.category', $category) }}">{{ $category->name }}</a>
             <span>/ {{ $province->name }}</span>
         </nav>
 
@@ -29,7 +29,7 @@
                 <ul class="medo-link-list">
                     @foreach($cities as $city)
                         <li>
-                            <a href="{{ route('medo.jobs.category.province.city', [$category, $province, $city]) }}">
+                            <a href="{{ route('jobs.category.province.city', [$category, $province, $city]) }}">
                                 {{ $city->name }}
                             </a>
                         </li>

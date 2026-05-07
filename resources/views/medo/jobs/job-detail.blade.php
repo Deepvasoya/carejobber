@@ -62,7 +62,7 @@
                         <ul>
                             @foreach($relatedJobs as $relatedJob)
                                 <li>
-                                    <a href="{{ route('medo.jobs.detail', [$relatedJob->category, $relatedJob->province, $relatedJob->city, $relatedJob]) }}">
+                                    <a href="{{ route('jobs.detail', [$relatedJob->category, $relatedJob->province, $relatedJob->city, $relatedJob]) }}">
                                         {{ $relatedJob->title }}
                                     </a>
                                 </li>

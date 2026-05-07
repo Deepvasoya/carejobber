@@ -24,7 +24,7 @@
                 <ul class="medo-link-list">
                     @foreach($provinces as $province)
                         <li>
-                            <a href="{{ route('medo.jobs.category.province', [$category, $province]) }}">
+                            <a href="{{ route('jobs.category.province', [$category, $province]) }}">
                                 {{ $province->name }}
                             </a>
                         </li>

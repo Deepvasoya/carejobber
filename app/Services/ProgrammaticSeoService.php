@@ -136,11 +136,11 @@ class ProgrammaticSeoService
             ->limit(10)
             ->get()
             ->map(function (City $linkCity) use ($category) {
-                return [
-                    'label' => $this->categoryLabel($category) . ' jobs in ' . $linkCity->city,
-                    'url' => route('seo.jobs.city', [$category->slug, $linkCity->slug]),
-                ];
-            })
+                    return [
+                        'label' => $this->categoryLabel($category) . ' jobs in ' . $linkCity->city,
+                        'url' => route('jobs.category.province.city', [$category->slug, 'ab', $linkCity->slug]),
+                    ];
+                })
             ->all();
 
         $categoryLinks = [];
@@ -166,7 +166,7 @@ class ProgrammaticSeoService
                 ->map(function (FunctionalArea $linkCategory) use ($city) {
                     return [
                         'label' => $this->categoryLabel($linkCategory) . ' jobs in ' . $city->city,
-                        'url' => route('seo.jobs.city', [$linkCategory->slug, $city->slug]),
+                        'url' => route('jobs.category.province.city', [$linkCategory->slug, 'ab', $city->slug]),
                     ];
                 })
                 ->all();
@@ -193,7 +193,7 @@ class ProgrammaticSeoService
             'hiringOrganization' => [
                 '@type' => 'Organization',
                 'name' => $company ? $company->name : config('app.name'),
-                'sameAs' => $company ? route('seo.employer', $company->slug) : url('/'),
+                'sameAs' => $company ? route('employers.show', $company->slug) : url('/'),
             ],
             'jobLocation' => [
                 '@type' => 'Place',
@@ -242,7 +242,7 @@ class ProgrammaticSeoService
         return $this->seo(
             $company->name . ' healthcare jobs in ' . $city,
             'View active healthcare job postings from ' . $company->name . ' on Medojob.',
-            route('seo.employer', $company->slug)
+            route('employers.show', $company->slug)
         );
     }
 

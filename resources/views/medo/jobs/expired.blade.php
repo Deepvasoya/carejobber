@@ -19,7 +19,7 @@
         </section>
 
         <section class="medo-pseo-panel">
-            <a class="medo-button" href="{{ route('medo.jobs.category.province.city', [$category, $province, $city]) }}">
+            <a class="medo-button" href="{{ route('jobs.category.province.city', [$category, $province, $city]) }}">
                 {{ __('View current jobs in this city') }}
             </a>
         </section>

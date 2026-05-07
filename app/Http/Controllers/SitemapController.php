@@ -6,6 +6,11 @@ use App\City;
 use App\FunctionalArea;
 use App\Job;
 use App\SeoGuide;
+use App\Models\Medo\Category as MedoCategory;
+use App\Models\Medo\City as MedoCity;
+use App\Models\Medo\Employer as MedoEmployer;
+use App\Models\Medo\Job as MedoJob;
+use App\Models\Medo\Province as MedoProvince;
 use Illuminate\Support\Facades\DB;
 
 class SitemapController extends Controller
@@ -15,6 +20,14 @@ class SitemapController extends Controller
         $urls = [
             [
                 'loc' => url('/sitemap-jobs.xml'),
+                'lastmod' => now()->toDateString(),
+            ],
+            [
+                'loc' => url('/sitemap-categories.xml'),
+                'lastmod' => now()->toDateString(),
+            ],
+            [
+                'loc' => url('/sitemap-employers.xml'),
                 'lastmod' => now()->toDateString(),
             ],
         ];
@@ -53,7 +66,7 @@ class SitemapController extends Controller
                 continue;
             }
             $urls[] = [
-                'loc' => route('seo.jobs.category', $category->slug),
+                'loc' => route('jobs.category', $category->slug),
                 'lastmod' => now()->toDateString(),
             ];
             $urls[] = [
@@ -76,7 +89,7 @@ class SitemapController extends Controller
                 continue;
             }
             $urls[] = [
-                'loc' => route('seo.jobs.city', [$category->slug, $city->slug]),
+                'loc' => route('jobs.category.province.city', [$category->slug, 'ab', $city->slug]),
                 'lastmod' => now()->toDateString(),
             ];
         }
@@ -90,6 +103,66 @@ class SitemapController extends Controller
                     'lastmod' => optional($guide->updated_at)->toDateString() ?: now()->toDateString(),
                 ];
             });
+
+        return $this->xml($this->urlSet($urls));
+    }
+
+    public function categories()
+    {
+        $urls = [];
+
+        MedoCategory::all()->each(function (MedoCategory $category) use (&$urls) {
+            $urls[] = [
+                'loc' => route('jobs.category', $category),
+                'lastmod' => now()->toDateString(),
+            ];
+
+            MedoProvince::where('is_active', true)->each(function (MedoProvince $province) use ($category, &$urls) {
+                $provinceCount = MedoJob::where('category_id', $category->id)
+                    ->where('province_id', $province->id)
+                    ->where('expires_at', '>', now())
+                    ->count();
+
+                if ($provinceCount >= 3) {
+                    $urls[] = [
+                        'loc' => route('jobs.category.province', [$category, $province]),
+                        'lastmod' => now()->toDateString(),
+                    ];
+                }
+
+                MedoCity::where('province_id', $province->id)->each(function (MedoCity $city) use ($category, $province, &$urls) {
+                    $count = MedoJob::where('category_id', $category->id)
+                        ->where('city_id', $city->id)
+                        ->where('expires_at', '>', now())
+                        ->count();
+
+                    if ($count >= 3) {
+                        $urls[] = [
+                            'loc' => route('jobs.category.province.city', [$category, $province, $city]),
+                            'lastmod' => now()->toDateString(),
+                            'changefreq' => 'daily',
+                            'priority' => '0.8',
+                        ];
+                    }
+                });
+            });
+        });
+
+        return $this->xml($this->urlSet($urls));
+    }
+
+    public function employers()
+    {
+        $urls = [];
+
+        MedoEmployer::whereHas('jobs', function ($query) {
+            $query->where('expires_at', '>', now());
+        })->orderBy('slug')->each(function (MedoEmployer $employer) use (&$urls) {
+            $urls[] = [
+                'loc' => route('employers.show', $employer),
+                'lastmod' => optional($employer->updated_at)->toDateString() ?: now()->toDateString(),
+            ];
+        });
 
         return $this->xml($this->urlSet($urls));
     }
@@ -138,6 +211,12 @@ class SitemapController extends Controller
             $xml .= "  <url>\n";
             $xml .= '    <loc>' . e($url['loc']) . "</loc>\n";
             $xml .= '    <lastmod>' . e($url['lastmod']) . "</lastmod>\n";
+            if (isset($url['changefreq'])) {
+                $xml .= '    <changefreq>' . e($url['changefreq']) . "</changefreq>\n";
+            }
+            if (isset($url['priority'])) {
+                $xml .= '    <priority>' . e($url['priority']) . "</priority>\n";
+            }
             $xml .= "  </url>\n";
         }
         $xml .= '</urlset>';

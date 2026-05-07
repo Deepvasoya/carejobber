@@ -20,7 +20,7 @@
     <article class="medo-job-row">
         <div>
             <h3>
-                <a href="{{ route('medo.jobs.detail', [$cardCategory, $cardProvince, $cardCity, $job]) }}">
+                <a href="{{ route('jobs.detail', [$cardCategory, $cardProvince, $cardCity, $job]) }}">
                     {{ $job->title }}
                 </a>
             </h3>
@@ -53,7 +53,7 @@
             </div>
         </div>
         <div>
-            <a class="medo-button" href="{{ route('medo.jobs.detail', [$cardCategory, $cardProvince, $cardCity, $job]) }}">
+            <a class="medo-button" href="{{ route('jobs.detail', [$cardCategory, $cardProvince, $cardCity, $job]) }}">
                 {{ __('View job') }}
             </a>
         </div>
