@@ -27,25 +27,78 @@ class RouteServiceProvider extends ServiceProvider
         //
         parent::boot();
 
+        Route::bind('medo_category', function ($value) {
+            if ($value instanceof \App\Models\Medo\Category) {
+                return $value;
+            }
+
+            return \App\Models\Medo\Category::where('slug', $value)->firstOrFail();
+        });
+
+        Route::bind('medo_province', function ($value) {
+            if ($value instanceof \App\Models\Medo\Province) {
+                return $value;
+            }
+
+            return \App\Models\Medo\Province::where('slug', $value)->firstOrFail();
+        });
+
         Route::bind('medo_city', function ($value, $route) {
-            $province = $route->parameter('medo_province');
+            $province = $this->resolveMedoProvince($route);
             if (!$province) {
                 return \App\Models\Medo\City::where('slug', $value)->firstOrFail();
             }
+
             return \App\Models\Medo\City::where('slug', $value)
                 ->where('province_id', $province->id)
                 ->firstOrFail();
         });
 
         Route::bind('medo_job', function ($value, $route) {
-            $city = $route->parameter('medo_city');
+            $city = $this->resolveMedoCity($route);
             if (!$city) {
                 return \App\Models\Medo\Job::where('slug', $value)->firstOrFail();
             }
+
             return \App\Models\Medo\Job::where('slug', $value)
                 ->where('city_id', $city->id)
                 ->firstOrFail();
         });
+    }
+
+    private function resolveMedoProvince($route)
+    {
+        $province = $route->parameter('medo_province');
+
+        if (!$province || $province instanceof \App\Models\Medo\Province) {
+            return $province;
+        }
+
+        $province = \App\Models\Medo\Province::where('slug', $province)->firstOrFail();
+        $route->setParameter('medo_province', $province);
+
+        return $province;
+    }
+
+    private function resolveMedoCity($route)
+    {
+        $city = $route->parameter('medo_city');
+
+        if (!$city || $city instanceof \App\Models\Medo\City) {
+            return $city;
+        }
+
+        $province = $this->resolveMedoProvince($route);
+        $query = \App\Models\Medo\City::where('slug', $city);
+
+        if ($province) {
+            $query->where('province_id', $province->id);
+        }
+
+        $city = $query->firstOrFail();
+        $route->setParameter('medo_city', $city);
+
+        return $city;
     }
 
     /**

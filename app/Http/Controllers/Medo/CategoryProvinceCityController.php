@@ -22,6 +22,8 @@ class CategoryProvinceCityController extends Controller
             abort(404);
         }
 
+        abort_unless($medo_city->province_id === $medo_province->id, 404);
+
         $jobs = Cache::remember(
             "jobs.{$medo_category->slug}.{$medo_province->slug}.{$medo_city->slug}",
             now()->addHour(),
@@ -36,7 +38,12 @@ class CategoryProvinceCityController extends Controller
         // Quality gate — no thin pages indexed
         if ($jobs->count() < 3) {
             return response()
-                ->view('medo.jobs.thin-page', compact('category', 'province', 'city'))
+                ->view('medo.jobs.thin-page', [
+                    'category' => $medo_category,
+                    'province' => $medo_province,
+                    'city' => $medo_city,
+                    'jobCount' => $jobs->count(),
+                ])
                 ->header('X-Robots-Tag', 'noindex');
         }
 

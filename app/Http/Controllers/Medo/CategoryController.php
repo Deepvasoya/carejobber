@@ -13,6 +13,9 @@ class CategoryController extends Controller
             $query->where('category_id', $medo_category->id)->where('expires_at', '>', now());
         })->get();
 
-        return view('medo.jobs.category', compact('category', 'provinces'));
+        return view('medo.jobs.category', [
+            'category' => $medo_category,
+            'provinces' => $provinces,
+        ]);
     }
 }

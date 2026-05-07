@@ -29,7 +29,12 @@ class JobDetailController extends Controller
         // Expired jobs return 410 Gone (signals to Google to remove from index)
         if ($medo_job->expires_at <= now()) {
             return response()
-                ->view('medo.jobs.expired', compact('category', 'province', 'city', 'job'))
+                ->view('medo.jobs.expired', [
+                    'category' => $medo_category,
+                    'province' => $medo_province,
+                    'city' => $medo_city,
+                    'job' => $medo_job,
+                ])
                 ->setStatusCode(410)
                 ->header('X-Robots-Tag', 'noindex');
         }

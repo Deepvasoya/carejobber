@@ -13,6 +13,11 @@ class Job extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected $casts = [
         'posted_at' => 'datetime',
         'expires_at' => 'datetime',

@@ -14,6 +14,11 @@ class City extends Model
 
     protected $guarded = [];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function province()
     {
         return $this->belongsTo(Province::class);

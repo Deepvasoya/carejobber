@@ -18,6 +18,10 @@ class CategoryProvinceController extends Controller
             $query->where('category_id', $medo_category->id)->where('expires_at', '>', now());
         })->get();
 
-        return view('medo.jobs.category-province', compact('category', 'province', 'cities'));
+        return view('medo.jobs.category-province', [
+            'category' => $medo_category,
+            'province' => $medo_province,
+            'cities' => $cities,
+        ]);
     }
 }
