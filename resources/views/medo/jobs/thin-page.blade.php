@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
-{{-- Issue 3: Dynamic page title (Section 9 of brief) --}}
-@section('page_title'){{ $category->name }} Jobs in {{ $city->name }}, {{ strtoupper($province->slug) }} | Medojob@endsection
+@section('page_title', $category->name . ' Jobs in ' . $city->name . ', ' . strtoupper($province->slug) . ' | Medojob')
 
 {{-- Issue 4: noindex for thin pages (Section 7 of brief) --}}
 @push('robots_meta')

@@ -28,38 +28,41 @@ class CategoryProvinceCityController extends Controller
             "jobs.{$category->slug}.{$province->slug}.{$city->slug}",
             now()->addHour(),
             function() use ($category, $city) {
-                // Query jobs using medo fields OR legacy fields as fallback
-                return \App\Job::where(function($query) use ($category, $city) {
-                    // Primary: Use medo fields
-                    $query->where('medo_category_id', $category->id)
-                          ->where('medo_city_id', $city->id);
-                })
-                ->orWhere(function($query) use ($category, $city) {
-                    // Fallback: Use legacy fields with mapping
-                    $categoryMapping = [1 => 655, 2 => 656, 3 => 657]; // medo_cat => func_area
-                    $cityMapping = [1 => 10107, 2 => 10125, 3 => 10169, 4 => 10150, 5 => 10156, 7 => 10135]; // medo_city => legacy_city
-                    
-                    if (isset($categoryMapping[$category->id]) && isset($cityMapping[$city->id])) {
-                        $query->where('functional_area_id', $categoryMapping[$category->id])
-                              ->where('city_id', $cityMapping[$city->id]);
-                    }
-                })
-                ->where('is_active', 1)
-                ->where('expiry_date', '>', now())
-                ->with('company', 'medoEmployer')
-                ->orderByDesc('created_at')
-                ->get();
+                // Query medo_jobs table (from scrapers and imports)
+                return \App\Models\Medo\Job::where('category_id', $category->id)
+                    ->where('city_id', $city->id)
+                    ->where('expires_at', '>', now())
+                    ->with('employer', 'category', 'city', 'province')
+                    ->orderByDesc('posted_at')
+                    ->get();
             }
         );
 
         // Quality gate — no thin pages indexed
         if ($jobs->count() < 3) {
+            $seoTitle = "{$category->name} Jobs in {$city->name}, " . strtoupper($province->slug) . " | Medojob";
+            $seoDesc = "Be the first to know when {$category->name} positions open up in {$city->name}. Set up a free job alert.";
+            
+            $seo = (object)[
+                'seo_title' => $seoTitle,
+                'seo_description' => $seoDesc,
+                'seo_keywords' => "{$category->name} jobs, {$city->name} jobs, healthcare jobs, {$province->name}",
+                'seo_other' => '
+                    <meta property="og:type" content="website"/>
+                    <meta property="og:title" content="'.e($seoTitle).'"/>
+                    <meta property="og:description" content="'.e($seoDesc).'"/>
+                    <meta property="og:site_name" content="Medojob"/>
+                    <meta property="og:url" content="'.url()->current().'"/>
+                '
+            ];
+            
             return response()
                 ->view('medo.jobs.thin-page', [
                     'category' => $category,
                     'province' => $province,
                     'city' => $city,
                     'jobCount' => $jobs->count(),
+                    'seo' => $seo,
                 ])
                 ->header('X-Robots-Tag', 'noindex');
         }

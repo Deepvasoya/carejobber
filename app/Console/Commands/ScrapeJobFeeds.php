@@ -101,6 +101,7 @@ class ScrapeJobFeeds extends Command
             'bethany' => \App\Services\Scrapers\Alberta\BethanyScraper::class,
             'agecare' => \App\Services\Scrapers\Alberta\AgeCareScraper::class,
             'capitalcare' => \App\Services\Scrapers\Alberta\CapitalCareScraper::class,
+            'demo' => \App\Services\Scrapers\Alberta\DemoScraper::class,
         ];
 
         // Explicit scraper architecture
