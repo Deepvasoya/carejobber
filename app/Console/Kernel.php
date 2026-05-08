@@ -40,6 +40,9 @@ class Kernel extends ConsoleKernel
 		$schedule->command('jobs:scrape ab-ltc')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-ltc.log');
 		$schedule->command('jobs:scrape ab-agencies')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-agencies.log');
 		
+		// Sync employer-posted jobs to pSEO
+		$schedule->command('jobs:sync-legacy-to-medo')->everyFifteenMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/job-sync-legacy.log');
+		
 		// National maintenance
 		$schedule->command('jobs:expire')->daily()->sendOutputTo(storage_path() . '/logs/jobs-expire.log');
 		$schedule->command('indexnow:ping')->everyFifteenMinutes()->sendOutputTo(storage_path() . '/logs/indexnow-ping.log');
