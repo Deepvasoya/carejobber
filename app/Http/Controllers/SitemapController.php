@@ -66,7 +66,7 @@ class SitemapController extends Controller
                 continue;
             }
             $urls[] = [
-                'loc' => route('jobs.category', $category->slug),
+                'loc' => route('medo.jobs.category', $category->slug),
                 'lastmod' => now()->toDateString(),
             ];
             $urls[] = [
@@ -89,7 +89,7 @@ class SitemapController extends Controller
                 continue;
             }
             $urls[] = [
-                'loc' => route('jobs.category.province.city', [$category->slug, 'ab', $city->slug]),
+                'loc' => route('medo.jobs.category.province.city', [$category->slug, 'ab', $city->slug]),
                 'lastmod' => now()->toDateString(),
             ];
         }
@@ -113,7 +113,7 @@ class SitemapController extends Controller
 
         MedoCategory::all()->each(function (MedoCategory $category) use (&$urls) {
             $urls[] = [
-                'loc' => route('jobs.category', $category),
+                'loc' => route('medo.jobs.category', $category),
                 'lastmod' => now()->toDateString(),
             ];
 
@@ -125,7 +125,7 @@ class SitemapController extends Controller
 
                 if ($provinceCount >= 3) {
                     $urls[] = [
-                        'loc' => route('jobs.category.province', [$category, $province]),
+                        'loc' => route('medo.jobs.category.province', [$category, $province]),
                         'lastmod' => now()->toDateString(),
                     ];
                 }
@@ -138,7 +138,7 @@ class SitemapController extends Controller
 
                     if ($count >= 3) {
                         $urls[] = [
-                            'loc' => route('jobs.category.province.city', [$category, $province, $city]),
+                            'loc' => route('medo.jobs.category.province.city', [$category, $province, $city]),
                             'lastmod' => now()->toDateString(),
                             'changefreq' => 'daily',
                             'priority' => '0.8',
