@@ -20,12 +20,8 @@ class SyncLegacyJobsToMedo extends Command
     {
         $this->info('Starting sync of legacy jobs to medo_jobs...');
         
-        // Category mapping
-        $categoryMapping = [
-            655 => 1, // HCA
-            656 => 2, // LPN
-            657 => 3, // RN
-        ];
+        // Category mapping - map functional_area names to medo categories
+        $categoryMapping = $this->buildCategoryMapping();
         
         // City mapping
         $cityMapping = [
@@ -43,19 +39,22 @@ class SyncLegacyJobsToMedo extends Command
         
         // Get active jobs from legacy table
         $legacyJobs = Job::where('is_active', 1)
-            ->whereIn('functional_area_id', array_keys($categoryMapping))
             ->whereIn('city_id', array_keys($cityMapping))
             ->where('expiry_date', '>', now())
+            ->with('functionalArea')
             ->get();
         
         $this->info("Found {$legacyJobs->count()} eligible legacy jobs");
         
         foreach ($legacyJobs as $legacyJob) {
             try {
-                $categoryId = $categoryMapping[$legacyJob->functional_area_id] ?? null;
+                // Map functional area name to medo category
+                $functionalAreaName = $legacyJob->functionalArea ? strtolower($legacyJob->functionalArea->functional_area) : '';
+                $categoryId = $categoryMapping[$functionalAreaName] ?? null;
                 $cityId = $cityMapping[$legacyJob->city_id] ?? null;
                 
                 if (!$categoryId || !$cityId) {
+                    $this->line("Skipping job {$legacyJob->id}: No category mapping for '{$functionalAreaName}' or city {$legacyJob->city_id}");
                     $skipped++;
                     continue;
                 }
@@ -156,5 +155,22 @@ class SyncLegacyJobsToMedo extends Command
         ];
         
         return $periodMap[$job->salary_period_id] ?? 'hourly';
+    }
+    
+    private function buildCategoryMapping()
+    {
+        // Map functional area names (case-insensitive) to medo category IDs
+        return [
+            'health care aide' => 1,
+            'healthcare aide' => 1,
+            'hca' => 1,
+            'care aide' => 1,
+            'licensed practical nurse' => 2,
+            'lpn' => 2,
+            'practical nurse' => 2,
+            'registered nurse' => 3,
+            'rn' => 3,
+            'nurse' => 3,
+        ];
     }
 }
