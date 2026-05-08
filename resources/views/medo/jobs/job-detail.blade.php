@@ -1,81 +1,86 @@
 @extends('layouts.app')
 
+@section('page_title', $job->title . ' | ' . $employer->name . ' | ' . $city->name . ', ' . $province->code)
+
 @section('content')
-@include('includes.header')
-@include('flash::message')
+<div class="container mt-4">
+    @include('medo.partials.breadcrumbs', ['items' => $breadcrumbs])
+    @include('medo.partials.job-posting-schema', ['jobs' => collect([$job])])
+    @include('medo.partials.breadcrumb-schema', ['items' => $breadcrumbs])
 
-<main class="medo-pseo-wrap">
-    <div class="container">
-        <nav class="medo-breadcrumbs">
-            @foreach($breadcrumbs as $breadcrumb)
-                @if($breadcrumb['url'])
-                    <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['label'] }}</a>
-                    <span>/ </span>
-                @else
-                    <span>{{ $breadcrumb['label'] }}</span>
-                @endif
-            @endforeach
-        </nav>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="h3 mb-3">{{ $job->title }}</h1>
+                    
+                    <div class="mb-3">
+                        <strong>{{ $employer->name }}</strong> · {{ $city->name }}, {{ $province->code }}
+                    </div>
 
-        <section class="medo-pseo-header">
-            <div>
-                <p class="medo-eyebrow">{{ optional($employer)->name ?? __('Healthcare employer') }}</p>
-                <h1>{{ $job->title }}</h1>
-                <p class="mb-0">
-                    {{ $city->name }}, {{ strtoupper($province->slug) }}
-                    @if($job->facility_name)
-                        - {{ $job->facility_name }}
-                    @endif
-                </p>
-            </div>
-            <div class="medo-stat">
-                <span>{{ __('Category') }}</span>
-                <strong style="font-size: 24px;">{{ $category->name }}</strong>
-                @if($job->posted_at)
-                    <span>{{ __('Posted') }} {{ $job->posted_at->format('M j, Y') }}</span>
-                @endif
-            </div>
-        </section>
+                    <div class="mb-3">
+                        @if($job->employment_type)
+                            <span class="badge bg-secondary">{{ ucfirst(str_replace('_', '-', $job->employment_type)) }}</span>
+                        @endif
+                        @if($job->shift_type)
+                            <span class="badge bg-secondary">{{ ucfirst($job->shift_type) }}</span>
+                        @endif
+                        @if($job->wage_min)
+                            <span class="badge bg-success">${{ number_format($job->wage_min, 2) }}–${{ number_format($job->wage_max, 2) }}/{{ $job->wage_period === 'hourly' ? 'hr' : 'yr' }}</span>
+                        @endif
+                    </div>
 
-        <div class="row">
-            <div class="col-lg-8">
-                <section class="medo-pseo-panel">
-                    <h2>{{ __('Job details') }}</h2>
-                    <div>{!! nl2br(e($job->description)) !!}</div>
-                </section>
-            </div>
-            <aside class="col-lg-4">
-                <section class="medo-pseo-panel">
-                    <h3>{{ __('Apply') }}</h3>
-                    @if($job->apply_url)
-                        <a class="medo-button" href="{{ $job->apply_url }}" rel="nofollow noopener" target="_blank">
-                            {{ __('Apply on employer site') }}
+                    <div class="mb-4">
+                        <small class="text-muted">Posted {{ $job->posted_at?->diffForHumans() ?? $job->created_at->diffForHumans() }}</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <a href="{{ $job->apply_url }}" target="_blank" rel="nofollow" class="btn btn-primary btn-lg">
+                            Apply on {{ $employer->name }}'s site
                         </a>
-                    @else
-                        <div class="medo-muted-box">{{ __('No external application link is available for this job.') }}</div>
-                    @endif
-                </section>
+                    </div>
 
-                @if($relatedJobs->count())
-                    <section class="medo-pseo-panel">
-                        <h3>{{ __('Related jobs') }}</h3>
-                        <ul>
-                            @foreach($relatedJobs as $relatedJob)
-                                <li>
-                                    <a href="{{ route('jobs.detail', [$relatedJob->category, $relatedJob->province, $relatedJob->city, $relatedJob]) }}">
-                                        {{ $relatedJob->title }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </section>
-                @endif
-            </aside>
+                    <div class="job-description mb-4">
+                        {!! $job->description !!}
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ $job->apply_url }}" target="_blank" rel="nofollow" class="btn btn-primary btn-lg">
+                            Apply for this {{ $category->name }} position
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @include('medo.partials.related-jobs', ['groups' => $relatedJobs])
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Job Details</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><strong>Category:</strong> {{ $category->name }}</li>
+                        <li class="mb-2"><strong>Location:</strong> {{ $city->name }}, {{ $province->name }}</li>
+                        @if($job->employment_type)
+                            <li class="mb-2"><strong>Type:</strong> {{ ucfirst(str_replace('_', ' ', $job->employment_type)) }}</li>
+                        @endif
+                        @if($job->shift_type)
+                            <li class="mb-2"><strong>Shift:</strong> {{ ucfirst($job->shift_type) }}</li>
+                        @endif
+                        @if($job->setting)
+                            <li class="mb-2"><strong>Setting:</strong> {{ ucfirst($job->setting) }}</li>
+                        @endif
+                        @if($job->is_new_grad_friendly)
+                            <li class="mb-2"><span class="badge bg-info">New Grad Friendly</span></li>
+                        @endif
+                        @if($job->has_signing_bonus)
+                            <li class="mb-2"><span class="badge bg-warning">Signing Bonus</span></li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
-</main>
-
-@include('includes.footer')
+</div>
 @endsection
-
-@include('medo.jobs.partials.styles')

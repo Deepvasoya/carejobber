@@ -1,20 +1,19 @@
 @extends('layouts.app')
 
-{{-- Issue 3: Dynamic page title (Section 9 of brief) --}}
-@section('page_title'){{ $category->name }} Jobs in {{ $city->name }}, {{ strtoupper($province->slug) }} | Medojob@endsection
+@section('page_title', $category->name . ' Jobs in ' . $city->name . ', ' . strtoupper($province->slug) . ' | Medojob')
 
 @section('content')
 @include('includes.header')
 @include('flash::message')
 
+{{-- JSON-LD Schemas --}}
+@include('medo.partials.breadcrumb-schema', ['items' => $breadcrumbs])
+@include('medo.partials.job-posting-schema', ['jobs' => $jobs])
+@include('medo.partials.faq-schema', ['faqs' => $faqs])
+
 <main class="medo-pseo-wrap">
     <div class="container">
-        <nav class="medo-breadcrumbs">
-            <a href="{{ route('jobs.category', $category) }}">{{ $category->name }}</a>
-            <span>/ </span>
-            <a href="{{ route('jobs.category.province', [$category, $province]) }}">{{ $province->name }}</a>
-            <span>/ {{ $city->name }}</span>
-        </nav>
+        @include('medo.partials.breadcrumbs', ['items' => $breadcrumbs])
 
         <section class="medo-pseo-header">
             <div>
@@ -60,7 +59,7 @@
                         <ul>
                             @foreach($relatedCities as $relatedCity)
                                 <li>
-                                    <a href="{{ route('jobs.category.province.city', [$category, $province, $relatedCity]) }}">
+                                    <a href="{{ route('medo.jobs.category.province.city', [$category, $province, $relatedCity]) }}">
                                         {{ $relatedCity->name }}
                                     </a>
                                 </li>
@@ -75,7 +74,7 @@
                         <ul>
                             @foreach($relatedCategories as $relatedCategory)
                                 <li>
-                                    <a href="{{ route('jobs.category.province.city', [$relatedCategory, $province, $city]) }}">
+                                    <a href="{{ route('medo.jobs.category.province.city', [$relatedCategory, $province, $city]) }}">
                                         {{ $relatedCategory->name }}
                                     </a>
                                 </li>
@@ -84,13 +83,13 @@
                     </section>
                 @endif
 
-                @if(count($faqs))
+                @if($faqs && $faqs->count())
                     <section class="medo-pseo-panel">
-                        <h3>{{ __('Questions') }}</h3>
+                        <h3>{{ __('Frequently Asked Questions') }}</h3>
                         @foreach($faqs as $faq)
-                            <details>
-                                <summary>{{ $faq['question'] }}</summary>
-                                <p>{{ $faq['answer'] }}</p>
+                            <details class="medo-faq-item">
+                                <summary>{{ $faq->question }}</summary>
+                                <p>{{ $faq->answer }}</p>
                             </details>
                         @endforeach
                     </section>

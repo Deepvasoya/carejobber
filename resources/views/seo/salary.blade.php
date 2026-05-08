@@ -36,7 +36,7 @@
                 {{ __('Medojob calculates this range from active Alberta postings, so it changes as employers add, expire, or update jobs.') }}
                 {{ __('For the best comparison, review the live listings and check whether each employer publishes hourly, annual, casual, part-time, or full-time compensation.') }}
             </p>
-            <a class="btn btn-primary" href="{{ route('jobs.category', $category->slug) }}">{{ __('View active jobs') }}</a>
+            <a class="btn btn-primary" href="{{ route('medo.jobs.category', $category->slug) }}">{{ __('View active jobs') }}</a>
         </div>
     </div>
 </div>

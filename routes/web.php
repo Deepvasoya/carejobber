@@ -155,18 +155,18 @@ include_once($real_path . 'cms.php');
 /* * ******** Medojob pSEO Routes ************ */
 Route::group(['namespace' => 'Medo'], function () {
     Route::get('/jobs/{category:slug}', [\App\Http\Controllers\Medo\CategoryController::class, 'show'])
-        ->name('jobs.category');
+        ->name('medo.jobs.category');
     Route::get('/jobs/{category:slug}/{province:slug}', [\App\Http\Controllers\Medo\CategoryProvinceController::class, 'show'])
-        ->name('jobs.category.province')
+        ->name('medo.jobs.category.province')
         ->withoutScopedBindings();
     Route::get('/jobs/{category:slug}/{province:slug}/{city:slug}', [\App\Http\Controllers\Medo\CategoryProvinceCityController::class, 'show'])
-        ->name('jobs.category.province.city')
+        ->name('medo.jobs.category.province.city')
         ->withoutScopedBindings();
     Route::get('/jobs/{category:slug}/{province:slug}/{city:slug}/{job:slug}', [\App\Http\Controllers\Medo\JobDetailController::class, 'show'])
-        ->name('jobs.detail')
+        ->name('medo.jobs.detail')
         ->withoutScopedBindings();
     Route::get('/salary/{category:slug}/{province:slug}', [\App\Http\Controllers\Medo\SalaryController::class, 'show'])
-        ->name('salary.category.province')
+        ->name('medo.salary.category.province')
         ->withoutScopedBindings();
 });
 

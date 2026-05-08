@@ -14,9 +14,26 @@ class CategoryController extends Controller
             $query->where('category_id', $category->id)->where('expires_at', '>', now());
         })->get();
 
+        $seoTitle = "{$category->name} Jobs in Canada | Medojob";
+        $seoDesc = "Find {$category->name} jobs across Canada. Browse active listings by province and city. Updated daily.";
+        
+        $seo = (object)[
+            'seo_title' => $seoTitle,
+            'seo_description' => $seoDesc,
+            'seo_keywords' => "{$category->name} jobs, healthcare jobs, Canada",
+            'seo_other' => '
+                <meta property="og:type" content="website"/>
+                <meta property="og:title" content="'.e($seoTitle).'"/>
+                <meta property="og:description" content="'.e($seoDesc).'"/>
+                <meta property="og:site_name" content="Medojob"/>
+                <meta property="og:url" content="'.url()->current().'"/>
+            '
+        ];
+
         return view('medo.jobs.category', [
             'category' => $category,
             'provinces' => $provinces,
+            'seo' => $seo,
         ]);
     }
 }

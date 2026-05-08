@@ -1,32 +1,29 @@
 @extends('layouts.app')
 
+@section('title', "Job Expired — {$job->title} | Medojob")
+
 @section('content')
-@include('includes.header')
-@include('flash::message')
+<div class="container mt-5">
+    @include('medo.partials.breadcrumbs', ['items' => [
+        ['label' => 'Home', 'url' => route('home')],
+        ['label' => 'Jobs', 'url' => url('/jobs')],
+        ['label' => $category->name, 'url' => route('medo.jobs.category', $category)],
+        ['label' => 'Expired Job', 'url' => null],
+    ]])
 
-<main class="medo-pseo-wrap">
-    <div class="container">
-        <section class="medo-pseo-header">
-            <div>
-                <p class="medo-eyebrow">{{ __('Expired job') }}</p>
-                <h1>{{ $job->title }}</h1>
-                <p class="mb-0">{{ __('This job is no longer active.') }}</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <h1 class="h3 mb-3">This Job Has Expired</h1>
+                    <p class="text-muted mb-4">The position "{{ $job->title }}" at {{ $job->employer?->name ?? 'this employer' }} is no longer accepting applications.</p>
+                    
+                    <a href="{{ route('medo.jobs.category.province.city', [$category, $province, $city]) }}" class="btn btn-primary">
+                        View Active {{ $category->name }} Jobs in {{ $city->name }}
+                    </a>
+                </div>
             </div>
-            <div class="medo-stat">
-                <span>{{ __('Status') }}</span>
-                <strong style="font-size: 24px;">{{ __('Expired') }}</strong>
-            </div>
-        </section>
-
-        <section class="medo-pseo-panel">
-            <a class="medo-button" href="{{ route('jobs.category.province.city', [$category, $province, $city]) }}">
-                {{ __('View current jobs in this city') }}
-            </a>
-        </section>
+        </div>
     </div>
-</main>
-
-@include('includes.footer')
+</div>
 @endsection
-
-@include('medo.jobs.partials.styles')

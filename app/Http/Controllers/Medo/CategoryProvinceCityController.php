@@ -27,12 +27,29 @@ class CategoryProvinceCityController extends Controller
         $jobs = Cache::remember(
             "jobs.{$category->slug}.{$province->slug}.{$city->slug}",
             now()->addHour(),
-            fn() => $category->jobs()
-                ->where('medo_city_id', $city->id)
+            function() use ($category, $city) {
+                // Query jobs using medo fields OR legacy fields as fallback
+                return \App\Job::where(function($query) use ($category, $city) {
+                    // Primary: Use medo fields
+                    $query->where('medo_category_id', $category->id)
+                          ->where('medo_city_id', $city->id);
+                })
+                ->orWhere(function($query) use ($category, $city) {
+                    // Fallback: Use legacy fields with mapping
+                    $categoryMapping = [1 => 655, 2 => 656, 3 => 657]; // medo_cat => func_area
+                    $cityMapping = [1 => 10107, 2 => 10125, 3 => 10169, 4 => 10150, 5 => 10156, 7 => 10135]; // medo_city => legacy_city
+                    
+                    if (isset($categoryMapping[$category->id]) && isset($cityMapping[$city->id])) {
+                        $query->where('functional_area_id', $categoryMapping[$category->id])
+                              ->where('city_id', $cityMapping[$city->id]);
+                    }
+                })
+                ->where('is_active', 1)
                 ->where('expiry_date', '>', now())
-                ->with('medoEmployer')
+                ->with('company', 'medoEmployer')
                 ->orderByDesc('created_at')
-                ->get()
+                ->get();
+            }
         );
 
         // Quality gate — no thin pages indexed
@@ -58,16 +75,32 @@ class CategoryProvinceCityController extends Controller
         $seoTitle = "{$category->name} Jobs in {$city->name}, {$provCode} | Medojob";
         $seoDesc = "{$jobs->count()} {$category->name} jobs in {$city->name}, {$province->name}. Updated daily. Wages from \${$min}–\${$max}/hr. Apply directly.";
         
+        $ogImage = asset('images/medojob-og-default.jpg'); // Default OG image
+        
         $seo = (object)[
             'seo_title' => $seoTitle,
             'seo_description' => $seoDesc,
             'seo_keywords' => "{$category->name} jobs, {$city->name} jobs, healthcare jobs, {$province->name}",
             'seo_other' => '
+                <meta property="og:type" content="website"/>
                 <meta property="og:title" content="'.e($seoTitle).'"/>
                 <meta property="og:description" content="'.e($seoDesc).'"/>
                 <meta property="og:site_name" content="Medojob"/>
                 <meta property="og:url" content="'.url()->current().'"/>
+                <meta property="og:image" content="'.e($ogImage).'"/>
+                <meta name="twitter:card" content="summary_large_image"/>
+                <meta name="twitter:title" content="'.e($seoTitle).'"/>
+                <meta name="twitter:description" content="'.e($seoDesc).'"/>
+                <meta name="twitter:image" content="'.e($ogImage).'"/>
             '
+        ];
+
+        $breadcrumbs = [
+            ['label' => 'Home', 'url' => route('home')],
+            ['label' => 'Jobs', 'url' => url('/jobs')],
+            ['label' => $category->name, 'url' => route('medo.jobs.category', $category)],
+            ['label' => $province->name, 'url' => route('medo.jobs.category.province', [$category, $province])],
+            ['label' => $city->name, 'url' => null],
         ];
 
         return response()
@@ -85,6 +118,7 @@ class CategoryProvinceCityController extends Controller
                 'faqs' => $content->faqs($category, $province, $city, $jobs, $settings),
                 'relatedCities' => $city->nearby(75)->take(5),
                 'relatedCategories' => $category->related(),
+                'breadcrumbs' => $breadcrumbs,
             ])
             ->header('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
     }

@@ -26,7 +26,7 @@ class City extends Model
 
     public function jobs()
     {
-        return $this->hasMany(\App\Job::class, 'medo_city_id');
+        return $this->hasMany(Job::class, 'city_id');
     }
 
     public function nearby(int $radiusKm = 75): Collection

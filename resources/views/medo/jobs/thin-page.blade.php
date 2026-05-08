@@ -15,9 +15,9 @@
 <main class="medo-pseo-wrap">
     <div class="container">
         <nav class="medo-breadcrumbs">
-            <a href="{{ route('jobs.category', $category) }}">{{ $category->name }}</a>
+            <a href="{{ route('medo.jobs.category', $category) }}">{{ $category->name }}</a>
             <span>/ </span>
-            <a href="{{ route('jobs.category.province', [$category, $province]) }}">{{ $province->name }}</a>
+            <a href="{{ route('medo.jobs.category.province', [$category, $province]) }}">{{ $province->name }}</a>
             <span>/ {{ $city->name }}</span>
         </nav>
 

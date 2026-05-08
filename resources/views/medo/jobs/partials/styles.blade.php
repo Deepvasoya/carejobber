@@ -159,6 +159,40 @@
         color: #0f766e;
         font-weight: 700;
     }
+    .medo-faq-item {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 16px 0;
+    }
+    .medo-faq-item:last-child {
+        border-bottom: none;
+    }
+    .medo-faq-item summary {
+        cursor: pointer;
+        font-weight: 700;
+        color: #111827;
+        font-size: 16px;
+        list-style: none;
+        padding: 4px 0;
+    }
+    .medo-faq-item summary::-webkit-details-marker {
+        display: none;
+    }
+    .medo-faq-item summary::before {
+        content: '+';
+        display: inline-block;
+        width: 20px;
+        margin-right: 8px;
+        color: #0f766e;
+        font-weight: bold;
+    }
+    .medo-faq-item[open] summary::before {
+        content: '−';
+    }
+    .medo-faq-item p {
+        margin: 12px 0 0 28px;
+        color: #4b5563;
+        line-height: 1.6;
+    }
     @media (max-width: 767px) {
         .medo-pseo-header,
         .medo-pseo-grid,

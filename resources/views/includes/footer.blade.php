@@ -72,7 +72,7 @@
                     @endphp
                     @if($medoFooterCategories->isNotEmpty())
                         @foreach($medoFooterCategories as $medoFooterCat)
-                        <li><a href="{{ route('jobs.category', $medoFooterCat) }}">{{ $medoFooterCat->name }} Jobs</a></li>
+                        <li><a href="{{ route('medo.jobs.category', $medoFooterCat) }}">{{ $medoFooterCat->name }} Jobs</a></li>
                         @endforeach
                     @else
                         @php
