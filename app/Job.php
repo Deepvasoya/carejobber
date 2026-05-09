@@ -473,6 +473,11 @@ class Job extends Model
     protected static function booted()
     {
         static::saving(function ($job) {
+            // Auto-sync job_category_id from functional_area_id
+            if ($job->functional_area_id && !$job->job_category_id) {
+                $job->job_category_id = $job->functional_area_id;
+            }
+
             // Auto-map legacy functional area to medo category
             if (!$job->medo_category_id && $job->functional_area_id) {
                 $categoryMapping = [
