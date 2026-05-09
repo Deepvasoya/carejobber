@@ -5,8 +5,8 @@ namespace App\Services\Scrapers;
 use App\Models\Medo\Category;
 use App\Models\Medo\City;
 use App\Models\Medo\Employer;
+use App\Models\Medo\Job;
 use App\Models\Medo\Province;
-use App\Job;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -17,21 +17,6 @@ class ScraperRunner
         'hca' => ['hca', 'health care aide', 'healthcare aide', 'personal care aide', 'care aide', 'homecare', 'home care'],
         'lpn' => ['lpn', 'licensed practical nurse', 'practical nurse'],
         'rn'  => ['rn', 'registered nurse'],
-    ];
-
-    private const MEDO_TO_LEGACY_CATEGORY = [
-        1 => 655, // HCA
-        2 => 656, // LPN
-        3 => 657, // RN
-    ];
-
-    private const MEDO_TO_LEGACY_CITY = [
-        2 => 10125, // Edmonton
-        1 => 10107, // Calgary
-        3 => 10169, // Red Deer
-        4 => 10150, // Lethbridge
-        5 => 10156, // Medicine Hat
-        7 => 10135, // Grande Prairie
     ];
 
     private const CITY_ALIASES = [
@@ -155,32 +140,28 @@ class ScraperRunner
 
         $slug = Str::slug($row['title'] . '-' . $city->slug);
         
-        $legacyCityId = self::MEDO_TO_LEGACY_CITY[$city->id] ?? 10125; // default edmonton
-        $legacyFAId = self::MEDO_TO_LEGACY_CATEGORY[$category->id] ?? 655; // default hca
-
         $existing = Job::where('external_id', $row['external_id'])
             ->where('source', $sourceSlug)
             ->first();
 
         $payload = [
-            'title'              => $row['title'],
-            'description'        => $row['description'] ?? '',
-            'medo_category_id'   => $category->id,
-            'medo_province_id'   => $row['province_id'],
-            'medo_city_id'       => $city->id,
-            'medo_employer_id'   => $employer->id,
-            'wage_min'           => $row['wage_min'] ?? null,
-            'wage_max'           => $row['wage_max'] ?? null,
-            'wage_period'        => $row['wage_period'] ?? null,
-            'expiry_date'        => $row['expires_at'] ?? now()->addDays(60),
-            'apply_url'          => $row['apply_url'] ?? null,
-            'apply_type'         => 'external', // legacy field
-            'is_active'          => 1, // legacy field
-            'is_featured'        => 0, // legacy field
-            'functional_area_id' => $legacyFAId, // legacy field
-            'city_id'            => $legacyCityId, // legacy field
-            'state_id'           => 663, // legacy field (Alberta)
-            'country_id'         => 38, // legacy field (Canada)
+            'title' => $row['title'],
+            'description' => $row['description'] ?? '',
+            'category_id' => $category->id,
+            'province_id' => $row['province_id'],
+            'city_id' => $city->id,
+            'employer_id' => $employer->id,
+            'employment_type' => $row['employment_type'] ?? null,
+            'shift_type' => $row['shift_type'] ?? null,
+            'setting' => $row['setting'] ?? null,
+            'wage_min' => $row['wage_min'] ?? null,
+            'wage_max' => $row['wage_max'] ?? null,
+            'wage_period' => $row['wage_period'] ?? null,
+            'posted_at' => $row['posted_at'] ?? now(),
+            'expires_at' => $row['expires_at'] ?? now()->addDays(60),
+            'apply_url' => $row['apply_url'] ?? null,
+            'is_new_grad_friendly' => (bool) ($row['is_new_grad_friendly'] ?? false),
+            'has_signing_bonus' => (bool) ($row['has_signing_bonus'] ?? false),
         ];
 
         if ($existing) {
@@ -191,7 +172,7 @@ class ScraperRunner
         // Ensure unique slug
         $baseSlug = $slug;
         $counter = 1;
-        while (Job::where('slug', $slug)->where('city_id', $legacyCityId)->exists()) {
+        while (Job::where('slug', $slug)->where('city_id', $city->id)->exists()) {
             $slug = $baseSlug . '-' . $counter++;
         }
 
@@ -236,12 +217,12 @@ class ScraperRunner
                 }
             }
         }
-        return 'hca'; // fallback
+        return null;
     }
 
     private function detectCity(string $locality): ?string
     {
         $locality = strtolower(trim($locality));
-        return self::CITY_ALIASES[$locality] ?? 'edmonton'; // fallback
+        return self::CITY_ALIASES[$locality] ?? null;
     }
 }

@@ -20,34 +20,40 @@ class AhsScraper extends BaseScraper
         $jobs = [];
         
         try {
-            // AHS job search URL (adjust based on actual AHS careers site structure)
             $searchUrl = 'https://careers.albertahealthservices.ca/jobs';
-            
-            // Keywords to search for different healthcare roles
             $keywords = [
-                'Health Care Aide' => 'hca',
-                'Licensed Practical Nurse' => 'lpn',
-                'Registered Nurse' => 'rn',
+                'Health Care Aide',
+                'Licensed Practical Nurse',
+                'Registered Nurse',
             ];
+
+            $jobUrls = [];
             
-            foreach ($keywords as $title => $categoryHint) {
+            foreach ($keywords as $keyword) {
                 $response = Http::timeout(30)
                     ->withHeaders([
                         'User-Agent' => 'Medojob Job Aggregator/1.0',
                     ])
                     ->get($searchUrl, [
-                        'q' => $title,
+                        'keywords' => $keyword,
                         'location' => 'Alberta',
                     ]);
                 
                 if (!$response->successful()) {
-                    Log::warning("[AhsScraper] Failed to fetch jobs for: {$title}");
+                    Log::warning("[AhsScraper] Failed to fetch jobs for: {$keyword}");
                     continue;
                 }
-                
-                // Parse HTML response
-                $html = $response->body();
-                $jobs = array_merge($jobs, $this->parseJobListings($html, $categoryHint, $provinceId));
+
+                $jobUrls = array_merge($jobUrls, $this->discoverJobUrls($response->body()));
+            }
+
+            $jobUrls = array_values(array_unique($jobUrls));
+
+            foreach (array_slice($jobUrls, 0, 60) as $jobUrl) {
+                $job = $this->fetchJobDetail($jobUrl, $provinceId);
+                if ($job) {
+                    $jobs[] = $job;
+                }
             }
             
         } catch (\Exception $e) {
@@ -55,6 +61,95 @@ class AhsScraper extends BaseScraper
         }
         
         return $jobs;
+    }
+
+    private function discoverJobUrls(string $html): array
+    {
+        preg_match_all('~https://careers\.albertahealthservices\.ca/jobs/([a-z0-9-]+)~i', $html, $matches);
+
+        return collect($matches[0] ?? [])
+            ->filter(function ($url) {
+                return ! str_contains($url, '/other-jobs-matching')
+                    && ! str_contains($url, '/search/')
+                    && preg_match('~-\d+$~', $url);
+            })
+            ->values()
+            ->all();
+    }
+
+    private function fetchJobDetail(string $url, int $provinceId): ?array
+    {
+        $response = Http::timeout(20)
+            ->withHeaders([
+                'User-Agent' => 'Medojob Job Aggregator/1.0',
+            ])
+            ->get($url);
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $html = $response->body();
+        $text = $this->plainText($html);
+        $title = $this->match('/job:\s*\{.*?title:\s*"([^"]+)"/s', $html)
+            ?: $this->match('/<title>(.*?)\s+-\s+Alberta Health Services Careers<\/title>/si', $html);
+
+        if (! $title) {
+            return null;
+        }
+
+        $description = $this->match('/<meta\s+name="description"\s+content="([^"]*)"/i', $html)
+            ?: $text;
+        $location = $this->match('/location:\s*\{\s*name:\s*"([^"]+)"/s', $html) ?: '';
+        $category = $this->match('/category:\s*\{\s*name:\s*"([^"]+)"/s', $html) ?: '';
+        $externalId = $this->match('/job:\s*\{\s*id:\s*"([^"]+)"/s', $html)
+            ?: basename(parse_url($url, PHP_URL_PATH));
+        $expiresAt = $this->parseAhsDate($this->match('/Posting End Date:\s*([0-9]{1,2}-[A-Z]{3}-[0-9]{4})/i', $text));
+        $wageMin = $this->match('/Minimum Salary:\s*\$([0-9.]+)/i', $text);
+        $wageMax = $this->match('/Maximum Salary:\s*\$([0-9.]+)/i', $text);
+
+        return [
+            'external_id' => 'ahs-' . $externalId,
+            'title' => html_entity_decode(trim($title), ENT_QUOTES, 'UTF-8'),
+            'description' => html_entity_decode(trim($description), ENT_QUOTES, 'UTF-8'),
+            'category_hint' => $title . ' ' . $category . ' ' . $description,
+            'province_id' => $provinceId,
+            'city_hint' => $this->extractCity($location . ' ' . $text),
+            'employer_name' => 'Alberta Health Services',
+            'employer_url' => 'https://www.albertahealthservices.ca',
+            'employment_type' => str_contains(strtolower($text), 'part time') || str_contains(strtolower($text), 'part-time') ? 'part_time' : 'full_time',
+            'wage_min' => $wageMin ? (float) $wageMin : null,
+            'wage_max' => $wageMax ? (float) $wageMax : null,
+            'wage_period' => ($wageMin || $wageMax) ? 'hourly' : null,
+            'posted_at' => Carbon::now(),
+            'expires_at' => $expiresAt ?: Carbon::now()->addDays(30),
+            'apply_url' => $url,
+        ];
+    }
+
+    private function plainText(string $html): string
+    {
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8');
+
+        return trim(preg_replace('/\s+/', ' ', $text));
+    }
+
+    private function match(string $pattern, string $value): ?string
+    {
+        return preg_match($pattern, $value, $matches) ? trim($matches[1]) : null;
+    }
+
+    private function parseAhsDate(?string $value): ?Carbon
+    {
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat('d-M-Y', strtoupper($value))->endOfDay();
+        } catch (\Throwable) {
+            return null;
+        }
     }
     
     private function parseJobListings(string $html, string $categoryHint, int $provinceId): array

@@ -117,7 +117,7 @@ class JobFormRequest extends Request
             //'salary_currency.required' => 'Please select salary currency.',
             //'salary_period_id.required' => 'Please select salary period.',
             //'hide_salary.required' => 'Is salary hidden?',
-            'functional_area_id.required' => 'Please select functional area.',
+            'functional_area_id.required' => 'Please select job category.',
             'job_type_id.required' => 'Please select job type.',
             //'job_shift_id.required' => 'Please select job shift.',
             //'num_of_positions.required' => 'Please select number of positions.',

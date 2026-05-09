@@ -15,8 +15,8 @@ $queryString = MiscHelper::getLangQueryStr();
         {!! APFrmErrHelp::showErrors($errors, 'lang') !!}                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'functional_area') !!}">
-        {!! Form::label('functional_area', 'Functional Area', ['class' => 'bold']) !!}                    
-        {!! Form::text('functional_area', null, array('class'=>'form-control', 'id'=>'functional_area', 'placeholder'=>'Functional Area', 'dir'=>$direction)) !!}
+        {!! Form::label('functional_area', 'Job Category', ['class' => 'bold']) !!}
+        {!! Form::text('functional_area', null, array('class'=>'form-control', 'id'=>'functional_area', 'placeholder'=>'Job Category', 'dir'=>$direction)) !!}
         {!! APFrmErrHelp::showErrors($errors, 'functional_area') !!}                                       
     </div>
     <div class="form-group mb-3">
@@ -50,8 +50,8 @@ $queryString = MiscHelper::getLangQueryStr();
         {!! APFrmErrHelp::showErrors($errors, 'is_default') !!}
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div">
-        {!! Form::label('functional_area_id', 'Default Functional Area', ['class' => 'bold']) !!}                    
-        {!! Form::select('functional_area_id', ['' => 'Select Default Functional Area']+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+        {!! Form::label('functional_area_id', 'Default Job Category', ['class' => 'bold']) !!}
+        {!! Form::select('functional_area_id', ['' => 'Select Default Job Category']+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!}                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'is_active') !!}">

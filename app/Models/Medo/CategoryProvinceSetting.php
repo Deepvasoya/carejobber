@@ -35,6 +35,18 @@ class CategoryProvinceSetting extends Model
 
     public function wageRange()
     {
+        $grid = SalaryGrid::where('category_id', $this->category_id)
+            ->where('province_id', $this->province_id)
+            ->selectRaw('MIN(hourly_rate) as min_rate, MAX(hourly_rate) as max_rate')
+            ->first();
+
+        if ($grid && ($grid->min_rate || $grid->max_rate)) {
+            return [
+                'min' => (float) $grid->min_rate,
+                'max' => (float) $grid->max_rate,
+            ];
+        }
+
         return [
             'min' => $this->wage_min,
             'max' => $this->wage_max,

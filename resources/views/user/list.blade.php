@@ -22,7 +22,7 @@
                                 class="form-control" placeholder="{{ __('Enter Skills or job seeker details') }}" />
                             {!! Form::select(
                             'functional_area_id[]',
-                            ['' => __('Select Functional Area')] + $functionalAreas,
+                            ['' => __('Select Job Category')] + $functionalAreas,
                             Request::get('functional_area_id', null),
                             ['class' => 'form-control', 'id' => 'functional_area_id'],
                             ) !!}

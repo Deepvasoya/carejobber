@@ -28,7 +28,7 @@
                                         <ul style="margin: 0; padding-left: 20px; color: #555;">
                                             <li style="margin-bottom: 8px;"><strong>{{__('Name')}}:</strong> {{ $user->getName() }}</li>
                                             @if($user->getFunctionalArea('functional_area'))
-                                            <li style="margin-bottom: 8px;"><strong>{{__('Functional Area')}}:</strong> {{ $user->getFunctionalArea('functional_area') }}</li>
+                                            <li style="margin-bottom: 8px;"><strong>{{__('Job Category')}}:</strong> {{ $user->getFunctionalArea('functional_area') }}</li>
                                             @endif
                                             @if($user->getCareerLevel('career_level'))
                                             <li style="margin-bottom: 8px;"><strong>{{__('Career Level')}}:</strong> {{ $user->getCareerLevel('career_level') }}</li>

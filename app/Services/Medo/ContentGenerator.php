@@ -19,15 +19,19 @@ class ContentGenerator
         $provinceName = $province->name;
         
         $salaryInfo = '';
-        if ($settings && ($settings->wage_min || $settings->wage_max)) {
-            $min = number_format($settings->wage_min ?: $settings->wage_max, 2);
-            $max = number_format($settings->wage_max ?: $settings->wage_min, 2);
+        $wageRange = $settings ? $settings->wageRange() : ['min' => null, 'max' => null];
+        if (! empty($wageRange['min']) || ! empty($wageRange['max'])) {
+            $min = number_format($wageRange['min'] ?: $wageRange['max'], 2);
+            $max = number_format($wageRange['max'] ?: $wageRange['min'], 2);
             $salaryInfo = " Wages typically range from \${$min} to \${$max} per hour.";
         }
         
         $unionInfo = '';
         if ($settings && $settings->union_id) {
-            $unionInfo = " Most positions are unionized under {$settings->union->name}.";
+            $unionName = optional($settings->union)->name;
+            if ($unionName) {
+                $unionInfo = " Most positions are unionized under {$unionName}.";
+            }
         }
         
         return "Find the latest {$categoryName} jobs in {$cityName}, {$provinceName}. We have {$jobCount} active positions available.{$salaryInfo}{$unionInfo} Browse current openings below and apply directly with employers.";
@@ -50,9 +54,10 @@ class ContentGenerator
         ]);
         
         // FAQ 2: How much do [category]s make in [city]?
-        if ($settings && ($settings->wage_min || $settings->wage_max)) {
-            $min = number_format($settings->wage_min ?: $settings->wage_max, 2);
-            $max = number_format($settings->wage_max ?: $settings->wage_min, 2);
+        $wageRange = $settings ? $settings->wageRange() : ['min' => null, 'max' => null];
+        if (! empty($wageRange['min']) || ! empty($wageRange['max'])) {
+            $min = number_format($wageRange['min'] ?: $wageRange['max'], 2);
+            $max = number_format($wageRange['max'] ?: $wageRange['min'], 2);
             $faqs->push((object)[
                 'question' => "How much do {$categoryName}s make in {$cityName}?",
                 'answer' => "{$categoryName}s in {$cityName} typically earn between \${$min} and \${$max} per hour. Wages vary based on experience, facility type, shift differentials, and whether the position is unionized."
@@ -68,9 +73,12 @@ class ContentGenerator
         
         // FAQ 4: Are [category] jobs unionized?
         if ($settings && $settings->union_id) {
+            $unionName = optional($settings->union)->name;
             $faqs->push((object)[
                 'question' => "Are {$categoryName} jobs in {$cityName} unionized?",
-                'answer' => "Most {$categoryName} positions in {$cityName} are unionized under {$settings->union->name}. Union membership provides benefits like standardized wages, job security, and collective bargaining rights."
+                'answer' => $unionName
+                    ? "Most {$categoryName} positions in {$cityName} are unionized under {$unionName}. Union membership provides benefits like standardized wages, job security, and collective bargaining rights."
+                    : "Many {$categoryName} positions in {$cityName} are unionized. Union membership can provide standardized wages, job security, and collective bargaining rights."
             ]);
         }
         

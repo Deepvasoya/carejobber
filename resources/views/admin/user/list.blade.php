@@ -84,7 +84,7 @@
 
                                         <div class="col-md-{{((bool)$siteSetting->country_specific_site)? 6:3}}">
 
-                                            {!! Form::select('functional_area_id[]', ['' => __('Select Functional Area')]+$functionalAreas, Request::get('functional_area_id', null), array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+                                            {!! Form::select('functional_area_id[]', ['' => __('Select Job Category')]+$functionalAreas, Request::get('functional_area_id', null), array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
 
                                         </div>
 

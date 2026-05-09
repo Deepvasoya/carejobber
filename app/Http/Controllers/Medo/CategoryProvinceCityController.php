@@ -128,9 +128,9 @@ class CategoryProvinceCityController extends Controller
 
     private function topEmployers($jobs)
     {
-        return $jobs->groupBy('medo_employer_id')
+        return $jobs->groupBy('employer_id')
             ->map(fn($g) => [
-                'employer' => $g->first()->medoEmployer,
+                'employer' => $g->first()->employer,
                 'count' => $g->count(),
             ])
             ->sortByDesc('count')

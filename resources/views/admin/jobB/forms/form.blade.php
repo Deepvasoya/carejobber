@@ -122,8 +122,8 @@
         {!! APFrmErrHelp::showErrors($errors, 'hide_salary') !!}
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'functional_area_id') !!}" id="functional_area_id_div">
-        {!! Form::label('functional_area_id', 'Functional Area', ['class' => 'bold']) !!}                    
-        {!! Form::select('functional_area_id', ['' => 'Select Functional Area']+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
+        {!! Form::label('functional_area_id', 'Job Category', ['class' => 'bold']) !!}
+        {!! Form::select('functional_area_id', ['' => 'Select Job Category']+$functionalAreas, null, array('class'=>'form-control', 'id'=>'functional_area_id')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'functional_area_id') !!}                                       
     </div>
     <div class="form-group mb-3 {!! APFrmErrHelp::hasError($errors, 'job_type_id') !!}" id="job_type_id_div">

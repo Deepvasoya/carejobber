@@ -21,7 +21,7 @@
 
                 <div class="hmseekerinfo">
                     <h3>{{$jobSeeker->getName()}}</h3>                
-                    <div class="hmcate justify-content-center" title="Functional Area">{{$jobSeeker->getFunctionalArea('functional_area')}}</div>
+                    <div class="hmcate justify-content-center" title="Job Category">{{$jobSeeker->getFunctionalArea('functional_area')}}</div>
                     <div class="hmcate justify-content-center" title="Career Level"><i class="fas fa-chart-line"></i> {{$jobSeeker->getCareerLevel('career_level')}}</div>
                     <div class="hmcate justify-content-center"><i class="fas fa-map-marker-alt"></i> {{$jobSeeker->getCity('city')}}</div>                                
                     <div class="listbtn">

@@ -187,7 +187,7 @@ class JobFrontFormRequest extends Request
            // 'salary_currency.required' => __('Please select salary currency'),
             //'salary_period_id.required' => __('Please select salary period'),
             //'hide_salary.required' => __('Is salary hidden?'),
-            'functional_area_id.required' => __('Please select functional area'),
+            'functional_area_id.required' => __('Please select job category'),
             'job_type_id.required' => __('Please select job type'),
             //'job_shift_id.required' => __('Please select job shift'),
            // 'num_of_positions.required' => __('Please select number of positions'),

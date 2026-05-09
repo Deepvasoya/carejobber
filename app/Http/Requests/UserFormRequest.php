@@ -86,7 +86,7 @@ class UserFormRequest extends Request
             //'job_experience_id.required' => 'Please select experience',
             //'career_level_id.required' => 'Please select career level',
            // 'industry_id.required' => 'Please select industry',
-            'functional_area_id.required' => 'Please select functional area',
+            'functional_area_id.required' => 'Please select job category',
             //'current_salary.required' => 'Please enter current salary',
             //'expected_salary.required' => 'Please enter expected salary',
             //'salary_currency.required' => 'Please select salary currency',

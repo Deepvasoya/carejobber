@@ -103,7 +103,7 @@ class SendIncompleteProfileReminders extends Command
             'last_name' => __('Last Name'),
             'phone' => __('Phone Number'),
             'city_id' => __('City'),
-            'functional_area_id' => __('Functional Area'),
+            'functional_area_id' => __('Job Category'),
             'industry_id' => __('Industry'),
             'career_level_id' => __('Career Level'),
             'profile_summary' => __('Profile Summary'),

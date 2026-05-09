@@ -100,7 +100,7 @@ class FunctionalAreaController extends Controller
             $functionalArea->functional_area_id = $request->input('functional_area_id');
         }
         $functionalArea->update();
-        flash('Functional Area has been added!')->success();
+        flash('Job Category has been added!')->success();
         return \Redirect::route('edit.functional.area', array($functionalArea->id));
     }
 
@@ -159,7 +159,7 @@ class FunctionalAreaController extends Controller
         }
 
         $functionalArea->update();
-        flash('Functional Area has been updated!')->success();
+        flash('Job Category has been updated!')->success();
         return \Redirect::route('edit.functional.area', array($functionalArea->id));
     }
 
@@ -197,9 +197,9 @@ class FunctionalAreaController extends Controller
                     }
                 }
             }
-            return response()->json(['success' => true, 'message' => 'Selected functional areas deleted successfully']);
+            return response()->json(['success' => true, 'message' => 'Selected job categories deleted successfully']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error deleting functional areas'], 500);
+            return response()->json(['success' => false, 'message' => 'Error deleting job categories'], 500);
         }
     }
 

@@ -47,9 +47,9 @@ class FunctionalAreaFormRequest extends Request
     public function messages()
     {
         return [
-            'functional_area.required' => 'Please enter Functional Area.',
-            'functional_area_id.required_if' => 'Please select default/fallback Functional Area.',
-            'is_default.required' => 'Is this Functional Area default?',
+            'functional_area.required' => 'Please enter job category.',
+            'functional_area_id.required_if' => 'Please select default/fallback job category.',
+            'is_default.required' => 'Is this job category default?',
             'is_active.required' => 'Please select status.',
             'lang.required' => 'Please select language.',
         ];

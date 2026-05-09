@@ -105,6 +105,8 @@ trait JobTrait
 
             JobSkillManager::where('job_id', '=', $id)->delete();
 
+            app(\App\Services\Medo\LegacyJobSyncService::class)->deleteForLegacyJob($job);
+
             $job->delete();
 
             return 'ok';
@@ -410,6 +412,8 @@ trait JobTrait
 
         $this->updateFullTextSearch($job);
 
+        app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
+
         /*         * ************************************ */
 
         flash('Job has been added!')->success();
@@ -528,6 +532,8 @@ trait JobTrait
         /*         * ************************************ */
 
         $this->updateFullTextSearch($job);
+
+        app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
 
         /*         * ************************************ */
 
@@ -680,6 +686,7 @@ trait JobTrait
     $this->storeJobSkills($request, $job->id);
     $this->storeJobQuestions($request, $job->id);
     $this->updateFullTextSearch($job);
+    app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
 
     if ($isDraft) {
         flash(__('Draft saved. You can finish and submit it from Manage Jobs.'))->success();
@@ -825,6 +832,7 @@ trait JobTrait
             $this->storeJobSkills($request, $job->id);
             $this->storeJobQuestions($request, $job->id);
             $this->updateFullTextSearch($job);
+            app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
 
             flash(__('Draft saved.'))->success();
 
@@ -880,6 +888,7 @@ trait JobTrait
             $this->storeJobSkills($request, $job->id);
             $this->storeJobQuestions($request, $job->id);
             $this->updateFullTextSearch($job);
+            app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
 
             if ($pending['total_cents'] > 0) {
                 Session::put('pending_job_promotions', [
@@ -940,6 +949,7 @@ trait JobTrait
         $this->storeJobQuestions($request, $job->id);
 
         $this->updateFullTextSearch($job);
+        app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
 
         if ($pending['total_cents'] > 0) {
             Session::put('pending_job_promotions', [

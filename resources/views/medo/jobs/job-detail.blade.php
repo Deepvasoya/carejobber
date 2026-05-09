@@ -3,6 +3,11 @@
 @section('page_title', $job->title . ' | ' . $employer->name . ' | ' . $city->name . ', ' . $province->code)
 
 @section('content')
+@php
+    $applyUrl = (string) $job->apply_url;
+    $phoneApplyNumber = preg_match('/^tel:/i', $applyUrl) ? preg_replace('/^tel:/i', '', $applyUrl) : null;
+    $emailApplyAddress = preg_match('/^mailto:/i', $applyUrl) ? preg_replace('/^mailto:/i', '', $applyUrl) : null;
+@endphp
 <div class="container mt-4">
     @include('medo.partials.breadcrumbs', ['items' => $breadcrumbs])
     @include('medo.partials.job-posting-schema', ['jobs' => collect([$job])])
@@ -35,9 +40,19 @@
                     </div>
 
                     <div class="mb-4">
+                        @if($phoneApplyNumber)
+                        <span class="btn btn-primary btn-lg">
+                            Call {{ $phoneApplyNumber }}
+                        </span>
+                        @elseif($emailApplyAddress)
+                        <a href="{{ $applyUrl }}" class="btn btn-primary btn-lg">
+                            Email {{ $emailApplyAddress }}
+                        </a>
+                        @else
                         <a href="{{ $job->apply_url }}" target="_blank" rel="nofollow" class="btn btn-primary btn-lg">
                             Apply on {{ $employer->name }}'s site
                         </a>
+                        @endif
                     </div>
 
                     <div class="job-description mb-4">
@@ -45,9 +60,19 @@
                     </div>
 
                     <div class="mt-4">
+                        @if($phoneApplyNumber)
+                        <span class="btn btn-primary btn-lg">
+                            Call {{ $phoneApplyNumber }}
+                        </span>
+                        @elseif($emailApplyAddress)
+                        <a href="{{ $applyUrl }}" class="btn btn-primary btn-lg">
+                            Email {{ $emailApplyAddress }}
+                        </a>
+                        @else
                         <a href="{{ $job->apply_url }}" target="_blank" rel="nofollow" class="btn btn-primary btn-lg">
                             Apply for this {{ $category->name }} position
                         </a>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -161,7 +161,11 @@ class JobController extends Controller
 
         $ids = $request->input('ids');
         $arr = explode(',', $ids);
-        $user = Job::whereIn('id',$arr)->delete();
+        $sync = app(\App\Services\Medo\LegacyJobSyncService::class);
+        Job::whereIn('id', $arr)->get()->each(function ($job) use ($sync) {
+            $sync->deleteForLegacyJob($job);
+            $job->delete();
+        });
         echo 'done';
 
     }
@@ -172,6 +176,7 @@ class JobController extends Controller
             $job = Job::findOrFail($id);
             $job->is_active = 1;
             $job->update();
+            app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
             Mail::send(new JobApprovalMailable($job));
             echo 'ok';
         } catch (ModelNotFoundException $e) {
@@ -186,6 +191,7 @@ class JobController extends Controller
             $job = Job::findOrFail($id);
             $job->is_active = 0;
             $job->update();
+            app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
             echo 'ok';
         } catch (ModelNotFoundException $e) {
             echo 'notok';

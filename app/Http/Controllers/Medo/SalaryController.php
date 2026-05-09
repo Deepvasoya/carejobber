@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Medo;
 use App\Http\Controllers\Controller;
 use App\Models\Medo\Category;
 use App\Models\Medo\Province;
+use App\Models\Medo\SalaryGrid;
 
 class SalaryController extends Controller
 {
@@ -24,9 +25,23 @@ class SalaryController extends Controller
             ->selectRaw('COUNT(*) as salary_count, AVG(wage_min) as avg_min, AVG(wage_max) as avg_max, MIN(wage_min) as min_wage, MAX(wage_max) as max_wage')
             ->first();
 
+        $salaryGrid = SalaryGrid::where('category_id', $category->id)
+            ->where('province_id', $province->id)
+            ->with('union')
+            ->orderBy('step')
+            ->get();
+
+        $gridMin = $salaryGrid->min('hourly_rate');
+        $gridMax = $salaryGrid->max('hourly_rate');
+
         return view('medo.salary.show', [
             'category' => $category,
             'province' => $province,
+            'salaryGrid' => $salaryGrid,
+            'gridRange' => [
+                'min' => $gridMin ? round((float) $gridMin, 2) : 0,
+                'max' => $gridMax ? round((float) $gridMax, 2) : 0,
+            ],
             'salary' => [
                 'count' => (int) ($stats->salary_count ?? 0),
                 'avg_min' => round((float) ($stats->avg_min ?? 0), 2),

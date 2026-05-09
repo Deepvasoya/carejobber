@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\JobFeedRun;
 use App\JobFeedSource;
+use App\Models\Medo\ScraperRun;
 use App\Services\Medo\Scrapers\SitemapScraper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -37,6 +38,10 @@ class ScrapeJobFeeds extends Command
                 'status'             => 'running',
                 'started_at'        => now(),
             ]);
+            $medoRun = ScraperRun::create([
+                'source' => $source->slug,
+                'started_at' => now(),
+            ]);
 
             $this->line('▶ Running source: ' . $source->slug . ' (provider: ' . $source->provider . ')');
 
@@ -67,6 +72,13 @@ class ScrapeJobFeeds extends Command
                     'skipped_log'      => json_encode($stats['skipped_list'] ?? []),
                     'finished_at'      => now(),
                 ]);
+                $medoRun->update([
+                    'finished_at' => now(),
+                    'jobs_added' => $isDryRun ? 0 : $stats['imported'],
+                    'jobs_updated' => $isDryRun ? 0 : $stats['updated'],
+                    'jobs_expired' => 0,
+                    'errors' => count($stats['errors']) ? implode("\n", $stats['errors']) : null,
+                ]);
 
                 $source->update(['last_run_at' => now()]);
 
@@ -79,6 +91,10 @@ class ScrapeJobFeeds extends Command
                     'status'        => 'failed',
                     'error_message' => $msg,
                     'finished_at'   => now(),
+                ]);
+                $medoRun->update([
+                    'finished_at' => now(),
+                    'errors' => $msg,
                 ]);
             }
         }

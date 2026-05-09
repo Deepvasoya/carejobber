@@ -20,7 +20,7 @@ class Category extends Model
 
     public function jobs()
     {
-        return $this->hasMany(\App\Job::class, 'medo_category_id');
+        return $this->hasMany(Job::class, 'category_id');
     }
 
     public function settingsFor(Province $province)

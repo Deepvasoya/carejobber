@@ -397,6 +397,10 @@ trait JobApiTrait
 
         /*         * ************************************ */
 
+        app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
+
+        /*         * ************************************ */
+
 
 
         /*         * ******************************* */
@@ -551,6 +555,10 @@ trait JobApiTrait
 
         /*         * ************************************ */
 
+        app(\App\Services\Medo\LegacyJobSyncService::class)->sync($job);
+
+        /*         * ************************************ */
+
 
         $success['success'] =  'done';
 
@@ -635,4 +643,3 @@ trait JobApiTrait
 
 
 }
-

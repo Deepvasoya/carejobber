@@ -23,7 +23,7 @@
                     <td style="padding: 8px 0;">{{ $user->name }}</td>
                 </tr>
                 <tr>
-                    <td style="padding: 8px 0; font-weight: bold;">Functional Area:</td>
+                    <td style="padding: 8px 0; font-weight: bold;">Job Category:</td>
                     <td style="padding: 8px 0;">{{ $user->getFunctionalArea ? $user->getFunctionalArea->functional_area : 'Not specified' }}</td>
                 </tr>
                 <tr>
@@ -55,7 +55,7 @@
         
         <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 5px;">
             <p style="margin: 0; font-size: 13px; color: #856404;">
-                <strong>Note:</strong> Contact details are only available after the candidate applies to your job or you unlock their profile. This recommendation is based on matching functional area and career level.
+                <strong>Note:</strong> Contact details are only available after the candidate applies to your job or you unlock their profile. This recommendation is based on matching job category and career level.
             </p>
         </div>
         

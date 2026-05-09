@@ -8,12 +8,15 @@
 @include('includes.inner_top_search')
 @include('flash::message')
 
-@php
-$company = $job->getCompany();
-$applyType = $job->getEffectiveApplyType();
-$applyActionUrl = $job->getApplyActionUrl();
-$isExternalApply = $applyType !== 'internal' && $applyActionUrl;
-@endphp
+	@php
+	$company = $job->getCompany();
+	$applyType = $job->getEffectiveApplyType();
+	$applyActionUrl = $job->getApplyActionUrl();
+	$isExternalApply = $applyType !== 'internal' && $applyActionUrl;
+    $phoneApplyNumber = $applyType === 'phone' && $applyActionUrl ? preg_replace('/^tel:/i', '', $applyActionUrl) : null;
+    $salaryCurrency = trim((string) $job->salary_currency);
+    $salaryPrefix = $salaryCurrency === 'CAD' ? 'CAD $' : ($salaryCurrency !== '' ? $salaryCurrency . ' ' : '$');
+	@endphp
 
 
 
@@ -38,17 +41,19 @@ $isExternalApply = $applyType !== 'internal' && $applyActionUrl;
                     @endif
                     <div class="ptext">{{__('Date Posted')}}: {{$job->created_at->format('M d, Y')}}</div>
 
-                    @if(!(bool)$job->hide_salary)
-                    <div class="salary">{{$job->getSalaryPeriod('salary_period')}}: <strong>{{$job->salary_currency.' '.$job->salary_from}} - {{$job->salary_currency.' '.$job->salary_to}}</strong></div>
-                    @endif
+	                    @if(!(bool)$job->hide_salary)
+	                    <div class="salary">{{$job->getSalaryPeriod('salary_period')}}: <strong>{{$salaryPrefix.$job->salary_from}} - {{$salaryPrefix.$job->salary_to}}</strong></div>
+	                    @endif
                 </div>
             </div>
             <div class="col-lg-4">
 
                 <div class="jobButtons applybox">
-                    @if($job->isJobExpired())
-                    <span class="jbexpire"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Job is expired')}}</span>
-                    @elseif($isExternalApply)
+	                    @if($job->isJobExpired())
+	                    <span class="jbexpire"><i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Job is expired')}}</span>
+	                    @elseif($phoneApplyNumber)
+	                    <span class="btn apply"><i class="fas fa-phone" aria-hidden="true"></i> {{ $phoneApplyNumber }}</span>
+	                    @elseif($isExternalApply)
                     <a href="{{ $applyActionUrl }}" class="btn apply" @if($applyType === 'external') target="_blank" rel="noopener noreferrer" @endif>
                         <i class="fas fa-paper-plane" aria-hidden="true"></i> {{__('Apply Now')}}
                     </a>

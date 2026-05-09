@@ -51,7 +51,7 @@
                                             <th>Email</th>
                                             <th>Phone</th>
                                             <th>Location</th>
-                                            <th>Functional Area</th>
+                                            <th>Job Category</th>
                                             <th>Career Level</th>
                                             <th>Experience</th>
                                             <th>Actions</th>

@@ -9,7 +9,7 @@
             <ul class="page-breadcrumb">
                 <li> <a href="{{ route('admin.home') }}">Home</a> <i class="fa fa-circle"></i> </li>
                 <li> <a href="{{ route('list.functional.areas') }}">Job Categories</a> <i class="fa fa-circle"></i> </li>
-                <li> <span>Add Functional Area</span> </li>
+                <li> <span>Add Job Category</span> </li>
             </ul>
         </div>
         <!-- END PAGE BAR -->        

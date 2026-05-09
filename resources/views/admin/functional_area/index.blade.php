@@ -50,7 +50,7 @@
                                         <tr role="row" class="heading">                                            
                                             <th><input type="checkbox" id="selectAllFunctionalAreas" /></th>
                                             <th>Language</th>
-                                            <th>Functional Area</th>
+                                            <th>Job Category</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -114,7 +114,7 @@
     function deleteFunctionalArea(id, is_default) {
         var msg = 'Are you sure?';
         if (is_default == 1) {
-            msg = 'Are you sure? You are going to delete default Functional Area, all other non default Functional Areas will be deleted too!';
+            msg = 'Are you sure? You are going to delete default Job Category, all other non default Job Categories will be deleted too!';
         }
         if (confirm(msg)) {
             $.post("{{ route('delete.functional.area') }}", {id: id, _method: 'DELETE', _token: '{{ csrf_token() }}'})

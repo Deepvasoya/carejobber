@@ -31,15 +31,23 @@ class City extends Model
 
     public function nearby(int $radiusKm = 75): Collection
     {
+        if ($this->latitude === null || $this->longitude === null) {
+            return collect();
+        }
+
         return City::selectRaw("*, (
             6371 * acos(
-                cos(radians(?)) * cos(radians(latitude)) *
-                cos(radians(longitude) - radians(?)) +
-                sin(radians(?)) * sin(radians(latitude))
+                LEAST(1, GREATEST(-1,
+                    cos(radians(?)) * cos(radians(latitude)) *
+                    cos(radians(longitude) - radians(?)) +
+                    sin(radians(?)) * sin(radians(latitude))
+                ))
             )
         ) AS distance_km", [$this->latitude, $this->longitude, $this->latitude])
             ->where('id', '!=', $this->id)
             ->where('province_id', $this->province_id) // same province only
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
             ->having('distance_km', '<=', $radiusKm)
             ->orderBy('distance_km')
             ->get();

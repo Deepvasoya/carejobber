@@ -37,8 +37,9 @@ class Kernel extends ConsoleKernel
 		// Alberta sources
 		$schedule->command('jobs:scrape ahs')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ahs.log');
 		$schedule->command('jobs:scrape covenant')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-covenant.log');
-		$schedule->command('jobs:scrape ab-ltc')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-ltc.log');
-		$schedule->command('jobs:scrape ab-agencies')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ab-agencies.log');
+		$schedule->command('jobs:scrape bethany')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-bethany.log');
+		$schedule->command('jobs:scrape agecare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-agecare.log');
+		$schedule->command('jobs:scrape capitalcare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-capitalcare.log');
 		
 		// Sync employer-posted jobs to pSEO
 		$schedule->command('jobs:sync-legacy-to-medo')->everyFifteenMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/job-sync-legacy.log');

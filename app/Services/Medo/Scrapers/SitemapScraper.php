@@ -357,14 +357,13 @@ class SitemapScraper
                 }
             }
         }
-        // Fallback to 'hca' for testing dummy feeds
-        return 'hca';
+        return null;
     }
 
     private function detectCity(string $locality): ?string
     {
         $locality = strtolower(trim($locality));
-        return self::CITY_ALIASES[$locality] ?? 'edmonton'; // Fallback to edmonton for testing
+        return self::CITY_ALIASES[$locality] ?? null;
     }
 
     private function parseDate(?string $value): ?\Illuminate\Support\Carbon
