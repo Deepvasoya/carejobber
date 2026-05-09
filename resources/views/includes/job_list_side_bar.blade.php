@@ -279,19 +279,19 @@
         <div class="widget">
             <h4 class="widget-title">{{__('Jobs By Category')}}</h4>
             <ul class="optionlist view_more_ul">
-                @if(isset($functionalAreaIdsArray) && count($functionalAreaIdsArray))
-                @foreach($functionalAreaIdsArray as $key=>$functional_area_id)
+                @if(isset($jobCategoryIdsArray) && count($jobCategoryIdsArray))
+                @foreach($jobCategoryIdsArray as $key=>$job_category_id)
                 @php
-                $functionalArea = App\FunctionalArea::where('functional_area_id','=',$functional_area_id)->lang()->active()->first();
+                $jobCategory = App\JobCategory::where('job_category_id','=',$job_category_id)->lang()->active()->first();
                 @endphp
-                @if(null !== $functionalArea)
+                @if(null !== $jobCategory)
                 @php
-                $checked = (in_array($functionalArea->functional_area_id, Request::get('functional_area_id', array())))? 'checked="checked"':'';
+                $checked = (in_array($jobCategory->job_category_id, Request::get('job_category_id', array())))? 'checked="checked"':'';
                 @endphp
                 <li>
-                    <input type="checkbox" name="functional_area_id[]" id="functional_area_id_{{$functionalArea->functional_area_id}}" value="{{$functionalArea->functional_area_id}}" {{$checked}}>
-                    <label for="functional_area_id_{{$functionalArea->functional_area_id}}"></label>
-                    {{$functionalArea->functional_area}} <span>{{App\Job::countNumJobs('functional_area_id', $functionalArea->functional_area_id)}}</span>
+                    <input type="checkbox" name="job_category_id[]" id="job_category_id_{{$jobCategory->job_category_id}}" value="{{$jobCategory->job_category_id}}" {{$checked}}>
+                    <label for="job_category_id_{{$jobCategory->job_category_id}}"></label>
+                    {{$jobCategory->job_category}} <span>{{App\Job::countNumJobs('job_category_id', $jobCategory->job_category_id)}}</span>
                 </li>                
                 @endif
                 @endforeach

@@ -1024,20 +1024,7 @@ trait JobTrait
                 return DB::table('jobs')->where('company_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'industry_id') {
-                $companyIds = Company::where('industry_id', '=', $value)
-                    ->where('is_active', '=', 1)
-                    ->pluck('id')
-                    ->toArray();
-
-                if (empty($companyIds)) {
-                    return 0;
-                }
-
-                return DB::table('jobs')
-                    ->whereIn('company_id', $companyIds)
-                    ->where('is_active', '=', 1)
-                    ->where('expiry_date', '>',  \Carbon\Carbon::now())
-                    ->count('id');
+                return DB::table('jobs')->where('industry_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'job_skill_id') {
                 $job_ids = JobSkillManager::where('job_skill_id', '=', $value)->pluck('job_id')->toArray();
@@ -1045,6 +1032,9 @@ trait JobTrait
             }
             if ($field == 'functional_area_id') {
                 return DB::table('jobs')->where('functional_area_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
+            }
+            if ($field == 'job_category_id') {
+                return DB::table('jobs')->where('job_category_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');
             }
             if ($field == 'careel_level_id') {
                 return DB::table('jobs')->where('careel_level_id', '=', $value)->where('is_active', '=', 1)->where('expiry_date', '>',  \Carbon\Carbon::now())->count('id');

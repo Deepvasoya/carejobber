@@ -55,27 +55,27 @@ trait FetchJobs
         'jobs.updated_at'
     );
 
-    public function fetchJobs($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $orderBy = 'id', $limit = 10)
+    public function fetchJobs($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $orderBy = 'id', $limit = 10, $job_category_ids = array())
     {
         $asc_desc = 'DESC';
         $query = Job::select($this->fields);
-        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured);
+        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids);
 
         Job::orderByPromotionPriority($query);
         //echo $query->toSql();exit;
         return $query->paginate($limit);
     }
 
-    public function fetchIdsArray($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $field = 'jobs.id')
+    public function fetchIdsArray($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $field = 'jobs.id', $job_category_ids = array())
     {
         $query = Job::select($field);
-        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured);
+        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids);
 
         $array = $query->pluck($field)->toArray();
         return array_unique($array);
     }
 
-    public function createQuery($query, $search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1)
+    public function createQuery($query, $search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $job_category_ids = array())
     {
     
        
@@ -87,19 +87,7 @@ trait FetchJobs
         //dd($company_ids);
 		$company_ids_array=array();
         if (isset($industry_ids[0])) {
-            $industryCompanyIds = Company::whereIn('industry_id', $industry_ids)
-                ->pluck('id')
-                ->toArray();
-
-            if (!empty($industryCompanyIds)) {
-                if (isset($company_ids[0])) {
-                    $company_ids = array_intersect($company_ids, $industryCompanyIds);
-                } else {
-                    $company_ids = $industryCompanyIds;
-                }
-            } else {
-                $query->whereRaw('1 = 0');
-            }
+            $query->whereIn('jobs.industry_id', $industry_ids);
         }
         
         
@@ -125,6 +113,9 @@ trait FetchJobs
         }
         if (isset($functional_area_ids[0])) {
             $query->whereIn('jobs.functional_area_id', $functional_area_ids);
+        }
+        if (isset($job_category_ids[0])) {
+            $query->whereIn('jobs.job_category_id', $job_category_ids);
         }
         $country_ids = $this->normalizeLocationFilterIds($country_ids);
         $state_ids = $this->normalizeLocationFilterIds($state_ids);
