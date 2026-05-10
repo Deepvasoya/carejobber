@@ -22,11 +22,14 @@ use Illuminate\Support\Str;
 class SitemapScraper
 {
     // Keyword → medo_categories.slug mapping (expand as categories grow)
+    // NOTE: Order matters! Check more specific categories (RN, LPN) before generic ones (HCA)
     private const CATEGORY_KEYWORDS = [
+        'rn'                   => ['registered nurse', ' rn ', 'rn-', '-rn', 'staff nurse', 'acute care nurse', 
+                                   'icu nurse', 'emergency nurse', 'er nurse', 'critical care nurse',
+                                   'surgical nurse', 'medical nurse', 'nurse - ', 'nurse,', 'nursing position'],
+        'lpn'                  => ['lpn', 'licensed practical nurse', 'practical nurse'],
         'hca'                  => ['hca', 'health care aide', 'healthcare aide', 'personal care aide',
                                    'care aide', 'homecare', 'home care'],
-        'lpn'                  => ['lpn', 'licensed practical nurse', 'practical nurse'],
-        'rn'                   => ['rn', 'registered nurse'],
     ];
 
     // City name variations → medo_cities.slug mapping (AB only at launch)
