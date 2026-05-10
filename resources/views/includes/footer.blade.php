@@ -68,11 +68,20 @@
                 <!--Quick Links menu Start-->
                 <ul class="quicklinks">
                     @php
-                    $medoFooterCategories = App\Models\Medo\Category::all();
+                    // Get all job categories that have active jobs
+                    $footerJobCategories = App\JobCategory::whereHas('jobs', function($query) {
+                        $query->where('is_active', 1)->where('expiry_date', '>', now());
+                    })
+                    ->lang()
+                    ->active()
+                    ->get();
                     @endphp
-                    @if($medoFooterCategories->isNotEmpty())
-                        @foreach($medoFooterCategories as $medoFooterCat)
-                        <li><a href="{{ route('medo.jobs.category', $medoFooterCat) }}">{{ $medoFooterCat->name }} Jobs</a></li>
+                    @if($footerJobCategories->isNotEmpty())
+                        @foreach($footerJobCategories as $footerJobCat)
+                        @php
+                        $jobCount = App\Job::countNumJobs('job_category_id', $footerJobCat->job_category_id);
+                        @endphp
+                        <li><a href="{{ route('job.list', ['job_category_id[]' => $footerJobCat->job_category_id]) }}">{{ $footerJobCat->job_category }} </a></li>
                         @endforeach
                     @else
                         @php
