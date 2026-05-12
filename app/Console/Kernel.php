@@ -32,27 +32,27 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
         $schedule->command('queue:work --stop-when-empty')->everyFiveMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
         $schedule->command('route:call check-package-validity')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
-		$schedule->command('route:call send-alerts')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
-		$schedule->command('send:incomplete-profile-reminders')->weekly()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/incomplete-profile-reminders.log');
-		
-		// Alberta sources
-		$schedule->command('jobs:scrape ahs')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ahs.log');
-		$schedule->command('jobs:scrape covenant')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-covenant.log');
-		$schedule->command('jobs:scrape bethany')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-bethany.log');
-		$schedule->command('jobs:scrape agecare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-agecare.log');
-		$schedule->command('jobs:scrape capitalcare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-capitalcare.log');
-		$schedule->command('jobs:fetch-adzuna')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-fetch-adzuna.log');
-		
-		// Sync employer-posted jobs to pSEO
-		$schedule->command('jobs:sync-legacy-to-medo')->everyFifteenMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/job-sync-legacy.log');
-		
-		// National maintenance
-		$schedule->command('jobs:expire')->daily()->sendOutputTo(storage_path() . '/logs/jobs-expire.log');
-		$schedule->command('indexnow:ping')->everyFifteenMinutes()->sendOutputTo(storage_path() . '/logs/indexnow-ping.log');
-		
-		// Note: cache:prune-stale-pages is handled by standard Laravel file cache expiration when using Cache::remember. 
-		// If using Redis or other drivers, standard TTL handles this.
-		// Note: sitemap:build is generated dynamically.
+        $schedule->command('route:call send-alerts')->daily()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/queue-jobs.log');
+        $schedule->command('send:incomplete-profile-reminders')->weekly()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/incomplete-profile-reminders.log');
+
+        // Alberta sources
+        $schedule->command('jobs:scrape ahs')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-ahs.log');
+        $schedule->command('jobs:scrape covenant')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-covenant.log');
+        $schedule->command('jobs:scrape bethany')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-bethany.log');
+        $schedule->command('jobs:scrape agecare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-agecare.log');
+        $schedule->command('jobs:scrape capitalcare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-capitalcare.log');
+        // $schedule->command('jobs:fetch-adzuna')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-fetch-adzuna.log');
+
+        // Sync employer-posted jobs to pSEO
+        $schedule->command('jobs:sync-legacy-to-medo')->everyFifteenMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/job-sync-legacy.log');
+
+        // National maintenance
+        $schedule->command('jobs:expire')->daily()->sendOutputTo(storage_path() . '/logs/jobs-expire.log');
+        $schedule->command('indexnow:ping')->everyFifteenMinutes()->sendOutputTo(storage_path() . '/logs/indexnow-ping.log');
+
+        // Note: cache:prune-stale-pages is handled by standard Laravel file cache expiration when using Cache::remember. 
+        // If using Redis or other drivers, standard TTL handles this.
+        // Note: sitemap:build is generated dynamically.
     }
 
     /**
