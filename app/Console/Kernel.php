@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CallRoute',
         'App\Console\Commands\SendIncompleteProfileReminders',
         'App\Console\Commands\ScrapeJobFeeds',
+        'App\Console\Commands\FetchAdzunaJobs',
     ];
 
     /**
@@ -40,6 +41,7 @@ class Kernel extends ConsoleKernel
 		$schedule->command('jobs:scrape bethany')->everyThreeHours()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-bethany.log');
 		$schedule->command('jobs:scrape agecare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-agecare.log');
 		$schedule->command('jobs:scrape capitalcare')->daily()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-scraper-capitalcare.log');
+		$schedule->command('jobs:fetch-adzuna')->hourly()->withoutOverlapping(10)->sendOutputTo(storage_path() . '/logs/job-fetch-adzuna.log');
 		
 		// Sync employer-posted jobs to pSEO
 		$schedule->command('jobs:sync-legacy-to-medo')->everyFifteenMinutes()->withoutOverlapping(5)->sendOutputTo(storage_path() . '/logs/job-sync-legacy.log');
