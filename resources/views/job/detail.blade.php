@@ -251,42 +251,6 @@
 
             </div>
             <!-- related jobs end -->
-
-            <div class="col-lg-5">
-
-
-
-                <div class="companyinfo">
-                    <h3><i class="fas fa-building" aria-hidden="true"></i> {{__('Company Overview')}}</h3>
-                    <div class="companylogo"><a href="{{route('company.detail',$company->slug)}}">{{$company->printCompanyImage()}}</a></div>
-                    <div class="title"><a href="{{route('company.detail',$company->slug)}}">{{$company->name}}</a> @include('components.verified-badge', ['company' => $company])</div>
-                    <div class="ptext">{{$company->getLocation()}}</div>
-                    <div class="opening">
-                        <a href="{{route('company.detail',$company->slug)}}">
-                            {{App\Company::countNumJobs('company_id', $company->id)}} {{__('Current Jobs Openings')}}
-                        </a>
-                    </div>
-                    <div class="clearfix"></div>
-                    <hr>
-                    <div class="companyoverview">
-
-                        <p>{{\Illuminate\Support\Str::limit(strip_tags($company->description), 250, '...')}} <a href="{{route('company.detail',$company->slug)}}">Read More</a></p>
-                    </div>
-                </div>
-
-                <!-- Google Map start -->
-                <div class="job-header">
-                    <div class="jobdetail">
-                        <h3><i class="fas fa-map-marker" aria-hidden="true"></i> {{__('Google Map')}}</h3>
-                        <div class="gmap">
-                            <iframe src="https://maps.google.it/maps?q={{urlencode(strip_tags($company->map))}}&output=embed" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
             </div>
         </div>
 

@@ -90,7 +90,7 @@ class FetchAdzunaJobs extends Command
                 $createdAt = isset($result['created']) ? \Carbon\Carbon::parse($result['created'])->format('Y-m-d H:i:s') : now();
 
                 // Create the job
-                Job::create([
+                $job = Job::create([
                     'title' => $jobTitle,
                     'company_name' => $companyName,
                     'description' => $description,
@@ -99,9 +99,28 @@ class FetchAdzunaJobs extends Command
                     'reference' => $result['id'], // Storing Adzuna ID here
                     'external_job' => 'yes',
                     'is_active' => 1,
+                    'is_draft' => 0,
+                    'display_duration_days' => 30,
+                    'display_end_date' => now()->addDays(30),
+                    'expiry_date' => now()->addDays(30),
                     'created_at' => $createdAt,
                     'json_object' => json_encode($result),
                 ]);
+
+                $job->slug = \Illuminate\Support\Str::slug($jobTitle, '-') . '-' . $job->id;
+                
+                // Map basic fields based on search parameters so it shows up in filters
+                if (stripos($location, 'Edmonton') !== false) {
+                    $job->medo_city_id = 2; // Edmonton
+                    $job->medo_province_id = 1; // Alberta
+                    $job->city_id = 10125;
+                }
+                if (stripos($jobTitle, 'Health Care Aide') !== false || stripos($jobTitle, 'HCA') !== false || stripos($what, 'health care aide') !== false) {
+                    $job->medo_category_id = 1; // HCA
+                    $job->functional_area_id = 655;
+                }
+                
+                $job->save();
 
                 $totalImported++;
             }
