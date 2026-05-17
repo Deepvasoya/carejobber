@@ -251,8 +251,87 @@
 
             </div>
             <!-- related jobs end -->
+            
+            <!-- Right Sidebar - Employer Information -->
+            <div class="col-lg-5">
+                <div class="job-header">
+                    <div class="contentbox">
+                        <h3><i class="fas fa-building" aria-hidden="true"></i> {{__('About Employer')}}</h3>
+                        
+                        @if($company)
+                        <div class="employer-info">
+                            <div class="text-center mb-3">
+                                <a href="{{route('company.detail', $company->slug)}}" class="d-inline-block">
+                                    {{$company->printCompanyImage()}}
+                                </a>
+                            </div>
+                            
+                            <div class="text-center mb-3">
+                                <h4 class="mb-1">
+                                    <a href="{{route('company.detail', $company->slug)}}" style="color: #333; text-decoration: none;">
+                                        {{$company->name}}
+                                    </a>
+                                </h4>
+                                @include('components.verified-badge', ['company' => $company])
+                            </div>
+                            
+                            @if($company->getIndustry('industry'))
+                            <div class="employer-detail-item mb-2">
+                                <i class="fas fa-industry text-primary me-2"></i>
+                                <strong>{{__('Industry')}}:</strong> {{$company->getIndustry('industry')}}
+                            </div>
+                            @endif
+                            
+                            @if($company->getLocation())
+                            <div class="employer-detail-item mb-2">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                <strong>{{__('Location')}}:</strong> {{$company->getLocation()}}
+                            </div>
+                            @endif
+                            
+                            @if($company->no_of_offices)
+                            <div class="employer-detail-item mb-2">
+                                <i class="fas fa-building text-success me-2"></i>
+                                <strong>{{__('Offices')}}:</strong> {{$company->no_of_offices}}
+                            </div>
+                            @endif
+                            
+                            @if($company->website)
+                            <div class="employer-detail-item mb-2">
+                                <i class="fas fa-globe text-info me-2"></i>
+                                <strong>{{__('Website')}}:</strong> 
+                                <a href="{{$company->website}}" target="_blank" rel="noopener noreferrer">
+                                    {{__('Visit Website')}}
+                                </a>
+                            </div>
+                            @endif
+                            
+                            @php
+                            $activeJobs = \App\Job::where('company_id', $company->id)
+                                ->where('is_active', 1)
+                                ->where('expiry_date', '>', now())
+                                ->count();
+                            @endphp
+                            
+                            @if($activeJobs > 0)
+                            <div class="employer-detail-item mb-3">
+                                <i class="fas fa-briefcase text-warning me-2"></i>
+                                <strong>{{__('Active Jobs')}}:</strong> {{$activeJobs}}
+                            </div>
+                            @endif
+                            
+                            <div class="text-center mt-3">
+                                <a href="{{route('company.detail', $company->slug)}}" class="btn btn-primary btn-sm" style="padding: 8px 20px; border-radius: 6px;">
+                                    <i class="fas fa-eye me-2"></i>{{__('View Company Profile')}}
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
             </div>
-        </div>
+            
+            </div>
 
 
 
@@ -476,6 +555,26 @@
         background: #dc2626 !important;
         left: 10px;
         right: auto;
+    }
+    
+    .employer-info {
+        padding: 10px 0;
+    }
+    
+    .employer-detail-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+    
+    .employer-detail-item:last-of-type {
+        border-bottom: none;
+    }
+    
+    .employer-info img {
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
     }
 </style>
 @endpush
