@@ -9,8 +9,10 @@
     $jobShiftLabel = $job->getJobShift('job_shift');
     $benefitLines = $job->getBenefitsPreviewLines(4);
     $expired = $job->isJobExpired();
-    $applyType = $job->getEffectiveApplyType();
-    $applyActionUrl = $job->getApplyActionUrl();
+    $applyType = $job->getEffectiveApplyType(); // Returns 'internal', 'external', 'email', or 'phone'
+   
+    $applyActionUrl = $job->application_url;
+   
     $isExternalApply = $applyType !== 'internal' && $applyActionUrl;
 @endphp
 <li class="{{ $columnClass }} @if ($job->isPromotionFeaturedActive()) featured @endif">
@@ -138,7 +140,7 @@
                 @if ($expired)
                     <span class="job-list-apply job-list-apply-disabled"><i class="fas fa-ban"></i>
                         {{ __('Job closed') }}</span>
-                @elseif($isExternalApply)
+                @elseif($applyType === 'external')
                     <a href="{{ $applyActionUrl }}" class="job-list-apply job-list-apply-primary"
                         @if($applyType === 'external') target="_blank" rel="noopener noreferrer" @endif>
                         <i class="fas fa-paper-plane"></i> {{ __('Apply now') }}

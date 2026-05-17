@@ -179,28 +179,11 @@ trait JobTrait
         return 'draft-' . $job->id;
     }
 
-    private function normalizeApplyType($type, $externalJob = 'no'): string
-    {
-        if (is_array($type)) {
-            $type = '';
-        }
-        if (is_array($externalJob)) {
-            $externalJob = 'no';
-        }
-
-        $type = (string) $type;
-        $allowed = ['internal', 'external', 'email', 'phone'];
-
-        if (! in_array($type, $allowed, true)) {
-            $type = ((string) $externalJob === 'yes') ? 'external' : 'internal';
-        }
-
-        return $type;
-    }
-
     public function getEffectiveApplyType(): string
     {
-        return $this->normalizeApplyType($this->apply_type ?? null, $this->external_job ?? 'no');
+       
+        $externalJob = $this->external_job ?? 'no';
+        return ((string) $externalJob === 'yes') ? 'external' : 'internal';
     }
 
     public function isExternalApplyType(): bool

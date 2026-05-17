@@ -11,7 +11,7 @@
 	@php
 	$company = $job->getCompany();
 	$applyType = $job->getEffectiveApplyType();
-	$applyActionUrl = $job->getApplyActionUrl();
+	$applyActionUrl = $job->application_url;
 	$isExternalApply = $applyType !== 'internal' && $applyActionUrl;
     $phoneApplyNumber = $applyType === 'phone' && $applyActionUrl ? preg_replace('/^tel:/i', '', $applyActionUrl) : null;
     $salaryCurrency = trim((string) $job->salary_currency);

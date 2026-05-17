@@ -51,6 +51,10 @@ trait FetchJobs
         'jobs.is_highlighted',
         'jobs.salary_currency',
         'jobs.slug',
+        'jobs.external_job',
+        'jobs.apply_type',
+        'jobs.job_link',
+        'jobs.application_url',
         'jobs.created_at',
         'jobs.updated_at'
     );
