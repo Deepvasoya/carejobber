@@ -39,6 +39,24 @@ class SitemapController extends Controller
     {
         $urls = [];
 
+        $hcaEdmontonCount = Job::where('is_active', 1)
+            ->where('is_draft', 0)
+            ->where('functional_area_id', 655)
+            ->where('city_id', 10125)
+            ->where(function ($q) {
+                $q->whereNull('display_end_date')
+                    ->orWhere('display_end_date', '>=', now());
+            })
+            ->notExpire()
+            ->count();
+
+        if ($hcaEdmontonCount >= 5) {
+            $urls[] = [
+                'loc' => url('/hca-jobs-edmonton'),
+                'lastmod' => now()->toDateString(),
+            ];
+        }
+
         Job::where('is_active', 1)
             ->where('is_draft', 0)
             ->where(function ($q) {

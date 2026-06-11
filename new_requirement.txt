@@ -1,0 +1,89 @@
+Can you do this?
+PROJECT: Build One Dynamic SEO Landing Page for Medojob
+Goal:
+I want a single dynamic SEO page created in Laravel using the existing jobs database.
+The page URL will be:
+/hca-jobs-edmonton
+This page must NOT be a static page.
+It must automatically pull active HCA jobs located in Edmonton from the existing jobs table.
+Requirements:
+1. URL Structure
+Create a route:
+/hca-jobs-edmonton
+This should load dynamically from the database.
+2. Jobs Display
+The page must display all active Health Care Aide jobs located in Edmonton.
+The page should use the same job cards or job listing design already used elsewhere on the site.
+When a new HCA job is added in Edmonton through the admin panel, it should automatically appear on this page without any manual editing.
+3. Data Source
+Do NOT create a separate jobs table.
+Use the existing jobs database table already used by the site.
+The page must query the same data source as the main jobs page.
+4. Page Content
+Above the job listings, display:
+H1: HCA Jobs in Edmonton
+Intro Paragraph: Looking for HCA jobs in Edmonton? Browse current Health Care Aide opportunities in hospitals, long-term care homes, home care agencies, and healthcare facilities across Edmonton.
+5. Related Pages Section
+Below the jobs list add:
+Related Healthcare Jobs
+* HCA Jobs in Calgary
+* LPN Jobs in Edmonton
+* RN Jobs in Edmonton
+* Healthcare Jobs in Alberta
+For now these links can be placeholders.
+6. No Index Rule
+If fewer than 5 active jobs exist on the page:
+<meta name="robots" content="noindex,follow">
+If 5 or more active jobs exist:
+<meta name="robots" content="index,follow">
+7. Sitemap Rule
+Only include this page in the XML sitemap if there are 5 or more active jobs.
+Do not include it in the sitemap if there are fewer than 5 jobs.
+8. Pagination
+Use existing pagination style.
+Show 20 jobs per page.
+9. Success Criteria
+After development is complete:
+* I create a new HCA job in Edmonton.
+* The job automatically appears on /hca-jobs-edmonton.
+* The page updates automatically.
+* No manual editing is required.
+IMPORTANT
+I do not want a static content page.
+I want a database-driven SEO landing page connected to the existing jobs table.
+
+
+
+
+If fewer than 5 active jobs exist on the page:
+
+<meta name="robots" content="noindex,follow">
+
+<meta name="robots" content="index,follow">
+
+8. Sitemap Rule
+
+Only include this page in the XML sitemap if there are 5 or more active jobs.
+
+Do not include it in the sitemap if there are fewer than 5 jobs.
+
+1. Pagination
+
+Use existing pagination style.
+
+Show 20 jobs per page.
+
+1. Success Criteria
+
+After development is complete:
+
+* I create a new HCA job in Edmonton.
+* The job automatically appears on /hca-jobs-edmonton.
+* The page updates automatically.
+* No manual editing is required.
+
+IMPORTANT
+
+I do not want a static content page.
+
+I want a database-driven SEO landing page connected to the existing jobs table.
