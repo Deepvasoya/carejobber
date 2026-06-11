@@ -64,4 +64,43 @@ class EmployerLandingController extends Controller
 
         return $sanitized;
     }
+    
+    public function indexPreview()
+    {
+        $cms = Cms::where('page_slug', 'employer-landing-page')->first();
+        $pageTitle = 'Employer Zone';
+        $customContent = null;
+
+        if ($cms) {
+            $cmsContent = CmsContent::getContentByPageId($cms->id);
+
+            if ($cmsContent) {
+                $pageTitle = $cmsContent->page_title ?: $pageTitle;
+
+                if (trim((string) $cmsContent->page_content) !== '') {
+                    $customContent = $this->sanitizeHtml($cmsContent->page_content);
+                }
+            }
+        }
+
+        $seo = (object) [
+            'seo_title' => $cms->seo_title ?? 'Employer Zone - Post Jobs & Hire Talent',
+            'seo_description' => $cms->seo_description ?? 'Join our employer platform to post jobs, access qualified candidates, and grow your team.',
+            'seo_keywords' => $cms->seo_keywords ?? 'employer, post job, hire, recruitment',
+            'seo_other' => $cms->seo_other ?? '',
+        ];
+
+        $stats = [
+            'active_jobs' => Job::where('is_active', 1)->count(),
+            'active_employers' => Company::where('is_active', 1)->count(),
+            'featured_employers' => Company::where('is_active', 1)->where('is_featured', 1)->count(),
+        ];
+
+        return view('employer.landing-preview', [
+            'customContent' => $customContent,
+            'pageTitle' => $pageTitle,
+            'seo' => $seo,
+            'stats' => $stats,
+        ]);
+    }
 }
