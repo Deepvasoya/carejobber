@@ -181,9 +181,18 @@ trait JobTrait
 
     public function getEffectiveApplyType(): string
     {
-       
+        
         $externalJob = $this->external_job ?? 'no';
         return ((string) $externalJob === 'yes') ? 'external' : 'internal';
+    }
+
+    public function normalizeApplyType(?string $applyType, ?string $externalJob): string
+    {
+        if ($applyType !== null && $applyType !== '') {
+            return $applyType;
+        }
+
+        return ($externalJob === 'yes') ? 'external' : 'internal';
     }
 
     public function isExternalApplyType(): bool
