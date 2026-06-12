@@ -689,11 +689,15 @@ trait JobTrait
     $company->availed_jobs_quota += 1;
     $company->update();
 
-    if ($job->is_active == 1) {
-        Mail::send(new JobApprovalMailable($job));
-        event(new JobPosted($job));
-    } else {
-        Mail::send(new JobPostedMailableFront($job));
+    try {
+        if ($job->is_active == 1) {
+            Mail::send(new JobApprovalMailable($job));
+            event(new JobPosted($job));
+        } else {
+            Mail::send(new JobPostedMailableFront($job));
+        }
+    } catch (\Exception $e) {
+        \Log::warning('Failed to send job notification email: ' . $e->getMessage());
     }
 
     if ($pending['total_cents'] > 0) {
@@ -870,11 +874,15 @@ trait JobTrait
             $company->availed_jobs_quota = $company->availed_jobs_quota + 1;
             $company->update();
 
-            if ($job->is_active == 1) {
-                Mail::send(new JobApprovalMailable($job));
-                event(new JobPosted($job));
-            } else {
-                Mail::send(new JobPostedMailableFront($job));
+            try {
+                if ($job->is_active == 1) {
+                    Mail::send(new JobApprovalMailable($job));
+                    event(new JobPosted($job));
+                } else {
+                    Mail::send(new JobPostedMailableFront($job));
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Failed to send job notification email: ' . $e->getMessage());
             }
 
             $this->storeJobSkills($request, $job->id);
