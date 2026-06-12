@@ -74,7 +74,9 @@ Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitema
 Route::get('employers/{slug}', [\App\Http\Controllers\Medo\EmployerController::class, 'resolve'])->name('employers.show');
 Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
 Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
-Route::get('/hca-jobs-edmonton', 'Seo\HcaJobsEdmontonController@index')->name('seo.hca-jobs-edmonton');
+Route::get('/{role}-jobs-{city}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCity'])
+    ->where(['role' => 'hca|lpn|rn', 'city' => 'edmonton|calgary|red-deer|lethbridge|medicine-hat'])
+    ->name('seo.role.city');
 
 
 Route::get('/check-time', 'IndexController@checkTime')->name('check-time');

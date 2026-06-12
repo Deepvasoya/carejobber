@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page_title', 'HCA Jobs in Edmonton | Medojob')
+@section('page_title', $metaTitle)
 
 @section('content')
 @include('includes.header')
@@ -11,8 +11,8 @@
         <div class="pseo-jobs-header">
             <div>
                 <p class="pseo-eyebrow">{{ __('Healthcare jobs in Alberta') }}</p>
-                <h1>HCA Jobs in Edmonton</h1>
-                <p>Looking for HCA jobs in Edmonton? Browse current Health Care Aide opportunities in hospitals, long-term care homes, home care agencies, and healthcare facilities across Edmonton.</p>
+                <h1>{{ strtoupper($role) }} Jobs in {{ $cityName }}</h1>
+                <p>Looking for {{ strtoupper($role) }} jobs in {{ $cityName }}? Browse current {{ $roleLabel }} opportunities in hospitals, long-term care homes, home care agencies, and healthcare facilities across {{ $cityName }}.</p>
             </div>
             <div class="pseo-salary-summary">
                 <span>{{ __('Active listings') }}</span>
@@ -43,10 +43,9 @@
         <div class="pseo-related-section">
             <h2>{{ __('Related Healthcare Jobs') }}</h2>
             <ul>
-                <li><a href="#">HCA Jobs in Calgary</a></li>
-                <li><a href="#">LPN Jobs in Edmonton</a></li>
-                <li><a href="#">RN Jobs in Edmonton</a></li>
-                <li><a href="#">Healthcare Jobs in Alberta</a></li>
+                @foreach($relatedLinks as $link)
+                    <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                @endforeach
             </ul>
         </div>
     </div>

@@ -39,22 +39,43 @@ class SitemapController extends Controller
     {
         $urls = [];
 
-        $hcaEdmontonCount = Job::where('is_active', 1)
-            ->where('is_draft', 0)
-            ->where('functional_area_id', 655)
-            ->where('city_id', 10125)
-            ->where(function ($q) {
-                $q->whereNull('display_end_date')
-                    ->orWhere('display_end_date', '>=', now());
-            })
-            ->notExpire()
-            ->count();
+        $roles = ['hca', 'lpn', 'rn'];
+        $citySlugs = ['edmonton', 'calgary', 'red-deer', 'lethbridge', 'medicine-hat'];
 
-        if ($hcaEdmontonCount >= 5) {
-            $urls[] = [
-                'loc' => url('/hca-jobs-edmonton'),
-                'lastmod' => now()->toDateString(),
-            ];
+        foreach ($roles as $role) {
+            $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
+            if (! $fa) {
+                continue;
+            }
+
+            foreach ($citySlugs as $citySlug) {
+                $cityModel = City::where('slug', $citySlug)
+                    ->where('state_id', 663)
+                    ->where('is_active', 1)
+                    ->first();
+
+                if (! $cityModel) {
+                    continue;
+                }
+
+                $count = Job::where('is_active', 1)
+                    ->where('is_draft', 0)
+                    ->where('functional_area_id', $fa->functional_area_id)
+                    ->where('city_id', $cityModel->city_id)
+                    ->where(function ($q) {
+                        $q->whereNull('display_end_date')
+                            ->orWhere('display_end_date', '>=', now());
+                    })
+                    ->notExpire()
+                    ->count();
+
+                if ($count >= 5) {
+                    $urls[] = [
+                        'loc' => url('/' . $role . '-jobs-' . $citySlug),
+                        'lastmod' => now()->toDateString(),
+                    ];
+                }
+            }
         }
 
         Job::where('is_active', 1)
