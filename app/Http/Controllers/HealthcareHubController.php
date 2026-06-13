@@ -4,22 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Job;
 use App\City;
+use App\State;
 
 class HealthcareHubController extends Controller
 {
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
+    const ALBERTA_STATE_ID = 663;
+    const ALBERTA_SLUG = 'alberta';
 
     public function alberta()
     {
-        $firstState = $this->firstState();
-        $stateId = $firstState['id'];
-        $stateName = $firstState['name'];
+        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
+        $stateName = $state ? $state->state : 'Alberta';
 
         $jobsQuery = Job::with('company')
             ->where('jobs.is_active', 1)
             ->where('jobs.is_draft', 0)
-            ->where('jobs.state_id', $stateId)
+            ->where('jobs.state_id', self::ALBERTA_STATE_ID)
             ->where(function ($q) {
                 $q->whereNull('jobs.display_end_date')
                     ->orWhere('jobs.display_end_date', '>=', now());
@@ -33,8 +35,11 @@ class HealthcareHubController extends Controller
 
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
 
+        $cityNames = $this->activeCityNames();
+        $cityList = $cityNames->join(', ');
+
         $metaTitle = 'Healthcare Jobs in ' . $stateName . ' | Medojob';
-        $metaDescription = 'Browse current healthcare jobs across ' . $stateName . ', including HCA, LPN, RN, and other healthcare careers in ' . $this->cityNames()->join(', ') . ', and surrounding communities.';
+        $metaDescription = 'Browse current healthcare jobs across ' . $stateName . ', including HCA, LPN, RN, and other healthcare careers in ' . $cityList . ', and surrounding communities.';
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $noIndex);
 
@@ -52,16 +57,8 @@ class HealthcareHubController extends Controller
 
     public function city($city)
     {
-        $allowedCities = $this->allCities();
-
-        if (!array_key_exists($city, $allowedCities)) {
-            abort(404);
-        }
-
-        $cityName = $allowedCities[$city];
-
-        $cityModel = City::where('city', $cityName)
-            ->where('state_id', $this->firstState()['id'])
+        $cityModel = City::where('slug', $city)
+            ->where('state_id', self::ALBERTA_STATE_ID)
             ->where('is_active', 1)
             ->first();
 
@@ -69,10 +66,12 @@ class HealthcareHubController extends Controller
             abort(404);
         }
 
+        $cityName = $cityModel->city;
+
         $jobsQuery = Job::with('company')
             ->where('jobs.is_active', 1)
             ->where('jobs.is_draft', 0)
-            ->where('jobs.state_id', $this->firstState()['id'])
+            ->where('jobs.state_id', self::ALBERTA_STATE_ID)
             ->where('jobs.city_id', $cityModel->city_id)
             ->where(function ($q) {
                 $q->whereNull('jobs.display_end_date')
@@ -92,8 +91,8 @@ class HealthcareHubController extends Controller
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $noIndex);
 
-        $roleLinks = $this->roleLinks($city);
-        $relatedCities = $this->relatedCities($city);
+        $roleLinks = $this->roleLinks($city, $cityName);
+        $relatedCities = $this->relatedCities($city, $cityModel->city_id);
 
         return view('seo.healthcare-city')
             ->with('city', $city)
@@ -122,74 +121,65 @@ class HealthcareHubController extends Controller
         ];
     }
 
-    private function firstState(): array
+    private function activeCities(): \Illuminate\Database\Eloquent\Collection
     {
-        $states = config('seo_locations.states');
-        $key = array_key_first($states);
-        return $states[$key];
+        return City::where('state_id', self::ALBERTA_STATE_ID)
+            ->where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->orderBy('city')
+            ->get();
     }
 
-    private function allCities(): array
+    private function activeCityNames(): \Illuminate\Support\Collection
     {
-        $cities = [];
-        foreach (config('seo_locations.states') as $state) {
-            foreach ($state['cities'] as $slug => $name) {
-                $cities[$slug] = $name;
-            }
-        }
-        return $cities;
-    }
-
-    private function cityNames(): \Illuminate\Support\Collection
-    {
-        return collect($this->allCities())->values();
+        return $this->activeCities()->pluck('city');
     }
 
     private function cityLinks(): array
     {
         $links = [];
-        foreach ($this->allCities() as $slug => $name) {
+        foreach ($this->activeCities() as $city) {
             $links[] = [
-                'label' => $name,
-                'url' => url('/healthcare-jobs-' . $slug),
+                'label' => $city->city,
+                'url' => url('/healthcare-jobs-' . $city->slug),
             ];
         }
         return $links;
     }
 
-    private function roleLinks(string $city): array
+    private function roleLinks(string $citySlug, string $cityName): array
     {
         $links = [];
         foreach (config('seo_locations.roles') as $roleSlug => $roleLabel) {
-            $shortLabel = $this->shortRoleLabel($roleSlug, $roleLabel);
             $links[] = [
-                'label' => $shortLabel . ' Jobs in ' . $this->allCities()[$city],
-                'url' => url('/' . $roleSlug . '-jobs-' . $city),
+                'label' => $this->shortRoleLabel($roleSlug) . ' Jobs in ' . $cityName,
+                'url' => url('/' . $roleSlug . '-jobs-' . $citySlug),
             ];
         }
         return $links;
     }
 
-    private function relatedCities(string $currentCity): array
+    private function relatedCities(string $currentSlug, int $currentCityId): array
     {
         $links = [
-            ['label' => $this->firstState()['name'] . ' (All)', 'url' => url('/healthcare-jobs-' . array_key_first(config('seo_locations.states')))],
+            ['label' => 'Alberta (All)', 'url' => url('/healthcare-jobs-alberta')],
         ];
 
-        foreach ($this->allCities() as $slug => $name) {
-            if ($slug === $currentCity) {
+        foreach ($this->activeCities() as $city) {
+            if ($city->slug === $currentSlug) {
                 continue;
             }
             $links[] = [
-                'label' => $name,
-                'url' => url('/healthcare-jobs-' . $slug),
+                'label' => $city->city,
+                'url' => url('/healthcare-jobs-' . $city->slug),
             ];
         }
 
         return $links;
     }
 
-    private function shortRoleLabel(string $slug, string $fullLabel): string
+    private function shortRoleLabel(string $slug): string
     {
         $short = [
             'hca' => 'HCA',
@@ -197,10 +187,5 @@ class HealthcareHubController extends Controller
             'rn' => 'RN',
         ];
         return $short[$slug] ?? strtoupper($slug);
-    }
-
-    private function roles(): array
-    {
-        return config('seo_locations.roles');
     }
 }

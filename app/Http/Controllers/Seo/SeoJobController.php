@@ -11,13 +11,13 @@ class SeoJobController extends Controller
 {
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
+    const ALBERTA_STATE_ID = 663;
 
     public function roleCity(string $role, string $city)
     {
         $allowedRoles = config('seo_locations.roles');
-        $allowedCities = $this->allCities();
 
-        if (!array_key_exists($role, $allowedRoles) || !array_key_exists($city, $allowedCities)) {
+        if (!array_key_exists($role, $allowedRoles)) {
             abort(404);
         }
 
@@ -25,10 +25,8 @@ class SeoJobController extends Controller
             ->where('is_active', 1)
             ->first();
 
-        $stateId = $this->firstStateId();
-
         $cityModel = City::where('slug', $city)
-            ->where('state_id', $stateId)
+            ->where('state_id', self::ALBERTA_STATE_ID)
             ->where('is_active', 1)
             ->first();
 
@@ -61,7 +59,7 @@ class SeoJobController extends Controller
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $role, $city, $noIndex);
 
-        $relatedLinks = $this->relatedLinks($role, $city, $cityName, $roleLabel);
+        $relatedLinks = $this->relatedLinks($role, $city, $cityName, $roleLabel, $cityModel->city_id);
 
         return view('seo.role-city')
             ->with('role', $role)
@@ -96,19 +94,22 @@ class SeoJobController extends Controller
         ];
     }
 
-    private function relatedLinks(string $role, string $city, string $cityName, string $roleLabel): array
+    private function relatedLinks(string $role, string $city, string $cityName, string $roleLabel, int $cityId): array
     {
         $links = [];
-        $allCities = $this->allCities();
 
-        $otherCities = array_filter($allCities, function ($name, $slug) use ($city) {
-            return $slug !== $city;
-        }, ARRAY_FILTER_USE_BOTH);
+        $otherCities = City::where('state_id', self::ALBERTA_STATE_ID)
+            ->where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->where('city_id', '!=', $cityId)
+            ->orderBy('city')
+            ->get();
 
-        foreach ($otherCities as $otherSlug => $otherName) {
+        foreach ($otherCities as $other) {
             $links[] = [
-                'label' => strtoupper($role) . ' Jobs in ' . $otherName,
-                'url' => route('seo.role.city', ['role' => $role, 'city' => $otherSlug]),
+                'label' => strtoupper($role) . ' Jobs in ' . $other->city,
+                'url' => route('seo.role.city', ['role' => $role, 'city' => $other->slug]),
             ];
         }
 
@@ -123,33 +124,12 @@ class SeoJobController extends Controller
             ];
         }
 
-        $firstStateSlug = array_key_first(config('seo_locations.states'));
-        $firstStateName = config('seo_locations.states')[$firstStateSlug]['name'];
-
         $links[] = [
-            'label' => 'Healthcare Jobs in ' . $firstStateName,
-            'url' => url('/healthcare-jobs-' . $firstStateSlug),
+            'label' => 'Healthcare Jobs in Alberta',
+            'url' => url('/healthcare-jobs-alberta'),
         ];
 
         return $links;
-    }
-
-    private function firstStateId(): int
-    {
-        $states = config('seo_locations.states');
-        $key = array_key_first($states);
-        return (int) $states[$key]['id'];
-    }
-
-    private function allCities(): array
-    {
-        $cities = [];
-        foreach (config('seo_locations.states') as $state) {
-            foreach ($state['cities'] as $slug => $name) {
-                $cities[$slug] = $name;
-            }
-        }
-        return $cities;
     }
 
     private function shortRoleLabel(string $slug): string
