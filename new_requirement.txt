@@ -1,89 +1,259 @@
-Can you do this?
-PROJECT: Build One Dynamic SEO Landing Page for Medojob
+PROJECT UPDATE: Build Healthcare Hub Pages Using Existing State Field
+
+The role + city SEO pages are now working correctly.
+
+Next, I want to build healthcare hub pages that connect all role/city pages together and strengthen the site’s internal linking structure.
+
+Please use the existing database structure and existing jobs table.
+
+IMPORTANT:
+
+The jobs table uses:
+
+* city
+* state
+
+Please use the existing state field.
+
+For Alberta:
+
+state = Alberta
+
+Do NOT create a new province column.
+
+⸻
+
+PAGES TO BUILD
+
+/healthcare-jobs-alberta
+
+/healthcare-jobs-edmonton
+/healthcare-jobs-calgary
+/healthcare-jobs-red-deer
+/healthcare-jobs-lethbridge
+/healthcare-jobs-medicine-hat
+
+⸻
+
+ROUTES
+
+routes/web.php
+
+Route::get(’/healthcare-jobs-alberta’, [HealthcareHubController::class, ‘alberta’])
+->name(‘seo.healthcare.alberta’);
+
+Route::get(’/healthcare-jobs-{city}’, [HealthcareHubController::class, ‘city’])
+->where([
+‘city’ => ‘edmonton|calgary|red-deer|lethbridge|medicine-hat’
+])
+->name(‘seo.healthcare.city’);
+
+⸻
+
+CONTROLLER
+
+Create:
+
+app/Http/Controllers/HealthcareHubController.php
+
+METHOD 1
+
+public function alberta()
+{
+$jobsQuery = Job::query()
+->where(‘status’, ‘active’)
+->where(‘state’, ‘Alberta’);
+
+$jobCount = $jobsQuery->count();
+$jobs = $jobsQuery
+    ->latest()
+    ->paginate(20);
+$noIndex = $jobCount < 5;
+return view('seo.healthcare-alberta', compact(
+    'jobs',
+    'jobCount',
+    'noIndex'
+));
+
+}
+
+METHOD 2
+
+public function city($city)
+{
+$allowedCities = [
+‘edmonton’ => ‘Edmonton’,
+‘calgary’ => ‘Calgary’,
+‘red-deer’ => ‘Red Deer’,
+‘lethbridge’ => ‘Lethbridge’,
+‘medicine-hat’ => ‘Medicine Hat’,
+];
+
+if (!array_key_exists($city, $allowedCities)) {
+    abort(404);
+}
+$cityName = $allowedCities[$city];
+$jobsQuery = Job::query()
+    ->where('status', 'active')
+    ->where('state', 'Alberta')
+    ->where('city', $cityName);
+$jobCount = $jobsQuery->count();
+$jobs = $jobsQuery
+    ->latest()
+    ->paginate(20);
+$noIndex = $jobCount < 5;
+return view('seo.healthcare-city', compact(
+    'city',
+    'cityName',
+    'jobs',
+    'jobCount',
+    'noIndex'
+));
+
+}
+
+⸻
+
+ALBERTA HUB PAGE
+
+resources/views/seo/healthcare-alberta.blade.php
+
+H1:
+Healthcare Jobs in Alberta
+
+Intro:
+Browse current healthcare jobs across Alberta, including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.
+
+Display:
+
+{{ $jobCount }} Active Healthcare Jobs in Alberta
+
+SECTION:
+Healthcare Jobs by City
+
+Links:
+
+/healthcare-jobs-edmonton
+/healthcare-jobs-calgary
+/healthcare-jobs-red-deer
+/healthcare-jobs-lethbridge
+/healthcare-jobs-medicine-hat
+
+SECTION:
+Popular Healthcare Roles
+
+Links:
+
+/hca-jobs-edmonton
+/lpn-jobs-edmonton
+/rn-jobs-edmonton
+
+/hca-jobs-calgary
+/lpn-jobs-calgary
+/rn-jobs-calgary
+
+SECTION:
+Latest Healthcare Jobs
+
+Display active jobs using the existing job card design.
+
+⸻
+
+CITY HUB PAGE
+
+resources/views/seo/healthcare-city.blade.php
+
+Examples:
+
+/healthcare-jobs-edmonton
+/healthcare-jobs-calgary
+
+H1:
+
+Healthcare Jobs in {{ $cityName }}
+
+Intro:
+
+Browse current healthcare jobs in {{ $cityName }}, including HCA, LPN, RN, hospital, long-term care, home care, and clinic positions.
+
+Display:
+
+{{ $jobCount }} Active Healthcare Jobs in {{ $cityName }}
+
+SECTION:
+Popular Roles in {{ $cityName }}
+
+Links:
+
+/hca-jobs-{city}
+/lpn-jobs-{city}
+/rn-jobs-{city}
+
+Example for Edmonton:
+
+/hca-jobs-edmonton
+/lpn-jobs-edmonton
+/rn-jobs-edmonton
+
+SECTION:
+Latest Healthcare Jobs in {{ $cityName }}
+
+Display active jobs using existing job card layout.
+
+SECTION:
+Related Cities
+
+Link to:
+
+/healthcare-jobs-alberta
+/healthcare-jobs-calgary
+/healthcare-jobs-red-deer
+/healthcare-jobs-lethbridge
+/healthcare-jobs-medicine-hat
+
+Do not link the current city page to itself.
+
+⸻
+
+NOINDEX RULE
+
+If jobCount >= 5
+
+<meta name="robots" content="index,follow">
+
+If jobCount < 5
+
+<meta name="robots" content="noindex,follow">
+
+⸻
+
+SITEMAP RULE
+
+Only include:
+
+/healthcare-jobs-alberta
+/healthcare-jobs-edmonton
+/healthcare-jobs-calgary
+/healthcare-jobs-red-deer
+/healthcare-jobs-lethbridge
+/healthcare-jobs-medicine-hat
+
+if jobCount >= 5
+
+⸻
+
+SUCCESS TEST
+
+Please confirm:
+
+1. /healthcare-jobs-alberta displays all active Alberta healthcare jobs.
+2. /healthcare-jobs-edmonton displays only Edmonton healthcare jobs.
+3. /healthcare-jobs-calgary displays only Calgary healthcare jobs.
+4. City pages link to HCA, LPN, and RN pages.
+5. Alberta page links to all city hub pages.
+6. Noindex rule works.
+7. Sitemap rule works.
+
 Goal:
-I want a single dynamic SEO page created in Laravel using the existing jobs database.
-The page URL will be:
-/hca-jobs-edmonton
-This page must NOT be a static page.
-It must automatically pull active HCA jobs located in Edmonton from the existing jobs table.
-Requirements:
-1. URL Structure
-Create a route:
-/hca-jobs-edmonton
-This should load dynamically from the database.
-2. Jobs Display
-The page must display all active Health Care Aide jobs located in Edmonton.
-The page should use the same job cards or job listing design already used elsewhere on the site.
-When a new HCA job is added in Edmonton through the admin panel, it should automatically appear on this page without any manual editing.
-3. Data Source
-Do NOT create a separate jobs table.
-Use the existing jobs database table already used by the site.
-The page must query the same data source as the main jobs page.
-4. Page Content
-Above the job listings, display:
-H1: HCA Jobs in Edmonton
-Intro Paragraph: Looking for HCA jobs in Edmonton? Browse current Health Care Aide opportunities in hospitals, long-term care homes, home care agencies, and healthcare facilities across Edmonton.
-5. Related Pages Section
-Below the jobs list add:
-Related Healthcare Jobs
-* HCA Jobs in Calgary
-* LPN Jobs in Edmonton
-* RN Jobs in Edmonton
-* Healthcare Jobs in Alberta
-For now these links can be placeholders.
-6. No Index Rule
-If fewer than 5 active jobs exist on the page:
-<meta name="robots" content="noindex,follow">
-If 5 or more active jobs exist:
-<meta name="robots" content="index,follow">
-7. Sitemap Rule
-Only include this page in the XML sitemap if there are 5 or more active jobs.
-Do not include it in the sitemap if there are fewer than 5 jobs.
-8. Pagination
-Use existing pagination style.
-Show 20 jobs per page.
-9. Success Criteria
-After development is complete:
-* I create a new HCA job in Edmonton.
-* The job automatically appears on /hca-jobs-edmonton.
-* The page updates automatically.
-* No manual editing is required.
-IMPORTANT
-I do not want a static content page.
-I want a database-driven SEO landing page connected to the existing jobs table.
 
-
-
-
-If fewer than 5 active jobs exist on the page:
-
-<meta name="robots" content="noindex,follow">
-
-<meta name="robots" content="index,follow">
-
-8. Sitemap Rule
-
-Only include this page in the XML sitemap if there are 5 or more active jobs.
-
-Do not include it in the sitemap if there are fewer than 5 jobs.
-
-1. Pagination
-
-Use existing pagination style.
-
-Show 20 jobs per page.
-
-1. Success Criteria
-
-After development is complete:
-
-* I create a new HCA job in Edmonton.
-* The job automatically appears on /hca-jobs-edmonton.
-* The page updates automatically.
-* No manual editing is required.
-
-IMPORTANT
-
-I do not want a static content page.
-
-I want a database-driven SEO landing page connected to the existing jobs table.
+Create parent healthcare hub pages above the role/city pages to strengthen internal linking and SEO structure.

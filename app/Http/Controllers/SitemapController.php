@@ -39,8 +39,53 @@ class SitemapController extends Controller
     {
         $urls = [];
 
-        $roles = ['hca', 'lpn', 'rn'];
         $citySlugs = ['edmonton', 'calgary', 'red-deer', 'lethbridge', 'medicine-hat'];
+
+        $albertaJobCount = Job::where('is_active', 1)
+            ->where('is_draft', 0)
+            ->where('state_id', 663)
+            ->where(function ($q) {
+                $q->whereNull('display_end_date')
+                    ->orWhere('display_end_date', '>=', now());
+            })
+            ->notExpire()
+            ->count();
+
+        if ($albertaJobCount >= 5) {
+            $urls[] = [
+                'loc' => url('/healthcare-jobs-alberta'),
+                'lastmod' => now()->toDateString(),
+            ];
+        }
+
+        foreach ($citySlugs as $citySlug) {
+            $cityModel = City::where('slug', $citySlug)
+                ->where('state_id', 663)
+                ->where('is_active', 1)
+                ->first();
+
+            if ($cityModel) {
+                $cityJobCount = Job::where('is_active', 1)
+                    ->where('is_draft', 0)
+                    ->where('state_id', 663)
+                    ->where('city_id', $cityModel->city_id)
+                    ->where(function ($q) {
+                        $q->whereNull('display_end_date')
+                            ->orWhere('display_end_date', '>=', now());
+                    })
+                    ->notExpire()
+                    ->count();
+
+                if ($cityJobCount >= 5) {
+                    $urls[] = [
+                        'loc' => url('/healthcare-jobs-' . $citySlug),
+                        'lastmod' => now()->toDateString(),
+                    ];
+                }
+            }
+        }
+
+        $roles = ['hca', 'lpn', 'rn'];
 
         foreach ($roles as $role) {
             $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
