@@ -20,28 +20,7 @@
             </div>
         </div>
 
-        <div class="pseo-related-section">
-            <h2>{{ __('Healthcare Jobs by City') }}</h2>
-            <ul>
-                @foreach($cityLinks as $link)
-                    <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
-                @endforeach
-            </ul>
-        </div>
-
-        <div class="pseo-related-section">
-            <h2>{{ __('Popular Healthcare Roles') }}</h2>
-            <ul>
-                <li><a href="{{ url('/hca-jobs-edmonton') }}">{{ __('HCA Jobs in Edmonton') }}</a></li>
-                <li><a href="{{ url('/lpn-jobs-edmonton') }}">{{ __('LPN Jobs in Edmonton') }}</a></li>
-                <li><a href="{{ url('/rn-jobs-edmonton') }}">{{ __('RN Jobs in Edmonton') }}</a></li>
-                <li><a href="{{ url('/hca-jobs-calgary') }}">{{ __('HCA Jobs in Calgary') }}</a></li>
-                <li><a href="{{ url('/lpn-jobs-calgary') }}">{{ __('LPN Jobs in Calgary') }}</a></li>
-                <li><a href="{{ url('/rn-jobs-calgary') }}">{{ __('RN Jobs in Calgary') }}</a></li>
-            </ul>
-        </div>
-
-        <h2>{{ __('Latest Healthcare Jobs') }}</h2>
+        <h2 class="pseo-section-title">{{ __('Latest Healthcare Jobs') }}</h2>
 
         <ul class="featuredlist row job-search-list-single">
             @forelse($jobs as $job)
@@ -62,6 +41,86 @@
         </ul>
 
         {{ $jobs->links() }}
+
+        <div class="pseo-related-section">
+            <h2>{{ __('Browse Jobs by City') }}</h2>
+            <div class="row">
+                @foreach($cityLinks as $link)
+                    <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="pseo-related-section">
+            <h2>{{ __('Popular Healthcare Roles') }}</h2>
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/hca-jobs-edmonton') }}">{{ __('HCA Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/lpn-jobs-edmonton') }}">{{ __('LPN Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/rn-jobs-edmonton') }}">{{ __('RN Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/hca-jobs-calgary') }}">{{ __('HCA Jobs in Calgary') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/lpn-jobs-calgary') }}">{{ __('LPN Jobs in Calgary') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/rn-jobs-calgary') }}">{{ __('RN Jobs in Calgary') }}</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="pseo-related-section">
+            <h2>{{ __('FAQ') }}</h2>
+            <div class="pseo-faq-item">
+                <h3>{{ __('What healthcare jobs are available in Alberta?') }}</h3>
+                <p>{{ __('Alberta offers a wide range of healthcare careers including Health Care Aides (HCA), Licensed Practical Nurses (LPN), Registered Nurses (RN), hospital staff, long-term care workers, home care aides, and clinic personnel across Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and other communities.') }}</p>
+            </div>
+            <div class="pseo-faq-item">
+                <h3>{{ __('How do I apply for healthcare jobs in Alberta?') }}</h3>
+                <p>{{ __('Browse the latest healthcare job listings above, click on a position that matches your skills, and follow the application instructions. Many listings include direct application links or employer contact information.') }}</p>
+            </div>
+            <div class="pseo-faq-item">
+                <h3>{{ __('Which cities in Alberta have the most healthcare jobs?') }}</h3>
+                <p>{{ __('Major healthcare employment hubs in Alberta include Edmonton and Calgary, with significant opportunities also available in Red Deer, Lethbridge, and Medicine Hat. Use the city links above to explore healthcare jobs in each location.') }}</p>
+            </div>
+        </div>
+
+        <div class="pseo-related-section">
+            <h2>{{ __('Related Healthcare Pages') }}</h2>
+            <div class="row">
+                @foreach($cityLinks as $link)
+                    <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                    </div>
+                @endforeach
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/hca-jobs-edmonton') }}">{{ __('HCA Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/lpn-jobs-edmonton') }}">{{ __('LPN Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/rn-jobs-edmonton') }}">{{ __('RN Jobs in Edmonton') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/hca-jobs-calgary') }}">{{ __('HCA Jobs in Calgary') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/lpn-jobs-calgary') }}">{{ __('LPN Jobs in Calgary') }}</a>
+                </div>
+                <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                    <a href="{{ url('/rn-jobs-calgary') }}">{{ __('RN Jobs in Calgary') }}</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -110,6 +169,10 @@
         color: #111827;
         margin: 6px 0 10px;
     }
+    .pseo-section-title {
+        font-size: 24px;
+        margin: 0 0 18px;
+    }
     .pseo-related-section {
         border: 1px solid #e5e7eb;
         border-radius: 8px;
@@ -121,12 +184,21 @@
         font-size: 20px;
         margin: 0 0 14px;
     }
-    .pseo-related-section ul {
-        padding-left: 18px;
-        margin-bottom: 0;
+    .pseo-grid-item {
+        margin-bottom: 10px;
     }
-    .pseo-related-section li {
-        margin-bottom: 8px;
+    .pseo-faq-item {
+        margin-bottom: 16px;
+    }
+    .pseo-faq-item h3 {
+        font-size: 16px;
+        margin: 0 0 6px;
+        color: #111827;
+    }
+    .pseo-faq-item p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
     }
     @media (max-width: 767px) {
         .pseo-jobs-header {
