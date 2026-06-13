@@ -39,11 +39,14 @@ class SitemapController extends Controller
     {
         $urls = [];
 
-        $citySlugs = ['edmonton', 'calgary', 'red-deer', 'lethbridge', 'medicine-hat'];
+        $allCities = $this->seoAllCities();
+        $citySlugs = array_keys($allCities);
+        $roles = array_keys(config('seo_locations.roles'));
+        $firstState = $this->seoFirstState();
 
-        $albertaJobCount = Job::where('is_active', 1)
+        $stateJobCount = Job::where('is_active', 1)
             ->where('is_draft', 0)
-            ->where('state_id', 663)
+            ->where('state_id', $firstState['id'])
             ->where(function ($q) {
                 $q->whereNull('display_end_date')
                     ->orWhere('display_end_date', '>=', now());
@@ -51,23 +54,23 @@ class SitemapController extends Controller
             ->notExpire()
             ->count();
 
-        if ($albertaJobCount >= 5) {
+        if ($stateJobCount >= 5) {
             $urls[] = [
-                'loc' => url('/healthcare-jobs-alberta'),
+                'loc' => url('/healthcare-jobs-' . array_key_first(config('seo_locations.states'))),
                 'lastmod' => now()->toDateString(),
             ];
         }
 
         foreach ($citySlugs as $citySlug) {
             $cityModel = City::where('slug', $citySlug)
-                ->where('state_id', 663)
+                ->where('state_id', $firstState['id'])
                 ->where('is_active', 1)
                 ->first();
 
             if ($cityModel) {
                 $cityJobCount = Job::where('is_active', 1)
                     ->where('is_draft', 0)
-                    ->where('state_id', 663)
+                    ->where('state_id', $firstState['id'])
                     ->where('city_id', $cityModel->city_id)
                     ->where(function ($q) {
                         $q->whereNull('display_end_date')
@@ -85,8 +88,6 @@ class SitemapController extends Controller
             }
         }
 
-        $roles = ['hca', 'lpn', 'rn'];
-
         foreach ($roles as $role) {
             $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
             if (! $fa) {
@@ -95,7 +96,7 @@ class SitemapController extends Controller
 
             foreach ($citySlugs as $citySlug) {
                 $cityModel = City::where('slug', $citySlug)
-                    ->where('state_id', 663)
+                    ->where('state_id', $firstState['id'])
                     ->where('is_active', 1)
                     ->first();
 
@@ -311,5 +312,23 @@ class SitemapController extends Controller
     private function xml(string $xml)
     {
         return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    private function seoFirstState(): array
+    {
+        $states = config('seo_locations.states');
+        $key = array_key_first($states);
+        return $states[$key];
+    }
+
+    private function seoAllCities(): array
+    {
+        $cities = [];
+        foreach (config('seo_locations.states') as $state) {
+            foreach ($state['cities'] as $slug => $name) {
+                $cities[$slug] = $name;
+            }
+        }
+        return $cities;
     }
 }

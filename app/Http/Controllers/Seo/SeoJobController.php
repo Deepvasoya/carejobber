@@ -11,16 +11,24 @@ class SeoJobController extends Controller
 {
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
-    const ALBERTA_STATE_ID = 663;
 
     public function roleCity(string $role, string $city)
     {
+        $allowedRoles = config('seo_locations.roles');
+        $allowedCities = $this->allCities();
+
+        if (!array_key_exists($role, $allowedRoles) || !array_key_exists($city, $allowedCities)) {
+            abort(404);
+        }
+
         $functionalArea = FunctionalArea::where('slug', $role)
             ->where('is_active', 1)
             ->first();
 
+        $stateId = $this->firstStateId();
+
         $cityModel = City::where('slug', $city)
-            ->where('state_id', self::ALBERTA_STATE_ID)
+            ->where('state_id', $stateId)
             ->where('is_active', 1)
             ->first();
 
@@ -45,7 +53,7 @@ class SeoJobController extends Controller
         $jobs = $query->paginate(self::PER_PAGE);
 
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
-        $roleLabel = $this->roleLabel($role, $functionalArea);
+        $roleLabel = $allowedRoles[$role];
         $cityName = $cityModel->city;
 
         $metaTitle = strtoupper($role) . ' Jobs in ' . $cityName . ' | Medojob';
@@ -69,17 +77,6 @@ class SeoJobController extends Controller
             ->with('seo', $seo);
     }
 
-    private function roleLabel(string $role, FunctionalArea $functionalArea): string
-    {
-        $labels = [
-            'hca' => 'Health Care Aide',
-            'lpn' => 'Licensed Practical Nurse',
-            'rn' => 'Registered Nurse',
-        ];
-
-        return $labels[$role] ?? $functionalArea->functional_area;
-    }
-
     private function buildSeo(string $title, string $description, string $role, string $city, bool $noIndex): object
     {
         $robots = $noIndex
@@ -101,38 +98,67 @@ class SeoJobController extends Controller
 
     private function relatedLinks(string $role, string $city, string $cityName, string $roleLabel): array
     {
-        $otherCity = $city === 'edmonton' ? 'calgary' : 'edmonton';
-        $otherCityName = $otherCity === 'calgary' ? 'Calgary' : 'Edmonton';
-
         $links = [];
+        $allCities = $this->allCities();
+
+        $otherCities = array_filter($allCities, function ($name, $slug) use ($city) {
+            return $slug !== $city;
+        }, ARRAY_FILTER_USE_BOTH);
+
+        foreach ($otherCities as $otherSlug => $otherName) {
+            $links[] = [
+                'label' => strtoupper($role) . ' Jobs in ' . $otherName,
+                'url' => route('seo.role.city', ['role' => $role, 'city' => $otherSlug]),
+            ];
+        }
+
+        $otherRoles = array_filter(config('seo_locations.roles'), function ($label, $slug) use ($role) {
+            return $slug !== $role;
+        }, ARRAY_FILTER_USE_BOTH);
+
+        foreach ($otherRoles as $otherSlug => $otherLabel) {
+            $links[] = [
+                'label' => $this->shortRoleLabel($otherSlug) . ' Jobs in ' . $cityName,
+                'url' => route('seo.role.city', ['role' => $otherSlug, 'city' => $city]),
+            ];
+        }
+
+        $firstStateSlug = array_key_first(config('seo_locations.states'));
+        $firstStateName = config('seo_locations.states')[$firstStateSlug]['name'];
 
         $links[] = [
-            'label' => strtoupper($role) . ' Jobs in ' . $otherCityName,
-            'url' => route('seo.role.city', ['role' => $role, 'city' => $otherCity]),
+            'label' => 'Healthcare Jobs in ' . $firstStateName,
+            'url' => url('/healthcare-jobs-' . $firstStateSlug),
         ];
 
-        $otherRoles = array_filter(['hca', 'lpn', 'rn'], function ($r) use ($role) {
-            return $r !== $role;
-        });
+        return $links;
+    }
 
-        $otherRoleLabels = [
+    private function firstStateId(): int
+    {
+        $states = config('seo_locations.states');
+        $key = array_key_first($states);
+        return (int) $states[$key]['id'];
+    }
+
+    private function allCities(): array
+    {
+        $cities = [];
+        foreach (config('seo_locations.states') as $state) {
+            foreach ($state['cities'] as $slug => $name) {
+                $cities[$slug] = $name;
+            }
+        }
+        return $cities;
+    }
+
+    private function shortRoleLabel(string $slug): string
+    {
+        $short = [
             'hca' => 'HCA',
             'lpn' => 'LPN',
             'rn' => 'RN',
         ];
-
-        foreach ($otherRoles as $otherRole) {
-            $links[] = [
-                'label' => $otherRoleLabels[$otherRole] . ' Jobs in ' . $cityName,
-                'url' => route('seo.role.city', ['role' => $otherRole, 'city' => $city]),
-            ];
-        }
-
-        $links[] = [
-            'label' => 'Healthcare Jobs in Alberta',
-            'url' => url('/healthcare-jobs-alberta'),
-        ];
-
-        return $links;
+        return $short[$slug] ?? strtoupper($slug);
     }
 }

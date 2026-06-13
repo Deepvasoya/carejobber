@@ -74,15 +74,19 @@ Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitema
 Route::get('employers/{slug}', [\App\Http\Controllers\Medo\EmployerController::class, 'resolve'])->name('employers.show');
 Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
 Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
+$allCities = collect(config('seo_locations.states'))->flatMap(fn($s) => array_keys($s['cities']))->unique()->values()->all();
+$cityPattern = implode('|', $allCities);
+$rolePattern = implode('|', array_keys(config('seo_locations.roles')));
+
 Route::get('/healthcare-jobs-alberta', [\App\Http\Controllers\HealthcareHubController::class, 'alberta'])
     ->name('seo.healthcare.alberta');
 
 Route::get('/healthcare-jobs-{city}', [\App\Http\Controllers\HealthcareHubController::class, 'city'])
-    ->where(['city' => 'edmonton|calgary|red-deer|lethbridge|medicine-hat'])
+    ->where(['city' => $cityPattern])
     ->name('seo.healthcare.city');
 
 Route::get('/{role}-jobs-{city}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCity'])
-    ->where(['role' => 'hca|lpn|rn', 'city' => 'edmonton|calgary|red-deer|lethbridge|medicine-hat'])
+    ->where(['role' => $rolePattern, 'city' => $cityPattern])
     ->name('seo.role.city');
 
 

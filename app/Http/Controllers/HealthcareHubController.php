@@ -9,22 +9,17 @@ class HealthcareHubController extends Controller
 {
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
-    const ALBERTA_STATE_ID = 663;
-
-    const ALLOWED_CITIES = [
-        'edmonton' => 'Edmonton',
-        'calgary' => 'Calgary',
-        'red-deer' => 'Red Deer',
-        'lethbridge' => 'Lethbridge',
-        'medicine-hat' => 'Medicine Hat',
-    ];
 
     public function alberta()
     {
+        $firstState = $this->firstState();
+        $stateId = $firstState['id'];
+        $stateName = $firstState['name'];
+
         $jobsQuery = Job::with('company')
             ->where('jobs.is_active', 1)
             ->where('jobs.is_draft', 0)
-            ->where('jobs.state_id', self::ALBERTA_STATE_ID)
+            ->where('jobs.state_id', $stateId)
             ->where(function ($q) {
                 $q->whereNull('jobs.display_end_date')
                     ->orWhere('jobs.display_end_date', '>=', now());
@@ -38,8 +33,8 @@ class HealthcareHubController extends Controller
 
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
 
-        $metaTitle = 'Healthcare Jobs in Alberta | Medojob';
-        $metaDescription = 'Browse current healthcare jobs across Alberta, including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.';
+        $metaTitle = 'Healthcare Jobs in ' . $stateName . ' | Medojob';
+        $metaDescription = 'Browse current healthcare jobs across ' . $stateName . ', including HCA, LPN, RN, and other healthcare careers in ' . $this->cityNames()->join(', ') . ', and surrounding communities.';
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $noIndex);
 
@@ -57,14 +52,16 @@ class HealthcareHubController extends Controller
 
     public function city($city)
     {
-        if (!array_key_exists($city, self::ALLOWED_CITIES)) {
+        $allowedCities = $this->allCities();
+
+        if (!array_key_exists($city, $allowedCities)) {
             abort(404);
         }
 
-        $cityName = self::ALLOWED_CITIES[$city];
+        $cityName = $allowedCities[$city];
 
         $cityModel = City::where('city', $cityName)
-            ->where('state_id', self::ALBERTA_STATE_ID)
+            ->where('state_id', $this->firstState()['id'])
             ->where('is_active', 1)
             ->first();
 
@@ -75,7 +72,7 @@ class HealthcareHubController extends Controller
         $jobsQuery = Job::with('company')
             ->where('jobs.is_active', 1)
             ->where('jobs.is_draft', 0)
-            ->where('jobs.state_id', self::ALBERTA_STATE_ID)
+            ->where('jobs.state_id', $this->firstState()['id'])
             ->where('jobs.city_id', $cityModel->city_id)
             ->where(function ($q) {
                 $q->whereNull('jobs.display_end_date')
@@ -125,33 +122,61 @@ class HealthcareHubController extends Controller
         ];
     }
 
+    private function firstState(): array
+    {
+        $states = config('seo_locations.states');
+        $key = array_key_first($states);
+        return $states[$key];
+    }
+
+    private function allCities(): array
+    {
+        $cities = [];
+        foreach (config('seo_locations.states') as $state) {
+            foreach ($state['cities'] as $slug => $name) {
+                $cities[$slug] = $name;
+            }
+        }
+        return $cities;
+    }
+
+    private function cityNames(): \Illuminate\Support\Collection
+    {
+        return collect($this->allCities())->values();
+    }
+
     private function cityLinks(): array
     {
-        return [
-            ['label' => 'Edmonton', 'url' => url('/healthcare-jobs-edmonton')],
-            ['label' => 'Calgary', 'url' => url('/healthcare-jobs-calgary')],
-            ['label' => 'Red Deer', 'url' => url('/healthcare-jobs-red-deer')],
-            ['label' => 'Lethbridge', 'url' => url('/healthcare-jobs-lethbridge')],
-            ['label' => 'Medicine Hat', 'url' => url('/healthcare-jobs-medicine-hat')],
-        ];
+        $links = [];
+        foreach ($this->allCities() as $slug => $name) {
+            $links[] = [
+                'label' => $name,
+                'url' => url('/healthcare-jobs-' . $slug),
+            ];
+        }
+        return $links;
     }
 
     private function roleLinks(string $city): array
     {
-        return [
-            ['label' => 'HCA Jobs in ' . self::ALLOWED_CITIES[$city], 'url' => url('/hca-jobs-' . $city)],
-            ['label' => 'LPN Jobs in ' . self::ALLOWED_CITIES[$city], 'url' => url('/lpn-jobs-' . $city)],
-            ['label' => 'RN Jobs in ' . self::ALLOWED_CITIES[$city], 'url' => url('/rn-jobs-' . $city)],
-        ];
+        $links = [];
+        foreach (config('seo_locations.roles') as $roleSlug => $roleLabel) {
+            $shortLabel = $this->shortRoleLabel($roleSlug, $roleLabel);
+            $links[] = [
+                'label' => $shortLabel . ' Jobs in ' . $this->allCities()[$city],
+                'url' => url('/' . $roleSlug . '-jobs-' . $city),
+            ];
+        }
+        return $links;
     }
 
     private function relatedCities(string $currentCity): array
     {
         $links = [
-            ['label' => 'Alberta (All)', 'url' => url('/healthcare-jobs-alberta')],
+            ['label' => $this->firstState()['name'] . ' (All)', 'url' => url('/healthcare-jobs-' . array_key_first(config('seo_locations.states')))],
         ];
 
-        foreach (self::ALLOWED_CITIES as $slug => $name) {
+        foreach ($this->allCities() as $slug => $name) {
             if ($slug === $currentCity) {
                 continue;
             }
@@ -162,5 +187,20 @@ class HealthcareHubController extends Controller
         }
 
         return $links;
+    }
+
+    private function shortRoleLabel(string $slug, string $fullLabel): string
+    {
+        $short = [
+            'hca' => 'HCA',
+            'lpn' => 'LPN',
+            'rn' => 'RN',
+        ];
+        return $short[$slug] ?? strtoupper($slug);
+    }
+
+    private function roles(): array
+    {
+        return config('seo_locations.roles');
     }
 }
