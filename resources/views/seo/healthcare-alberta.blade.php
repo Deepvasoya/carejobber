@@ -47,7 +47,7 @@
             <div class="row">
                 @foreach($cityLinks as $link)
                     <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                        <a href="{{ $link['url'] }}">{{ $link['label'] }}</a>
+                        <a href="{{ $link['url'] }}" class="pseo-link-card">{{ $link['label'] }}</a>
                     </div>
                 @endforeach
             </div>
@@ -57,22 +57,22 @@
             <h2>{{ __('Popular Healthcare Roles') }}</h2>
             <div class="row">
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/hca-jobs-edmonton') }}">{{ __('HCA Jobs in Edmonton') }}</a>
+                    <a href="{{ url('/hca-jobs-edmonton') }}" class="pseo-link-card">{{ __('HCA Jobs in Edmonton') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/lpn-jobs-edmonton') }}">{{ __('LPN Jobs in Edmonton') }}</a>
+                    <a href="{{ url('/lpn-jobs-edmonton') }}" class="pseo-link-card">{{ __('LPN Jobs in Edmonton') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/rn-jobs-edmonton') }}">{{ __('RN Jobs in Edmonton') }}</a>
+                    <a href="{{ url('/rn-jobs-edmonton') }}" class="pseo-link-card">{{ __('RN Jobs in Edmonton') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/hca-jobs-calgary') }}">{{ __('HCA Jobs in Calgary') }}</a>
+                    <a href="{{ url('/hca-jobs-calgary') }}" class="pseo-link-card">{{ __('HCA Jobs in Calgary') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/lpn-jobs-calgary') }}">{{ __('LPN Jobs in Calgary') }}</a>
+                    <a href="{{ url('/lpn-jobs-calgary') }}" class="pseo-link-card">{{ __('LPN Jobs in Calgary') }}</a>
                 </div>
                 <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
-                    <a href="{{ url('/rn-jobs-calgary') }}">{{ __('RN Jobs in Calgary') }}</a>
+                    <a href="{{ url('/rn-jobs-calgary') }}" class="pseo-link-card">{{ __('RN Jobs in Calgary') }}</a>
                 </div>
             </div>
         </div>
@@ -158,6 +158,24 @@
     }
     .pseo-grid-item {
         margin-bottom: 10px;
+    }
+    .pseo-link-card {
+        display: block;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #0f766e;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .pseo-link-card:hover {
+        background: #fff;
+        border-color: #0f766e;
+        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
+        color: #0f766e;
     }
     .pseo-faq-item {
         margin-bottom: 16px;
