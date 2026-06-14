@@ -10,9 +10,9 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare jobs in Alberta') }}</p>
-                <h1>{{ __('Healthcare Jobs in Alberta') }}</h1>
-                <p>{{ __('Browse current healthcare jobs across Alberta, including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.') }}</p>
+                <p class="pseo-eyebrow">{{ __('Healthcare jobs in') }} {{ $stateName }}</p>
+                <h1>{{ __('Healthcare Jobs in') }} {{ $stateName }}</h1>
+                <p>{{ __('Browse current healthcare jobs across') }} {{ $stateName }}{{ __(', including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.') }}</p>
             </div>
             <div class="pseo-salary-summary">
                 <span>{{ __('Active listings') }}</span>
@@ -80,16 +80,16 @@
         <div class="pseo-related-section">
             <h2>{{ __('FAQ') }}</h2>
             <div class="pseo-faq-item">
-                <h3>{{ __('What healthcare jobs are available in Alberta?') }}</h3>
-                <p>{{ __('Alberta offers a wide range of healthcare careers including Health Care Aides (HCA), Licensed Practical Nurses (LPN), Registered Nurses (RN), hospital staff, long-term care workers, home care aides, and clinic personnel across Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and other communities.') }}</p>
+                <h3>{{ __('What healthcare jobs are available in') }} {{ $stateName }}?</h3>
+                <p>{{ $stateName }} {{ __('offers a wide range of healthcare careers including Health Care Aides (HCA), Licensed Practical Nurses (LPN), Registered Nurses (RN), hospital staff, long-term care workers, home care aides, and clinic personnel across Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and other communities.') }}</p>
             </div>
             <div class="pseo-faq-item">
-                <h3>{{ __('How do I apply for healthcare jobs in Alberta?') }}</h3>
+                <h3>{{ __('How do I apply for healthcare jobs in') }} {{ $stateName }}?</h3>
                 <p>{{ __('Browse the latest healthcare job listings above, click on a position that matches your skills, and follow the application instructions. Many listings include direct application links or employer contact information.') }}</p>
             </div>
             <div class="pseo-faq-item">
-                <h3>{{ __('Which cities in Alberta have the most healthcare jobs?') }}</h3>
-                <p>{{ __('Major healthcare employment hubs in Alberta include Edmonton and Calgary, with significant opportunities also available in Red Deer, Lethbridge, and Medicine Hat. Use the city links above to explore healthcare jobs in each location.') }}</p>
+                <h3>{{ __('Which cities in') }} {{ $stateName }} {{ __('have the most healthcare jobs?') }}</h3>
+                <p>{{ __('Major healthcare employment hubs in') }} {{ $stateName }} {{ __('include Edmonton and Calgary, with significant opportunities also available in Red Deer, Lethbridge, and Medicine Hat. Use the city links above to explore healthcare jobs in each location.') }}</p>
             </div>
         </div>
 

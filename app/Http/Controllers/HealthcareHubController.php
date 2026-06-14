@@ -53,7 +53,8 @@ class HealthcareHubController extends Controller
             ->with('metaTitle', $metaTitle)
             ->with('metaDescription', $metaDescription)
             ->with('seo', $seo)
-            ->with('cityLinks', $cityLinks);
+            ->with('cityLinks', $cityLinks)
+            ->with('stateName', $stateName);
     }
 
     public function city($city)
