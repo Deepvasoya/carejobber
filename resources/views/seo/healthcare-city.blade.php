@@ -22,11 +22,13 @@
 
         <div class="pseo-related-section">
             <h2>{{ __('Popular Roles in') }} {{ $cityName }}</h2>
-            <ul>
+            <div class="row">
                 @foreach($roleLinks as $link)
-                    <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                    <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                        <a href="{{ $link['url'] }}" class="pseo-link-card">{{ $link['label'] }}</a>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
 
         <h2>{{ __('Latest Healthcare Jobs in') }} {{ $cityName }}</h2>
@@ -53,11 +55,13 @@
 
         <div class="pseo-related-section">
             <h2>{{ __('Related Cities') }}</h2>
-            <ul>
+            <div class="row">
                 @foreach($relatedCities as $link)
-                    <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                    <div class="col-lg-3 col-md-4 col-6 pseo-grid-item">
+                        <a href="{{ $link['url'] }}" class="pseo-link-card">{{ $link['label'] }}</a>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -118,12 +122,26 @@
         font-size: 20px;
         margin: 0 0 14px;
     }
-    .pseo-related-section ul {
-        padding-left: 18px;
-        margin-bottom: 0;
+    .pseo-grid-item {
+        margin-bottom: 10px;
     }
-    .pseo-related-section li {
-        margin-bottom: 8px;
+    .pseo-link-card {
+        display: block;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f9fafb;
+        color: #0f766e;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .pseo-link-card:hover {
+        background: #fff;
+        border-color: #0f766e;
+        box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
+        color: #0f766e;
     }
     @media (max-width: 767px) {
         .pseo-jobs-header {

@@ -15,12 +15,6 @@ class SeoJobController extends Controller
 
     public function roleCity(string $role, string $city)
     {
-        $allowedRoles = config('seo_locations.roles');
-
-        if (!array_key_exists($role, $allowedRoles)) {
-            abort(404);
-        }
-
         $functionalArea = FunctionalArea::where('slug', $role)
             ->where('is_active', 1)
             ->first();
@@ -51,7 +45,7 @@ class SeoJobController extends Controller
         $jobs = $query->paginate(self::PER_PAGE);
 
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
-        $roleLabel = $allowedRoles[$role];
+        $roleLabel = $functionalArea->functional_area;
         $cityName = $cityModel->city;
 
         $metaTitle = strtoupper($role) . ' Jobs in ' . $cityName . ' | Medojob';
@@ -113,14 +107,16 @@ class SeoJobController extends Controller
             ];
         }
 
-        $otherRoles = array_filter(config('seo_locations.roles'), function ($label, $slug) use ($role) {
-            return $slug !== $role;
-        }, ARRAY_FILTER_USE_BOTH);
+        $otherRoles = FunctionalArea::where('slug', '!=', $role)
+            ->where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->get();
 
-        foreach ($otherRoles as $otherSlug => $otherLabel) {
+        foreach ($otherRoles as $other) {
             $links[] = [
-                'label' => $this->shortRoleLabel($otherSlug) . ' Jobs in ' . $cityName,
-                'url' => route('seo.role.city', ['role' => $otherSlug, 'city' => $city]),
+                'label' => $this->shortRoleLabel($other->slug) . ' Jobs in ' . $cityName,
+                'url' => route('seo.role.city', ['role' => $other->slug, 'city' => $city]),
             ];
         }
 

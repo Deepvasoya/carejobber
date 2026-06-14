@@ -1,9 +1,5 @@
 <?php
 
 return [
-    'roles' => [
-        'hca' => 'Health Care Aide',
-        'lpn' => 'Licensed Practical Nurse',
-        'rn' => 'Registered Nurse',
-    ],
+    // Roles are now loaded from the functional_areas table.
 ];

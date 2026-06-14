@@ -46,7 +46,11 @@ class SitemapController extends Controller
             ->orderBy('city')
             ->get();
 
-        $roles = array_keys(config('seo_locations.roles'));
+        $roles = FunctionalArea::where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->pluck('slug')
+            ->toArray();
 
         $stateJobCount = Job::where('is_active', 1)
             ->where('is_draft', 0)

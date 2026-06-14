@@ -74,8 +74,6 @@ Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitema
 Route::get('employers/{slug}', [\App\Http\Controllers\Medo\EmployerController::class, 'resolve'])->name('employers.show');
 Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
 Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
-$rolePattern = implode('|', array_keys(config('seo_locations.roles')));
-
 Route::get('/healthcare-jobs-alberta', [\App\Http\Controllers\HealthcareHubController::class, 'alberta'])
     ->name('seo.healthcare.alberta');
 
@@ -83,7 +81,6 @@ Route::get('/healthcare-jobs-{city}', [\App\Http\Controllers\HealthcareHubContro
     ->name('seo.healthcare.city');
 
 Route::get('/{role}-jobs-{city}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCity'])
-    ->where(['role' => $rolePattern])
     ->name('seo.role.city');
 
 

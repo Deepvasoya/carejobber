@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Job;
 use App\City;
 use App\State;
+use App\FunctionalArea;
 
 class HealthcareHubController extends Controller
 {
@@ -151,10 +152,14 @@ class HealthcareHubController extends Controller
     private function roleLinks(string $citySlug, string $cityName): array
     {
         $links = [];
-        foreach (config('seo_locations.roles') as $roleSlug => $roleLabel) {
+        $roles = FunctionalArea::where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->get();
+        foreach ($roles as $role) {
             $links[] = [
-                'label' => $this->shortRoleLabel($roleSlug) . ' Jobs in ' . $cityName,
-                'url' => url('/' . $roleSlug . '-jobs-' . $citySlug),
+                'label' => $this->shortRoleLabel($role->slug) . ' Jobs in ' . $cityName,
+                'url' => url('/' . $role->slug . '-jobs-' . $citySlug),
             ];
         }
         return $links;
