@@ -58,6 +58,9 @@ class HealthcareHubController extends Controller
 
     public function city($city)
     {
+        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
+        $stateName = $state ? $state->state : 'Alberta';
+
         $cityModel = City::where('slug', $city)
             ->where('state_id', self::ALBERTA_STATE_ID)
             ->where('is_active', 1)
@@ -88,16 +91,17 @@ class HealthcareHubController extends Controller
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
 
         $metaTitle = 'Healthcare Jobs in ' . $cityName . ' | Medojob';
-        $metaDescription = 'Browse current healthcare jobs in ' . $cityName . ', including HCA, LPN, RN, hospital, long-term care, home care, and clinic positions.';
+        $metaDescription = 'Browse current healthcare jobs in ' . $cityName . ', ' . $stateName . '.';
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $noIndex);
 
-        $roleLinks = $this->roleLinks($city, $cityName);
-        $relatedCities = $this->relatedCities($city, $cityModel->city_id);
+        $roleLinks = $this->roleLinks($city, $cityName, $stateName);
+        $relatedCities = $this->relatedCities($city, $cityModel->city_id, $stateName);
 
         return view('seo.healthcare-city')
             ->with('city', $city)
             ->with('cityName', $cityName)
+            ->with('stateName', $stateName)
             ->with('jobs', $jobs)
             ->with('jobCount', $jobCount)
             ->with('noIndex', $noIndex)
