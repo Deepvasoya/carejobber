@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\City;
+use App\Company;
 use App\FunctionalArea;
 use App\Job;
 use App\SeoGuide;
@@ -67,6 +68,31 @@ class SitemapController extends Controller
                 'loc' => url('/healthcare-jobs-alberta'),
                 'lastmod' => now()->toDateString(),
             ];
+        }
+
+        foreach ($roles as $role) {
+            $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
+            if (!$fa) {
+                continue;
+            }
+
+            $roleHubCount = Job::where('is_active', 1)
+                ->where('is_draft', 0)
+                ->where('functional_area_id', $fa->functional_area_id)
+                ->where('state_id', 663)
+                ->where(function ($q) {
+                    $q->whereNull('display_end_date')
+                        ->orWhere('display_end_date', '>=', now());
+                })
+                ->notExpire()
+                ->count();
+
+            if ($roleHubCount >= 5) {
+                $urls[] = [
+                    'loc' => url('/' . $role . '-jobs-alberta'),
+                    'lastmod' => now()->toDateString(),
+                ];
+            }
         }
 
         foreach ($activeCities as $cityModel) {
@@ -240,6 +266,31 @@ class SitemapController extends Controller
                 'lastmod' => optional($employer->updated_at)->toDateString() ?: now()->toDateString(),
             ];
         });
+
+        Company::where('is_active', 1)
+            ->whereNotNull('slug')
+            ->where('slug', '!=', '')
+            ->whereIn('id', function ($q) {
+                $q->select('company_id')
+                    ->from('jobs')
+                    ->where('is_active', 1)
+                    ->where('is_draft', 0)
+                    ->where(function ($sq) {
+                        $sq->whereNull('display_end_date')
+                            ->orWhere('display_end_date', '>=', now());
+                    })
+                    ->groupBy('company_id')
+                    ->havingRaw('COUNT(*) >= 5');
+            })
+            ->orderBy('name')
+            ->chunk(200, function ($companies) use (&$urls) {
+                foreach ($companies as $company) {
+                    $urls[] = [
+                        'loc' => url('/employers/' . $company->slug),
+                        'lastmod' => now()->toDateString(),
+                    ];
+                }
+            });
 
         return $this->xml($this->urlSet($urls));
     }

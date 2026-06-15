@@ -71,7 +71,8 @@ Route::get('sitemap.xml', 'SitemapController@index')->name('sitemap.index');
 Route::get('sitemap-jobs.xml', 'SitemapController@jobs')->name('sitemap.jobs');
 Route::get('sitemap-categories.xml', 'SitemapController@categories')->name('sitemap.categories');
 Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitemap.employers');
-Route::get('employers/{slug}', [\App\Http\Controllers\Medo\EmployerController::class, 'resolve'])->name('employers.show');
+Route::get('employers/{slug}', [\App\Http\Controllers\Seo\EmployerSeoController::class, 'show'])
+    ->name('seo.employer.show');
 Route::get('salary/{categorySlug}-alberta', 'Seo\ProgrammaticSeoController@salary')->name('seo.salary');
 Route::get('guides/{guide:slug}', 'Seo\ProgrammaticSeoController@guide')->name('seo.guide');
 Route::get('/healthcare-jobs-alberta', [\App\Http\Controllers\HealthcareHubController::class, 'alberta'])
@@ -79,6 +80,9 @@ Route::get('/healthcare-jobs-alberta', [\App\Http\Controllers\HealthcareHubContr
 
 Route::get('/healthcare-jobs-{city}', [\App\Http\Controllers\HealthcareHubController::class, 'city'])
     ->name('seo.healthcare.city');
+
+Route::get('/{role}-jobs-alberta', [\App\Http\Controllers\Seo\RoleHubController::class, 'show'])
+    ->name('seo.role.hub');
 
 Route::get('/{seoSlug}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCitySlug'])
     ->where('seoSlug', '.*-jobs-.*')
