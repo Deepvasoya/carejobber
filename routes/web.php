@@ -80,7 +80,8 @@ Route::get('/healthcare-jobs-alberta', [\App\Http\Controllers\HealthcareHubContr
 Route::get('/healthcare-jobs-{city}', [\App\Http\Controllers\HealthcareHubController::class, 'city'])
     ->name('seo.healthcare.city');
 
-Route::get('/{role}-jobs-{city}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCity'])
+Route::get('/{seoSlug}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCitySlug'])
+    ->where('seoSlug', '.*-jobs-.*')
     ->name('seo.role.city');
 
 

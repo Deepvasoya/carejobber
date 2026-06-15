@@ -12,7 +12,17 @@ class SeoJobController extends Controller
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
     const ALBERTA_STATE_ID = 663;
+    
+public function roleCitySlug(string $seoSlug)
+{
+    if (! str_contains($seoSlug, '-jobs-')) {
+        abort(404);
+    }
 
+    [$role, $city] = explode('-jobs-', $seoSlug, 2);
+
+    return $this->roleCity($role, $city);
+}
     public function roleCity(string $role, string $city)
     {
         $functionalArea = FunctionalArea::where('slug', $role)
@@ -75,7 +85,7 @@ class SeoJobController extends Controller
             ? '<meta name="robots" content="noindex,follow">'
             : '<meta name="robots" content="index,follow">';
 
-        $canonical = '<link rel="canonical" href="' . e(route('seo.role.city', ['role' => $role, 'city' => $city])) . '">';
+        $canonical = '<link rel="canonical" href="' . e(url('/' . $role . '-jobs-' . $city)) . '">';
 
         return (object) [
             'seo_title' => $title,
@@ -102,8 +112,8 @@ class SeoJobController extends Controller
 
         foreach ($otherCities as $other) {
             $links[] = [
-                'label' => strtoupper($role) . ' Jobs in ' . $other->city,
-                'url' => route('seo.role.city', ['role' => $role, 'city' => $other->slug]),
+                'label' => $roleLabel . ' Jobs in ' . $other->city,
+                'url' => url('/' . $role . '-jobs-' . $other->slug),
             ];
         }
 
@@ -115,9 +125,9 @@ class SeoJobController extends Controller
 
         foreach ($otherRoles as $other) {
             $links[] = [
-                'label' => $this->shortRoleLabel($other->slug) . ' Jobs in ' . $cityName,
-                'url' => route('seo.role.city', ['role' => $other->slug, 'city' => $city]),
-            ];
+    'label' => $other->functional_area . ' Jobs in ' . $cityName,
+    'url' => url('/' . $other->slug . '-jobs-' . $city),
+       ];
         }
 
         $links[] = [
@@ -129,12 +139,14 @@ class SeoJobController extends Controller
     }
 
     private function shortRoleLabel(string $slug): string
-    {
-        $short = [
-            'hca' => 'HCA',
-            'lpn' => 'LPN',
-            'rn' => 'RN',
-        ];
-        return $short[$slug] ?? strtoupper($slug);
-    }
+{
+    $short = [
+        'hca' => 'HCA',
+        'lpn' => 'LPN',
+        'rn' => 'RN',
+        'hr'  => 'Human Resources',
+    ];
+
+    return $short[$slug] ?? ucwords(str_replace('-', ' ', $slug));
+}
 }

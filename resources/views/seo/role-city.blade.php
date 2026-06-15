@@ -10,9 +10,19 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare jobs in Alberta') }}</p>
-                <h1>{{ strtoupper($role) }} Jobs in {{ $cityName }}</h1>
-                <p>Looking for {{ strtoupper($role) }} jobs in {{ $cityName }}? Browse current {{ $roleLabel }} opportunities in hospitals, long-term care homes, home care agencies, and healthcare facilities across {{ $cityName }}.</p>
+                <p class="pseo-eyebrow">Healthcare Careers in {{ $cityName }}</p>
+                <h1>{{ $roleLabel }} Jobs in {{ $cityName }}</h1>
+                <p>There {{ $jobCount == 1 ? 'is' : 'are' }} currently
+             <strong>{{ number_format($jobCount) }}</strong>
+               active {{ $roleLabel }} position{{ $jobCount == 1 ? '' : 's' }} available in {{ $cityName }}, Alberta.
+               </p></br>
+                <p>Medojob helps connect healthcare professionals with employment opportunities at hospitals, long-term care homes, supportive living facilities, home care agencies, rehabilitation centres, medical clinics, and community healthcare organizations throughout the region. Whether you are an experienced professional seeking a new opportunity or someone looking to advance your healthcare career, this page provides access to current openings from employers actively hiring in {{ $cityName }} and surrounding communities.
+                   </p></br>
+
+              <p>{{ $roleLabel }} positions in {{ $cityName }} may include full-time, part-time, casual, temporary, contract, day, evening, weekend, and overnight roles. Employers are often looking for qualified candidates who can provide quality care, support patients and residents, work collaboratively with healthcare teams, and contribute to positive healthcare outcomes. Depending on the employer and position, requirements may include professional registration, certifications, specialized training, previous experience, strong communication skills, and the ability to work effectively in a fast-paced healthcare environment.
+              </p></br>
+
+                <p>Browse current listings below, save the ones that interest you, and apply directly to employers hiring {{ $roleLabel }}s in {{ $cityName }}. New jobs are added regularly — or <a href="https://medojob.com/my-alerts">set up a job alert</a> to be notified when new positions are posted.</p>
             </div>
             <div class="pseo-salary-summary">
                 <span>{{ __('Active listings') }}</span>
@@ -39,6 +49,44 @@
         </ul>
 
         {{ $jobs->links() }}
+        
+        <div class="pseo-faq-section">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+        <h3>What does a {{ $roleLabel }} do?</h3>
+        <p>
+            A {{ $roleLabel }} provides important support in healthcare settings such as hospitals,
+            long-term care homes, clinics, home care, and community health organizations.
+            Duties may vary depending on the employer and the specific position.
+        </p>
+    </div>
+
+    <div class="faq-item">
+        <h3>What qualifications are required for {{ $roleLabel }} jobs in {{ $cityName }}?</h3>
+        <p>
+            Requirements vary by employer. Some roles may require certification, licensing,
+            registration, healthcare training, previous experience, or specific workplace skills.
+            Always review the job posting carefully before applying.
+        </p>
+    </div>
+
+    <div class="faq-item">
+        <h3>Are {{ $roleLabel }} jobs in demand in {{ $cityName }}?</h3>
+        <p>
+            Healthcare roles are commonly needed across Alberta. Demand in {{ $cityName }}
+            can depend on local employers, care facilities, population needs, and available services.
+        </p>
+    </div>
+
+    <div class="faq-item">
+        <h3>How much do {{ $roleLabel }} jobs pay in {{ $cityName }}?</h3>
+        <p>
+            Pay can vary based on experience, employer, shift type, and job responsibilities.
+            Check the current listings above to compare available pay information where provided.
+        </p>
+    </div>
+</div>
 
         <div class="pseo-related-section">
             <h2>{{ __('Related Healthcare Jobs') }}</h2>
@@ -138,6 +186,33 @@
             font-size: 28px;
         }
     }
+    .pseo-faq-section {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    padding: 18px;
+    margin-top: 24px;
+}
+
+.pseo-faq-section h2 {
+    font-size: 22px;
+    margin: 0 0 16px;
+}
+
+.faq-item {
+    margin-bottom: 16px;
+}
+
+.faq-item h3 {
+    font-size: 17px;
+    margin: 0 0 6px;
+}
+
+.faq-item p {
+    margin: 0;
+    color: #4b5563;
+    line-height: 1.6;
+}
 </style>
 @endpush
 

@@ -12,7 +12,12 @@
             <div>
                 <p class="pseo-eyebrow">{{ __('Healthcare jobs in') }} {{ $stateName }}</p>
                 <h1>{{ __('Healthcare Jobs in') }} {{ $stateName }}</h1>
-                <p>{{ __('Browse current healthcare jobs across') }} {{ $stateName }}{{ __(', including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.') }}</p>
+                <p><p>{{ $stateName }}'s healthcare sector is one of the largest employers in the province, with thousands of job openings posted each year across hospitals, long-term care homes, home care agencies, clinics, supportive living facilities, and community health organizations. Whether you're a new graduate looking for your first role or an experienced professional seeking your next step, opportunities are available across every level of the healthcare system in {{ $stateName }}.</p></br>
+
+               <p>On Medojob, you'll find current openings for Health Care Aides (HCAs), Licensed Practical Nurses (LPNs), Registered Nurses (RNs), Nurse Practitioners (NPs), therapists, healthcare administrators, food service workers, housekeepers, maintenance workers, and other allied health and support roles. Positions are available in a range of formats — full-time, part-time, casual, temporary, etc — with day, evening, weekend, and night shifts to fit different schedules and life circumstances.</p></br>
+
+              <p>Browse healthcare jobs across {{ $stateName }} by city, profession, employer, or specialty. New listings are added regularly, so you can stay close to the latest opportunities in one of Canada's most stable and steadily growing industries.
+                </p>
             </div>
             <div class="pseo-salary-summary">
                 <span>{{ __('Active listings') }}</span>
