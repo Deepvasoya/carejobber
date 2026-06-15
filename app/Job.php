@@ -473,9 +473,19 @@ class Job extends Model
     protected static function booted()
     {
         static::saving(function ($job) {
-            // Auto-sync job_category_id from functional_area_id
-            if ($job->functional_area_id && !$job->job_category_id) {
-                $job->job_category_id = $job->functional_area_id;
+            // The form field functional_area_id actually contains a job_categories.id
+            // Auto-map to the correct functional_area by matching slug
+            if ($job->functional_area_id) {
+                $jobCategory = \App\JobCategory::find($job->functional_area_id);
+                if ($jobCategory && $jobCategory->slug) {
+                    $functionalArea = \App\FunctionalArea::where('slug', $jobCategory->slug)->first();
+                    if ($functionalArea) {
+                        $job->functional_area_id = $functionalArea->functional_area_id;
+                    }
+                    $job->job_category_id = $jobCategory->id;
+                } elseif (!$job->job_category_id) {
+                    $job->job_category_id = $job->functional_area_id;
+                }
             }
 
             // Auto-map legacy functional area to medo category
