@@ -108,6 +108,7 @@ public function roleCitySlug(string $seoSlug)
             ->where('slug', '!=', '')
             ->where('city_id', '!=', $cityId)
             ->orderBy('city')
+            ->limit(28)
             ->get();
 
         foreach ($otherCities as $other) {
@@ -121,6 +122,7 @@ public function roleCitySlug(string $seoSlug)
             ->where('is_active', 1)
             ->whereNotNull('slug')
             ->where('slug', '!=', '')
+            ->limit(14)
             ->get();
 
         foreach ($otherRoles as $other) {
