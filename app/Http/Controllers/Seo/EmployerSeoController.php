@@ -156,19 +156,29 @@ class EmployerSeoController extends Controller
         $plainDescription = strip_tags($company->description ?? '');
         $hasDescription = !empty(trim($plainDescription));
         $words = str_word_count($plainDescription, 1);
+        $originalWordCount = count($words);
         $wordLimit = 150;
         $midPoint = 75;
 
         $p1 = '';
         $p2 = '';
+        $fullDescription = '';
+        $isTruncated = false;
         $fallbackP1 = '';
         $fallbackP2 = '';
 
         if ($hasDescription) {
-            $truncated = implode(' ', array_slice($words, 0, $wordLimit));
-            $truncatedWords = explode(' ', $truncated);
-            $p1 = implode(' ', array_slice($truncatedWords, 0, $midPoint));
-            $p2 = implode(' ', array_slice($truncatedWords, $midPoint));
+            $fullDescription = $plainDescription;
+            if ($originalWordCount > $wordLimit) {
+                $isTruncated = true;
+                $truncated = implode(' ', array_slice($words, 0, $wordLimit));
+                $truncatedWords = explode(' ', $truncated);
+                $p1 = implode(' ', array_slice($truncatedWords, 0, $midPoint));
+                $p2 = implode(' ', array_slice($truncatedWords, $midPoint)) . '...';
+            } else {
+                $p1 = implode(' ', array_slice($words, 0, $midPoint));
+                $p2 = implode(' ', array_slice($words, $midPoint));
+            }
         } else {
             $fallbackP1 = $company->name . ' is a healthcare employer with active hiring activity in Alberta. Job seekers can use this page to learn more about current opportunities, hiring locations, and available healthcare roles connected to this employer.';
             $fallbackP2 = 'Medojob updates this employer page as new jobs are added or removed, helping candidates find current healthcare openings from ' . $company->name . ' in one place.';
@@ -178,27 +188,22 @@ class EmployerSeoController extends Controller
         $rolesText = !empty($roles) ? implode(', ', $roles) : '';
 
         $templates = [
-            // Template 1
             function ($name, $count, $citiesText, $rolesText) {
                 $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
                 return "{$name} currently has {$count} active healthcare job opening" . ($count == 1 ? '' : 's') . " available {$loc}. Current opportunities include {$rolesText} positions. Hiring is taking place across different healthcare settings, offering healthcare professionals a variety of career opportunities throughout Alberta.";
             },
-            // Template 2
             function ($name, $count, $citiesText, $rolesText) {
                 $loc = $citiesText ? 'in ' . $citiesText : 'across Alberta';
                 return "Healthcare professionals interested in working with {$name} can explore {$count} active job opportunit" . ($count == 1 ? 'y' : 'ies') . " currently available {$loc}. Available roles include {$rolesText} positions across different healthcare facilities. Browse the latest openings below to find opportunities that match your experience and career goals.";
             },
-            // Template 3
             function ($name, $count, $citiesText, $rolesText) {
                 $loc = $citiesText ? 'in ' . $citiesText : 'across Alberta';
                 return "{$name} continues to recruit healthcare professionals across Alberta, with {$count} active position" . ($count == 1 ? '' : 's') . " currently available. The employer is hiring {$loc} for roles such as {$rolesText}. Opportunities are available across different healthcare settings and may include full-time, part-time, temporary, and permanent positions.";
             },
-            // Template 4
             function ($name, $count, $citiesText, $rolesText) {
                 $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
                 return "Job seekers exploring careers with {$name} will find {$count} active opportunit" . ($count == 1 ? 'y' : 'ies') . " {$loc}. Current vacancies include {$rolesText} positions. These opportunities are available within various healthcare environments and are updated regularly as hiring needs change.";
             },
-            // Template 5
             function ($name, $count, $citiesText, $rolesText) {
                 $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
                 return "With {$count} active healthcare job" . ($count == 1 ? '' : 's') . " currently available, {$name} is hiring {$loc}. Candidates can apply for {$rolesText} positions and explore opportunities within different healthcare settings throughout Alberta.";
@@ -211,6 +216,8 @@ class EmployerSeoController extends Controller
             'hasDescription' => $hasDescription,
             'p1' => $p1,
             'p2' => $p2,
+            'fullDescription' => $fullDescription,
+            'isTruncated' => $isTruncated,
             'fallbackP1' => $fallbackP1,
             'fallbackP2' => $fallbackP2,
             'dynamicParagraph' => $render,

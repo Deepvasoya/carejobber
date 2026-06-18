@@ -23,12 +23,19 @@
         @if($company->description)
             <div class="pseo-related-section">
                 <h2>{{ __('About') }} {{ $company->name }}</h2>
-                <div class="employer-description">
-                    @if($parsedDescription->p1)
-                        <p>{{ $parsedDescription->p1 }}</p>
-                    @endif
-                    @if($parsedDescription->p2)
-                        <p>{{ $parsedDescription->p2 }}</p>
+                <div class="employer-description" id="employer-desc">
+                    @if($parsedDescription->isTruncated)
+                        <div id="desc-truncated">
+                            @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
+                            @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
+                            <p><a href="javascript:void(0)" onclick="document.getElementById('desc-truncated').style.display='none';document.getElementById('desc-full').style.display='block';return false" style="color:#0d9488;font-weight:600;">{{ __('Read More') }}</a></p>
+                        </div>
+                        <div id="desc-full" style="display:none">
+                            <p>{!! nl2br(e($parsedDescription->fullDescription)) !!}</p>
+                        </div>
+                    @else
+                        @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
+                        @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
                     @endif
                     <p>{{ $parsedDescription->dynamicParagraph }}</p>
                 </div>
