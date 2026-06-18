@@ -43,7 +43,9 @@ class SalaryController extends Controller
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD || empty($salaryData);
 
         $metaTitle = $roleLabel . ' Salary in ' . $state->state . ' | Medojob';
-        $metaDescription = 'View advertised ' . $roleLabel . ' salary data in ' . $state->state . '. Based on ' . $jobCount . ' active job postings with salary information on Medojob.';
+        $metaDescription = $salaryData
+            ? 'View advertised ' . $roleLabel . ' salary data in ' . $state->state . '. Based on ' . $salaryData->count . ' active job postings with salary information on Medojob.'
+            : 'Explore ' . $roleLabel . ' jobs, salary trends, employers, and career opportunities in ' . $state->state . ' on Medojob.';
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $role . '-salary-' . $locationSlug, $noIndex);
 
@@ -78,7 +80,9 @@ class SalaryController extends Controller
         $provinceSlug = $state ? Str::slug($state->state) : '';
 
         $metaTitle = $roleLabel . ' Salary in ' . $city->city . ' | Medojob';
-        $metaDescription = 'View advertised ' . $roleLabel . ' salary data in ' . $city->city . '. Based on ' . $jobCount . ' active job postings with salary information on Medojob.';
+        $metaDescription = $salaryData
+            ? 'View advertised ' . $roleLabel . ' salary data in ' . $city->city . '. Based on ' . $salaryData->count . ' active job postings with salary information on Medojob.'
+            : 'Explore ' . $roleLabel . ' jobs, salary trends, employers, and career opportunities in ' . $city->city . ' on Medojob.';
 
         $seo = $this->buildSeo($metaTitle, $metaDescription, $role . '-salary-' . $city->slug, $noIndex);
 
