@@ -84,6 +84,11 @@ Route::get('/healthcare-jobs-{city}', [\App\Http\Controllers\HealthcareHubContro
 Route::get('/{role}-jobs-alberta', [\App\Http\Controllers\Seo\RoleHubController::class, 'show'])
     ->name('seo.role.hub');
 
+Route::get('/{role}-salary-{location}', [\App\Http\Controllers\SalaryController::class, 'show'])
+    ->where('role', '[a-z0-9-]+')
+    ->where('location', '[a-z0-9-]+')
+    ->name('seo.salary.show');
+
 Route::get('/{seoSlug}', [\App\Http\Controllers\Seo\SeoJobController::class, 'roleCitySlug'])
     ->where('seoSlug', '.*-jobs-.*')
     ->name('seo.role.city');

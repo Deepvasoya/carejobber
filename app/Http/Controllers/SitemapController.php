@@ -7,6 +7,7 @@ use App\Company;
 use App\FunctionalArea;
 use App\Job;
 use App\SeoGuide;
+use App\State;
 use App\Models\Medo\Category as MedoCategory;
 use App\Models\Medo\City as MedoCity;
 use App\Models\Medo\Employer as MedoEmployer;
@@ -93,6 +94,22 @@ class SitemapController extends Controller
                     'lastmod' => now()->toDateString(),
                 ];
             }
+
+            $salaryProvinceCount = Job::where('is_active', 1)
+                ->where('is_draft', 0)
+                ->where('functional_area_id', $fa->functional_area_id)
+                ->where('state_id', 663)
+                ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                ->where(function ($q) { $q->whereNotNull('salary_from')->orWhereNotNull('salary_to'); })
+                ->notExpire()
+                ->count();
+
+            if ($salaryProvinceCount >= 5) {
+                $urls[] = [
+                    'loc' => url('/' . $role . '-salary-alberta'),
+                    'lastmod' => now()->toDateString(),
+                ];
+            }
         }
 
         foreach ($activeCities as $cityModel) {
@@ -115,6 +132,7 @@ class SitemapController extends Controller
             }
         }
 
+        // role-city and role-city-salary URLs
         foreach ($roles as $role) {
             $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
             if (! $fa) {
@@ -136,6 +154,22 @@ class SitemapController extends Controller
                 if ($count >= 5) {
                     $urls[] = [
                         'loc' => url('/' . $role . '-jobs-' . $cityModel->slug),
+                        'lastmod' => now()->toDateString(),
+                    ];
+                }
+
+                $salaryCityCount = Job::where('is_active', 1)
+                    ->where('is_draft', 0)
+                    ->where('functional_area_id', $fa->functional_area_id)
+                    ->where('city_id', $cityModel->city_id)
+                    ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                    ->where(function ($q) { $q->whereNotNull('salary_from')->orWhereNotNull('salary_to'); })
+                    ->notExpire()
+                    ->count();
+
+                if ($salaryCityCount >= 5) {
+                    $urls[] = [
+                        'loc' => url('/' . $role . '-salary-' . $cityModel->slug),
                         'lastmod' => now()->toDateString(),
                     ];
                 }

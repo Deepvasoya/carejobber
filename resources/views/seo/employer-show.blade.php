@@ -23,7 +23,24 @@
         @if($company->description)
             <div class="pseo-related-section">
                 <h2>{{ __('About') }} {{ $company->name }}</h2>
-                <p>{{ $company->description }}</p>
+                <div class="employer-description">
+                    @if($parsedDescription->p1)
+                        <p>{{ $parsedDescription->p1 }}</p>
+                    @endif
+                    @if($parsedDescription->p2)
+                        <p>{{ $parsedDescription->p2 }}</p>
+                    @endif
+                    <p>{{ $parsedDescription->dynamicParagraph }}</p>
+                </div>
+            </div>
+        @else
+            <div class="pseo-related-section">
+                <h2>{{ __('About') }} {{ $company->name }}</h2>
+                <div class="employer-description">
+                    <p>{{ $parsedDescription->fallbackP1 }}</p>
+                    <p>{{ $parsedDescription->fallbackP2 }}</p>
+                    <p>{{ $parsedDescription->dynamicParagraph }}</p>
+                </div>
             </div>
         @endif
 
@@ -156,6 +173,15 @@
         margin: 0;
         color: #64748b;
         font-size: 14px;
+    }
+    .employer-description p {
+        margin: 0 0 12px;
+        color: #374151;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+    .employer-description p:last-child {
+        margin-bottom: 0;
     }
     .pseo-link-grid-4col {
         display: grid;
