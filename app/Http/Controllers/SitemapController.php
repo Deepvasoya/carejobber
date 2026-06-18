@@ -302,11 +302,11 @@ class SitemapController extends Controller
             $query->where('expires_at', '>', now());
         })->orderBy('slug')->each(function (MedoEmployer $employer) use (&$urls) {
             $urls[] = [
-                'loc' => route('employers.show', $employer),
+                'loc' => route('seo.employer.show', ['slug' => $employer->slug]),
                 'lastmod' => optional($employer->updated_at)->toDateString() ?: now()->toDateString(),
             ];
         });
-
+        
         Company::where('is_active', 1)
             ->whereNotNull('slug')
             ->where('slug', '!=', '')
@@ -331,7 +331,8 @@ class SitemapController extends Controller
                     ];
                 }
             });
-
+          $urls = collect($urls)->unique('loc')->values()->all();
+          
         return $this->xml($this->urlSet($urls));
     }
 

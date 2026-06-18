@@ -193,7 +193,7 @@ class ProgrammaticSeoService
             'hiringOrganization' => [
                 '@type' => 'Organization',
                 'name' => $company ? $company->name : config('app.name'),
-                'sameAs' => $company ? route('employers.show', $company->slug) : url('/'),
+                'sameAs' => $company ? route('seo.employer.show', ['slug' => $company->slug]) : url('/'),
             ],
             'jobLocation' => [
                 '@type' => 'Place',

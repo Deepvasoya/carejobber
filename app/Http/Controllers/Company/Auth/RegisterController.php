@@ -104,9 +104,20 @@ use RegistersUsers;
         }
         
         $company->save();
-        /*         * ******************** */
-        $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
-        $company->update();
+/*         * ******************** */
+$baseSlug = Str::slug($company->name, '-');
+$slug = $baseSlug;
+$count = 2;
+
+while (\App\Company::where('slug', $slug)
+    ->where('id', '!=', $company->id)
+    ->exists()) {
+    $slug = $baseSlug . '-' . $count;
+    $count++;
+}
+
+$company->slug = $slug;
+$company->update();
         /*         * ******************** */
 
         event(new Registered($company));

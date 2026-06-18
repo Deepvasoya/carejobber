@@ -94,16 +94,18 @@ class ContactController extends Controller
         return view('contact.report_abuse_page')->with('job', $job)->with('slug', $slug)->with('seo', $seo);
     }
 
-    public function reportAbusePost(ReportAbuseFormRequest $request, $slug)
-    {
-        $data['your_name'] = $request->input('your_name');
-        $data['your_email'] = $request->input('your_email');
-        $data['job_url'] = $request->input('job_url');
-        $msg_save = ReportAbuseMessage::create($data);
-        $when = Carbon::now()->addMinutes(5);
-        Mail::send(new ReportAbuse($data));
-        return Redirect::route('report.abuse.thanks');
-    }
+   public function reportAbusePost(ReportAbuseFormRequest $request, $slug)
+{
+    $data['your_name'] = $request->input('your_name');
+    $data['your_email'] = $request->input('your_email');
+    $data['job_url'] = $request->input('job_url');
+
+    $msg_save = ReportAbuseMessage::create($data);
+
+    Mail::to('info@medojob.com')->send(new ReportAbuse($data));
+
+    return Redirect::route('report.abuse.thanks');
+}
 
     public function reportAbuseThanks()
     {

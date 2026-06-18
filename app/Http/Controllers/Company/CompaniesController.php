@@ -268,11 +268,23 @@ class CompaniesController extends Controller
 		$company->is_subscribed = $request->input('is_subscribed', 0);
 
         $cf = app(\App\Services\CustomFieldValueService::class);
-        $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_COMPANY_PROFILE);
-        $company->custom_field_data = $cf->mergeStored($company->custom_field_data ?? null, $norm);
-		
-        $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
-        $company->update();
+       $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_COMPANY_PROFILE);
+       $company->custom_field_data = $cf->mergeStored($company->custom_field_data ?? null, $norm);
+
+       $baseSlug = Str::slug($company->name, '-');
+      $slug = $baseSlug;
+      $count = 2;
+
+    while (\App\Company::where('slug', $slug)
+    ->where('id', '!=', $company->id)
+    ->exists()) {
+    $slug = $baseSlug . '-' . $count;
+    $count++;
+  }
+
+   $company->slug = $slug;
+
+   $company->update();
 		/*************************/
 		Subscription::where('email', 'like', $company->email)->delete();
 		if((bool)$company->is_subscribed)

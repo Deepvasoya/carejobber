@@ -32,36 +32,39 @@ class ReportAbuse extends Mailable
      * @return $this
      */
     public function build()
-    {
-        $recipientAddress = config('mail.recieve_to.address');
-        $recipientName = config('mail.recieve_to.name');
+{
+    $recipientAddress = config('mail.recieve_to.address');
+    $recipientName = config('mail.recieve_to.name');
 
-        // Prepare data for template
-        $templateData = [
-            'YOUR_NAME' => $this->data['your_name'],
-            'YOUR_EMAIL' => $this->data['your_email'],
-            'REPORTED_URL' => $this->data['link'] ?? $this->data['reported_url'] ?? '#'
-        ];
+    $fromAddress = config('mail.from.address');
+    $fromName = config('mail.from.name');
 
-        // Get parsed template
-        $parsed = EmailTemplateService::parseTemplate('report-abuse', $templateData);
+    // Prepare data for template
+    $templateData = [
+        'YOUR_NAME' => $this->data['your_name'],
+        'YOUR_EMAIL' => $this->data['your_email'],
+        'REPORTED_URL' => $this->data['job_url'] ?? $this->data['link'] ?? $this->data['reported_url'] ?? '#'
+    ];
 
-        if (!$parsed) {
-            // Fallback to old method if template not found
-            return $this->from($this->data['your_email'], $this->data['your_name'])
-                ->replyTo($this->data['your_email'], $this->data['your_name'])
-                ->to($recipientAddress, $recipientName)
-                ->subject($this->data['your_name'] . ' has reported a "' . config('app.name') . '" link')
-                ->view('emails.report_abuse_message')
-                ->with($this->data);
-        }
+    // Get parsed template
+    $parsed = EmailTemplateService::parseTemplate('report-abuse', $templateData);
 
-        return $this->from($this->data['your_email'], $this->data['your_name'])
+    if (!$parsed) {
+        // Fallback to old method if template not found
+        return $this->from($fromAddress, $fromName)
             ->replyTo($this->data['your_email'], $this->data['your_name'])
             ->to($recipientAddress, $recipientName)
-            ->subject($parsed['subject'])
-            ->html($parsed['body']);
+            ->subject($this->data['your_name'] . ' has reported a job listing on ' . config('app.name'))
+            ->view('emails.report_abuse_message')
+            ->with($this->data);
     }
+
+    return $this->from($fromAddress, $fromName)
+        ->replyTo($this->data['your_email'], $this->data['your_name'])
+        ->to($recipientAddress, $recipientName)
+        ->subject($parsed['subject'])
+        ->html($parsed['body']);
+}
 
 
 }

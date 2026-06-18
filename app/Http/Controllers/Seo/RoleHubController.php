@@ -12,7 +12,17 @@ class RoleHubController extends Controller
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
     const ALBERTA_STATE_ID = 663;
+    
+    public function showSlug(string $seoSlug)
+{
+    if (! str_ends_with($seoSlug, '-jobs-alberta')) {
+        abort(404);
+    }
 
+    $role = str_replace('-jobs-alberta', '', $seoSlug);
+
+    return $this->show($role);
+}
     public function show(string $role)
     {
         $functionalArea = FunctionalArea::where('slug', $role)

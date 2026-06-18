@@ -17,10 +17,15 @@
                     <td class="row" valign="top" style="padding-left:12px;padding-right:12px;padding-top:18px;padding-bottom:12px"><table border="0" cellpadding="0" cellspacing="0" style="width:100%;">
                             <tr>
                                 <td class="subtitle" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:22px;font-weight:400;color:#333;padding-bottom:30px; text-align: left;">
-                                    <p>{{ $your_name }}" has reported a "{{ $siteSetting->site_name }}" link :</p>                  
+                                    <p><strong>{{ $your_name }}</strong> has reported a job listing on {{ $siteSetting->site_name }}.</p>
+
+                                 <p><strong>Reporter Name:</strong> {{ $your_name }}</p>
+                                <p><strong>Reporter Email:</strong> {{ $your_email }}</p>
+                                <p><strong>Reported Job URL:</strong></p>                 
                                     <p>
                                         <br>
-                                        <span style="color: #fff;text-decoration: none;background: #f25a55; padding: 7px 10px;text-align: center;display: inline-block;margin-top: 20px;"><a href="{{ $job_url }}">{{ $job_url }}</a></span>
+                                        <span style="background: #f25a55; padding: 10px 14px;text-align: center;display: inline-block;margin-top: 10px;border-radius:4px;">
+                                            <a href="{{ $job_url }}" style="color:#fff;text-decoration:none;">{{ $job_url }}</a></span>
                                         <br>
                                     </p>
                                 </td>

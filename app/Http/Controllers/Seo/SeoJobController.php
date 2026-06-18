@@ -21,6 +21,10 @@ public function roleCitySlug(string $seoSlug)
 
     [$role, $city] = explode('-jobs-', $seoSlug, 2);
 
+    if ($city === 'alberta') {
+        return app(\App\Http\Controllers\Seo\RoleHubController::class)->show($role);
+    }
+
     return $this->roleCity($role, $city);
 }
     public function roleCity(string $role, string $city)

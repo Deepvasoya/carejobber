@@ -516,9 +516,20 @@ public function downloadReceipt($companyId)
 
 		
 
-        $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
+        $baseSlug = Str::slug($company->name, '-');
+$slug = $baseSlug;
+$count = 2;
 
-        $company->update();
+while (\App\Company::where('slug', $slug)
+    ->where('id', '!=', $company->id)
+    ->exists()) {
+    $slug = $baseSlug . '-' . $count;
+    $count++;
+}
+
+$company->slug = $slug;
+
+$company->update();
 
 		/*************************/
 

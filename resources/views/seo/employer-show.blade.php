@@ -51,7 +51,7 @@
 
         @if($relatedEmployers)
             <div class="pseo-related-section">
-                <h2>{{ __('Top Healthcare Employers') }}</h2>
+                <h2>{{ __('Related Healthcare Employers') }}</h2>
                 <div class="pseo-link-grid-4col">
                     @foreach($relatedEmployers as $link)
                         <a href="{{ $link['url'] }}" class="pseo-link-card">
