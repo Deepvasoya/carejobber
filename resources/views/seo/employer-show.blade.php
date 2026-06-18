@@ -28,11 +28,25 @@
                         <div id="desc-truncated">
                             @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
                             @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
-                            <p><a href="javascript:void(0)" onclick="document.getElementById('desc-truncated').style.display='none';document.getElementById('desc-full').style.display='block';return false" style="color:#0d9488;font-weight:600;">{{ __('Read More') }}</a></p>
+                            <p><a href="javascript:void(0)" onclick="toggleDesc()" id="desc-toggle" style="color:#0d9488;font-weight:600;">{{ __('Read Full Description') }}</a></p>
                         </div>
                         <div id="desc-full" style="display:none">
                             <p>{!! nl2br(e($parsedDescription->fullDescription)) !!}</p>
+                            <p><a href="javascript:void(0)" onclick="toggleDesc()" style="color:#0d9488;font-weight:600;">{{ __('Show Less') }}</a></p>
                         </div>
+                        <script>
+                        function toggleDesc() {
+                            var t = document.getElementById('desc-truncated');
+                            var f = document.getElementById('desc-full');
+                            if (t.style.display !== 'none') {
+                                t.style.display = 'none';
+                                f.style.display = 'block';
+                            } else {
+                                t.style.display = 'block';
+                                f.style.display = 'none';
+                            }
+                        }
+                        </script>
                     @else
                         @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
                         @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
