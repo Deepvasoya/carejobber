@@ -70,6 +70,8 @@ Route::get('/', 'IndexController@index')->name('index');
 Route::get('sitemap.xml', 'SitemapController@index')->name('sitemap.index');
 Route::get('sitemap-jobs.xml', 'SitemapController@jobs')->name('sitemap.jobs');
 Route::get('sitemap-categories.xml', 'SitemapController@categories')->name('sitemap.categories');
+Route::get('sitemap-pseo-jobs.xml', 'SitemapController@pseoJobs')->name('sitemap.pseo.jobs');
+Route::get('sitemap-salaries.xml', 'SitemapController@salaries')->name('sitemap.salaries');
 Route::get('sitemap-employers.xml', 'SitemapController@employers')->name('sitemap.employers');
 Route::get('employers/{slug}', [\App\Http\Controllers\Seo\EmployerSeoController::class, 'show'])
     ->name('seo.employer.show');

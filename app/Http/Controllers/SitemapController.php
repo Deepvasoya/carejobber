@@ -32,6 +32,14 @@ class SitemapController extends Controller
                 'loc' => url('/sitemap-employers.xml'),
                 'lastmod' => now()->toDateString(),
             ],
+            [
+                'loc' => url('/sitemap-pseo-jobs.xml'),
+                'lastmod' => now()->toDateString(),
+            ],
+            [
+                'loc' => url('/sitemap-salaries.xml'),
+                'lastmod' => now()->toDateString(),
+            ],
         ];
 
         return $this->xml($this->sitemapIndex($urls));
@@ -321,6 +329,106 @@ class SitemapController extends Controller
                         'loc' => url('/' . $role . '-jobs-' . $cityModel->slug),
                         'lastmod' => now()->toDateString(),
                     ];
+                }
+            }
+        }
+
+        return $this->xml($this->urlSet($urls));
+    }
+
+    public function pseoJobs()
+    {
+        $urls = [];
+
+        $activeCities = City::where('state_id', 663)
+            ->where('is_active', 1)
+            ->whereNotNull('slug')->where('slug', '!=', '')
+            ->orderBy('city')
+            ->get();
+
+        $roles = FunctionalArea::where('is_active', 1)
+            ->whereNotNull('slug')->where('slug', '!=', '')
+            ->pluck('slug')
+            ->toArray();
+
+        foreach ($roles as $role) {
+            $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
+            if (!$fa) continue;
+
+            // role-province pages
+            $provinceCount = Job::where('is_active', 1)->where('is_draft', 0)
+                ->where('functional_area_id', $fa->functional_area_id)
+                ->where('state_id', 663)
+                ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                ->notExpire()
+                ->count();
+
+            if ($provinceCount >= 5) {
+                $urls[] = ['loc' => url('/' . $role . '-jobs-alberta'), 'lastmod' => now()->toDateString()];
+            }
+
+            // role-city pages
+            foreach ($activeCities as $cityModel) {
+                $count = Job::where('is_active', 1)->where('is_draft', 0)
+                    ->where('functional_area_id', $fa->functional_area_id)
+                    ->where('city_id', $cityModel->city_id)
+                    ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                    ->notExpire()
+                    ->count();
+
+                if ($count >= 5) {
+                    $urls[] = ['loc' => url('/' . $role . '-jobs-' . $cityModel->slug), 'lastmod' => now()->toDateString()];
+                }
+            }
+        }
+
+        return $this->xml($this->urlSet($urls));
+    }
+
+    public function salaries()
+    {
+        $urls = [];
+
+        $activeCities = City::where('state_id', 663)
+            ->where('is_active', 1)
+            ->whereNotNull('slug')->where('slug', '!=', '')
+            ->orderBy('city')
+            ->get();
+
+        $roles = FunctionalArea::where('is_active', 1)
+            ->whereNotNull('slug')->where('slug', '!=', '')
+            ->pluck('slug')
+            ->toArray();
+
+        foreach ($roles as $role) {
+            $fa = FunctionalArea::where('slug', $role)->where('is_active', 1)->first();
+            if (!$fa) continue;
+
+            // province salary
+            $provSalCount = Job::where('is_active', 1)->where('is_draft', 0)
+                ->where('functional_area_id', $fa->functional_area_id)
+                ->where('state_id', 663)
+                ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                ->where(function ($q) { $q->whereNotNull('salary_from')->orWhereNotNull('salary_to'); })
+                ->notExpire()
+                ->count();
+
+            if ($provSalCount >= 5) {
+                $urls[] = ['loc' => url('/' . $role . '-salary-alberta'), 'lastmod' => now()->toDateString()];
+            }
+
+            // city salary
+            foreach ($activeCities as $cityModel) {
+                $citySalCount = Job::where('is_active', 1)->where('is_draft', 0)
+                    ->where('functional_area_id', $fa->functional_area_id)
+                    ->where('city_id', $cityModel->city_id)
+                    ->where(function ($q) { $q->whereNull('display_end_date')->orWhere('display_end_date', '>=', now()); })
+                    ->where(function ($q) { $q->whereNotNull('salary_from')->orWhereNotNull('salary_to'); })
+                    ->notExpire()
+                    ->count();
+
+                if ($citySalCount >= 5) {
+                    $urls[] = ['loc' => url('/' . $role . '-salary-' . $cityModel->slug), 'lastmod' => now()->toDateString()];
                 }
             }
         }
