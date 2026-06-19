@@ -6,6 +6,7 @@ use App\City;
 use App\FunctionalArea;
 use App\Http\Controllers\Controller;
 use App\Job;
+use App\State;
 
 class SeoJobController extends Controller
 {
@@ -69,6 +70,9 @@ public function roleCitySlug(string $seoSlug)
 
         $relatedLinks = $this->relatedLinks($role, $city, $cityName, $roleLabel, $cityModel->city_id);
 
+        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
+        $provinceName = $state ? $state->state : 'Alberta';
+
         return view('seo.role-city')
             ->with('role', $role)
             ->with('city', $city)
@@ -80,7 +84,8 @@ public function roleCitySlug(string $seoSlug)
             ->with('metaTitle', $metaTitle)
             ->with('metaDescription', $metaDescription)
             ->with('relatedLinks', $relatedLinks)
-            ->with('seo', $seo);
+            ->with('seo', $seo)
+            ->with('provinceName', $provinceName);
     }
 
     private function buildSeo(string $title, string $description, string $role, string $city, bool $noIndex): object
@@ -136,9 +141,12 @@ public function roleCitySlug(string $seoSlug)
        ];
         }
 
+        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
+        $provinceName = $state ? $state->state : 'Alberta';
+
         $links[] = [
-            'label' => 'Healthcare Jobs in Alberta',
-            'url' => url('/healthcare-jobs-alberta'),
+            'label' => 'Healthcare Jobs in ' . $provinceName,
+            'url' => url('/healthcare-jobs-' . strtolower($provinceName)),
         ];
 
         return $links;

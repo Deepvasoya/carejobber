@@ -6,6 +6,7 @@ use App\City;
 use App\Company;
 use App\FunctionalArea;
 use App\Job;
+use App\State;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 
@@ -48,7 +49,11 @@ class EmployerSeoController extends Controller
         $cities = $this->hiringCities($company->id);
         $roles = $this->hiringRoles($company->id);
         $templateIndex = $this->deterministicTemplateIndex($company->id);
-        $parsedDescription = $this->parseDescription($company, $jobCount, $cities, $roles, $templateIndex);
+
+        $state = $company->state_id ? State::where('state_id', $company->state_id)->first() : null;
+        $provinceName = $state ? $state->state : 'Alberta';
+
+        $parsedDescription = $this->parseDescription($company, $jobCount, $cities, $roles, $templateIndex, $provinceName);
 
         return view('seo.employer-show')
             ->with('company', $company)
@@ -59,7 +64,8 @@ class EmployerSeoController extends Controller
             ->with('metaDescription', $metaDescription)
             ->with('seo', $seo)
             ->with('relatedEmployers', $relatedEmployers)
-            ->with('parsedDescription', $parsedDescription);
+            ->with('parsedDescription', $parsedDescription)
+            ->with('provinceName', $provinceName);
     }
 
     // --- SEO ---
@@ -151,7 +157,7 @@ class EmployerSeoController extends Controller
         return crc32((string) $companyId) % 5;
     }
 
-    private function parseDescription(Company $company, int $jobCount, array $cities, array $roles, int $templateIndex): object
+    private function parseDescription(Company $company, int $jobCount, array $cities, array $roles, int $templateIndex, string $provinceName): object
     {
         $plainDescription = strip_tags($company->description ?? '');
         $hasDescription = !empty(trim($plainDescription));
@@ -180,7 +186,7 @@ class EmployerSeoController extends Controller
                 $p2 = implode(' ', array_slice($words, $midPoint));
             }
         } else {
-            $fallbackP1 = $company->name . ' is a healthcare employer with active hiring activity in Alberta. Job seekers can use this page to learn more about current opportunities, hiring locations, and available healthcare roles connected to this employer.';
+            $fallbackP1 = $company->name . ' is a healthcare employer with active hiring activity in ' . $provinceName . '. Job seekers can use this page to learn more about current opportunities, hiring locations, and available healthcare roles connected to this employer.';
             $fallbackP2 = 'Medojob updates this employer page as new jobs are added or removed, helping candidates find current healthcare openings from ' . $company->name . ' in one place.';
         }
 
@@ -188,29 +194,29 @@ class EmployerSeoController extends Controller
         $rolesText = !empty($roles) ? implode(', ', $roles) : '';
 
         $templates = [
-            function ($name, $count, $citiesText, $rolesText) {
-                $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
-                return "{$name} currently has {$count} active healthcare job opening" . ($count == 1 ? '' : 's') . " available {$loc}. Current opportunities include {$rolesText} positions. Hiring is taking place across different healthcare settings, offering healthcare professionals a variety of career opportunities throughout Alberta.";
+            function ($name, $count, $citiesText, $rolesText, $provinceName) {
+                $loc = $citiesText ? 'across ' . $citiesText : 'across ' . $provinceName;
+                return "{$name} currently has {$count} active healthcare job opening" . ($count == 1 ? '' : 's') . " available {$loc}. Current opportunities include {$rolesText} positions. Hiring is taking place across different healthcare settings, offering healthcare professionals a variety of career opportunities throughout {$provinceName}.";
             },
-            function ($name, $count, $citiesText, $rolesText) {
-                $loc = $citiesText ? 'in ' . $citiesText : 'across Alberta';
+            function ($name, $count, $citiesText, $rolesText, $provinceName) {
+                $loc = $citiesText ? 'in ' . $citiesText : 'across ' . $provinceName;
                 return "Healthcare professionals interested in working with {$name} can explore {$count} active job opportunit" . ($count == 1 ? 'y' : 'ies') . " currently available {$loc}. Available roles include {$rolesText} positions across different healthcare facilities. Browse the latest openings below to find opportunities that match your experience and career goals.";
             },
-            function ($name, $count, $citiesText, $rolesText) {
-                $loc = $citiesText ? 'in ' . $citiesText : 'across Alberta';
-                return "{$name} continues to recruit healthcare professionals across Alberta, with {$count} active position" . ($count == 1 ? '' : 's') . " currently available. The employer is hiring {$loc} for roles such as {$rolesText}. Opportunities are available across different healthcare settings and may include full-time, part-time, temporary, and permanent positions.";
+            function ($name, $count, $citiesText, $rolesText, $provinceName) {
+                $loc = $citiesText ? 'in ' . $citiesText : 'across ' . $provinceName;
+                return "{$name} continues to recruit healthcare professionals across {$provinceName}, with {$count} active position" . ($count == 1 ? '' : 's') . " currently available. The employer is hiring {$loc} for roles such as {$rolesText}. Opportunities are available across different healthcare settings and may include full-time, part-time, temporary, and permanent positions.";
             },
-            function ($name, $count, $citiesText, $rolesText) {
-                $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
+            function ($name, $count, $citiesText, $rolesText, $provinceName) {
+                $loc = $citiesText ? 'across ' . $citiesText : 'across ' . $provinceName;
                 return "Job seekers exploring careers with {$name} will find {$count} active opportunit" . ($count == 1 ? 'y' : 'ies') . " {$loc}. Current vacancies include {$rolesText} positions. These opportunities are available within various healthcare environments and are updated regularly as hiring needs change.";
             },
-            function ($name, $count, $citiesText, $rolesText) {
-                $loc = $citiesText ? 'across ' . $citiesText : 'across Alberta';
-                return "With {$count} active healthcare job" . ($count == 1 ? '' : 's') . " currently available, {$name} is hiring {$loc}. Candidates can apply for {$rolesText} positions and explore opportunities within different healthcare settings throughout Alberta.";
+            function ($name, $count, $citiesText, $rolesText, $provinceName) {
+                $loc = $citiesText ? 'across ' . $citiesText : 'across ' . $provinceName;
+                return "With {$count} active healthcare job" . ($count == 1 ? '' : 's') . " currently available, {$name} is hiring {$loc}. Candidates can apply for {$rolesText} positions and explore opportunities within different healthcare settings throughout {$provinceName}.";
             },
         ];
 
-        $render = $templates[$templateIndex]($company->name, $jobCount, $citiesText ?: 'across Alberta', $rolesText ?: 'healthcare, nursing, support, and clinical');
+        $render = $templates[$templateIndex]($company->name, $jobCount, $citiesText ?: 'across ' . $provinceName, $rolesText ?: 'healthcare, nursing, support, and clinical', $provinceName);
 
         return (object) [
             'hasDescription' => $hasDescription,

@@ -10,19 +10,19 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare Jobs in Alberta') }}</p>
+                <p class="pseo-eyebrow">{{ __('Healthcare Jobs in {{ $provinceName }}') }}</p>
                 <div class="pseo-breadcrumb">
     <a href="{{ url('/') }}">Home</a>
     <span>›</span>
     <a href="{{ url('/jobs') }}">Jobs</a>
     <span>›</span>
-    <span>{{ $roleLabel }} Jobs in Alberta</span>
+    <span>{{ $roleLabel }} Jobs in {{ $provinceName }}</span>
 </div>
-                <h1>{{ $roleLabel }} {{ __('Jobs in Alberta') }}</h1>
-                <p>{{ __('Browse') }} {{ $roleLabel }} {{ __('jobs across Alberta. Explore opportunities in various Alberta communities, connect with healthcare employers, and find the right role for you.') }}</p>
+                <h1>{{ $roleLabel }} {{ __('Jobs in {{ $provinceName }}') }}</h1>
+                <p>{{ __('Browse') }} {{ $roleLabel }} {{ __('jobs across {{ $provinceName }}. Explore opportunities in various {{ $provinceName }} communities, connect with healthcare employers, and find the right role for you.') }}</p>
             </div>
             <div class="pseo-salary-summary">
-                <span>{{ __('Active jobs across Alberta') }}</span>
+                <span>{{ __('Active jobs across {{ $provinceName }}') }}</span>
                 <strong>{{ number_format($jobCount) }}</strong>
             </div>
         </div>
@@ -40,7 +40,7 @@
             </div>
         @endif
 
-        <h2 class="pseo-section-title">{{ __('Current') }} {{ $roleLabel }} {{ __('Job Openings in Alberta') }}</h2>
+        <h2 class="pseo-section-title">{{ __('Current') }} {{ $roleLabel }} {{ __('Job Openings in {{ $provinceName }}') }}</h2>
 
         <ul class="featuredlist row job-search-list-single">
             @forelse($jobs as $job)
@@ -64,7 +64,7 @@
 
         @if($relatedRoles)
             <div class="pseo-related-section">
-                <h2>{{ __('Popular Roles in Alberta') }}</h2>
+                <h2>{{ __('Popular Roles in {{ $provinceName }}') }}</h2>
                 <div class="pseo-link-grid-4col">
                     @foreach($relatedRoles as $link)
                         <a href="{{ $link['url'] }}" class="pseo-link-card">
@@ -78,16 +78,16 @@
         <div class="pseo-related-section">
             <h2>{{ __('FAQ') }}</h2>
             <div class="pseo-faq-item">
-                <h3>{{ __('What') }} {{ $roleLabel }} {{ __('jobs are available in Alberta?') }}</h3>
-                <p>{{ __('Browse the current job listings above for') }} {{ $roleLabel }} {{ __('positions available in Alberta. Openings vary by location and employer.') }}</p>
+                <h3>{{ __('What') }} {{ $roleLabel }} {{ __('jobs are available in {{ $provinceName }}?') }}</h3>
+                <p>{{ __('Browse the current job listings above for') }} {{ $roleLabel }} {{ __('positions available in {{ $provinceName }}. Openings vary by location and employer.') }}</p>
             </div>
             <div class="pseo-faq-item">
-                <h3>{{ __('How do I apply for') }} {{ $roleLabel }} {{ __('jobs in Alberta?') }}</h3>
+                <h3>{{ __('How do I apply for') }} {{ $roleLabel }} {{ __('jobs in {{ $provinceName }}?') }}</h3>
                 <p>{{ __('Click on any job listing to view the full details and follow the application instructions provided by the employer.') }}</p>
             </div>
             <div class="pseo-faq-item">
-                <h3>{{ __('Where can I find') }} {{ $roleLabel }} {{ __('jobs in Alberta?') }}</h3>
-                <p>{{ $roleLabel }} {{ __('jobs are available across Alberta. Use the Related Cities section above to find openings in specific communities.') }}</p>
+                <h3>{{ __('Where can I find') }} {{ $roleLabel }} {{ __('jobs in {{ $provinceName }}?') }}</h3>
+                <p>{{ $roleLabel }} {{ __('jobs are available across {{ $provinceName }}. Use the Related Cities section above to find openings in specific communities.') }}</p>
             </div>
         </div>
     </div>
@@ -250,7 +250,7 @@
         [
             '@type' => 'ListItem',
             'position' => 3,
-            'name' => $roleLabel . ' Jobs in Alberta',
+            'name' => $roleLabel . ' Jobs in {{ $provinceName }}',
             'item' => url()->current()
         ]
     ]

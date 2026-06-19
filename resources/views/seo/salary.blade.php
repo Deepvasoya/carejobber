@@ -6,8 +6,8 @@
 <div class="listpgWraper pseo-salary-page">
     <div class="container">
         <div class="pseo-salary-hero">
-            <p class="pseo-eyebrow">{{ __('Alberta salary guide') }}</p>
-            <h1>{{ $categoryLabel }} {{ __('salary guide for Alberta') }}</h1>
+            <p class="pseo-eyebrow">{{ $provinceName }} {{ __('salary guide') }}</p>
+            <h1>{{ $categoryLabel }} {{ __('salary guide for') }} {{ $provinceName }}</h1>
             <p>{{ __('This guide summarizes salary ranges from active healthcare job listings where employers publish compensation.') }}</p>
         </div>
 
@@ -33,7 +33,7 @@
         <div class="pseo-copy">
             <h2>{{ __('Current market signal') }}</h2>
             <p>
-                {{ __('Medojob calculates this range from active Alberta postings, so it changes as employers add, expire, or update jobs.') }}
+                {{ __('Medojob calculates this range from active') }} {{ $provinceName }} {{ __('postings, so it changes as employers add, expire, or update jobs.') }}
                 {{ __('For the best comparison, review the live listings and check whether each employer publishes hourly, annual, casual, part-time, or full-time compensation.') }}
             </p>
             <a class="btn btn-primary" href="{{ route('medo.jobs.category', $category->slug) }}">{{ __('View active jobs') }}</a>

@@ -21,7 +21,7 @@
                 <h1>{{ $roleLabel }} Jobs in {{ $cityName }}</h1>
                 <p>There {{ $jobCount == 1 ? 'is' : 'are' }} currently
              <strong>{{ number_format($jobCount) }}</strong>
-               active {{ $roleLabel }} position{{ $jobCount == 1 ? '' : 's' }} available in {{ $cityName }}, Alberta.
+               active {{ $roleLabel }} position{{ $jobCount == 1 ? '' : 's' }} available in {{ $cityName }}, {{ $provinceName ?? 'Alberta' }}.
                </p></br>
                 <p>Medojob helps connect healthcare professionals with employment opportunities at hospitals, long-term care homes, supportive living facilities, home care agencies, rehabilitation centres, medical clinics, and community healthcare organizations throughout the region. Whether you are an experienced professional seeking a new opportunity or someone looking to advance your healthcare career, this page provides access to current openings from employers actively hiring in {{ $cityName }} and surrounding communities.
                    </p></br>
@@ -81,7 +81,7 @@
     <div class="faq-item">
         <h3>Are {{ $roleLabel }} jobs in demand in {{ $cityName }}?</h3>
         <p>
-            Healthcare roles are commonly needed across Alberta. Demand in {{ $cityName }}
+            Healthcare roles are commonly needed across {{ $provinceName ?? 'Alberta' }}. Demand in {{ $cityName }}
             can depend on local employers, care facilities, population needs, and available services.
         </p>
     </div>

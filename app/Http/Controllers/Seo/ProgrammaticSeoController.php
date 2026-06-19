@@ -8,6 +8,7 @@ use App\FunctionalArea;
 use App\Http\Controllers\Controller;
 use App\SeoGuide;
 use App\Services\ProgrammaticSeoService;
+use App\State;
 use Illuminate\Http\Request;
 
 class ProgrammaticSeoController extends Controller
@@ -43,9 +44,12 @@ class ProgrammaticSeoController extends Controller
         $categoryLabel = $this->seo->categoryLabel($category);
         $canonical = route('seo.salary', $category->slug);
 
+        $state = State::where('state_id', 663)->first();
+        $provinceName = $state ? $state->state : 'Alberta';
+
         $seo = $this->seo->seo(
-            "{$categoryLabel} salary guide for Alberta",
-            "Compare posted {$categoryLabel} salary ranges from active Alberta healthcare job listings.",
+            "{$categoryLabel} salary guide for {$provinceName}",
+            "Compare posted {$categoryLabel} salary ranges from active {$provinceName} healthcare job listings.",
             $canonical,
             $jobCount < 3
         );
@@ -53,6 +57,7 @@ class ProgrammaticSeoController extends Controller
         return view('seo.salary')
             ->with('category', $category)
             ->with('categoryLabel', $categoryLabel)
+            ->with('provinceName', $provinceName)
             ->with('jobCount', $jobCount)
             ->with('salary', $salary)
             ->with('seo', $seo);

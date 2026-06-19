@@ -10,7 +10,7 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare jobs in Alberta') }}</p>
+                <p class="pseo-eyebrow">{{ __('Healthcare jobs in') }} {{ $stateName ?? 'Alberta' }}</p>
                 <h1>{{ __('Healthcare Jobs in') }} {{ $cityName }}</h1>
                 <p>{{ __('Browse current healthcare jobs in') }} {{ $cityName }}, {{ $stateName }}. Medojob connects healthcare professionals with employers across {{ $cityName }} — including hospitals, long-term care homes, assisted living facilities, home care agencies, clinics, and community health organizations.</p></br>
 

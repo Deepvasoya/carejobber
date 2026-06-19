@@ -6,23 +6,14 @@ use App\City;
 use App\FunctionalArea;
 use App\Http\Controllers\Controller;
 use App\Job;
+use App\State;
 
 class RoleHubController extends Controller
 {
     const PER_PAGE = 20;
     const NOINDEX_THRESHOLD = 5;
     const ALBERTA_STATE_ID = 663;
-    
-    public function showSlug(string $seoSlug)
-{
-    if (! str_ends_with($seoSlug, '-jobs-alberta')) {
-        abort(404);
-    }
 
-    $role = str_replace('-jobs-alberta', '', $seoSlug);
-
-    return $this->show($role);
-}
     public function show(string $role)
     {
         $functionalArea = FunctionalArea::where('slug', $role)
@@ -32,6 +23,10 @@ class RoleHubController extends Controller
         if (!$functionalArea) {
             abort(404);
         }
+
+        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
+        $provinceName = $state ? $state->state : 'Alberta';
+        $provinceSlug = $state ? strtolower($state->state) : 'alberta';
 
         $roleLabel = $functionalArea->functional_area;
 
@@ -66,17 +61,18 @@ class RoleHubController extends Controller
 
         $noIndex = $jobCount < self::NOINDEX_THRESHOLD;
 
-        $metaTitle = $roleLabel . ' Jobs in Alberta | Medojob';
-        $metaDescription = 'Browse ' . $roleLabel . ' jobs across Alberta. Explore opportunities in ' . $cities->pluck('city')->join(', ') . ', and other Alberta communities.';
+        $metaTitle = $roleLabel . ' Jobs in ' . $provinceName . ' | Medojob';
+        $metaDescription = 'Browse ' . $roleLabel . ' jobs across ' . $provinceName . '. Explore opportunities in ' . $cities->pluck('city')->join(', ') . ', and other ' . $provinceName . ' communities.';
 
-        $seo = $this->buildSeo($metaTitle, $metaDescription, $role, $noIndex);
+        $seo = $this->buildSeo($metaTitle, $metaDescription, $role, $provinceName, $noIndex);
 
         $cityLinks = $this->cityLinks($role, $cities);
-        $relatedRoles = $this->relatedRoles($role, $functionalArea->functional_area_id);
+        $relatedRoles = $this->relatedRoles($role, $functionalArea->functional_area_id, $provinceName);
 
         return view('seo.role-hub')
             ->with('role', $role)
             ->with('roleLabel', $roleLabel)
+            ->with('provinceName', $provinceName)
             ->with('jobs', $jobs)
             ->with('jobCount', $jobCount)
             ->with('cities', $cities)
@@ -88,18 +84,20 @@ class RoleHubController extends Controller
             ->with('seo', $seo);
     }
 
-    private function buildSeo(string $title, string $description, string $role, bool $noIndex): object
+    private function buildSeo(string $title, string $description, string $role, string $provinceName, bool $noIndex): object
     {
         $robots = $noIndex
             ? '<meta name="robots" content="noindex,follow">'
             : '<meta name="robots" content="index,follow">';
 
-        $canonical = '<link rel="canonical" href="' . e(url('/' . $role . '-jobs-alberta')) . '">';
+        $provinceSlug = strtolower($provinceName);
+
+        $canonical = '<link rel="canonical" href="' . e(url('/' . $role . '-jobs-' . $provinceSlug)) . '">';
 
         return (object) [
             'seo_title' => $title,
             'seo_description' => $description,
-            'seo_keywords' => $role . ' jobs alberta, ' . $description,
+            'seo_keywords' => $role . ' jobs ' . $provinceSlug . ', ' . $description,
             'seo_other' => $robots . "\n" . $canonical,
         ];
     }
@@ -116,8 +114,9 @@ class RoleHubController extends Controller
         return $links;
     }
 
-    private function relatedRoles(string $currentRole, int $currentFaId): array
+    private function relatedRoles(string $currentRole, int $currentFaId, string $provinceName): array
     {
+        $provinceSlug = strtolower($provinceName);
         $links = [];
         $others = FunctionalArea::where('functional_area_id', '!=', $currentFaId)
             ->where('is_active', 1)
@@ -128,8 +127,8 @@ class RoleHubController extends Controller
 
         foreach ($others as $other) {
             $links[] = [
-                'label' => $other->functional_area . ' Jobs in Alberta',
-                'url' => url('/' . $other->slug . '-jobs-alberta'),
+                'label' => $other->functional_area . ' Jobs in ' . $provinceName,
+                'url' => url('/' . $other->slug . '-jobs-' . $provinceSlug),
             ];
         }
         return $links;
