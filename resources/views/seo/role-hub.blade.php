@@ -11,6 +11,13 @@
         <div class="pseo-jobs-header">
             <div>
                 <p class="pseo-eyebrow">{{ __('Healthcare Jobs in Alberta') }}</p>
+                <div class="pseo-breadcrumb">
+    <a href="{{ url('/') }}">Home</a>
+    <span>›</span>
+    <a href="{{ url('/jobs') }}">Jobs</a>
+    <span>›</span>
+    <span>{{ $roleLabel }} Jobs in Alberta</span>
+</div>
                 <h1>{{ $roleLabel }} {{ __('Jobs in Alberta') }}</h1>
                 <p>{{ __('Browse') }} {{ $roleLabel }} {{ __('jobs across Alberta. Explore opportunities in various Alberta communities, connect with healthcare employers, and find the right role for you.') }}</p>
             </div>
@@ -199,9 +206,54 @@
             grid-template-columns: 1fr;
         }
     }
+    .pseo-breadcrumb {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.pseo-breadcrumb a {
+    color: #0d9488;
+    text-decoration: none;
+}
+
+.pseo-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.pseo-breadcrumb span {
+    margin: 0 4px;
+}
 </style>
 @endpush
 
 @push('scripts')
 @include('includes.job_list_apply_scripts_auth')
+
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Home',
+            'item' => url('/')
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Jobs',
+            'item' => url('/jobs')
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 3,
+            'name' => $roleLabel . ' Jobs in Alberta',
+            'item' => url()->current()
+        ]
+    ]
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
 @endpush

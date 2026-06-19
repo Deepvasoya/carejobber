@@ -8,6 +8,13 @@
         <div class="pseo-jobs-header">
             <div>
                 <p class="pseo-eyebrow">{{ __('Salary Information') }}</p>
+                <div class="pseo-breadcrumb">
+    <a href="{{ url('/') }}">Home</a>
+    <span>›</span>
+    <span>Salaries</span>
+    <span>›</span>
+    <span>{{ $roleLabel }} Salary in {{ $location }}</span>
+</div>
                 <h1>{{ $roleLabel }} {{ __('Salary in') }} {{ $location }}</h1>
                 @if($salaryData)
                 <p>{{ __('The average advertised salary for') }} {{ $roleLabel }} {{ __('jobs in') }} {{ $location }} {{ __('is') }} ${{ number_format($salaryData->avg, 2) }}/hr, {{ __('based on') }} {{ $salaryData->count }} {{ __('active job postings with salary information on Medojob. Current advertised salaries range from') }} ${{ number_format($salaryData->min, 2) }} {{ __('to') }} ${{ number_format($salaryData->max, 2) }}/hr. {{ __('Pay may vary by employer, city, experience, shift type, and healthcare setting.') }}</p>
@@ -53,10 +60,10 @@
             <h2>{{ __('Employers Hiring') }} {{ $roleLabel }} {{ __('in') }} {{ $location }}</h2>
             <div class="pseo-link-grid-4col">
                 @foreach($employers as $emp)
-                    <a href="{{ url('/employers/' . $emp->slug) }}" class="pseo-link-card">
-                        <span class="pseo-link-card-label">{{ $emp->name }}</span>
-                    </a>
-                @endforeach
+               <a href="{{ url('/employers/' . ($emp['slug'] ?? '')) }}" class="pseo-link-card">
+               <span class="pseo-link-card-label">{{ $emp['name'] ?? '' }}</span>
+                  </a>
+               @endforeach
             </div>
         </div>
         @endif
@@ -137,8 +144,53 @@
     .table-responsive table th,.table-responsive table td{padding:8px 12px}
     @media(max-width:991px){.pseo-link-grid-4col{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:767px){.pseo-jobs-header{grid-template-columns:1fr}.pseo-jobs-header h1{font-size:28px}.pseo-link-grid-4col{grid-template-columns:1fr}}
+    .pseo-breadcrumb {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.pseo-breadcrumb a {
+    color: #0d9488;
+    text-decoration: none;
+}
+
+.pseo-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.pseo-breadcrumb span {
+    margin: 0 4px;
+}
 </style>
 @endpush
 @push('scripts')
 @include('includes.job_list_apply_scripts_auth')
+
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Home',
+            'item' => url('/')
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Salaries'
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 3,
+            'name' => $roleLabel . ' Salary in ' . $location,
+            'item' => url()->current()
+        ]
+    ]
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+
 @endpush

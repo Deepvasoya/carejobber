@@ -9,9 +9,18 @@
 <div class="listpgWraper pseo-jobs-page">
     <div class="container">
         <div class="pseo-jobs-header">
-            <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare employer') }}</p>
-                <h1>{{ $company->name }} {{ __('Jobs and Careers') }}</h1>
+    <div>
+
+        <div class="pseo-breadcrumb">
+            <a href="{{ url('/') }}">Home</a>
+            <span>›</span>
+            <a href="{{ url('/companies') }}">Employers</a>
+            <span>›</span>
+            <span>{{ $company->name }}</span>
+        </div>
+
+        <p class="pseo-eyebrow">{{ __('Healthcare employer') }}</p>
+        <h1>{{ $company->name }} {{ __('Jobs and Careers') }}</h1>
                 <p>{{ __('Explore current') }} {{ $company->name }} {{ __('jobs and career opportunities on Medojob. Browse active openings, review available positions, and apply directly to healthcare employers.') }}</p>
             </div>
             <div class="pseo-salary-summary">
@@ -27,8 +36,14 @@
                     @if($parsedDescription->isTruncated)
                         <div id="desc-truncated">
                             @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
-                            @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
-                            <p><a href="javascript:void(0)" onclick="toggleDesc()" id="desc-toggle" style="color:#0d9488;font-weight:600;">{{ __('Read Full Description') }}</a></p>
+                            @if($parsedDescription->p2)
+    <p>
+        {{ $parsedDescription->p2 }}
+        <a href="javascript:void(0)" onclick="toggleDesc()" id="desc-toggle" style="color:#0d9488;font-weight:600;margin-left:6px;white-space:nowrap;">
+            {{ __('Read Full Description') }}
+        </a>
+    </p>
+            @endif
                         </div>
                         <div id="desc-full" style="display:none">
                             <p>{!! nl2br(e($parsedDescription->fullDescription)) !!}</p>
@@ -51,7 +66,7 @@
                         @if($parsedDescription->p1)<p>{{ $parsedDescription->p1 }}</p>@endif
                         @if($parsedDescription->p2)<p>{{ $parsedDescription->p2 }}</p>@endif
                     @endif
-                    <p>{{ $parsedDescription->dynamicParagraph }}</p>
+                    <p class="employer-dynamic-paragraph">{{ $parsedDescription->dynamicParagraph }}</p>
                 </div>
             </div>
         @else
@@ -244,9 +259,58 @@
             grid-template-columns: 1fr;
         }
     }
+    .employer-dynamic-paragraph {
+    margin-top: 18px !important;
+}
+
+.pseo-breadcrumb {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.pseo-breadcrumb a {
+    color: #0d9488;
+    text-decoration: none;
+}
+
+.pseo-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.pseo-breadcrumb span {
+    margin: 0 4px;
+}
 </style>
 @endpush
 
 @push('scripts')
 @include('includes.job_list_apply_scripts_auth')
+
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+        [
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'Home',
+            'item' => url('/')
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 2,
+            'name' => 'Employers',
+            'item' => url('/employers')
+        ],
+        [
+            '@type' => 'ListItem',
+            'position' => 3,
+            'name' => $company->name,
+            'item' => url()->current()
+        ],
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
 @endpush
