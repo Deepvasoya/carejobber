@@ -680,22 +680,23 @@ $company->update();
     public function companyDetail(Request $request, $company_slug)
 
     {
-        
-      
 
         $company = Company::where('slug', 'like', $company_slug)->firstOrFail();
 
-        /*         * ************************************************** */
-
         $seo = $this->getCompanySEO($company);
 
-        /*         * ************************************************** */
+        $hasPendingClaim = false;
+        if (Auth::guard('web')->check()) {
+            $hasPendingClaim = \App\CompanyClaimRequest::where('company_id', $company->id)
+                ->where('user_id', Auth::guard('web')->id())
+                ->where('status', 'pending')
+                ->exists();
+        }
 
         return view('company.detail')
-
-                        ->with('company', $company)
-
-                        ->with('seo', $seo);
+            ->with('company', $company)
+            ->with('seo', $seo)
+            ->with('hasPendingClaim', $hasPendingClaim);
 
     }
 
@@ -1380,6 +1381,76 @@ $company->update();
 
     }
 
+    /**
+     * Submit company claim request (User-facing)
+     */
+    public function submitClaimRequest(Request $request)
+    {
+        try {
+            // Validate user is logged in
+            if (!Auth::guard('web')->check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to claim a company profile.'
+                ], 401);
+            }
+
+            $request->validate([
+                'company_id' => 'required|exists:companies,id',
+                'message' => 'required|min:20|max:2000',
+            ]);
+
+            $company = Company::findOrFail($request->company_id);
+
+            // Check if company is admin-created and unclaimed
+            if (!$company->created_by_admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This company profile cannot be claimed as it was not created by an admin.'
+                ], 400);
+            }
+
+            if ($company->is_claimed) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This company profile has already been claimed.'
+                ], 400);
+            }
+
+            // Check if user already has a pending request for this company
+            $existingRequest = \App\CompanyClaimRequest::where('company_id', $company->id)
+                ->where('user_id', Auth::guard('web')->id())
+                ->where('status', 'pending')
+                ->first();
+
+            if ($existingRequest) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You already have a pending claim request for this company.'
+                ], 400);
+            }
+
+            // Create claim request
+            $claimRequest = new \App\CompanyClaimRequest();
+            $claimRequest->company_id = $company->id;
+            $claimRequest->user_id = Auth::guard('web')->id();
+            $claimRequest->message = $request->message;
+            $claimRequest->status = 'pending';
+            $claimRequest->requested_at = now();
+            $claimRequest->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Your claim request has been submitted successfully. Our team will review it shortly.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
    
 
 

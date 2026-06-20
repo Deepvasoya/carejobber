@@ -203,6 +203,36 @@
         </div>
         {!! APFrmErrHelp::showErrors($errors, 'is_featured') !!} </div>
     
+    @if(!isset($company))
+    <div class="form-group mb-3">
+        <div class="checkbox">
+            <label>
+                {!! Form::checkbox('created_by_admin', 1, old('created_by_admin', 0), ['id' => 'created_by_admin']) !!}
+                <strong>Create as Admin-Created Profile (unclaimed)</strong>
+            </label>
+            <small class="form-text text-muted">
+                Check this if you're creating a company profile without full contact details. 
+                The profile will be marked as "unclaimed" and can be claimed by the real employer later.
+                Email and password will be optional when this is checked.
+            </small>
+        </div>
+    </div>
+    @endif
+    
+    @if(isset($company) && $company->created_by_admin)
+    <div class="alert alert-info">
+        <strong><i class="fa fa-info-circle"></i> Admin-Created Profile</strong><br>
+        This company profile was created by an admin.
+        @if(!$company->is_claimed)
+            Status: <span class="badge badge-warning">Unclaimed</span><br>
+            This profile can be claimed by the real employer.
+        @else
+            Status: <span class="badge badge-success">Claimed</span><br>
+            Claimed by: {{ $company->claimedByUser->name ?? 'N/A' }} on {{ $company->claimed_at ? $company->claimed_at->format('M d, Y') : 'N/A' }}
+        @endif
+    </div>
+    @endif
+    
     @if(isset($company))
     <div class="form-group mb-3">
         {!! Form::label('employer_trust_status', 'Employer Verification Status', ['class' => 'bold']) !!}
@@ -255,6 +285,18 @@
             filterDefaultCities(0);
         });
         filterDefaultStates(<?php echo old('state_id', (isset($company)) ? $company->state_id : 0); ?>);
+        
+        // Handle created_by_admin checkbox
+        $('#created_by_admin').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#email, #password').attr('placeholder', $('#email, #password').attr('placeholder') + ' (Optional)');
+                $('.alert-admin-profile').show();
+            } else {
+                $('#email').attr('placeholder', 'Company Email');
+                $('#password').attr('placeholder', 'Password');
+                $('.alert-admin-profile').hide();
+            }
+        });
     });
     function filterDefaultStates(state_id)
     {

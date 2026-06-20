@@ -52,6 +52,12 @@
                                                     <option value="1">Featured</option>
                                                     <option value="0">Not Featured</option>
                                                 </select></td>
+                                            <td><select name="claim_status" id="claim_status" class="form-control">
+                                                    <option value="-1">Claim Status?</option>
+                                                    <option value="claimed">Claimed</option>
+                                                    <option value="unclaimed">Unclaimed</option>
+                                                    <option value="admin_created">Admin Created</option>
+                                                </select></td>
                                             <td></td>
                                         </tr>
                                         <tr role="row" class="heading">
@@ -60,6 +66,7 @@
                                             <th>Email</th>
                                             <th>Is Active?</th>
                                             <th>Is Featured?</th>
+                                            <th>Claim Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -96,6 +103,7 @@
                     d.email = $('#email').val();
                     d.is_active = $('#is_active').val();
                     d.is_featured = $('#is_featured').val();
+                    d.claim_status = $('#claim_status').val();
                 }
             }, columns: [
                 {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
@@ -103,6 +111,7 @@
                 {data: 'email', name: 'email'},
                 {data: 'is_active', name: 'is_active'},
                 {data: 'is_featured', name: 'is_featured'},
+                {data: 'claim_status', name: 'claim_status'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ]
         });
@@ -123,6 +132,10 @@
             e.preventDefault();
         });
         $('#is_featured').on('change', function (e) {
+            oTable.draw();
+            e.preventDefault();
+        });
+        $('#claim_status').on('change', function (e) {
             oTable.draw();
             e.preventDefault();
         });

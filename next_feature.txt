@@ -1,191 +1,56 @@
-Next feature: Build Dynamic Employer SEO Pages
-Task 1: Please create dynamic employer pages for Medojob.
+Deep, I want the ability to create employer account from admin with the system forcing me to add some required field. I just want to create without entering all required date. Can you create this? Project: Admin-Created Employer Profiles
+
 Goal:
-Every employer/company should automatically have an SEO page at:
-/employers/{slug}
-Examples:
-/employers/alberta-health-services
-/employers/covenant-health
-/employers/capitalcare
-/employers/carewest
-Files to create/update:
-1. Update route file:
-routes/web.php
-Add:
-Route::get('/employers/{slug}', [\App\Http\Controllers\Seo\EmployerSeoController::class, 'show'])
- ->name('seo.employer.show');
-2. Create controller:
-app/Http/Controllers/Seo/EmployerSeoController.php
-The controller should:
-● Find employer/company by slug.
-● Return 404 if employer does not exist.
-● Pull active jobs for that employer.
-● Count active jobs.
-● Apply noindex if fewer than 5 active jobs.
-● Send employer, jobs, jobCount, noIndex, metaTitle, and metaDescription to the Blade
-file.
-Suggested logic:
-public function show(string $slug)
-{
- $company = Company::where('slug', $slug)
- ->where('is_active', 1)
- ->firstOrFail();
- $jobsQuery = Job::with('company')
- ->where('company_id', $company->id)
- ->where('is_active', 1)
- ->where('is_draft', 0)
- ->where(function ($q) {
- $q->whereNull('display_end_date')
- ->orWhere('display_end_date', '>=', now());
- })
- ->notExpire();
- $jobCount = (clone $jobsQuery)->count();
- $jobs = $jobsQuery
- ->orderBy('created_at', 'desc')
- ->paginate(20);
- $noIndex = $jobCount < 5;
- $metaTitle = $company->name . ' Jobs and Careers | Medojob';
- $metaDescription = 'Browse current ' . $company->name . ' jobs, healthcare careers, hiring
-locations, and employment opportunities on Medojob.';
- return view('seo.employer-show', compact(
- 'company',
- 'jobs',
- 'jobCount',
- 'noIndex',
- 'metaTitle',
- 'metaDescription'
- ));
-}
-Please adjust Company, company_id, name, slug, and is_active to match the existing
-Medojob database/model names.
-3. Create Blade file:
-resources/views/seo/employer-show.blade.php
-Page layout:
-● H1: {Employer Name} Jobs and Careers
-● Intro/about employer section
-● Active job count
-● Current active jobs
-● Hiring locations if available
-● FAQ section
-● Related employers section
-Example H1:
-<h1>{{ $company->name }} Jobs and Careers</h1>
-Example intro:
-<p>
- Explore current {{ $company->name }} jobs and career opportunities on Medojob.
- Browse active openings, review available positions, and apply directly to healthcare
-employers.
-</p>
-Robots tag:
-@if($noIndex)
- <meta name="robots" content="noindex,follow">
-@else
- <meta name="robots" content="index,follow">
-@endif
-Canonical:
-<link rel="canonical" href="{{ url('/employers/' . $company->slug) }}">
-4. Job listings section:
-Use the existing job card partial/design already used on other job listing pages.
-5. FAQ section:
-Add dynamic FAQs:
-● What jobs are available at {{ $company->name }}?
-● How do I apply for {{ $company->name }} jobs?
-● Does {{ $company->name }} hire healthcare workers?
-● Where are {{ $company->name }} jobs located?
-6. Sitemap:
-Update sitemap logic so employer pages are included only when the employer has 5 or more
-active jobs.
-Include:
-/employers/{slug}
-only if:
-jobCount >= 5
-7. Internal links:
-Later, role/city pages should be able to link to employer pages under a section like:
-Top Healthcare Employers
-Examples:
-● Alberta Health Services
-● Covenant Health
-● CapitalCare
-● Carewest
-Goal:
-Employer pages should be dynamic. I should not manually create employer pages one by one.
-If a company exists in the companies table and has a slug, its page should work automatically at
-/employers/{slug}.
-Task 2: Alberta Role Hub Pages
-After employer pages are completed, I would like to build dynamic Alberta role hub pages.
-Goal:
-Create a parent SEO page for each healthcare role across Alberta.
-Examples:
-/hca-jobs-alberta
-/lpn-jobs-alberta
-/rn-jobs-alberta
-/food-service-jobs-alberta
-/paramedic-jobs-alberta
-/human-resources-jobs-alberta
-The solution should be dynamic and work for all active roles/categories.
-Files to create/update:
-1. Route
-Add a route similar to:
-Route::get('/{role}-jobs-alberta', [\App\Http\Controllers\Seo\RoleHubController::class, 'show'])
- ->name('seo.role.hub');
-2. Controller
-Create:
-app/Http/Controllers/Seo/RoleHubController.php
-The controller should:
-● Find the role by slug from functional_areas
-● Return 404 if role does not exist
-● Pull all active jobs in Alberta for that role
-● Count total jobs
-● Pull all Alberta cities that have active jobs for that role
-● Create SEO title and meta description
-● Apply noindex if job count is below threshold
-3. Blade File
-Create:
-resources/views/seo/role-hub.blade.php
-Page Structure:
-H1:
-{{ $roleLabel }} Jobs in Alberta
-Intro Section
-Total Alberta job count
-List of Alberta cities with active jobs
-Examples:
-Health Care Aide Jobs in Edmonton
-Health Care Aide Jobs in Calgary
-Health Care Aide Jobs in Red Deer
-Health Care Aide Jobs in Lethbridge
-Recent Job Listings
-FAQ Section
-Related Healthcare Roles
-4. Internal Linking
-These pages become the parent pages for all city pages.
-Example:
-/hca-jobs-alberta
-Links to:
-/hca-jobs-edmonton
-/hca-jobs-calgary
-/hca-jobs-red-deer
-/hca-jobs-lethbridge
-/hca-jobs-banff
-Likewise:
-/food-service-jobs-alberta
-Links to:
-/food-service-jobs-edmonton
-/food-service-jobs-calgary
-/etc.
-5. SEO
-Example title:
-Health Care Aide Jobs in Alberta | Medojob
-Example description:
-Browse Health Care Aide jobs across Alberta. Explore opportunities in Edmonton, Calgary, Red
-Deer, Lethbridge, and other Alberta communities.
-6. Sitemap
-Include role hub pages in the sitemap only when:
-jobCount >= 5
-7. Dynamic Logic
-Do not hard-code HCA, LPN, RN, etc.
-The system should automatically create:
-/{role-slug}-jobs-alberta
-for every active functional area with jobs.
-Goal:
-These Alberta role hub pages will sit above the existing city pages and strengthen internal
-linking, SEO structure, and content organization across the site.
+Allow admin to create employer/company profiles without treating them as claimed employer accounts.
+
+Reason:
+Some employers do not have a direct public HR email or phone number. We should not use fake data. Admin should be able to create the company profile first, then let the real employer claim it later.
+
+Required database fields:
+
+Add to companies table:
+
+is_claimed tinyint default 0
+created_by_admin tinyint default 1
+claimed_by_user_id nullable
+claimed_at nullable
+
+How it should work:
+
+1. When admin creates a company profile:
+- is_claimed = 0
+- created_by_admin = 1
+- claimed_by_user_id = null
+- claimed_at = null
+
+2. The company profile can still have:
+- company name
+- slug
+- logo
+- website
+- careers URL
+- description
+- city
+- state
+- country
+
+3. Email and phone should be optional for admin-created company profiles.
+
+4. On the employer/company page, show:
+“This employer profile has not yet been claimed.”
+
+5. Add a button:
+“Claim this employer profile”
+
+6. When a real employer claims it:
+- Admin reviews request
+- Admin approves
+- Link the real user account to the company
+- is_claimed = 1
+- claimed_by_user_id = user_id
+- claimed_at = current timestamp
+
+Important:
+Do not create fake employer accounts.
+Do not use random emails or phone numbers.
+Do not mark admin-created profiles as claimed.

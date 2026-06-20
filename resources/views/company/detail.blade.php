@@ -47,12 +47,51 @@
                             <div class="clearfix"></div>
 
                         </div>
+                        
+                        @if($company->created_by_admin && !$company->is_claimed)
+                        <!-- Unclaimed Profile Alert -->
+                        <div class="alert alert-warning mt-3" role="alert">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <i class="fa fa-info-circle"></i>
+                                    <strong>{{ __('This employer profile has not yet been claimed.') }}</strong>
+                                    <p class="mb-0 mt-1 small">{{ __('Are you the owner of this company? You can claim this profile.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        @elseif($company->created_by_admin && $company->is_claimed && $company->claimedByUser)
+                        <!-- Claimed Profile Alert -->
+                        <div class="alert alert-success mt-3" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-check-circle mr-2"></i>
+                                <div>
+                                    <strong>{{ __('This employer profile has been claimed.') }}</strong>
+                                    <p class="mb-0 mt-1 small">
+                                        {{ __('Claimed by') }} <strong>{{ $company->claimedByUser->name }}</strong>
+                                        @if($company->claimed_at)
+                                            {{ __('on') }} {{ $company->claimed_at->format('M d, Y') }}
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
 
 
             </div>
 
             <!-- Buttons -->
             <div class="jobButtons"> 
+            @if($company->created_by_admin && !$company->is_claimed && !$hasPendingClaim)
+                <a href="javascript:void(0);" onclick="openClaimModal()" class="btn btn-warning">
+                    <i class="fa fa-hand-pointer-o" aria-hidden="true"></i> {{ __('Claim this employer profile') }}
+                </a>
+            @elseif($hasPendingClaim)
+                <a href="javascript:void(0);" class="btn btn-secondary disabled">
+                    <i class="fa fa-clock-o" aria-hidden="true"></i> {{ __('Pending Review') }}
+                </a>
+            @endif
+            
             @if(Auth::guard('web')->check() && Auth::guard('web')->user()->isFavouriteCompany($company->slug))
     <a href="{{ route('remove.from.favourite.company', $company->slug) }}" class="btn">
         <i class="fa fa-floppy-o" aria-hidden="true"></i> {{ __('Remove from Favourite') }}
@@ -306,6 +345,38 @@
 
 </div>
 
+<!-- Claim Company Modal -->
+<div class="modal fade" id="claimCompanyModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="" id="claim-company-form">
+                @csrf
+                <input type="hidden" name="company_id" value="{{$company->id}}">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa fa-hand-pointer-o"></i> Claim This Employer Profile</h4>
+                    <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Please provide information to verify your ownership of this company.</p>
+                    <div class="form-group mb-3">
+                        <label for="claim_message">Message / Proof of Ownership <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="message" id="claim_message" rows="5" 
+                                  placeholder="Please explain how you are related to this company and provide any proof of ownership..." required></textarea>
+                        <small class="form-text text-muted">You can mention your position, company email, or other verification details.</small>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> Your claim request will be reviewed by our admin team. You will be notified once it's processed.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit Claim Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @include('includes.footer')
 
 @endsection
@@ -328,7 +399,78 @@
 
 <script type="text/javascript">
 
+function openClaimModal() {
+    @if(Auth::guard('web')->check())
+        $('#claimCompanyModal').modal('show');
+    @else
+        const el = document.createElement('div');
+        el.innerHTML = "Please <a class='btn' href='{{route('login')}}'>log in</a> as a Job Seeker to claim this profile.";
+        swal({
+            title: "Login Required",
+            content: el,
+            icon: "info",
+            button: "OK",
+        });
+    @endif
+}
+
 $(document).ready(function() {
+    // Claim company form handler
+    if ($("#claim-company-form").length > 0) {
+        $("#claim-company-form").validate({
+            rules: {
+                message: {
+                    required: true,
+                    minlength: 20,
+                    maxlength: 2000
+                },
+            },
+            messages: {
+                message: {
+                    required: "Please provide information to verify your ownership",
+                    minlength: "Please provide at least 20 characters",
+                    maxlength: "Message cannot exceed 2000 characters"
+                }
+            },
+            submitHandler: function(form) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                
+                @if(Auth::guard('web')->check())
+                $.ajax({
+                    url: "{{ route('submit.company.claim.request') }}",
+                    type: "POST",
+                    data: $('#claim-company-form').serialize(),
+                    success: function(response) {
+                        $("#claim-company-form").trigger("reset");
+                        $('#claimCompanyModal').modal('hide');
+                        swal({
+                            title: "Success",
+                            text: response.message || "Your claim request has been submitted successfully. Our team will review it shortly.",
+                            icon: "success",
+                            button: "OK",
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMsg = "An error occurred. Please try again.";
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        swal({
+                            title: "Error",
+                            text: errorMsg,
+                            icon: "error",
+                            button: "OK",
+                        });
+                    }
+                });
+                @endif
+            }
+        });
+    }
 
     $(document).on('click', '#send_company_message', function() {
 

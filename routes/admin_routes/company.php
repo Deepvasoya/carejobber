@@ -48,4 +48,9 @@ Route::post('company-reject-verification/{id}', array_merge(['uses' => 'Admin\Co
 
 Route::post('company/{id}/set-trust-status', array_merge(['uses' => 'Admin\CompanyController@setEmployerTrustStatus'], $all_users))->name('admin.company.set.trust.status');
 
+// Company Claim Routes
+Route::get('company-claim-requests', array_merge(['uses' => 'Admin\CompanyController@companyClaimRequests'], $all_users))->name('admin.company.claim.requests');
+Route::post('approve-claim-request/{id}', array_merge(['uses' => 'Admin\CompanyController@approveClaimRequest'], $all_users))->name('admin.approve.claim.request');
+Route::post('reject-claim-request/{id}', array_merge(['uses' => 'Admin\CompanyController@rejectClaimRequest'], $all_users))->name('admin.reject.claim.request');
+
 /* * ****** End Company ********** */

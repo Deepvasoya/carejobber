@@ -33,6 +33,9 @@ use App\Mail\DocumentsUpload;
 use App\Services\EmailTemplateService;
 use App\UnlockedUser;
 use App\VerificationDocument;
+use App\Notifications\ClaimRequestApproved;
+use App\Notifications\ClaimRequestRejected;
+use Illuminate\Support\Facades\Password;
 use Mail;
 class CompanyController extends Controller
 {
@@ -333,14 +336,16 @@ class CompanyController extends Controller
             $company->password = Hash::make($request->input('password'));
         }
         $company->ceo = $request->input('ceo');
-        $company->industry_id = $request->input('industry_id');
-        $company->ownership_type_id = $request->input('ownership_type_id');
+        $company->industry_id = $request->input('industry_id', 0);
+        $company->ownership_type_id = $request->input('ownership_type_id', 0);
         $company->description = $request->input('description');
         $company->location = $request->input('location');
         $company->map = $request->input('map');
         $company->no_of_offices = $request->input('no_of_offices');
         $website = $request->input('website');
-        $company->website = (false === strpos($website, 'http')) ? 'http://' . $website : $website;
+        if (!empty($website)) {
+            $company->website = (false === strpos($website, 'http')) ? 'http://' . $website : $website;
+        }
         $company->no_of_employees = $request->input('no_of_employees');
         $company->established_in = $request->input('established_in');
         $company->fax = $request->input('fax');
@@ -350,11 +355,23 @@ class CompanyController extends Controller
         $company->linkedin = $request->input('linkedin');
         $company->google_plus = $request->input('google_plus');
         $company->pinterest = $request->input('pinterest');
-        $company->country_id = $request->input('country_id');
-        $company->state_id = $request->input('state_id');
-        $company->city_id = $request->input('city_id');
+        $company->country_id = $request->input('country_id', 0);
+        $company->state_id = $request->input('state_id', 0);
+        $company->city_id = $request->input('city_id', 0);
         $company->is_active = $request->input('is_active');
         $company->is_featured = $request->input('is_featured');
+        
+        // Set claim-related fields for admin-created companies
+        if ($request->input('created_by_admin')) {
+            $company->created_by_admin = 1;
+            $company->is_claimed = 0;
+            $company->claimed_by_user_id = null;
+            $company->claimed_at = null;
+        } else {
+            $company->created_by_admin = 0;
+            $company->is_claimed = 1; // Regular companies are considered claimed by default
+        }
+        
         $company->save();
         
 
@@ -468,6 +485,13 @@ public function updateCompany($id, CompanyFormRequest $request)
     $company->is_active = $request->input('is_active');
     $company->is_featured = $request->input('is_featured');
     $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
+    if ($request->has('created_by_admin')) {
+        $company->created_by_admin = 1;
+        $company->is_claimed = 0;
+    } elseif (!$company->created_by_admin) {
+        $company->created_by_admin = 0;
+        $company->is_claimed = 1;
+    }
     // Assign employer package
     if ($request->has('company_package_id') && $request->input('company_package_id') > 0) {
         $package_id = $request->input('company_package_id');
@@ -603,6 +627,8 @@ public function updateCompany($id, CompanyFormRequest $request)
                     'companies.is_active',
                     'companies.is_featured',
                     'companies.employer_trust_status',
+                    'companies.is_claimed',
+                    'companies.created_by_admin',
         ]);
         return Datatables::of($companies)
                         ->filter(function ($query) use ($request) {
@@ -618,12 +644,29 @@ public function updateCompany($id, CompanyFormRequest $request)
                             if ($request->has('is_featured') && $request->is_featured != -1) {
                                 $query->where('companies.is_featured', '=', "{$request->get('is_featured')}");
                             }
+                            if ($request->has('claim_status')) {
+                                if ($request->claim_status === 'claimed') {
+                                    $query->where('companies.is_claimed', 1);
+                                } elseif ($request->claim_status === 'unclaimed') {
+                                    $query->where('companies.created_by_admin', 1)->where('companies.is_claimed', 0);
+                                } elseif ($request->claim_status === 'admin_created') {
+                                    $query->where('companies.created_by_admin', 1);
+                                }
+                            }
                         })
                         ->addColumn('is_active', function ($companies) {
                             return ((bool) $companies->is_active) ? 'Yes' : 'No';
                         })
                         ->addColumn('is_featured', function ($companies) {
                             return ((bool) $companies->is_featured) ? 'Yes' : 'No';
+                        })
+                        ->addColumn('claim_status', function ($companies) {
+                            if ($companies->created_by_admin && !$companies->is_claimed) {
+                                return '<span class="badge badge-warning">Unclaimed</span>';
+                            } elseif ($companies->created_by_admin && $companies->is_claimed) {
+                                return '<span class="badge badge-success">Claimed</span>';
+                            }
+                            return '<span class="badge badge-secondary">N/A</span>';
                         })
                         ->addColumn('employer_trust_status', function ($companies) {
                             $status = $companies->getEmployerTrustStatus();
@@ -682,7 +725,7 @@ public function updateCompany($id, CompanyFormRequest $request)
 					</ul>
 				</div>';
                         })
-                        ->rawColumns(['action', 'is_active', 'is_featured', 'employer_trust_status', 'checkbox'])
+                        ->rawColumns(['action', 'is_active', 'is_featured', 'claim_status', 'employer_trust_status', 'checkbox'])
                         ->setRowId(function($companies) {
                             return 'companyDtRow' . $companies->id;
                         })
@@ -993,6 +1036,129 @@ public function updateCompany($id, CompanyFormRequest $request)
                 'template' => $templateSlug,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Display company claim requests
+     */
+    public function companyClaimRequests()
+    {
+        $pendingRequests = \App\CompanyClaimRequest::with(['company', 'user'])
+            ->where('status', 'pending')
+            ->orderBy('requested_at', 'desc')
+            ->get();
+            
+        $recentReviewed = \App\CompanyClaimRequest::with(['company', 'user', 'reviewer'])
+            ->whereIn('status', ['approved', 'rejected'])
+            ->orderBy('reviewed_at', 'desc')
+            ->limit(20)
+            ->get();
+            
+        return view('admin.company.claim_requests')
+            ->with('pendingRequests', $pendingRequests)
+            ->with('recentReviewed', $recentReviewed);
+    }
+
+    /**
+     * Approve a company claim request
+     */
+    public function approveClaimRequest(Request $request, $id)
+    {
+        try {
+            $claimRequest = \App\CompanyClaimRequest::with('company')->findOrFail($id);
+            
+            if ($claimRequest->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This claim request has already been reviewed.'
+                ], 400);
+            }
+            
+            $company = $claimRequest->company;
+            
+            // Update company to mark as claimed
+            $company->is_claimed = 1;
+            $company->claimed_by_user_id = $claimRequest->user_id;
+            $company->claimed_at = now();
+            
+            // Set company email to claiming user's email so they can log in
+            if (empty($company->email)) {
+                $company->email = $claimRequest->user->email;
+            }
+            $company->save();
+            
+            // Update claim request
+            $claimRequest->status = 'approved';
+            $claimRequest->reviewed_at = now();
+            $claimRequest->reviewed_by = Auth::guard('admin')->id();
+            $claimRequest->admin_notes = $request->input('admin_notes');
+            $claimRequest->save();
+            
+            // Send password setup link to the claiming user
+            $token = Password::broker('companies')->createToken($company);
+            $passwordSetupUrl = route('company.password.reset', ['token' => $token, 'email' => $company->email]);
+            
+            try {
+                $claimRequest->user->notify(new ClaimRequestApproved($claimRequest, $passwordSetupUrl));
+            } catch (\Exception $e) {
+                \Log::warning('[ClaimApproval] Failed to send notification: ' . $e->getMessage());
+            }
+            
+            flash('Company claim request has been approved successfully!')->success();
+            return response()->json([
+                'success' => true,
+                'message' => 'Company claim request approved successfully.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reject a company claim request
+     */
+    public function rejectClaimRequest(Request $request, $id)
+    {
+        try {
+            $claimRequest = \App\CompanyClaimRequest::findOrFail($id);
+            
+            if ($claimRequest->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This claim request has already been reviewed.'
+                ], 400);
+            }
+            
+            // Update claim request
+            $claimRequest->status = 'rejected';
+            $claimRequest->reviewed_at = now();
+            $claimRequest->reviewed_by = Auth::guard('admin')->id();
+            $claimRequest->admin_notes = $request->input('admin_notes', 'Claim request rejected.');
+            $claimRequest->save();
+            
+            // Notify the user
+            try {
+                $claimRequest->user->notify(new ClaimRequestRejected($claimRequest));
+            } catch (\Exception $e) {
+                \Log::warning('[ClaimRejection] Failed to send notification: ' . $e->getMessage());
+            }
+            
+            flash('Company claim request has been rejected.')->success();
+            return response()->json([
+                'success' => true,
+                'message' => 'Company claim request rejected successfully.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

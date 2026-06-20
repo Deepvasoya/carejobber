@@ -68,6 +68,7 @@ class Company extends Authenticatable
         'cvs_quota', 'availed_cvs_quota', 'referral_code', 'referred_by_company_id', 'referral_bonus_jobs',
         'stripe_customer_id', 'stripe_subscription_id', 'stripe_subscription_status', 'stripe_subscription_ends_at',
         'employer_trust_status',
+        'is_claimed', 'created_by_admin', 'claimed_by_user_id', 'claimed_at',
     ];
     
     
@@ -84,6 +85,7 @@ class Company extends Authenticatable
         'email_verified_at' => 'datetime',
         'verified_at' => 'datetime',
         'verification_reviewed_at' => 'datetime',
+        'claimed_at' => 'datetime',
     ];
 
 
@@ -970,6 +972,54 @@ class Company extends Authenticatable
     public function isVerificationRejected(): bool
     {
         return $this->verification_status === 'rejected';
+    }
+
+    /**
+     * Get claim requests for this company
+     */
+    public function claimRequests()
+    {
+        return $this->hasMany('App\CompanyClaimRequest', 'company_id');
+    }
+
+    /**
+     * Get the user who claimed this company
+     */
+    public function claimedByUser()
+    {
+        return $this->belongsTo('App\User', 'claimed_by_user_id');
+    }
+
+    /**
+     * Check if the company profile was created by admin
+     */
+    public function isCreatedByAdmin(): bool
+    {
+        return (bool) $this->created_by_admin;
+    }
+
+    /**
+     * Check if the company profile has been claimed
+     */
+    public function isClaimed(): bool
+    {
+        return (bool) $this->is_claimed;
+    }
+
+    /**
+     * Check if there is a pending claim request for this company
+     */
+    public function hasPendingClaimRequest(): bool
+    {
+        return $this->claimRequests()->where('status', 'pending')->exists();
+    }
+
+    /**
+     * Get pending claim request if exists
+     */
+    public function getPendingClaimRequest()
+    {
+        return $this->claimRequests()->where('status', 'pending')->first();
     }
 
 

@@ -1,259 +1,56 @@
-PROJECT UPDATE: Build Healthcare Hub Pages Using Existing State Field
-
-The role + city SEO pages are now working correctly.
-
-Next, I want to build healthcare hub pages that connect all role/city pages together and strengthen the site’s internal linking structure.
-
-Please use the existing database structure and existing jobs table.
-
-IMPORTANT:
-
-The jobs table uses:
-
-* city
-* state
-
-Please use the existing state field.
-
-For Alberta:
-
-state = Alberta
-
-Do NOT create a new province column.
-
-⸻
-
-PAGES TO BUILD
-
-/healthcare-jobs-alberta
-
-/healthcare-jobs-edmonton
-/healthcare-jobs-calgary
-/healthcare-jobs-red-deer
-/healthcare-jobs-lethbridge
-/healthcare-jobs-medicine-hat
-
-⸻
-
-ROUTES
-
-routes/web.php
-
-Route::get(’/healthcare-jobs-alberta’, [HealthcareHubController::class, ‘alberta’])
-->name(‘seo.healthcare.alberta’);
-
-Route::get(’/healthcare-jobs-{city}’, [HealthcareHubController::class, ‘city’])
-->where([
-‘city’ => ‘edmonton|calgary|red-deer|lethbridge|medicine-hat’
-])
-->name(‘seo.healthcare.city’);
-
-⸻
-
-CONTROLLER
-
-Create:
-
-app/Http/Controllers/HealthcareHubController.php
-
-METHOD 1
-
-public function alberta()
-{
-$jobsQuery = Job::query()
-->where(‘status’, ‘active’)
-->where(‘state’, ‘Alberta’);
-
-$jobCount = $jobsQuery->count();
-$jobs = $jobsQuery
-    ->latest()
-    ->paginate(20);
-$noIndex = $jobCount < 5;
-return view('seo.healthcare-alberta', compact(
-    'jobs',
-    'jobCount',
-    'noIndex'
-));
-
-}
-
-METHOD 2
-
-public function city($city)
-{
-$allowedCities = [
-‘edmonton’ => ‘Edmonton’,
-‘calgary’ => ‘Calgary’,
-‘red-deer’ => ‘Red Deer’,
-‘lethbridge’ => ‘Lethbridge’,
-‘medicine-hat’ => ‘Medicine Hat’,
-];
-
-if (!array_key_exists($city, $allowedCities)) {
-    abort(404);
-}
-$cityName = $allowedCities[$city];
-$jobsQuery = Job::query()
-    ->where('status', 'active')
-    ->where('state', 'Alberta')
-    ->where('city', $cityName);
-$jobCount = $jobsQuery->count();
-$jobs = $jobsQuery
-    ->latest()
-    ->paginate(20);
-$noIndex = $jobCount < 5;
-return view('seo.healthcare-city', compact(
-    'city',
-    'cityName',
-    'jobs',
-    'jobCount',
-    'noIndex'
-));
-
-}
-
-⸻
-
-ALBERTA HUB PAGE
-
-resources/views/seo/healthcare-alberta.blade.php
-
-H1:
-Healthcare Jobs in Alberta
-
-Intro:
-Browse current healthcare jobs across Alberta, including HCA, LPN, RN, and other healthcare careers in Edmonton, Calgary, Red Deer, Lethbridge, Medicine Hat, and surrounding communities.
-
-Display:
-
-{{ $jobCount }} Active Healthcare Jobs in Alberta
-
-SECTION:
-Healthcare Jobs by City
-
-Links:
-
-/healthcare-jobs-edmonton
-/healthcare-jobs-calgary
-/healthcare-jobs-red-deer
-/healthcare-jobs-lethbridge
-/healthcare-jobs-medicine-hat
-
-SECTION:
-Popular Healthcare Roles
-
-Links:
-
-/hca-jobs-edmonton
-/lpn-jobs-edmonton
-/rn-jobs-edmonton
-
-/hca-jobs-calgary
-/lpn-jobs-calgary
-/rn-jobs-calgary
-
-SECTION:
-Latest Healthcare Jobs
-
-Display active jobs using the existing job card design.
-
-⸻
-
-CITY HUB PAGE
-
-resources/views/seo/healthcare-city.blade.php
-
-Examples:
-
-/healthcare-jobs-edmonton
-/healthcare-jobs-calgary
-
-H1:
-
-Healthcare Jobs in {{ $cityName }}
-
-Intro:
-
-Browse current healthcare jobs in {{ $cityName }}, including HCA, LPN, RN, hospital, long-term care, home care, and clinic positions.
-
-Display:
-
-{{ $jobCount }} Active Healthcare Jobs in {{ $cityName }}
-
-SECTION:
-Popular Roles in {{ $cityName }}
-
-Links:
-
-/hca-jobs-{city}
-/lpn-jobs-{city}
-/rn-jobs-{city}
-
-Example for Edmonton:
-
-/hca-jobs-edmonton
-/lpn-jobs-edmonton
-/rn-jobs-edmonton
-
-SECTION:
-Latest Healthcare Jobs in {{ $cityName }}
-
-Display active jobs using existing job card layout.
-
-SECTION:
-Related Cities
-
-Link to:
-
-/healthcare-jobs-alberta
-/healthcare-jobs-calgary
-/healthcare-jobs-red-deer
-/healthcare-jobs-lethbridge
-/healthcare-jobs-medicine-hat
-
-Do not link the current city page to itself.
-
-⸻
-
-NOINDEX RULE
-
-If jobCount >= 5
-
-<meta name="robots" content="index,follow">
-
-If jobCount < 5
-
-<meta name="robots" content="noindex,follow">
-
-⸻
-
-SITEMAP RULE
-
-Only include:
-
-/healthcare-jobs-alberta
-/healthcare-jobs-edmonton
-/healthcare-jobs-calgary
-/healthcare-jobs-red-deer
-/healthcare-jobs-lethbridge
-/healthcare-jobs-medicine-hat
-
-if jobCount >= 5
-
-⸻
-
-SUCCESS TEST
-
-Please confirm:
-
-1. /healthcare-jobs-alberta displays all active Alberta healthcare jobs.
-2. /healthcare-jobs-edmonton displays only Edmonton healthcare jobs.
-3. /healthcare-jobs-calgary displays only Calgary healthcare jobs.
-4. City pages link to HCA, LPN, and RN pages.
-5. Alberta page links to all city hub pages.
-6. Noindex rule works.
-7. Sitemap rule works.
+Deep, I want the ability to create employer account from admin with the system forcing me to add some required field. I just want to create without entering all required date. Can you create this? Project: Admin-Created Employer Profiles
 
 Goal:
+Allow admin to create employer/company profiles without treating them as claimed employer accounts.
 
-Create parent healthcare hub pages above the role/city pages to strengthen internal linking and SEO structure.
+Reason:
+Some employers do not have a direct public HR email or phone number. We should not use fake data. Admin should be able to create the company profile first, then let the real employer claim it later.
+
+Required database fields:
+
+Add to companies table:
+
+is_claimed tinyint default 0
+created_by_admin tinyint default 1
+claimed_by_user_id nullable
+claimed_at nullable
+
+How it should work:
+
+1. When admin creates a company profile:
+- is_claimed = 0
+- created_by_admin = 1
+- claimed_by_user_id = null
+- claimed_at = null
+
+2. The company profile can still have:
+- company name
+- slug
+- logo
+- website
+- careers URL
+- description
+- city
+- state
+- country
+
+3. Email and phone should be optional for admin-created company profiles.
+
+4. On the employer/company page, show:
+“This employer profile has not yet been claimed.”
+
+5. Add a button:
+“Claim this employer profile”
+
+6. When a real employer claims it:
+- Admin reviews request
+- Admin approves
+- Link the real user account to the company
+- is_claimed = 1
+- claimed_by_user_id = user_id
+- claimed_at = current timestamp
+
+Important:
+Do not create fake employer accounts.
+Do not use random emails or phone numbers.
+Do not mark admin-created profiles as claimed.

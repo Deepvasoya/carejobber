@@ -31,29 +31,38 @@ class CompanyFormRequest extends Request
                     $unique_id = ($id > 0) ? ',' . $id : '';
                     $password = ($id > 0) ? "" : "required";
                     $logo = ($id > 0) ? "" : "required";
+                    
+                    // Check if being created by admin without full user account
+                    $createdByAdmin = $this->input('created_by_admin', 0);
+                    
+                    // Email and password are optional for admin-created profiles
+                    $emailRule = $createdByAdmin ? "nullable|email" : "required|email";
+                    $passwordRule = $createdByAdmin ? "nullable" : $password;
+                    
                     return [
                         "id" => "",
                         "name" => "required",
-                        "email" => "required",
-                        "password" => $password,
+                        "email" => $emailRule,
+                        "password" => $passwordRule,
                         //"ceo" => "required",
-                        "industry_id" => "required",
-                        "ownership_type_id" => "required",
-                        "description" => "required",
-                        "location" => "required",
+                        "industry_id" => "nullable",
+                        "ownership_type_id" => "nullable",
+                        "description" => "nullable",
+                        "location" => "nullable",
                         //"map" => "required",
-                        "no_of_offices" => "required",
-                        "website" => "required|url",
-                        "no_of_employees" => "required",
-                        "established_in" => "required",
+                        "no_of_offices" => "nullable",
+                        "website" => "nullable|url",
+                        "no_of_employees" => "nullable",
+                        "established_in" => "nullable",
                         //"fax" => "required",
-                        //"phone" => "required",
-                        "logo" => $logo . ($logo ? '|' : '') . 'mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-                        "country_id" => "required",
-                        "state_id" => "required",
-                        "city_id" => "required",
+                        //"phone" => "nullable",
+                        "logo" => ($logo ? $logo . '|' : 'nullable|') . 'mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                        "country_id" => "nullable",
+                        "state_id" => "nullable",
+                        "city_id" => "nullable",
                         "is_active" => "required",
                         "is_featured" => "required",
+                        "created_by_admin" => "nullable|boolean",
                     ];
                 }
             default:break;

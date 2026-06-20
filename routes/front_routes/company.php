@@ -1,5 +1,6 @@
 <?php
 Route::get('company/{slug}', 'Company\CompanyController@companyDetail')->name('company.detail');
+Route::post('submit-company-claim-request', 'Company\CompanyController@submitClaimRequest')->name('submit.company.claim.request');
 Route::get('companies', 'Company\CompaniesController@company_listing')->name('company.listing');
 
 // Stripe success URLs are public so redirect from Stripe (cross-site) still runs fulfillment when session cookie may not be sent
