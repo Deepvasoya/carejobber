@@ -39,24 +39,27 @@ class CompanyFormRequest extends Request
                     $emailRule = $createdByAdmin ? "nullable|email" : "required|email";
                     $passwordRule = $createdByAdmin ? "nullable" : $password;
                     
+                    // Logo is optional for admin-created profiles
+                    $logoRule = $createdByAdmin ? 'nullable' : ($logo ?: 'nullable');
+                    $logoRule .= '|mimes:jpeg,png,jpg,gif,svg,webp|max:2048';
+                    
+                    // Website is optional without URL validation for admin-created profiles
+                    $websiteRule = $createdByAdmin ? 'nullable' : 'nullable|url';
+                    
                     return [
                         "id" => "",
                         "name" => "required",
                         "email" => $emailRule,
                         "password" => $passwordRule,
-                        //"ceo" => "required",
                         "industry_id" => "nullable",
                         "ownership_type_id" => "nullable",
                         "description" => "nullable",
                         "location" => "nullable",
-                        //"map" => "required",
                         "no_of_offices" => "nullable",
-                        "website" => "nullable|url",
+                        "website" => $websiteRule,
                         "no_of_employees" => "nullable",
                         "established_in" => "nullable",
-                        //"fax" => "required",
-                        //"phone" => "nullable",
-                        "logo" => ($logo ? $logo . '|' : 'nullable|') . 'mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                        "logo" => $logoRule,
                         "country_id" => "nullable",
                         "state_id" => "nullable",
                         "city_id" => "nullable",
