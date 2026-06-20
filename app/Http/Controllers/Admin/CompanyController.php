@@ -376,7 +376,16 @@ class CompanyController extends Controller
         
 
         /*         * ******************************* */
-        $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
+        $baseSlug = Str::slug($company->name, '-');
+        $slug = $baseSlug;
+        $count = 2;
+        while (\App\Company::where('slug', $slug)
+            ->where('id', '!=', $company->id)
+            ->exists()) {
+            $slug = $baseSlug . '-' . $count;
+            $count++;
+        }
+        $company->slug = $slug;
         /*         * ******************************* */
         $company->update();
         /*         * ************************************ */
@@ -484,7 +493,16 @@ public function updateCompany($id, CompanyFormRequest $request)
     $company->city_id = $request->input('city_id');
     $company->is_active = $request->input('is_active');
     $company->is_featured = $request->input('is_featured');
-    $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
+    $baseSlug = Str::slug($company->name, '-');
+    $slug = $baseSlug;
+    $count = 2;
+    while (\App\Company::where('slug', $slug)
+        ->where('id', '!=', $company->id)
+        ->exists()) {
+        $slug = $baseSlug . '-' . $count;
+        $count++;
+    }
+    $company->slug = $slug;
     if ($request->has('created_by_admin')) {
         $company->created_by_admin = 1;
         $company->is_claimed = 0;
