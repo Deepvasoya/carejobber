@@ -10,8 +10,8 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">{{ __('Healthcare jobs in') }} {{ $stateName ?? 'Alberta' }}</p>
-                <h1>{{ __('Healthcare Jobs in') }} {{ $cityName }}</h1>
+                <p class="pseo-eyebrow">{{ __('Healthcare jobs in') }} {{ $stateName }}</p>
+                <h1>{{ __('Healthcare Jobs in') }} {{ $cityName }}, {{ $stateName }}</h1>
                 <p>{{ __('Browse current healthcare jobs in') }} {{ $cityName }}, {{ $stateName }}. Medojob connects healthcare professionals with employers across {{ $cityName }} — including hospitals, long-term care homes, assisted living facilities, home care agencies, clinics, and community health organizations.</p></br>
 
                 <p>There are currently <strong>{{ number_format($jobCount) }} healthcare job openings</strong> in {{ $cityName }}. Whether you're a Health Care Aide (HCA), Licensed Practical Nurse (LPN), Registered Nurse (RN), Nurse Practitioner (NP), unit clerk, therapist, or work in food services, housekeeping, or facility maintenance, you'll find current openings here and across {{ $stateName }}. Positions range from full-time and part-time to casual and temporary, with day, evening, weekend, and overnight shifts available.</p></br>

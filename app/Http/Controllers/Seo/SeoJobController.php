@@ -70,8 +70,8 @@ public function roleCitySlug(string $seoSlug)
 
         $relatedLinks = $this->relatedLinks($role, $city, $cityName, $roleLabel, $cityModel->city_id);
 
-        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
-        $provinceName = $state ? $state->state : 'Alberta';
+        $state = State::where('state_id', $cityModel->state_id)->first();
+        $stateName = $state ? $state->state : '';
 
         return view('seo.role-city')
             ->with('role', $role)
@@ -85,7 +85,7 @@ public function roleCitySlug(string $seoSlug)
             ->with('metaDescription', $metaDescription)
             ->with('relatedLinks', $relatedLinks)
             ->with('seo', $seo)
-            ->with('provinceName', $provinceName);
+            ->with('stateName', $stateName);
     }
 
     private function buildSeo(string $title, string $description, string $role, string $city, bool $noIndex): object
@@ -141,12 +141,15 @@ public function roleCitySlug(string $seoSlug)
        ];
         }
 
-        $state = State::where('state_id', self::ALBERTA_STATE_ID)->first();
-        $provinceName = $state ? $state->state : 'Alberta';
+        $currentCity = City::where('city_id', $cityId)->first();
+
+$state = $currentCity ? State::where('state_id', $currentCity->state_id)->first() : null;
+
+$stateName = $state ? $state->state : '';
 
         $links[] = [
-            'label' => 'Healthcare Jobs in ' . $provinceName,
-            'url' => url('/healthcare-jobs-' . strtolower($provinceName)),
+            'label' => 'Healthcare Jobs in ' . $stateName,
+            'url' => url('/healthcare-jobs-' . \Illuminate\Support\Str::slug($stateName)),
         ];
 
         return $links;

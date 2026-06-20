@@ -10,7 +10,7 @@
     <div class="container">
         <div class="pseo-jobs-header">
             <div>
-                <p class="pseo-eyebrow">Healthcare Careers in {{ $cityName }}</p>
+                <p class="pseo-eyebrow">Healthcare Careers in {{ $cityName }}, {{ $stateName }}</p>
                 <div class="pseo-breadcrumb">
     <a href="{{ url('/') }}">Home</a>
     <span>›</span>
@@ -21,7 +21,7 @@
                 <h1>{{ $roleLabel }} Jobs in {{ $cityName }}</h1>
                 <p>There {{ $jobCount == 1 ? 'is' : 'are' }} currently
              <strong>{{ number_format($jobCount) }}</strong>
-               active {{ $roleLabel }} position{{ $jobCount == 1 ? '' : 's' }} available in {{ $cityName }}, {{ $provinceName ?? 'Alberta' }}.
+               active {{ $roleLabel }} position{{ $jobCount == 1 ? '' : 's' }} available in {{ $cityName }}.
                </p></br>
                 <p>Medojob helps connect healthcare professionals with employment opportunities at hospitals, long-term care homes, supportive living facilities, home care agencies, rehabilitation centres, medical clinics, and community healthcare organizations throughout the region. Whether you are an experienced professional seeking a new opportunity or someone looking to advance your healthcare career, this page provides access to current openings from employers actively hiring in {{ $cityName }} and surrounding communities.
                    </p></br>
