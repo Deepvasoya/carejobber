@@ -451,7 +451,7 @@ function openClaimModal() {
         $('#claimCompanyModal').modal('show');
     @else
         const el = document.createElement('div');
-        el.innerHTML = "Please <a class='btn' href='{{route('login')}}'>log in</a> or <a class='btn' href='{{route('company.login')}}'>login as employer</a> to claim this profile.";
+        el.innerHTML = "Please <a class='btn' href='{{route('login')}}'>log in</a> to claim this profile.";
         swal({
             title: "Login Required",
             content: el,
