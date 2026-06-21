@@ -154,6 +154,30 @@
     </div>
 </section>
 
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Claim Request</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Admin Notes (Optional)</label>
+                    <textarea class="form-control" id="approve-admin-notes" rows="3" placeholder="Any notes about this approval..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmApproveBtn">Approve Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Reject Modal -->
 <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -182,21 +206,30 @@
 
 @push('scripts')
 <script>
+    let currentApproveId = null;
     let currentRejectId = null;
 
     function approveClaimRequest(id) {
-        if (!confirm('Are you sure you want to approve this claim request?')) {
-            return;
-        }
+        currentApproveId = id;
+        $('#approve-admin-notes').val('');
+        $('#approveModal').modal('show');
+    }
+
+    $('#confirmApproveBtn').click(function() {
+        if (currentApproveId === null) return;
+
+        const adminNotes = $('#approve-admin-notes').val();
 
         $.ajax({
-            url: '{{route("admin.approve.claim.request", ":id")}}'.replace(':id', id),
+            url: '{{route("admin.approve.claim.request", ":id")}}'.replace(':id', currentApproveId),
             type: 'POST',
             data: {
-                _token: '{{csrf_token()}}'
+                _token: '{{csrf_token()}}',
+                admin_notes: adminNotes
             },
             success: function(response) {
                 if (response.success) {
+                    $('#approveModal').modal('hide');
                     toastr.success(response.message);
                     location.reload();
                 } else {
@@ -211,7 +244,7 @@
                 toastr.error(message);
             }
         });
-    }
+    });
 
     function rejectClaimRequest(id) {
         currentRejectId = id;
