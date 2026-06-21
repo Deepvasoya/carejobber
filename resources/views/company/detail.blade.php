@@ -410,6 +410,34 @@
 
 }
 
+#claimCompanyModal .modal-body {
+    font-size: 13px;
+}
+#claimCompanyModal .modal-body label {
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+#claimCompanyModal .modal-body .form-control {
+    font-size: 13px;
+}
+#claimCompanyModal .modal-body .form-control::placeholder {
+    font-size: 12px;
+}
+#claimCompanyModal .modal-body small {
+    font-size: 11px;
+}
+#claimCompanyModal .modal-body .alert {
+    font-size: 12px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+}
+#claimCompanyModal .modal-body .form-group {
+    margin-bottom: 10px !important;
+}
+#claimCompanyModal .modal-title {
+    font-size: 16px;
+}
+
 </style>
 
 @endpush
