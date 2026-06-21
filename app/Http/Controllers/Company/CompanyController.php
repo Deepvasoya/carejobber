@@ -686,9 +686,10 @@ $company->update();
         $seo = $this->getCompanySEO($company);
 
         $hasPendingClaim = false;
-        if (Auth::guard('web')->check()) {
+        $user = Auth::guard('web')->user() ?: Auth::guard('company')->user();
+        if ($user) {
             $hasPendingClaim = \App\CompanyClaimRequest::where('company_id', $company->id)
-                ->where('user_id', Auth::guard('web')->id())
+                ->where('user_id', $user->id)
                 ->where('status', 'pending')
                 ->exists();
         }
@@ -1387,8 +1388,11 @@ $company->update();
     public function submitClaimRequest(Request $request)
     {
         try {
-            // Validate user is logged in
-            if (!Auth::guard('web')->check()) {
+            // Validate user is logged in via either job-seeker or employer guard
+            $user = Auth::guard('web')->user() ?: Auth::guard('company')->user();
+            $guard = $user ? (Auth::guard('web')->check() ? 'web' : 'company') : null;
+
+            if (!$user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'You must be logged in to claim a company profile.'
@@ -1397,6 +1401,9 @@ $company->update();
 
             $request->validate([
                 'company_id' => 'required|exists:companies,id',
+                'claimant_name' => 'required|max:191',
+                'claimant_email' => 'required|email|max:191',
+                'claimant_job_title' => 'required|max:191',
                 'message' => 'required|min:20|max:2000',
             ]);
 
@@ -1419,7 +1426,7 @@ $company->update();
 
             // Check if user already has a pending request for this company
             $existingRequest = \App\CompanyClaimRequest::where('company_id', $company->id)
-                ->where('user_id', Auth::guard('web')->id())
+                ->where('user_id', $user->id)
                 ->where('status', 'pending')
                 ->first();
 
@@ -1433,7 +1440,10 @@ $company->update();
             // Create claim request
             $claimRequest = new \App\CompanyClaimRequest();
             $claimRequest->company_id = $company->id;
-            $claimRequest->user_id = Auth::guard('web')->id();
+            $claimRequest->user_id = $user->id;
+            $claimRequest->claimant_name = $request->claimant_name;
+            $claimRequest->claimant_email = $request->claimant_email;
+            $claimRequest->claimant_job_title = $request->claimant_job_title;
             $claimRequest->message = $request->message;
             $claimRequest->status = 'pending';
             $claimRequest->requested_at = now();

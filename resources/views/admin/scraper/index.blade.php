@@ -100,6 +100,69 @@
         </div>
     </div>
 
+    <!-- Cron Run History -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header border-bottom-0 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Cron Run History <small class="text-muted">(last 20 runs)</small></h5>
+                @if($cronLogs->isNotEmpty())
+                    <small class="text-muted">Last run: {{ $cronLogs->first()->started_at->diffForHumans() }}</small>
+                @endif
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-hover table-centered mb-0">
+                        <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Command</th>
+                                <th>Status</th>
+                                <th>Started</th>
+                                <th>Finished</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($cronLogs as $log)
+                            <tr>
+                                <td><code>{{ $log->command }}</code></td>
+                                <td>
+                                    @if($log->status == 'completed')
+                                        <span class="badge bg-success">Completed</span>
+                                    @elseif($log->status == 'started')
+                                        <span class="badge bg-info">Running</span>
+                                    @elseif($log->status == 'failed')
+                                        <span class="badge bg-danger">Failed</span>
+                                    @else
+                                        <span class="badge bg-secondary">{{ $log->status }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $log->started_at ? $log->started_at->format('M d, H:i:s') : '-' }}</td>
+                                <td>{{ $log->finished_at ? $log->finished_at->format('M d, H:i:s') : '-' }}</td>
+                                <td>
+                                    @if($log->started_at && $log->finished_at)
+                                        {{ $log->finished_at->diffInSeconds($log->started_at) }}s
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    No cron runs recorded yet. 
+                                    @if($crons)
+                                        <a href="javascript:void(0);" onclick="document.querySelector('[action=\'{{ route('admin.scraper.run') }}\'] button')?.click();">Run scraper now</a> to see the first entry.
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Feed Sources -->
     <div class="col-md-5">
         <div class="card mb-4">

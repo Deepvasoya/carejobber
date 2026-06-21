@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\JobFeedRun;
 use App\JobFeedSource;
 use App\Models\Medo\ScraperRun;
+use App\SchedulerLog;
 use App\Services\Medo\Scrapers\SitemapScraper;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,13 @@ class ScrapeJobFeeds extends Command
     public function handle(): int
     {
         $isDryRun = $this->option('dry-run');
+        $commandName = 'jobs:scrape' . ($this->argument('source') ? ' ' . $this->argument('source') : '');
+
+        $log = SchedulerLog::create([
+            'command' => $commandName,
+            'status' => 'started',
+            'started_at' => now(),
+        ]);
 
         $sources = JobFeedSource::active()
             ->when($this->argument('source'), function ($query, $source) {
@@ -98,6 +106,11 @@ class ScrapeJobFeeds extends Command
                 ]);
             }
         }
+
+        $log->update([
+            'status' => 'completed',
+            'finished_at' => now(),
+        ]);
 
         return 0;
     }

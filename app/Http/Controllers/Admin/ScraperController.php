@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\JobFeedRun;
 use App\JobFeedSource;
+use App\SchedulerLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
@@ -15,6 +16,7 @@ class ScraperController extends Controller
     {
         $sources = JobFeedSource::all();
         $runs = JobFeedRun::with('source')->orderByDesc('id')->take(50)->get();
+        $cronLogs = SchedulerLog::orderByDesc('started_at')->take(20)->get();
         
         $schedule = app(\Illuminate\Console\Scheduling\Schedule::class);
         $crons = [];
@@ -37,7 +39,7 @@ class ScraperController extends Controller
             ];
         }
         
-        return view('admin.scraper.index', compact('sources', 'runs', 'crons'));
+        return view('admin.scraper.index', compact('sources', 'runs', 'crons', 'cronLogs'));
     }
 
     public function store(Request $request)

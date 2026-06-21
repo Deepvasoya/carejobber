@@ -357,15 +357,34 @@
                     <button type="button" class="close" data-bs-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">Please provide information to verify your ownership of this company.</p>
+                    <p class="text-muted mb-3">Please provide your details to verify your association with this company.</p>
+                    <div class="alert alert-warning">
+                        <i class="fa fa-info-circle"></i> <strong>You must include your company email address</strong> in the request so we can verify your association with this organization.
+                    </div>
                     <div class="form-group mb-3">
-                        <label for="claim_message">Message / Proof of Ownership <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="message" id="claim_message" rows="5" 
-                                  placeholder="Please explain how you are related to this company and provide any proof of ownership..." required></textarea>
-                        <small class="form-text text-muted">You can mention your position, company email, or other verification details.</small>
+                        <label for="claimant_name">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="claimant_name" id="claimant_name" 
+                               placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="claimant_email">Work Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="claimant_email" id="claimant_email" 
+                               placeholder="Your company email address (e.g. you@company.com)" required>
+                        <small class="form-text text-muted">Please use your company email for verification purposes.</small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="claimant_job_title">Job Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="claimant_job_title" id="claimant_job_title" 
+                               placeholder="Your position at this company" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="claim_message">Brief Explanation <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="message" id="claim_message" rows="4" 
+                                  placeholder="Explain your role at this company and why you are requesting to claim this profile..." required></textarea>
+                        <small class="form-text text-muted">Mention your responsibilities and how you are authorized to represent this company.</small>
                     </div>
                     <div class="alert alert-info">
-                        <i class="fa fa-info-circle"></i> Your claim request will be reviewed by our admin team. You will be notified once it's processed.
+                        <i class="fa fa-info-circle"></i> Your claim request will be reviewed by our admin team. You will be notified via email once it's processed.
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -400,11 +419,11 @@
 <script type="text/javascript">
 
 function openClaimModal() {
-    @if(Auth::guard('web')->check())
+    @if(Auth::guard('web')->check() || Auth::guard('company')->check())
         $('#claimCompanyModal').modal('show');
     @else
         const el = document.createElement('div');
-        el.innerHTML = "Please <a class='btn' href='{{route('login')}}'>log in</a> as a Job Seeker to claim this profile.";
+        el.innerHTML = "Please <a class='btn' href='{{route('login')}}'>log in</a> or <a class='btn' href='{{route('company.login')}}'>login as employer</a> to claim this profile.";
         swal({
             title: "Login Required",
             content: el,
@@ -419,6 +438,19 @@ $(document).ready(function() {
     if ($("#claim-company-form").length > 0) {
         $("#claim-company-form").validate({
             rules: {
+                claimant_name: {
+                    required: true,
+                    maxlength: 191
+                },
+                claimant_email: {
+                    required: true,
+                    email: true,
+                    maxlength: 191
+                },
+                claimant_job_title: {
+                    required: true,
+                    maxlength: 191
+                },
                 message: {
                     required: true,
                     minlength: 20,
@@ -426,8 +458,18 @@ $(document).ready(function() {
                 },
             },
             messages: {
+                claimant_name: {
+                    required: "Please enter your full name"
+                },
+                claimant_email: {
+                    required: "Please enter your work email",
+                    email: "Please enter a valid email address"
+                },
+                claimant_job_title: {
+                    required: "Please enter your job title"
+                },
                 message: {
-                    required: "Please provide information to verify your ownership",
+                    required: "Please provide an explanation",
                     minlength: "Please provide at least 20 characters",
                     maxlength: "Message cannot exceed 2000 characters"
                 }
@@ -439,7 +481,7 @@ $(document).ready(function() {
                     }
                 });
                 
-                @if(Auth::guard('web')->check())
+                @if(Auth::guard('web')->check() || Auth::guard('company')->check())
                 $.ajax({
                     url: "{{ route('submit.company.claim.request') }}",
                     type: "POST",

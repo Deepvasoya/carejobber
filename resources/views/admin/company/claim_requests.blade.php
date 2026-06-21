@@ -44,8 +44,9 @@
                                     <tr>
                                         <th>Request ID</th>
                                         <th>Company Name</th>
-                                        <th>Requested By</th>
-                                        <th>User Email</th>
+                                        <th>Claimant Name</th>
+                                        <th>Work Email</th>
+                                        <th>Job Title</th>
                                         <th>Message</th>
                                         <th>Requested Date</th>
                                         <th>Actions</th>
@@ -60,8 +61,14 @@
                                                 {{$request->company->name ?? 'N/A'}}
                                             </a>
                                         </td>
-                                        <td>{{$request->user->name ?? 'N/A'}}</td>
-                                        <td>{{$request->user->email ?? 'N/A'}}</td>
+                                        <td>
+                                            <strong>{{$request->claimant_name ?? $request->user->name ?? 'N/A'}}</strong>
+                                            @if($request->user && $request->user->name && !$request->claimant_name)
+                                                <br><small class="text-muted">(from account: {{$request->user->name}})</small>
+                                            @endif
+                                        </td>
+                                        <td>{{$request->claimant_email ?? $request->user->email ?? 'N/A'}}</td>
+                                        <td>{{$request->claimant_job_title ?? 'N/A'}}</td>
                                         <td>{{$request->message ?? 'No message'}}</td>
                                         <td>{{$request->requested_at->format('M d, Y h:i A')}}</td>
                                         <td>
@@ -100,7 +107,9 @@
                                     <tr>
                                         <th>Request ID</th>
                                         <th>Company Name</th>
-                                        <th>Requested By</th>
+                                        <th>Claimant</th>
+                                        <th>Work Email</th>
+                                        <th>Job Title</th>
                                         <th>Status</th>
                                         <th>Admin Notes</th>
                                         <th>Reviewed Date</th>
@@ -116,7 +125,9 @@
                                                 {{$request->company->name ?? 'N/A'}}
                                             </a>
                                         </td>
-                                        <td>{{$request->user->name ?? 'N/A'}}</td>
+                                        <td>{{$request->claimant_name ?? $request->user->name ?? 'N/A'}}</td>
+                                        <td>{{$request->claimant_email ?? $request->user->email ?? 'N/A'}}</td>
+                                        <td>{{$request->claimant_job_title ?? 'N/A'}}</td>
                                         <td>
                                             @if($request->status == 'approved')
                                             <span class="badge badge-success">Approved</span>

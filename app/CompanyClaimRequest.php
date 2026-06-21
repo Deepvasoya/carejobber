@@ -11,6 +11,9 @@ class CompanyClaimRequest extends Model
     protected $fillable = [
         'company_id',
         'user_id',
+        'claimant_name',
+        'claimant_email',
+        'claimant_job_title',
         'status',
         'message',
         'admin_notes',
