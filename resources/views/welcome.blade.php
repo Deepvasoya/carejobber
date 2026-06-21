@@ -17,7 +17,7 @@
 </div>
 
 <!-- Popular Searches start -->
-@include('includes.popular_searches')
+{{-- @include('includes.popular_searches') --}}
 <!-- Popular Searches ends -->
 
 <!-- Top Employers start -->
