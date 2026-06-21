@@ -1094,33 +1094,35 @@ public function updateCompany($id, CompanyFormRequest $request)
             }
             
             $company = $claimRequest->company;
-            
+
             // Update company to mark as claimed
             $company->is_claimed = 1;
             $company->claimed_by_user_id = $claimRequest->user_id;
             $company->claimed_at = now();
-            
+
             // Set company email to claiming user's email so they can log in
             if (empty($company->email)) {
-                $company->email = $claimRequest->user->email;
+                $company->email = $claimRequest->claimant_email;
             }
             $company->save();
-            
+
             // Update claim request
             $claimRequest->status = 'approved';
             $claimRequest->reviewed_at = now();
             $claimRequest->reviewed_by = Auth::guard('admin')->id();
             $claimRequest->admin_notes = $request->input('admin_notes');
             $claimRequest->save();
-            
+
             // Send password setup link to the claiming user
             $token = Password::broker('companies')->createToken($company);
             $passwordSetupUrl = route('company.password.reset', ['token' => $token, 'email' => $company->email]);
-            
-            try {
-                $claimRequest->user->notify(new ClaimRequestApproved($claimRequest, $passwordSetupUrl));
-            } catch (\Exception $e) {
-                \Log::warning('[ClaimApproval] Failed to send notification: ' . $e->getMessage());
+
+            if ($claimRequest->user) {
+                try {
+                    $claimRequest->user->notify(new ClaimRequestApproved($claimRequest, $passwordSetupUrl));
+                } catch (\Exception $e) {
+                    \Log::warning('[ClaimApproval] Failed to send notification: ' . $e->getMessage());
+                }
             }
             
             flash('Company claim request has been approved successfully!')->success();

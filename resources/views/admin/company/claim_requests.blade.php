@@ -197,15 +197,8 @@
             },
             success: function(response) {
                 if (response.success) {
-                    $('#claim-request-row-' + id).fadeOut(300, function() {
-                        $(this).remove();
-                    });
                     toastr.success(response.message);
-                    
-                    // Reload page after 2 seconds
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000);
+                    location.reload();
                 } else {
                     toastr.error(response.message);
                 }
@@ -240,16 +233,9 @@
             },
             success: function(response) {
                 if (response.success) {
-                    $('#claim-request-row-' + currentRejectId).fadeOut(300, function() {
-                        $(this).remove();
-                    });
                     $('#rejectModal').modal('hide');
                     toastr.success(response.message);
-                    
-                    // Reload page after 2 seconds
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000);
+                    location.reload();
                 } else {
                     toastr.error(response.message);
                 }
