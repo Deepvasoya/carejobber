@@ -1060,8 +1060,15 @@ public function updateCompany($id, CompanyFormRequest $request)
     /**
      * Display company claim requests
      */
-    public function companyClaimRequests()
+    public function companyClaimRequests(Request $request)
     {
+        if ($request->ajax() && $request->has('get_notes')) {
+            $claimRequest = \App\CompanyClaimRequest::find($request->get_notes);
+            return response()->json([
+                'notes' => $claimRequest ? $claimRequest->admin_notes : ''
+            ]);
+        }
+
         $pendingRequests = \App\CompanyClaimRequest::with(['company', 'user'])
             ->where('status', 'pending')
             ->orderBy('requested_at', 'desc')
@@ -1131,6 +1138,28 @@ public function updateCompany($id, CompanyFormRequest $request)
                 'message' => 'Company claim request approved successfully.'
             ]);
             
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Save/edit admin notes for a claim request (independent of approve/reject)
+     */
+    public function saveClaimNotes(Request $request, $id)
+    {
+        try {
+            $claimRequest = \App\CompanyClaimRequest::findOrFail($id);
+            $claimRequest->admin_notes = $request->input('admin_notes');
+            $claimRequest->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Admin notes saved successfully.'
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

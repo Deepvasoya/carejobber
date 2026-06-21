@@ -78,6 +78,9 @@
                                             <button class="btn btn-danger btn-sm" onclick="rejectClaimRequest({{$request->id}})">
                                                 <i class="fas fa-times"></i> Reject
                                             </button>
+                                            <button class="btn btn-info btn-sm" onclick="editClaimNotes({{$request->id}})">
+                                                <i class="fas fa-sticky-note"></i> Notes
+                                            </button>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -135,7 +138,12 @@
                                             <span class="badge badge-danger">Rejected</span>
                                             @endif
                                         </td>
-                                        <td>{{$request->admin_notes ?? 'N/A'}}</td>
+                                        <td>
+                                            {{$request->admin_notes ?? 'N/A'}}
+                                            <button class="btn btn-info btn-xs float-right" onclick="editClaimNotes({{$request->id}})" title="Edit notes">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
                                         <td>{{$request->reviewed_at ? $request->reviewed_at->format('M d, Y h:i A') : 'N/A'}}</td>
                                         <td>{{$request->reviewer->name ?? 'N/A'}}</td>
                                     </tr>
@@ -153,6 +161,30 @@
 
     </div>
 </section>
+
+<!-- Notes Modal -->
+<div class="modal fade" id="notesModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Admin Notes</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea class="form-control" id="notes-text" rows="5" placeholder="Add your notes here..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmNotesBtn">Save Notes</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Approve Modal -->
 <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
@@ -208,6 +240,7 @@
 <script>
     let currentApproveId = null;
     let currentRejectId = null;
+    let currentNotesId = null;
 
     function approveClaimRequest(id) {
         currentApproveId = id;
@@ -251,6 +284,58 @@
         $('#reject-admin-notes').val('');
         $('#rejectModal').modal('show');
     }
+
+    function editClaimNotes(id) {
+        currentNotesId = id;
+        $('#notes-text').val('');
+
+        $.ajax({
+            url: '{{route("admin.company.claim.requests")}}',
+            type: 'GET',
+            dataType: 'json',
+            data: { get_notes: id },
+            success: function(response) {
+                if (response.notes) {
+                    $('#notes-text').val(response.notes);
+                }
+                $('#notesModal').modal('show');
+            },
+            error: function() {
+                $('#notesModal').modal('show');
+            }
+        });
+    }
+
+    $('#confirmNotesBtn').click(function() {
+        if (currentNotesId === null) return;
+
+        const notes = $('#notes-text').val();
+
+        $.ajax({
+            url: '{{route("admin.save.claim.notes", ":id")}}'.replace(':id', currentNotesId),
+            type: 'POST',
+            data: {
+                _token: '{{csrf_token()}}',
+                admin_notes: notes
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#notesModal').modal('hide');
+                    toastr.success(response.message);
+                    location.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function(xhr) {
+                let message = 'An error occurred';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                toastr.error(message);
+            }
+        });
+    });
 
     $('#confirmRejectBtn').click(function() {
         if (currentRejectId === null) return;
