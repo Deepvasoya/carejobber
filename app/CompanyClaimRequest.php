@@ -22,11 +22,11 @@ class CompanyClaimRequest extends Model
         'reviewed_by',
     ];
     
-    protected $dates = [
-        'requested_at',
-        'reviewed_at',
-        'created_at',
-        'updated_at',
+    protected $casts = [
+        'requested_at' => 'datetime',
+        'reviewed_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
     
     /**

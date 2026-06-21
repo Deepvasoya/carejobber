@@ -70,7 +70,7 @@
                                         <td>{{$request->claimant_email ?? $request->user->email ?? 'N/A'}}</td>
                                         <td>{{$request->claimant_job_title ?? 'N/A'}}</td>
                                         <td>{{$request->message ?? 'No message'}}</td>
-                                        <td>{{$request->requested_at->format('M d, Y h:i A')}}</td>
+                                        <td>{{$request->requested_at ? $request->requested_at->format('M d, Y h:i A') : 'N/A'}}</td>
                                         <td>
                                             <button class="btn btn-success btn-sm" onclick="approveClaimRequest({{$request->id}})">
                                                 <i class="fas fa-check"></i> Approve
