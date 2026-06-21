@@ -522,6 +522,8 @@ $(document).ready(function() {
                             text: response.message || "Your claim request has been submitted successfully. Our team will review it shortly.",
                             icon: "success",
                             button: "OK",
+                        }).then(function() {
+                            location.reload();
                         });
                     },
                     error: function(xhr) {
