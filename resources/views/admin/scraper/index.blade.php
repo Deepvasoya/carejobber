@@ -28,6 +28,63 @@
 @include('flash::message')
 
 <div class="row">
+    <!-- HTML Job Scraper -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header border-bottom-0">
+                <h5 class="card-title mb-0">Scrape Job from URL</h5>
+            </div>
+            <div class="card-body">
+                <p>Enter a job posting URL and the system will attempt to extract job details automatically.</p>
+                <div class="input-group mb-3">
+                    <input type="url" id="scrape-url-input" class="form-control" placeholder="https://example.com/jobs/..." required>
+                    <button type="button" class="btn btn-primary" id="scrape-url-btn">
+                        <i class="ri-search-line align-middle me-1"></i> Scrape
+                    </button>
+                </div>
+                <div id="scrape-result" style="display:none;">
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="scraped-title" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" id="scraped-company" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Location</label>
+                            <input type="text" id="scraped-location" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Job Type</label>
+                            <input type="text" id="scraped-job-type" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Salary</label>
+                            <input type="text" id="scraped-salary" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Apply URL</label>
+                            <input type="url" id="scraped-apply-url" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea id="scraped-description" class="form-control" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success" id="save-scraped-job-btn">
+                        <i class="ri-save-line align-middle me-1"></i> Save as Job
+                    </button>
+                    <div id="scrape-loading" class="mt-2 text-muted" style="display:none;">
+                        <i class="ri-loader-4-line align-middle me-1 fa-spin"></i> Scraping...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Trigger Scraper -->
     <div class="col-md-12 mb-4">
         <div class="card">
@@ -358,6 +415,113 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // HTML URL Scraper
+    const scrapeBtn = document.getElementById('scrape-url-btn');
+    const scrapeInput = document.getElementById('scrape-url-input');
+    const scrapeResult = document.getElementById('scrape-result');
+    const scrapeLoading = document.getElementById('scrape-loading');
+
+    if (scrapeBtn) {
+        scrapeBtn.addEventListener('click', function() {
+            const url = scrapeInput.value.trim();
+            if (!url) {
+                toastr.error('Please enter a job URL');
+                return;
+            }
+
+            scrapeResult.style.display = 'none';
+            scrapeLoading.style.display = 'block';
+            scrapeBtn.disabled = true;
+
+            $.ajax({
+                url: '{{ route("admin.scraper.scrape_url") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    job_url: url
+                },
+                success: function(response) {
+                    scrapeLoading.style.display = 'none';
+                    scrapeBtn.disabled = false;
+
+                    if (response.success) {
+                        document.getElementById('scraped-title').value = response.data.title || '';
+                        document.getElementById('scraped-company').value = response.data.company_name || '';
+                        document.getElementById('scraped-location').value = response.data.location || '';
+                        document.getElementById('scraped-job-type').value = response.data.job_type || '';
+                        document.getElementById('scraped-salary').value = response.data.salary || '';
+                        document.getElementById('scraped-apply-url').value = response.data.apply_url || '';
+                        document.getElementById('scraped-description').value = response.data.description || '';
+                        scrapeResult.style.display = 'block';
+                        toastr.success('Job details extracted successfully! Review and click Save.');
+                    } else {
+                        toastr.error(response.message || 'Failed to scrape URL');
+                    }
+                },
+                error: function(xhr) {
+                    scrapeLoading.style.display = 'none';
+                    scrapeBtn.disabled = false;
+                    let msg = 'An error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    toastr.error(msg);
+                }
+            });
+        });
+    }
+
+    const saveBtn = document.getElementById('save-scraped-job-btn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            const title = document.getElementById('scraped-title').value.trim();
+            if (!title) {
+                toastr.error('Please enter a job title');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="ri-loader-4-line align-middle me-1 fa-spin"></i> Saving...';
+
+            $.ajax({
+                url: '{{ route("admin.scraper.save_scraped_job") }}',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    title: title,
+                    description: document.getElementById('scraped-description').value,
+                    company_name: document.getElementById('scraped-company').value,
+                    location: document.getElementById('scraped-location').value,
+                    job_type: document.getElementById('scraped-job-type').value,
+                    salary: document.getElementById('scraped-salary').value,
+                    apply_url: document.getElementById('scraped-apply-url').value,
+                },
+                success: function(response) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="ri-save-line align-middle me-1"></i> Save as Job';
+                    if (response.success) {
+                        toastr.success('Job created successfully! <a href="' + response.edit_url + '" style="color:#fff;text-decoration:underline;margin-left:8px;">Edit Job</a>', '', {allowHtml: true, timeOut: 5000});
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        toastr.error(response.message || 'Failed to save job');
+                    }
+                },
+                error: function(xhr) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="ri-save-line align-middle me-1"></i> Save as Job';
+                    let msg = 'An error occurred';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    toastr.error(msg);
+                }
+            });
+        });
+    }
+
+    // Existing code below
     document.querySelectorAll('.js-view-error').forEach(function(button) {
         button.addEventListener('click', function() {
             alert(this.getAttribute('data-error'));

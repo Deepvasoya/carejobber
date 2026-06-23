@@ -1,56 +1,21 @@
-Deep, I want the ability to create employer account from admin with the system forcing me to add some required field. I just want to create without entering all required date. Can you create this? Project: Admin-Created Employer Profiles
+Task 1: Creating job from admin
+Currently, I can create jobs from admin, but almost all fields are required. I want you
+make all fields optional except for the title of the job. (this is similar to admin create
+employer account)
 
-Goal:
-Allow admin to create employer/company profiles without treating them as claimed employer accounts.
+Task 2: Add and remove from job form
+I want to add the following field to job form, and to job details:
+1.​ Job ID (text filed)
+2.​ Union (tex field)
+3.​ FTE (text field)
+4.​ Job Primary Location Text field) add a button for multi-site.
+5.​ Hours per Shift:
+6.​ Shifts per cycle:
+Remove from the job form and everywhere on the site:
+1.​ Gender Needed
+2.​ Career Level
 
-Reason:
-Some employers do not have a direct public HR email or phone number. We should not use fake data. Admin should be able to create the company profile first, then let the real employer claim it later.
-
-Required database fields:
-
-Add to companies table:
-
-is_claimed tinyint default 0
-created_by_admin tinyint default 1
-claimed_by_user_id nullable
-claimed_at nullable
-
-How it should work:
-
-1. When admin creates a company profile:
-- is_claimed = 0
-- created_by_admin = 1
-- claimed_by_user_id = null
-- claimed_at = null
-
-2. The company profile can still have:
-- company name
-- slug
-- logo
-- website
-- careers URL
-- description
-- city
-- state
-- country
-
-3. Email and phone should be optional for admin-created company profiles.
-
-4. On the employer/company page, show:
-“This employer profile has not yet been claimed.”
-
-5. Add a button:
-“Claim this employer profile”
-
-6. When a real employer claims it:
-- Admin reviews request
-- Admin approves
-- Link the real user account to the company
-- is_claimed = 1
-- claimed_by_user_id = user_id
-- claimed_at = current timestamp
-
-Important:
-Do not create fake employer accounts.
-Do not use random emails or phone numbers.
-Do not mark admin-created profiles as claimed.
+Task 3: Job details update
+I want you to restructure job details information to 2 column. Let each point display
+inline. For example, (icon, Facility Type: Hospital. Everything display inline). Let the
+newly added job form info also appear here.

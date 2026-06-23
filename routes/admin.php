@@ -119,6 +119,8 @@ Route::group(['namespace' => 'Admin'], function () {
     Route::post('/scraper/store', 'ScraperController@store')->name('admin.scraper.store');
     Route::post('/scraper/run', 'ScraperController@run')->name('admin.scraper.run');
     Route::post('/scraper/run-command', 'ScraperController@runCommand')->name('admin.scraper.run_command');
+    Route::post('/scraper/scrape-url', 'ScraperController@scrapeUrl')->name('admin.scraper.scrape_url');
+    Route::post('/scraper/save-scraped-job', 'ScraperController@saveScrapedJob')->name('admin.scraper.save_scraped_job');
     /*Scraper Page routes End*/
 
 });

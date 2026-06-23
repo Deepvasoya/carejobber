@@ -294,6 +294,23 @@ trait JobTrait
         $job->external_job = ($applyType === 'internal') ? 'no' : 'yes';
         $job->job_link = ($applyType === 'internal') ? null : $request->input('job_link');
 
+        // New fields
+        $job->job_id = $request->input('job_id');
+        $job->union = $request->input('union');
+        $job->fte = $request->input('fte');
+        
+        // Handle job_primary_location as array
+        $locations = $request->input('job_primary_location');
+        if (is_array($locations)) {
+            $locations = array_filter($locations); // Remove empty values
+            $job->job_primary_location = implode("\n", $locations);
+        } else {
+            $job->job_primary_location = $locations;
+        }
+        
+        $job->hours_per_shift = $request->input('hours_per_shift');
+        $job->shifts_per_cycle = $request->input('shifts_per_cycle');
+
         $cf = app(\App\Services\CustomFieldValueService::class);
         $norm = $cf->normalizeForContext($request, \App\Models\CustomField::CONTEXT_JOB_LISTING);
         $job->custom_field_data = $cf->mergeStored($job->custom_field_data ?? null, $norm);

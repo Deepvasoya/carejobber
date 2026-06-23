@@ -12,6 +12,57 @@
         {!! Form::text('title', null, array('class'=>'form-control', 'id'=>'title', 'placeholder'=>'Job title')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'title') !!}
     </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'job_id') !!}">
+        {!! Form::label('job_id', 'Job ID', ['class' => 'bold']) !!}
+        {!! Form::text('job_id', null, array('class'=>'form-control', 'id'=>'job_id', 'placeholder'=>'Job ID')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'job_id') !!}
+    </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'union') !!}">
+        {!! Form::label('union', 'Union', ['class' => 'bold']) !!}
+        {!! Form::text('union', null, array('class'=>'form-control', 'id'=>'union', 'placeholder'=>'Union')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'union') !!}
+    </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'fte') !!}">
+        {!! Form::label('fte', 'FTE', ['class' => 'bold']) !!}
+        {!! Form::text('fte', null, array('class'=>'form-control', 'id'=>'fte', 'placeholder'=>'FTE')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'fte') !!}
+    </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'job_primary_location') !!}">
+        {!! Form::label('job_primary_location', 'Job Primary Location', ['class' => 'bold']) !!}
+        <div id="job-locations-container">
+            @php
+                $locations = old('job_primary_location', isset($job) ? $job->job_primary_location : '');
+                $locationsArray = $locations ? (is_array($locations) ? $locations : explode("\n", $locations)) : [''];
+            @endphp
+            @foreach($locationsArray as $index => $location)
+                <div class="input-group mb-2 location-item">
+                    <input type="text" name="job_primary_location[]" value="{{ $location }}" class="form-control" placeholder="Job Primary Location">
+                    @if($index > 0)
+                        <button type="button" class="btn btn-danger remove-location">Remove</button>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-location-btn">Add Multi-Site Location</button>
+        {!! APFrmErrHelp::showErrors($errors, 'job_primary_location') !!}
+    </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'hours_per_shift') !!}">
+        {!! Form::label('hours_per_shift', 'Hours per Shift', ['class' => 'bold']) !!}
+        {!! Form::text('hours_per_shift', null, array('class'=>'form-control', 'id'=>'hours_per_shift', 'placeholder'=>'Hours per Shift')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'hours_per_shift') !!}
+    </div>
+    
+    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'shifts_per_cycle') !!}">
+        {!! Form::label('shifts_per_cycle', 'Shifts per Cycle', ['class' => 'bold']) !!}
+        {!! Form::text('shifts_per_cycle', null, array('class'=>'form-control', 'id'=>'shifts_per_cycle', 'placeholder'=>'Shifts per Cycle')) !!}
+        {!! APFrmErrHelp::showErrors($errors, 'shifts_per_cycle') !!}
+    </div>
+    
     <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'description') !!}">
         {!! Form::label('description', 'Job description', ['class' => 'bold']) !!}
         {!! Form::textarea('description', null, array('class'=>'form-control', 'id'=>'description', 'placeholder'=>'Job description')) !!}
@@ -76,11 +127,6 @@
         </div>
         {!! APFrmErrHelp::showErrors($errors, 'is_freelance') !!}
     </div>
-    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div">
-        {!! Form::label('career_level_id', 'Career level', ['class' => 'bold']) !!}                    
-        {!! Form::select('career_level_id', ['' => 'Select Career level']+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
-        {!! APFrmErrHelp::showErrors($errors, 'career_level_id') !!}                                       
-    </div>
     <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'salary_from') !!}" id="salary_from_div">
         {!! Form::label('salary_from', 'Salary From', ['class' => 'bold']) !!}                    
         {!! Form::number('salary_from', null, array('class'=>'form-control', 'id'=>'salary_from')) !!}
@@ -140,11 +186,6 @@
         {!! Form::label('num_of_positions', 'Positions#', ['class' => 'bold']) !!}                    
         {!! Form::select('num_of_positions', ['' => 'Select Positions#']+MiscHelper::getNumPositions(), null, array('class'=>'form-control', 'id'=>'num_of_positions')) !!}
         {!! APFrmErrHelp::showErrors($errors, 'num_of_positions') !!}                                       
-    </div>
-    <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div">
-        {!! Form::label('gender_id', 'Gender', ['class' => 'bold']) !!}                    
-        {!! Form::select('gender_id', ['' => __('No preference')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
-        {!! APFrmErrHelp::showErrors($errors, 'gender_id') !!}                                       
     </div>
     <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'expiry_date') !!}">
         {!! Form::label('expiry_date', 'Job expiry date', ['class' => 'bold']) !!}
@@ -284,6 +325,19 @@
 
 <script>
     $(document).ready(function() {
+        // Multi-site location management
+        $('#add-location-btn').on('click', function() {
+            var locationHtml = '<div class="input-group mb-2 location-item">' +
+                '<input type="text" name="job_primary_location[]" value="" class="form-control" placeholder="Job Primary Location">' +
+                '<button type="button" class="btn btn-danger remove-location">Remove</button>' +
+                '</div>';
+            $('#job-locations-container').append(locationHtml);
+        });
+
+        $(document).on('click', '.remove-location', function() {
+            $(this).closest('.location-item').remove();
+        });
+
         function toggleExternalLinkField() {
             var applyType = $('#apply_type').val() || 'internal';
             var fieldConfig = {

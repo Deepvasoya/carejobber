@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Job;
 use App\JobFeedRun;
 use App\JobFeedSource;
 use App\SchedulerLog;
+use App\Services\HtmlJobScraper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
@@ -119,5 +121,86 @@ class ScraperController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function scrapeUrl(Request $request)
+    {
+        $request->validate([
+            'job_url' => 'required|url|max:2000',
+        ]);
+
+        $scraper = app(HtmlJobScraper::class);
+        $result = $scraper->scrape($request->job_url);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['error'] ?? 'Failed to scrape the URL',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $result,
+        ]);
+    }
+
+    public function saveScrapedJob(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|max:180',
+            'description' => 'nullable',
+            'company_name' => 'nullable|max:191',
+            'location' => 'nullable|max:255',
+            'job_type' => 'nullable|max:191',
+            'salary' => 'nullable|max:255',
+            'apply_url' => 'nullable|url|max:2000',
+        ]);
+
+        try {
+            $company = null;
+            if ($request->company_name) {
+                $company = \App\Company::where('name', $request->company_name)->first();
+                if (!$company) {
+                    $company = \App\Company::create([
+                        'name' => $request->company_name,
+                        'slug' => Str::slug($request->company_name),
+                        'is_active' => 1,
+                        'country_id' => 0,
+                        'state_id' => 0,
+                        'city_id' => 0,
+                        'is_featured' => 0,
+                    ]);
+                }
+            }
+
+            $job = new Job();
+            $job->title = $request->title;
+            $job->description = $request->description ?? '';
+            $job->company_id = $company ? $company->id : 0;
+            $job->is_active = 1;
+            $job->is_featured = 0;
+            $job->is_urgent = 0;
+            $job->is_highlighted = 0;
+            $job->country_id = 0;
+            $job->state_id = 0;
+            $job->city_id = 0;
+            $job->expiry_date = now()->addDays(30);
+            $job->save();
+
+            $job->slug = Str::slug($job->title, '-') . '-' . $job->id;
+            $job->save();
+
+            flash('Job scraped and created successfully!')->success();
+            return response()->json([
+                'success' => true,
+                'edit_url' => route('edit.job', $job->id),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
