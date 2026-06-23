@@ -57,7 +57,7 @@
                                     <li><a href="{{ URL::asset('/admin/blog')}}"><i class="fa fa-dashboard"></i> Manage
                                             Blogs</a>
                                     </li>
-                                    <li class="active"><a href="{{ URL::asset('/admin/blog_category')}}"><i
+                                    <li class="active"><a href="{{ url(config('app.admin_prefix').'/blog_category') }}"><i
                                                 class="fa fa-file-text-o"></i> Manage Categories</a></li>
 
                                 </ul>
@@ -113,8 +113,8 @@
             <div id="addModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" files="true" action="{{ asset('admin/blog_category/create')}}"
-                            enctype="multipart/form-data">
+                        <form method="POST" files="true" action="{{ url(config('app.admin_prefix').'/blog_category/create') }}"
+    enctype="multipart/form-data">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 <h4 class="modal-title">Add Category</h4>
@@ -161,7 +161,7 @@
             <div id="editModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" files="true" action="{{ asset('/admin/blog_category')}}"
+                        <form method="POST" files="true" action="{{ url(config('app.admin_prefix').'/blog_category/update') }}"
                             enctype="multipart/form-data">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>

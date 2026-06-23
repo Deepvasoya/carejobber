@@ -14,7 +14,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\SearchAutocompleteController;
 use Illuminate\Support\Facades\File;
-
+    
 Route::get('make-login/{guard}', 'IndexController@login')->name('make.login');
 
 // Stripe webhook (public, no CSRF)

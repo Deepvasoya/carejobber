@@ -42,7 +42,7 @@ class Blog_categoriesController extends Base
             $request->session()->flash('message.added', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect('/admin/blog_category');
+        return redirect(config('app.admin_prefix', 'admin') . '/blog_category');
     }
     public function get_blog_category_by_id($id = '')
     {
@@ -73,7 +73,7 @@ class Blog_categoriesController extends Base
             $request->session()->flash('message.updated', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect('/admin/blog_category');
+        return redirect(config('app.admin_prefix', 'admin') . '/blog_category');
     }
 
 

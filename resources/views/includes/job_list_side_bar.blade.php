@@ -42,25 +42,6 @@
         </div>
 
         <!-- Jobs By Title -->
-        <div class="widget">
-            <h4 class="widget-title">{{__('Jobs By Title')}}</h4>
-            <ul class="optionlist view_more_ul">
-                @if(isset($jobTitlesArray) && count($jobTitlesArray))
-                @foreach($jobTitlesArray as $key=>$jobTitle)
-                <li>
-                    @php
-                    $checked = (in_array($jobTitle, Request::get('job_title', array())))? 'checked="checked"':'';
-                    @endphp
-                    <input type="checkbox" name="job_title[]" id="job_title_{{$key}}" value="{{$jobTitle}}" {{$checked}} >
-                    <label for="job_title_{{$key}}"></label>
-                    {{$jobTitle}} <span>{{App\Job::countNumJobs('title', $jobTitle)}}</span> </li>
-
-                @endforeach
-                @endif
-            </ul>
-            <!-- title end --> 
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
-            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
 
         <!-- Jobs By Country -->
         <!-- Jobs By Country end--> 
@@ -91,7 +72,6 @@
             <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By State end--> 
 
-
         <!-- Jobs By City -->
         <div class="widget">
             <h4 class="widget-title">{{__('Jobs By City')}}</h4>
@@ -116,6 +96,33 @@
             <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
             <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By City end--> 
+        
+        <!-- Jobs By Category -->
+        <div class="widget">
+            <h4 class="widget-title">{{__('Jobs By Category')}}</h4>
+            <ul class="optionlist view_more_ul">
+                @if(isset($jobCategoryIdsArray) && count($jobCategoryIdsArray))
+                @foreach($jobCategoryIdsArray as $key=>$job_category_id)
+                @php
+                $jobCategory = App\JobCategory::where('job_category_id','=',$job_category_id)->lang()->active()->first();
+                @endphp
+                @if(null !== $jobCategory)
+                @php
+                $checked = (in_array($jobCategory->job_category_id, Request::get('job_category_id', array())))? 'checked="checked"':'';
+                @endphp
+                <li>
+                    <input type="checkbox" name="job_category_id[]" id="job_category_id_{{$jobCategory->job_category_id}}" value="{{$jobCategory->job_category_id}}" {{$checked}}>
+                    <label for="job_category_id_{{$jobCategory->job_category_id}}"></label>
+                    {{$jobCategory->job_category}} <span>{{App\Job::countNumJobs('job_category_id', $jobCategory->job_category_id)}}</span>
+                </li>                
+                @endif
+                @endforeach
+                @endif
+
+            </ul>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
+            <!-- Jobs By Category end-->
 
         <!-- Jobs By Experience -->
         <div class="widget">
@@ -225,8 +232,6 @@
         <!-- Jobs By Gender -->
         <!-- Jobs By Gender end --> 
 
-
-
         <!-- Jobs By Industry -->
         <div class="widget">
             <h4 class="widget-title">{{__('Facility Type')}}</h4>
@@ -273,34 +278,7 @@
             </ul>
             <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
             <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
-        <!-- Jobs By Industry end --> 
-
-
-        <div class="widget">
-            <h4 class="widget-title">{{__('Jobs By Category')}}</h4>
-            <ul class="optionlist view_more_ul">
-                @if(isset($jobCategoryIdsArray) && count($jobCategoryIdsArray))
-                @foreach($jobCategoryIdsArray as $key=>$job_category_id)
-                @php
-                $jobCategory = App\JobCategory::where('job_category_id','=',$job_category_id)->lang()->active()->first();
-                @endphp
-                @if(null !== $jobCategory)
-                @php
-                $checked = (in_array($jobCategory->job_category_id, Request::get('job_category_id', array())))? 'checked="checked"':'';
-                @endphp
-                <li>
-                    <input type="checkbox" name="job_category_id[]" id="job_category_id_{{$jobCategory->job_category_id}}" value="{{$jobCategory->job_category_id}}" {{$checked}}>
-                    <label for="job_category_id_{{$jobCategory->job_category_id}}"></label>
-                    {{$jobCategory->job_category}} <span>{{App\Job::countNumJobs('job_category_id', $jobCategory->job_category_id)}}</span>
-                </li>                
-                @endif
-                @endforeach
-                @endif
-
-            </ul>
-            <!-- title end --> 
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
-            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
+        <!-- Jobs By skill end --> 
 
 
         <!-- Top Companies -->

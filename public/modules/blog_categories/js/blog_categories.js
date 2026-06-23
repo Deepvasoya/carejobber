@@ -3,7 +3,7 @@
         }
         
         function load_content_edit_form(id){
-	$.getJSON(APP_URL+'/admin/blog_category/get_blog_category_by_id/'+id, function(data) {
+	$.getJSON(APP_URL+'/enibq26/blog_category/'+id, function(data) {
             $('#id').val(data.id);
             $('#title_update').val(data.heading);
             $('#slug_update').val(data.slug);

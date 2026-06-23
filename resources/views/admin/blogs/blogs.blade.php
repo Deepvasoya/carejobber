@@ -57,7 +57,7 @@
                     <div class="actions">
                             <a href="{{ route('add-new-blog') }}" class="btn btn-xs btn-success"><i class="glyphicon glyphicon-plus"></i> Add New Post</a>
 
-                            <a href="{{ URL::asset('/admin/blog_category')}}" class="btn btn-xs btn-primary"><i class="fa fa-file-text-o"></i>
+                            <a href="{{ url(config('app.admin_prefix').'/blog_category') }}" class="btn btn-xs btn-primary"><i class="fa fa-file-text-o"></i>
                                         Manage Categories</a>
                         </div>
 
@@ -111,7 +111,7 @@
             <div id="addModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" files="true" action="{{ asset('admin/blog/create')}}"
+                        <form method="POST" files="true" action="{{ url(config('app.admin_prefix').'/blog/create') }}"
                             enctype="multipart/form-data">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -222,7 +222,7 @@
             <div id="editModal" class="modal fade" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <form method="POST" files="true" action="{{ asset('/admin/blog')}}"
+                        <form method="POST" files="true" action="{{ url(config('app.admin_prefix').'/blog') }}"
                             enctype="multipart/form-data">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>

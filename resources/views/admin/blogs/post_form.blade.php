@@ -119,10 +119,8 @@ $queryString = MiscHelper::getLangQueryStr();
 
 
                                                 <form method="POST" files="true"
-
-                                                    action="{{ asset('admin/blog/create')}}"
-
-                                                    enctype="multipart/form-data">
+                                               action="{{ url(config('app.admin_prefix').'/blog/create') }}"
+                                                enctype="multipart/form-data">
 
                                                     {{csrf_field()}}
 

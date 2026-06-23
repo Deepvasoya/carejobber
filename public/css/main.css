@@ -4336,7 +4336,7 @@ blockquote:after {
 }
 .blogdetailwrap .postimg{margin-bottom: 30px;}
 .blogdetailwrap h3{font-size: 24px; margin-bottom: 8px;}
-.blogdetailwrap p{font-size: 16px; line-height: 24px; margin-bottom: 30px;}
+.blogdetailwrap p {font-size: 16px; line-height: 1.8; margin-top: 0; margin-bottom: 15px;}
 .blogdetailwrap p strong{font-weight: bold;}
 .blogdetailwrap ul{list-style: disc; margin-left: 30px; margin-bottom: 20px;}
 .blogdetailwrap ul li{font-size: 16px; margin-bottom: 10px;}
@@ -7157,7 +7157,7 @@ Large Mobile Screen
     font-size: 16px;
     line-height: 1.8;
     color: #34495e;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 /* Modern Sidebar */

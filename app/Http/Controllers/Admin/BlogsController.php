@@ -82,7 +82,7 @@ class BlogsController extends Base
             $request->session()->flash('message.added', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect()->route('blog');
+        return redirect('/' . config('app.admin_prefix') . '/blog');
     }
 
     public function get_blog_by_id($id = '')
@@ -162,7 +162,7 @@ class BlogsController extends Base
             $request->session()->flash('message.updated', 'danger');
             $request->session()->flash('message.content', 'Error!');
         }
-        return redirect()->route('blog');
+        return redirect('/' . config('app.admin_prefix') . '/blog');
     }
 
     public function destroy($id)
