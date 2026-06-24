@@ -57,7 +57,7 @@ class JobFormRequest extends Request
                         "job_id" => "nullable|string|max:255",
                         "union" => "nullable|string|max:255",
                         "fte" => "nullable|string|max:255",
-                        "job_primary_location" => "nullable|string",
+                        "job_primary_location" => "nullable",
                         "hours_per_shift" => "nullable|string|max:255",
                         "shifts_per_cycle" => "nullable|string|max:255",
                         "quick_create" => "nullable|boolean",
