@@ -74,6 +74,69 @@
             {!! APFrmErrHelp::showErrors($errors, 'benefits') !!} </div>
     </div>
 
+    <!-- New Fields -->
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_id') !!}">
+            <label>{{ __('Job ID') }}</label>
+            {!! Form::text('job_id', null, array('class'=>'form-control', 'id'=>'job_id', 'placeholder'=>__('Job ID'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'job_id') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'union') !!}">
+            <label>{{ __('Union') }}</label>
+            {!! Form::text('union', null, array('class'=>'form-control', 'id'=>'union', 'placeholder'=>__('Union'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'union') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'fte') !!}">
+            <label>{{ __('FTE') }}</label>
+            {!! Form::text('fte', null, array('class'=>'form-control', 'id'=>'fte', 'placeholder'=>__('FTE'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'fte') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'hours_per_shift') !!}">
+            <label>{{ __('Hours per Shift') }}</label>
+            {!! Form::text('hours_per_shift', null, array('class'=>'form-control', 'id'=>'hours_per_shift', 'placeholder'=>__('Hours per Shift'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'hours_per_shift') !!}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'shifts_per_cycle') !!}">
+            <label>{{ __('Shifts per Cycle') }}</label>
+            {!! Form::text('shifts_per_cycle', null, array('class'=>'form-control', 'id'=>'shifts_per_cycle', 'placeholder'=>__('Shifts per Cycle'))) !!}
+            {!! APFrmErrHelp::showErrors($errors, 'shifts_per_cycle') !!}
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_primary_location') !!}">
+            <label>{{ __('Job Primary Location') }}</label>
+            <div id="job-locations-container">
+                @php
+                    $locations = old('job_primary_location', isset($job) ? $job->job_primary_location : '');
+                    $locationsArray = $locations ? (is_array($locations) ? $locations : explode("\n", $locations)) : [''];
+                @endphp
+                @foreach($locationsArray as $index => $location)
+                    <div class="input-group mb-2 location-item">
+                        <input type="text" name="job_primary_location[]" value="{{ $location }}" class="form-control" placeholder="{{__('Job Primary Location')}}">
+                        @if($index > 0)
+                            <button type="button" class="btn btn-danger remove-location">{{__('Remove')}}</button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-location-btn">{{__('Add Multi-Site Location')}}</button>
+            {!! APFrmErrHelp::showErrors($errors, 'job_primary_location') !!}
+        </div>
+    </div>
+
     <!-- 2 Column Layout Starts -->
     <div class="col-md-6">
         @php
@@ -624,6 +687,19 @@
 @include('includes.tinyMCEFront')
 <script>
     $(document).ready(function() {
+        // Multi-site location management
+        $('#add-location-btn').on('click', function() {
+            var locationHtml = '<div class="input-group mb-2 location-item">' +
+                '<input type="text" name="job_primary_location[]" value="" class="form-control" placeholder="{{__('Job Primary Location')}}">' +
+                '<button type="button" class="btn btn-danger remove-location">{{__('Remove')}}</button>' +
+                '</div>';
+            $('#job-locations-container').append(locationHtml);
+        });
+
+        $(document).on('click', '.remove-location', function() {
+            $(this).closest('.location-item').remove();
+        });
+
         function toggleExternalLinkField() {
             var applyType = $('#apply_type').val() || 'internal';
             var fieldConfig = {

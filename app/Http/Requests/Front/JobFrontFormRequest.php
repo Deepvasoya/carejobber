@@ -68,6 +68,12 @@ class JobFrontFormRequest extends Request
                             'promote_urgent_days' => 'nullable|in:0,7,15',
                             'promote_featured_days' => 'nullable|in:0,15,30',
                             'promote_highlighted' => 'nullable|in:0,1',
+                            'job_id' => 'nullable|string|max:255',
+                            'union' => 'nullable|string|max:255',
+                            'fte' => 'nullable|string|max:255',
+                            'job_primary_location' => 'nullable|array',
+                            'hours_per_shift' => 'nullable|string|max:255',
+                            'shifts_per_cycle' => 'nullable|string|max:255',
                         ];
                     }
 
@@ -105,6 +111,12 @@ class JobFrontFormRequest extends Request
                         'promote_urgent_days' => 'nullable|in:0,7,15',
                         'promote_featured_days' => 'nullable|in:0,15,30',
                         'promote_highlighted' => 'nullable|in:0,1',
+                        'job_id' => 'nullable|string|max:255',
+                        'union' => 'nullable|string|max:255',
+                        'fte' => 'nullable|string|max:255',
+                        'job_primary_location' => 'nullable|array',
+                        'hours_per_shift' => 'nullable|string|max:255',
+                        'shifts_per_cycle' => 'nullable|string|max:255',
                     ];
                 }
             default:break;
