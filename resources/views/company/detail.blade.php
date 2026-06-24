@@ -139,7 +139,7 @@
                                     <span class="material-symbols-outlined">verified</span>
                                     <div class="jbitdata">
                                         <strong>{{__('Verified')}}</strong>
-                                        <span>{{((bool)$company->verified)? 'Yes':'No'}}</span>
+                                        <span>@if($company->getEmployerTrustStatus() === 'verified') Yes @else No @endif</span>
                                     </div>
                                     </div>
                                 </li>
