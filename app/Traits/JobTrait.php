@@ -393,13 +393,19 @@ trait JobTrait
 
         $job = $this->assignJobValues($job, $request);
 
-        $job->is_active = $request->input('is_active');
+        $quickCreate = $request->input('quick_create', 0);
 
-        $job->is_featured = $request->input('is_featured');
-
-        $job->is_urgent = $request->input('is_urgent', 0);
-
-        $job->is_highlighted = $request->input('is_highlighted', 0);
+        if ($quickCreate) {
+            $job->is_active = $request->input('is_active', 0);
+            $job->is_featured = 0;
+            $job->is_urgent = 0;
+            $job->is_highlighted = 0;
+        } else {
+            $job->is_active = $request->input('is_active');
+            $job->is_featured = $request->input('is_featured');
+            $job->is_urgent = $request->input('is_urgent', 0);
+            $job->is_highlighted = $request->input('is_highlighted', 0);
+        }
 
         $job->save();
 
@@ -511,15 +517,19 @@ trait JobTrait
 
         $job = $this->assignJobValues($job, $request);
 
-        $job->is_active = $request->input('is_active');
+        $quickCreate = $request->input('quick_create', 0);
 
-        $job->is_featured = $request->input('is_featured');
-
-        $job->is_urgent = $request->input('is_urgent', 0);
-
-        $job->is_highlighted = $request->input('is_highlighted', 0);
-
-
+        if ($quickCreate) {
+            $job->is_active = $request->input('is_active', 0);
+            $job->is_featured = 0;
+            $job->is_urgent = 0;
+            $job->is_highlighted = 0;
+        } else {
+            $job->is_active = $request->input('is_active');
+            $job->is_featured = $request->input('is_featured');
+            $job->is_urgent = $request->input('is_urgent', 0);
+            $job->is_highlighted = $request->input('is_highlighted', 0);
+        }
 
         /*         * ******************************* */
 

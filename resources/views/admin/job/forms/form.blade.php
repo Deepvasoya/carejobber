@@ -2,6 +2,12 @@
 @include('flash::message')
 <div class="form-body">        
     {!! Form::hidden('id', null) !!}
+    <div class="form-group mb-3">
+        <label class="bold">
+            {!! Form::checkbox('quick_create', 1, false, ['id' => 'quick_create']) !!}
+            Quick Create &mdash; make all fields optional (title required, rest optional)
+        </label>
+    </div>
     <div class="form-group mb-3 mb-3 {!! APFrmErrHelp::hasError($errors, 'company_id') !!}" id="company_id_div">
         {!! Form::label('company_id', 'Company', ['class' => 'bold']) !!}                    
         {!! Form::select('company_id', ['' => 'Select Company']+$companies, null, array('class'=>'form-control', 'id'=>'company_id')) !!}

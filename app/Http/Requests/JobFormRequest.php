@@ -32,6 +32,9 @@ class JobFormRequest extends Request
                     if ($id > 0) {
                         $job_unique = ',id,' . $id;
                     }
+
+                    $quickCreate = $this->input('quick_create', 0);
+
                     return [
                         "id" => "",
                         "title" => "required",
@@ -47,16 +50,17 @@ class JobFormRequest extends Request
                         "job_experience_id" => "nullable",
                         'apply_type' => 'nullable|in:internal,external,email,phone',
                         'job_link' => 'nullable|string|max:255',
-                        "is_active" => "required",
-                        "is_featured" => "required",
-                        "is_urgent" => "required",
-                        "is_highlighted" => "required",
+                        "is_active" => $quickCreate ? "nullable" : "required",
+                        "is_featured" => $quickCreate ? "nullable" : "required",
+                        "is_urgent" => $quickCreate ? "nullable" : "required",
+                        "is_highlighted" => $quickCreate ? "nullable" : "required",
                         "job_id" => "nullable|string|max:255",
                         "union" => "nullable|string|max:255",
                         "fte" => "nullable|string|max:255",
                         "job_primary_location" => "nullable|string",
                         "hours_per_shift" => "nullable|string|max:255",
                         "shifts_per_cycle" => "nullable|string|max:255",
+                        "quick_create" => "nullable|boolean",
                     ];
                 }
             default:break;
