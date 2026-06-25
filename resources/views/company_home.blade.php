@@ -24,7 +24,7 @@
         <div class="col-lg-7" style="flex: 1; min-width: 0;"> 
             
             {{-- Verification Status Banner for Unverified/Reviewed Employers --}}
-            @if(in_array($company->getEmployerTrustStatus(), ['unverified', 'reviewed']))
+            @if(in_array($company->getEmployerTrustStatus(), ['unverified', 'reviewed']) && !$company->isVerified())
             <div class="alert alert-warning" style="border-left: 4px solid #ffc107;">
                 <h5 style="margin-top: 0;">
                     <i class="fas fa-exclamation-triangle"></i> 
@@ -44,7 +44,7 @@
             </div>
             @endif
             
-            <?php if ($company->is_active == 1 && (($company->package_end_date === null) || 
+            <?php if ($company->is_active == 1 && $company->isVerified() && (($company->package_end_date === null) || 
                 (\Carbon\Carbon::parse($company->package_end_date)->lt(\Carbon\Carbon::now())) || 
                 ($company->jobs_quota <= $company->availed_jobs_quota))) { ?>    
 
@@ -56,17 +56,17 @@
                 </div>
 
             <?php } elseif ($company->isVerificationRejected()) { ?>
-                <div class="userprofilealert">
+                <div class="alert alert-danger" style="border-left: 4px solid #dc3545;">
                     <h5>
                         <i class="fas fa-times"></i> 
                         {{__('Your company verification was rejected. Please review the reason and upload corrected documents.')}}
                     </h5>
                 </div>
-            <?php } elseif ($company->hasPendingVerification()) { ?> 
-                <div class="userprofilealert">
+            <?php } elseif ($company->hasPendingVerification() && !$company->isVerified()) { ?> 
+                <div class="alert alert-info" style="border-left: 4px solid #17a2b8;">
                     <h5>
                         <i class="fas fa-clock"></i> 
-                        {{__('Your account is currently inactive because your business documents are under review.')}}
+                        {{__('Your documents are under review. You can browse the dashboard, but job posting and resume access are temporarily locked.')}}
                     </h5>
                 </div>
             <?php } ?> 
