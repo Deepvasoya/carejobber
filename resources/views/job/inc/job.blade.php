@@ -75,7 +75,7 @@
     </div>
 
     <!-- New Fields -->
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_id') !!}">
             <label>{{ __('Job ID') }}</label>
             {!! Form::text('job_id', null, array('class'=>'form-control', 'id'=>'job_id', 'placeholder'=>__('Job ID'))) !!}
@@ -83,7 +83,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'union') !!}">
             <label>{{ __('Union') }}</label>
             {!! Form::text('union', null, array('class'=>'form-control', 'id'=>'union', 'placeholder'=>__('Union'))) !!}
@@ -91,7 +91,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'fte') !!}">
             <label>{{ __('FTE') }}</label>
             {!! Form::text('fte', null, array('class'=>'form-control', 'id'=>'fte', 'placeholder'=>__('FTE'))) !!}
@@ -99,7 +99,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'hours_per_shift') !!}">
             <label>{{ __('Hours per Shift') }}</label>
             {!! Form::text('hours_per_shift', null, array('class'=>'form-control', 'id'=>'hours_per_shift', 'placeholder'=>__('Hours per Shift'))) !!}
@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'shifts_per_cycle') !!}">
             <label>{{ __('Shifts per Cycle') }}</label>
             {!! Form::text('shifts_per_cycle', null, array('class'=>'form-control', 'id'=>'shifts_per_cycle', 'placeholder'=>__('Shifts per Cycle'))) !!}
@@ -115,7 +115,7 @@
         </div>
     </div>
 
-    <div class="col-md-12">
+    <div class="col-md-4">
         <div class="formrow {!! APFrmErrHelp::hasError($errors, 'job_primary_location') !!}">
             <label>{{ __('Job Primary Location') }}</label>
             <div id="job-locations-container">
@@ -132,7 +132,7 @@
                     </div>
                 @endforeach
             </div>
-            <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-location-btn">{{__('Add Multi-Site Location')}}</button>
+            <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-location-btn">{{__('Add More Location')}}</button>
             {!! APFrmErrHelp::showErrors($errors, 'job_primary_location') !!}
         </div>
     </div>
