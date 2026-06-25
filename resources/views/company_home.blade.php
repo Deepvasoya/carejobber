@@ -23,8 +23,8 @@
 
         <div class="col-lg-7" style="flex: 1; min-width: 0;"> 
             
-            {{-- Verification Status Banner for Unverified Employers --}}
-            @if($company->getEmployerTrustStatus() === 'unverified' && !$company->isVerified())
+            {{-- Verification Status Banner for Unverified/Reviewed Employers --}}
+            @if(in_array($company->getEmployerTrustStatus(), ['unverified', 'reviewed']))
             <div class="alert alert-warning" style="border-left: 4px solid #ffc107;">
                 <h5 style="margin-top: 0;">
                     <i class="fas fa-exclamation-triangle"></i> 

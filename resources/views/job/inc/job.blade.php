@@ -194,14 +194,6 @@
     </div>
 
     <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'gender_id') !!}" id="gender_id_div">
-            <label>{{ __('Gender Needed') }}</label>
-            {!! Form::select('gender_id', ['' => __('No Preference')]+$genders, null, array('class'=>'form-control', 'id'=>'gender_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'gender_id') !!}
-        </div>
-    </div>
-
-    <div class="col-md-6">
         <div class="formrow">
             <label>{{ __('Job Apply Type') }}</label>
             <?php
@@ -297,14 +289,6 @@
             @php $salary_currency = Request::get('salary_currency', (isset($job))? $job->salary_currency:$siteSetting->default_currency_code); @endphp
             {!! Form::select('salary_currency', ['' => __('Select Currency')]+$currencies, $salary_currency, array('class'=>'form-control', 'id'=>'salary_currency')) !!}
             {!! APFrmErrHelp::showErrors($errors, 'salary_currency') !!}
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="formrow {!! APFrmErrHelp::hasError($errors, 'career_level_id') !!}" id="career_level_id_div">
-            <label>{{ __('Career Level') }}</label>
-            {!! Form::select('career_level_id', ['' => __('Select Career Level')]+$careerLevels, null, array('class'=>'form-control', 'id'=>'career_level_id')) !!}
-            {!! APFrmErrHelp::showErrors($errors, 'career_level_id') !!}
         </div>
     </div>
 

@@ -26,7 +26,6 @@ class ScraperController extends Controller
             $command = str_replace(["'/usr/bin/php8.4'", "'artisan'", 'artisan', '/usr/bin/php', '/usr/local/bin/php', 'php'], '', $event->command);
             $command = trim(preg_replace('/\s+/', ' ', $command));
             
-            // Format next run date
             try {
                 $nextRun = $event->nextRunDate()->format('Y-m-d H:i:s');
             } catch (\Exception $e) {
@@ -52,7 +51,6 @@ class ScraperController extends Controller
         ]);
 
         $slug = Str::slug($request->name);
-        // Ensure unique slug
         $baseSlug = $slug;
         $counter = 1;
         while (JobFeedSource::where('slug', $slug)->exists()) {
@@ -73,7 +71,7 @@ class ScraperController extends Controller
 
     public function run()
     {
-        set_time_limit(300); // 5 minutes max for synchronous execution
+        set_time_limit(300);
         
         try {
             Artisan::call('jobs:scrape');
@@ -106,7 +104,6 @@ class ScraperController extends Controller
         set_time_limit(300);
         
         try {
-            // Parse arguments if any
             $parts = explode(' ', $command);
             $baseCommand = $parts[0];
             $args = [];
@@ -154,13 +151,27 @@ class ScraperController extends Controller
             'location' => 'nullable|max:255',
             'job_type' => 'nullable|max:191',
             'salary' => 'nullable|max:255',
+            'salary_min' => 'nullable|max:50',
+            'salary_max' => 'nullable|max:50',
             'apply_url' => 'nullable|url|max:2000',
+            'job_primary_location' => 'nullable|max:500',
+            'job_shift' => 'nullable|max:191',
+            'functional_area' => 'nullable|max:191',
+            'union' => 'nullable|max:191',
+            'fte' => 'nullable|max:50',
+            'hours_per_shift' => 'nullable|max:50',
+            'shifts_per_cycle' => 'nullable|max:50',
+            'expiry_date' => 'nullable|max:50',
+            'city_id' => 'nullable|integer',
         ]);
 
         try {
             $company = null;
             if ($request->company_name) {
                 $company = \App\Company::where('name', $request->company_name)->first();
+                if (!$company) {
+                    $company = \App\Company::whereRaw('LOWER(name) = ?', [strtolower($request->company_name)])->first();
+                }
                 if (!$company) {
                     $company = \App\Company::create([
                         'name' => $request->company_name,
@@ -174,6 +185,13 @@ class ScraperController extends Controller
                 }
             }
 
+            $expiryDate = $request->expiry_date ?: now()->addDays(30);
+            try {
+                $expiryDate = \Carbon\Carbon::parse($expiryDate);
+            } catch (\Exception $e) {
+                $expiryDate = now()->addDays(30);
+            }
+
             $job = new Job();
             $job->title = $request->title;
             $job->description = $request->description ?? '';
@@ -184,8 +202,50 @@ class ScraperController extends Controller
             $job->is_highlighted = 0;
             $job->country_id = 0;
             $job->state_id = 0;
-            $job->city_id = 0;
-            $job->expiry_date = now()->addDays(30);
+            $job->city_id = $request->city_id ?: 0;
+            $job->expiry_date = $expiryDate;
+            $job->salary_from = $request->salary_min ? preg_replace('/[^0-9.]/', '', $request->salary_min) : null;
+            $job->salary_to = $request->salary_max ? preg_replace('/[^0-9.]/', '', $request->salary_max) : null;
+            $job->job_primary_location = $request->job_primary_location ?: ($request->location ?? '');
+            $job->job_id = $request->external_id ?? '';
+
+            if ($request->job_type) {
+                $jobType = \App\JobType::where('job_type', $request->job_type)->orWhere('job_type', 'like', '%' . $request->job_type . '%')->first();
+                if ($jobType) {
+                    $job->job_type_id = $jobType->id;
+                }
+            }
+
+            if ($request->job_shift) {
+                $jobShift = \App\JobShift::where('job_shift', $request->job_shift)->orWhere('job_shift', 'like', '%' . $request->job_shift . '%')->first();
+                if (!$jobShift) {
+                    $jobShift = \App\JobShift::create(['job_shift' => $request->job_shift, 'is_active' => 1]);
+                }
+                $job->job_shift_id = $jobShift->id;
+            }
+
+            if ($request->functional_area) {
+                $funcArea = \App\FunctionalArea::where('functional_area', $request->functional_area)
+                    ->orWhere('functional_area', 'like', '%' . $request->functional_area . '%')->first();
+                if (!$funcArea) {
+                    $funcArea = \App\FunctionalArea::create(['functional_area' => $request->functional_area, 'is_active' => 1]);
+                }
+                $job->functional_area_id = $funcArea->id;
+            }
+
+            $job->union = $request->union;
+            $job->fte = $request->fte;
+            $job->hours_per_shift = $request->hours_per_shift;
+            $job->shifts_per_cycle = $request->shifts_per_cycle;
+
+            // Mark as external apply so Apply Now redirects to the company's URL
+            if (!empty($request->apply_url)) {
+                $job->external_job = 'yes';
+                $job->apply_type = 'external';
+                $job->application_url = $request->apply_url;
+                $job->job_link = $request->apply_url;
+            }
+
             $job->save();
 
             $job->slug = Str::slug($job->title, '-') . '-' . $job->id;

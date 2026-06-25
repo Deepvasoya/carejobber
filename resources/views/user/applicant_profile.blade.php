@@ -146,7 +146,7 @@ if (Auth::guard('company')->user()) {
                         <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#resumeUnlockModal">
                             <i class="fa fa-unlock-alt me-2" aria-hidden="true"></i> {{__('Unlock Full Profile')}}
                         </button>
-                        <a href="{{ route('resume.unlock.page', $user->id) }}" class="btn btn-outline-primary btn-lg">
+                        <a href="{{ route('company.packages') }}#package-list" class="btn btn-outline-primary btn-lg">
                             <i class="fas fa-info-circle me-2"></i> {{__('View Pricing')}}
                         </a>
                     </div>

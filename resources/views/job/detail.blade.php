@@ -41,8 +41,19 @@
                     @endif
                     <div class="ptext">{{__('Date Posted')}}: {{$job->created_at->format('M d, Y')}}</div>
 
-	                    @if(!(bool)$job->hide_salary)
-	                    <div class="salary">{{$job->getSalaryPeriod('salary_period')}}: <strong>{{$salaryPrefix.$job->salary_from}} - {{$salaryPrefix.$job->salary_to}}</strong></div>
+	                    @if(!(bool)$job->hide_salary && ($job->salary_from || $job->salary_to))
+	                    <div class="salary">
+	                        {{$job->getSalaryPeriod('salary_period')}}: 
+	                        <strong>
+	                            @if($job->salary_from && $job->salary_to)
+	                                {{$salaryPrefix.$job->salary_from}} - {{$salaryPrefix.$job->salary_to}}
+	                            @elseif($job->salary_from)
+	                                {{$salaryPrefix.$job->salary_from}}
+	                            @elseif($job->salary_to)
+	                                {{__('Up to')}} {{$salaryPrefix.$job->salary_to}}
+	                            @endif
+	                        </strong>
+	                    </div>
 	                    @endif
                 </div>
             </div>
@@ -93,7 +104,7 @@
 
         <!-- Job Detail start -->
         <div class="row">
-            <div class="col-lg-7">
+            <div class="col-lg-8">
 
                 <!-- Job Header start -->
                 <div class="job-header">
@@ -105,152 +116,105 @@
                             <h3><i class="fa fa-align-left" aria-hidden="true"></i> {{__('Job Detail')}}</h3>
 
 
-                            <ul class="jbdetail row">
+                            <div class="row jbdetail">
                                 @if(!empty($job->job_id))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">badge</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Job ID')}}:</strong> <span>{{$job->job_id}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">badge</span>
+                                    <strong>{{__('Job ID')}}:</strong> <span>{{$job->job_id}}</span>
+                                </div>
                                 @endif
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">location_on</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Location')}}:</strong>
-                                            @if((bool)$job->is_freelance)
-                                            <span>Freelance</span>
-                                            @else
-                                            <span>{{$job->getLocation()}}</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">location_on</span>
+                                    <strong>{{__('Location')}}:</strong>
+                                    @if((bool)$job->is_freelance)
+                                    <span>Freelance</span>
+                                    @else
+                                    <span>{{$job->getLocation()}}</span>
+                                    @endif
+                                </div>
 
                                 @if(!empty($job->job_primary_location))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">map</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Primary Location')}}:</strong>
-                                            <span>{!! nl2br(e($job->job_primary_location)) !!}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">map</span>
+                                    <strong>{{__('Primary Location')}}:</strong>
+                                    <span>@php
+                                        $locations = explode("\n", $job->job_primary_location);
+                                        $locations = array_filter(array_map('trim', $locations));
+                                        echo implode(' &middot; ', array_map('e', $locations));
+                                    @endphp</span>
+                                </div>
                                 @endif
 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">desktop_windows</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Job Type')}}:</strong> <span>{{$job->getJobType('job_type')}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">desktop_windows</span>
+                                    <strong>{{__('Job Type')}}:</strong> <span>{{$job->getJobType('job_type')}}</span>
+                                </div>
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">domain</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Facility Type')}}:</strong> <span>{{$job->getIndustry('industry')}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">domain</span>
+                                    <strong>{{__('Facility Type')}}:</strong> <span>{{$job->getIndustry('industry')}}</span>
+                                </div>
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">schedule</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Shift')}}:</strong> <span>{{$job->getJobShift('job_shift')}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">schedule</span>
+                                    <strong>{{__('Shift')}}:</strong> <span>{{$job->getJobShift('job_shift')}}</span>
+                                </div>
                                 
                                 @if(!empty($job->union))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">groups</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Union')}}:</strong> <span>{{$job->union}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">groups</span>
+                                    <strong>{{__('Union')}}:</strong> <span>{{$job->union}}</span>
+                                </div>
                                 @endif
                                 
                                 @if(!empty($job->fte))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">work</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('FTE')}}:</strong> <span>{{$job->fte}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">work</span>
+                                    <strong>{{__('FTE')}}:</strong> <span>{{$job->fte}}</span>
+                                </div>
                                 @endif
                                 
                                 @if(!empty($job->hours_per_shift))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">schedule</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Hours per Shift')}}:</strong> <span>{{$job->hours_per_shift}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">schedule</span>
+                                    <strong>{{__('Hours per Shift')}}:</strong> <span>{{$job->hours_per_shift}}</span>
+                                </div>
                                 @endif
                                 
                                 @if(!empty($job->shifts_per_cycle))
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">event_repeat</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Shifts per Cycle')}}:</strong> <span>{{$job->shifts_per_cycle}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">event_repeat</span>
+                                    <strong>{{__('Shifts per Cycle')}}:</strong> <span>{{$job->shifts_per_cycle}}</span>
+                                </div>
                                 @endif
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">group</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Positions')}}:</strong> <span>{{$job->num_of_positions}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">group</span>
+                                    <strong>{{__('Positions')}}:</strong> <span>{{$job->num_of_positions}}</span>
+                                </div>
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">calendar_view_day</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Experience')}}:</strong> <span>{{$job->getJobExperience('job_experience')}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">calendar_view_day</span>
+                                    <strong>{{__('Date Posted')}}:</strong> <span>{{$job->created_at->format('M d, Y')}}</span>
+                                </div>
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">school</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Degree')}}:</strong> <span>{{$job->getDegreeLevel('degree_level')}}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">work_history</span>
+                                    <strong>{{__('Experience')}}:</strong> <span>{{$job->getJobExperience('job_experience')}}</span>
+                                </div>
                                 
-                                <li class="col-lg-6 col-md-6">
-                                    <div class="jbitlist">
-                                        <span class="material-symbols-outlined">calendar_month</span>
-                                        <div class="jbitdata">
-                                            <strong>{{__('Application Deadline')}}:</strong> <span>{{ \Carbon\Carbon::parse($job->expiry_date)->format('M d, Y') }}</span>
-                                        </div>
-                                    </div>
-                                </li>
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">school</span>
+                                    <strong>{{__('Degree')}}:</strong> <span>{{$job->getDegreeLevel('degree_level')}}</span>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6 jbdetail-item">
+                                    <span class="material-symbols-outlined">calendar_month</span>
+                                    <strong>{{__('Application Deadline')}}:</strong> <span>{{ \Carbon\Carbon::parse($job->expiry_date)->format('M d, Y') }}</span>
+                                </div>
 
-                            </ul>
+                            </div>
 
 
 
@@ -301,7 +265,7 @@
             <!-- related jobs end -->
             
             <!-- Right Sidebar - Employer Information -->
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 <div class="job-header">
                     <div class="contentbox">
                         <h3><i class="fas fa-building" aria-hidden="true"></i> {{__('About Employer')}}</h3>
@@ -625,44 +589,28 @@
         border-radius: 8px;
     }
     
-    /* 2-column inline job details styling */
+    /* 6-6 grid with inline content */
     .jbdetail {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+        margin: 10px 0 0;
     }
     
-    .jbdetail li {
-        margin-bottom: 15px;
-    }
-    
-    .jbitlist {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .jbitlist .material-symbols-outlined {
-        font-size: 24px;
+    .jbdetail-item {
+        padding: 6px 12px;
+        font-size: 14px;
         color: #4a5568;
-        flex-shrink: 0;
     }
     
-    .jbitdata {
-        flex: 1;
-        display: inline;
-    }
-    
-    .jbitdata strong {
-        display: inline;
-        color: #2d3748;
-        font-weight: 600;
+    .jbdetail-item .material-symbols-outlined {
+        font-size: 16px;
+        vertical-align: middle;
         margin-right: 4px;
+        color: #6b7280;
     }
     
-    .jbitdata span {
-        display: inline;
-        color: #4a5568;
+    .jbdetail-item strong {
+        color: #374151;
+        font-weight: 600;
+        margin-right: 2px;
     }
 </style>
 @endpush

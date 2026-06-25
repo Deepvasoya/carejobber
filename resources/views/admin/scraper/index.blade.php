@@ -47,23 +47,60 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Title</label>
-                            <input type="text" id="scraped-title" class="form-control">
+                            <input type="text" id="scraped-title" class="form-control" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Company Name</label>
+                            <label class="form-label">Company Name <small class="text-muted">(auto-matched)</small></label>
                             <input type="text" id="scraped-company" class="form-control">
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Location</label>
-                            <input type="text" id="scraped-location" class="form-control">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Functional Area / Classification</label>
+                            <input type="text" id="scraped-functional-area" class="form-control">
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">Job Type</label>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Job Type / Employee Class</label>
                             <input type="text" id="scraped-job-type" class="form-control">
                         </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Job Shift / Shift Pattern</label>
+                            <input type="text" id="scraped-job-shift" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Primary Location</label>
+                            <input type="text" id="scraped-primary-location" class="form-control">
+                        </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Salary</label>
-                            <input type="text" id="scraped-salary" class="form-control">
+                            <label class="form-label">City <small class="text-muted">(auto-detected)</small></label>
+                            <input type="text" id="scraped-city-name" class="form-control" readonly>
+                            <input type="hidden" id="scraped-city-id">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Application Deadline</label>
+                            <input type="text" id="scraped-expiry-date" class="form-control" placeholder="e.g. Jul 25, 2026">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Min. Salary</label>
+                            <input type="text" id="scraped-salary-min" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Max. Salary</label>
+                            <input type="text" id="scraped-salary-max" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Hours per Shift</label>
+                            <input type="text" id="scraped-hours-per-shift" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">FTE</label>
+                            <input type="text" id="scraped-fte" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Union</label>
+                            <input type="text" id="scraped-union" class="form-control">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Shifts per Cycle</label>
+                            <input type="text" id="scraped-shifts-per-cycle" class="form-control">
                         </div>
                         <div class="col-md-12 mb-3">
                             <label class="form-label">Apply URL</label>
@@ -445,13 +482,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     scrapeBtn.disabled = false;
 
                     if (response.success) {
-                        document.getElementById('scraped-title').value = response.data.title || '';
-                        document.getElementById('scraped-company').value = response.data.company_name || '';
-                        document.getElementById('scraped-location').value = response.data.location || '';
-                        document.getElementById('scraped-job-type').value = response.data.job_type || '';
-                        document.getElementById('scraped-salary').value = response.data.salary || '';
-                        document.getElementById('scraped-apply-url').value = response.data.apply_url || '';
-                        document.getElementById('scraped-description').value = response.data.description || '';
+                        const d = response.data;
+                        document.getElementById('scraped-title').value = d.title || '';
+                        document.getElementById('scraped-company').value = d.company_name || '';
+                        document.getElementById('scraped-functional-area').value = d.functional_area || '';
+                        document.getElementById('scraped-job-type').value = d.job_type || '';
+                        document.getElementById('scraped-job-shift').value = d.job_shift || '';
+                        document.getElementById('scraped-primary-location').value = d.job_primary_location || d.location || '';
+                        document.getElementById('scraped-city-name').value = d.city_name || '';
+                        document.getElementById('scraped-city-id').value = d.city_id || '';
+                        document.getElementById('scraped-expiry-date').value = d.expiry_date || '';
+                        document.getElementById('scraped-salary-min').value = d.salary_min || '';
+                        document.getElementById('scraped-salary-max').value = d.salary_max || '';
+                        document.getElementById('scraped-hours-per-shift').value = d.hours_per_shift || '';
+                        document.getElementById('scraped-fte').value = d.fte || '';
+                        document.getElementById('scraped-union').value = d.union || '';
+                        document.getElementById('scraped-shifts-per-cycle').value = d.shifts_per_cycle || '';
+                        document.getElementById('scraped-apply-url').value = d.apply_url || '';
+                        document.getElementById('scraped-description').value = d.description || '';
                         scrapeResult.style.display = 'block';
                         toastr.success('Job details extracted successfully! Review and click Save.');
                     } else {
@@ -486,16 +534,27 @@ document.addEventListener('DOMContentLoaded', function() {
             $.ajax({
                 url: '{{ route("admin.scraper.save_scraped_job") }}',
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    title: title,
-                    description: document.getElementById('scraped-description').value,
-                    company_name: document.getElementById('scraped-company').value,
-                    location: document.getElementById('scraped-location').value,
-                    job_type: document.getElementById('scraped-job-type').value,
-                    salary: document.getElementById('scraped-salary').value,
-                    apply_url: document.getElementById('scraped-apply-url').value,
-                },
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        title: title,
+                        description: document.getElementById('scraped-description').value,
+                        company_name: document.getElementById('scraped-company').value,
+                        location: document.getElementById('scraped-primary-location').value,
+                        job_type: document.getElementById('scraped-job-type').value,
+                        salary: '',
+                        salary_min: document.getElementById('scraped-salary-min').value,
+                        salary_max: document.getElementById('scraped-salary-max').value,
+                        apply_url: document.getElementById('scraped-apply-url').value,
+                        job_primary_location: document.getElementById('scraped-primary-location').value,
+                        job_shift: document.getElementById('scraped-job-shift').value,
+                        functional_area: document.getElementById('scraped-functional-area').value,
+                        union: document.getElementById('scraped-union').value,
+                        fte: document.getElementById('scraped-fte').value,
+                        hours_per_shift: document.getElementById('scraped-hours-per-shift').value,
+                        shifts_per_cycle: document.getElementById('scraped-shifts-per-cycle').value,
+                        expiry_date: document.getElementById('scraped-expiry-date').value,
+                        city_id: document.getElementById('scraped-city-id').value,
+                    },
                 success: function(response) {
                     saveBtn.disabled = false;
                     saveBtn.innerHTML = '<i class="ri-save-line align-middle me-1"></i> Save as Job';

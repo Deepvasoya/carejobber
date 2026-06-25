@@ -37,6 +37,10 @@ class ScrapeJobFeeds extends Command
 
         if ($sources->isEmpty()) {
             $this->warn('No active job feed sources found.');
+            $log->update([
+                'status' => 'completed',
+                'finished_at' => now(),
+            ]);
             return 0;
         }
 

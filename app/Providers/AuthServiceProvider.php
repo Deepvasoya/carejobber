@@ -47,6 +47,15 @@ class AuthServiceProvider extends ServiceProvider
                 return false;
             }
 
+            // Allow if the job seeker applied to any job owned by this employer
+            $hasApplied = \App\JobApply::where('user_id', $jobSeeker->id)
+                ->whereHas('job', function ($q) use ($company) {
+                    $q->where('company_id', $company->id);
+                })->exists();
+            if ($hasApplied) {
+                return true;
+            }
+
             if (method_exists($company, 'isVerified') && method_exists($company, 'hasBusinessRegistration')) {
                 if (! $company->hasBusinessRegistration() || ! $company->isVerified()) {
                     return false;

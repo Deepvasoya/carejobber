@@ -89,6 +89,17 @@
 </style>
 <div class="custom-dashboard-sidebar">
 	<div class="usernavwrap">
+    @php $companyMenu = Auth::guard('company')->user(); @endphp
+    <div style="padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 13px; color: #64748b; font-weight: 500;">{{ __('Company Status') }}:</span>
+        @if($companyMenu->isEmployerVerified())
+            <span style="color: #16a34a; font-weight: 600; font-size: 13px;">{{ __('Verified') }}</span>
+        @elseif($companyMenu->isEmployerReviewed())
+            <span style="color: #ca8a04; font-weight: 600; font-size: 13px;">{{ __('Reviewed') }}</span>
+        @else
+            <span style="color: #dc2626; font-weight: 600; font-size: 13px;">{{ __('Unverified') }}</span>
+        @endif
+    </div>
     <ul class="usernavdash">
         <li class="{{ Request::url() == route('company.home') ? 'active' : '' }}"><a href="{{route('company.home')}}"><i class="fas fa-tachometer" aria-hidden="true"></i> {{__('Dashboard')}}</a></li>
         <li class="{{ Request::url() == route('company.profile') ? 'active' : '' }}"><a href="{{ route('company.profile') }}"><i class="fas fa-pencil" aria-hidden="true"></i> {{__('Edit Account Details')}}</a></li>
