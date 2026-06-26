@@ -39,9 +39,9 @@ class UserFrontFormRequest extends Request
             'password' => 'max:50',
             //'father_name' => 'required|max:80',
            // 'date_of_birth' => 'required',
-            'gender_id' => 'required',
-            'marital_status_id' => 'required',
-            'nationality_id' => 'required',
+           // 'gender_id' => 'required',
+           // 'marital_status_id' => 'required',
+           // 'nationality_id' => 'required',
             //'national_id_card_number' => 'required|max:80',
             'country_id' => 'required',
             'state_id' => 'required',
@@ -51,12 +51,12 @@ class UserFrontFormRequest extends Request
             'job_experience_id' => 'required',
             // 'career_level_id' => 'required',
             // 'industry_id' => 'required',
-            'functional_area_id' => 'required',
+            'job_category_id' => 'required',
           // 'current_salary' => 'required|max:11',
            // 'expected_salary' => 'required|max:11',
             //'salary_currency' => 'required|max:5',
             'street_address' => 'required|max:230',
-            'image' => 'image',
+            'image' => 'nullable|image',
             'custom_functional_area' => 'nullable|string|max:200',
             'custom_city_name' => 'nullable|string|max:30',
             'custom_fields' => 'nullable|array',
@@ -69,7 +69,7 @@ class UserFrontFormRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($v) {
-            if ((int) $this->input('functional_area_id') === 0) {
+            if ((int) $this->input('job_category_id') === 0) {
                 if (mb_strlen(trim((string) $this->input('custom_functional_area', ''))) < 2) {
                     $v->errors()->add('custom_functional_area', __('Please enter your job category.'));
                 }
@@ -106,9 +106,9 @@ class UserFrontFormRequest extends Request
             'password.min' => __('The password should be more than 3 characters long'),
             //'father_name.required' => __('Father Name is required'),
            // 'date_of_birth.required' => __('Date of birth is required'),
-            'gender_id.required' => __('Please select gender'),
-            'marital_status_id.required' => __('Please select marital status'),
-            'nationality_id.required' => __('Please select nationality'),
+           // 'gender_id.required' => __('Please select gender'),
+           // 'marital_status_id.required' => __('Please select marital status'),
+          //  'nationality_id.required' => __('Please select nationality'),
             //'national_id_card_number.required' => __('National ID card# required'),
             'country_id.required' => __('Please select country'),
             'state_id.required' => __('Please select state'),

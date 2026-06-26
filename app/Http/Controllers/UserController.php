@@ -166,7 +166,7 @@ class UserController extends Controller
         $industryChanged = ($oldIndustryId != $newIndustryId) || ($newIndustryId && !$oldIndustryId);
         
         $user->industry_id = $request->input('industry_id');
-        $user->functional_area_id = $request->input('functional_area_id');
+        $user->functional_area_id = $request->input('job_category_id');
         $user->current_salary = $request->input('current_salary');
         $user->expected_salary = $request->input('expected_salary');
         $user->salary_currency = $request->input('salary_currency');
