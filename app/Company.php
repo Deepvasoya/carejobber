@@ -945,42 +945,35 @@ class Company extends Authenticatable
             return true;
         }
 
-        return (bool) $this->verified && $this->verified_at !== null;
+        return $this->verification_status === 'verified';
     }
 
     /**
      * Check if company has uploaded business registration document
      */
-    public function hasBusinessRegistration(): bool
-    {
-        return $this->verificationDocuments()
-            ->where('document_type', \App\VerificationDocument::TYPE_BUSINESS_REGISTRATION)
-            ->exists();
+
+public function hasBusinessRegistration(): bool
+{
+    return $this->verificationDocuments()
+        ->where('document_type', \App\VerificationDocument::TYPE_BUSINESS_REGISTRATION)
+        ->exists();
+}
+
+public function hasPendingVerification(): bool
+{
+    if ($this->verification_status === 'pending') {
+        return $this->hasBusinessRegistration() && ! $this->isVerified();
     }
 
-    public function hasPendingVerification(): bool
-    {
-        if ($this->verification_status === 'pending') {
-            return $this->hasBusinessRegistration() && ! $this->isVerified();
-        }
+    return $this->hasBusinessRegistration()
+        && ! $this->isVerified()
+        && $this->verification_status !== 'rejected';
+}
 
-        return $this->hasBusinessRegistration()
-            && ! $this->isVerified()
-            && $this->verification_status !== 'rejected';
-    }
-
-    public function isVerificationRejected(): bool
-    {
-        return $this->verification_status === 'rejected';
-    }
-
-    /**
-     * Get claim requests for this company
-     */
-    public function claimRequests()
-    {
-        return $this->hasMany('App\CompanyClaimRequest', 'company_id');
-    }
+public function isVerificationRejected(): bool
+{
+    return $this->verification_status === 'rejected';
+}
 
     /**
      * Get the user who claimed this company
