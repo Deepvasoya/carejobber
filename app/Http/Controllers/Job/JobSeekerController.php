@@ -41,20 +41,10 @@ class JobSeekerController extends Controller
     {
         $company = Auth::guard('company')->user();
         
-        // Only verified employers with active CV package can search/browse job seekers
-        if (!$company->canAccessResumeDatabase()) {
-            if (!$company->isEmployerVerified()) {
-                flash(__('Only verified employers can access the resume database. Please get verified first.'))->error();
-                return redirect()->route('company.verification.upload');
-            }
-            
-            if (!$company->hasActiveCvSearchPackage()) {
-                flash(__('You need an active CV search package to browse job seekers. Please purchase a package.'))->error();
-                return redirect()->route('company.packages');
-            }
-            
-            flash(__('You do not have access to the resume database.'))->error();
-            return redirect()->route('company.home');
+        // Only verified employers can search/browse job seekers
+        if (!$company->isEmployerVerified()) {
+            flash(__('Only verified employers can access the resume database. Please get verified first.'))->error();
+            return redirect()->route('company.verification.upload');
         }
         
         $search = $request->query('search', '');
