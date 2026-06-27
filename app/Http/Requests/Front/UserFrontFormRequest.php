@@ -61,7 +61,7 @@ class UserFrontFormRequest extends Request
             'custom_city_name' => 'nullable|string|max:30',
             'custom_fields' => 'nullable|array',
             'certification_ids' => 'nullable|array',
-            'certification_ids.*' => 'nullable|integer|exists:certifications,id',
+            'certification_ids.*' => 'nullable|integer',
             'custom_certification' => 'nullable|string|max:200',
         ];
     }
@@ -82,11 +82,22 @@ class UserFrontFormRequest extends Request
                     $v->errors()->add('custom_city_name', __('Please enter your city name.'));
                 }
             }
-            // Validate custom certification if "Other" is selected
+            // Validate certifications
             $certIds = $this->input('certification_ids', []);
-            if (is_array($certIds) && in_array('0', $certIds)) {
-                if (mb_strlen(trim((string) $this->input('custom_certification', ''))) < 2) {
-                    $v->errors()->add('custom_certification', __('Please enter the certification name.'));
+            if (is_array($certIds)) {
+                $nonZeroIds = array_filter($certIds, fn($v) => (int) $v !== 0);
+                if (count($nonZeroIds) > 0) {
+                    $existingIds = \App\Certification::whereIn('id', $nonZeroIds)->pluck('id')->toArray();
+                    foreach ($nonZeroIds as $key => $val) {
+                        if (!in_array((int) $val, $existingIds)) {
+                            $v->errors()->add('certification_ids.' . $key, __('Invalid certification selected.'));
+                        }
+                    }
+                }
+                if (in_array('0', $certIds) || in_array(0, $certIds)) {
+                    if (mb_strlen(trim((string) $this->input('custom_certification', ''))) < 2) {
+                        $v->errors()->add('custom_certification', __('Please enter the certification name.'));
+                    }
                 }
             }
             app(CustomFieldValueService::class)->validateContext($this, CustomField::CONTEXT_PROFILE, $v);
