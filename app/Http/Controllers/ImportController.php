@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Auth;
-use App\JobB;
+use App\Job;
 use App\Company;
 use App\Country;
 use App\State;
@@ -239,37 +239,6 @@ class ImportController extends Controller
                 $jobShift->job_shift_id = $jobShift->id;
                 $jobShift->update();
 
-                $genderName = $jobData['gender_id'];
-                $gender = Gender::where('gender', $genderName)->first();
-
-                if (!$gender) {
-                    // Create a new gender
-                    $gender = Gender::create([
-                        'gender' => $genderName,
-                        'is_default' => 1, // You can adjust this based on your requirements
-                        'is_active' => 1, // You can adjust this based on your requirements
-                        'lang' => 'en', // Set lang to 'en'
-                    ]);
-                }
-
-                $gender->gender_id = $gender->id;
-                $gender->update();
-
-                $degreeLevelName = $jobData['degree_level_id'];
-                $degreeLevel = DegreeLevel::where('degree_level', $degreeLevelName)->first();
-
-                if (!$degreeLevel) {
-                    // Create a new degree level
-                    $degreeLevel = DegreeLevel::create([
-                        'degree_level' => $degreeLevelName,
-                        'is_default' => 1, // You can adjust this based on your requirements
-                        'is_active' => 1, // You can adjust this based on your requirements
-                        'lang' => 'en', // Set lang to 'en'
-                    ]);
-                }
-                $degreeLevel->degree_level_id = $degreeLevel->id;
-                $degreeLevel->update();
-
                 $jobExperienceName = $jobData['job_experience_id'];
                 $jobExperience = JobExperience::where('job_experience', $jobExperienceName)->first();
 
@@ -288,7 +257,7 @@ class ImportController extends Controller
                 $is_valid_date = strtotime(@$jobData['salary_from']) !== false;
 
                 // Step 3: Create a new job object with the updated company_id
-                $job = new JobB();
+                $job = new Job();
                 $job->company_id = $company->id;
                 $job->title = @$jobData['title'];
                 $job->description = @$jobData['description']?utf8_encode(@$jobData['description']):null;
@@ -307,9 +276,7 @@ class ImportController extends Controller
                 $job->job_type_id = $jobType->id;
                 $job->job_shift_id = $jobShift->id;
                 $job->num_of_positions = @$jobData['num_of_positions']?@$jobData['num_of_positions']:1;
-                $job->gender_id = $gender->id;
                 $job->expiry_date = @$jobData['expiry_date']?date('Y-m-d H:i:s',strtotime(@$jobData['expiry_date'])):date('Y-m-d H:i:s', strtotime('+6 months'));
-                $job->degree_level_id = $degreeLevel->id;
                 $job->job_experience_id = $jobExperience->id;
                 $job->is_active = @$jobData['is_active'];
                 $job->is_featured = @$jobData['is_featured'];
