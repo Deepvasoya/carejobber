@@ -81,35 +81,20 @@ class ImportController extends Controller
             
 
             foreach ($customerArr as $key => $jobData) {
-                $email = @$jobData['company_id'];
                 $name = @$jobData['company_name'];
-                $company = Company::where('email', $email)->first();
+                $company = null;
+                if ($name) {
+                    $company = Company::where('name', $name)->first();
+                }
 
-                // Step 2: If the company doesn't exist, create a new one
-                if (!$company && $email) {
-                    // Extract name and email before '@'
-                    if(!$name){
-                       $name = explode('@', $email)[0]; 
-                    }
-                    
-
-                    // Create a new company
+                if (!$company && $name) {
+                    $email = strtolower(str_replace(' ', '.', $name)) . '@' . request()->getHost();
                     $company = Company::create([
                         'name' => $name,
                         'email' => $email,
-                        'password' => bcrypt(time()), // Hashed password using time()
+                        'password' => bcrypt(time()),
                     ]);
-
                     $company->slug = Str::slug($company->name, '-') . '-' . $company->id;
-                    $company->save();
-                }else if ($name){
-                    $company = Company::create([
-                        'name' => $name,
-                        'email' => $name.'@'.request()->getHost(),
-                        'password' => bcrypt(time()), // Hashed password using time()
-                    ]);
-
-                    $company->slug = Str::slug($company->name, '-') . '-' . $company->id; 
                     $company->save();
                 }
 
@@ -303,8 +288,11 @@ class ImportController extends Controller
                 $job->job_advertiser = @$jobData['job_advertiser'];
                 $job->application_url = @$jobData['application_url'];
                 $job->json_object = @$jobData['json_object'];
-                $job->external_job = !empty($jobData['external_job']) ? 'yes' : 'no';
-                $job->job_link = @$jobData['job_link'];
+                $jobLink = @$jobData['job_link'];
+                $hasJobLink = !empty($jobLink) && filter_var($jobLink, FILTER_VALIDATE_URL);
+                $job->external_job = $hasJobLink ? 'yes' : 'no';
+                $job->apply_type = $hasJobLink ? 'external' : 'internal';
+                $job->job_link = $hasJobLink ? $jobLink : null;
 
 
                 //dd($job);

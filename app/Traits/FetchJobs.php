@@ -56,30 +56,33 @@ trait FetchJobs
         'jobs.job_link',
         'jobs.application_url',
         'jobs.created_at',
-        'jobs.updated_at'
+        'jobs.updated_at',
+        'jobs.union',
+        'jobs.fte',
+        'jobs.hours_per_shift'
     );
 
-    public function fetchJobs($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $orderBy = 'id', $limit = 10, $job_category_ids = array())
+    public function fetchJobs($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $orderBy = 'id', $limit = 10, $job_category_ids = array(), $union = '', $fte = '', $hours_per_shift = '')
     {
         $asc_desc = 'DESC';
         $query = Job::select($this->fields);
-        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids);
+        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids, $union, $fte, $hours_per_shift);
 
         Job::orderByPromotionPriority($query);
         //echo $query->toSql();exit;
         return $query->paginate($limit);
     }
 
-    public function fetchIdsArray($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $field = 'jobs.id', $job_category_ids = array())
+    public function fetchIdsArray($search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $field = 'jobs.id', $job_category_ids = array(), $union = '', $fte = '', $hours_per_shift = '')
     {
         $query = Job::select($field);
-        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids);
+        $query = $this->createQuery($query, $search, $job_titles, $company_ids, $industry_ids, $job_skill_ids, $functional_area_ids, $country_ids, $state_ids, $city_ids, $is_freelance, $career_level_ids, $job_type_ids, $job_shift_ids, $gender_ids, $degree_level_ids, $job_experience_ids, $salary_from, $salary_to, $salary_currency, $is_featured, $job_category_ids, $union, $fte, $hours_per_shift);
 
         $array = $query->pluck($field)->toArray();
         return array_unique($array);
     }
 
-    public function createQuery($query, $search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $job_category_ids = array())
+    public function createQuery($query, $search = '', $job_titles = array(), $company_ids = array(), $industry_ids = array(), $job_skill_ids = array(), $functional_area_ids = array(), $country_ids = array(), $state_ids = array(), $city_ids = array(), $is_freelance = -1, $career_level_ids = array(), $job_type_ids = array(), $job_shift_ids = array(), $gender_ids = array(), $degree_level_ids = array(), $job_experience_ids = array(), $salary_from = 0, $salary_to = 0, $salary_currency = '', $is_featured = -1, $job_category_ids = array(), $union = '', $fte = '', $hours_per_shift = '')
     {
     
        
@@ -166,6 +169,15 @@ trait FetchJobs
         }
         if ($is_featured == 1) {
             $query->where('jobs.is_featured', '=', $is_featured);
+        }
+        if ($union !== '') {
+            $query->where('jobs.union', 'like', $union);
+        }
+        if ($fte !== '') {
+            $query->where('jobs.fte', 'like', $fte);
+        }
+        if ($hours_per_shift !== '') {
+            $query->where('jobs.hours_per_shift', (int) $hours_per_shift);
         }
         
         $query->notExpire();

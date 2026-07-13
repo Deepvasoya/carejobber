@@ -199,74 +199,65 @@
             <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
         <!-- Jobs By Job Shift end --> 
 
-        <!-- Jobs By Career Level -->
+        <!-- Jobs By Union -->
         <div class="widget">
-            <h4 class="widget-title">{{__('Jobs By Career Level')}}</h4>
+            <h4 class="widget-title">{{__('Union')}}</h4>
             <ul class="optionlist view_more_ul">
-                @if(isset($careerLevelIdsArray) && count($careerLevelIdsArray))
-                @foreach($careerLevelIdsArray as $key=>$career_level_id)
+                @if(isset($unionValuesArray) && count($unionValuesArray))
+                @foreach($unionValuesArray as $unionValue)
                 @php
-                $careerLevel = App\CareerLevel::where('career_level_id','=',$career_level_id)->lang()->active()->first();
-                @endphp
-                @if(null !== $careerLevel)
-                @php
-                $checked = (in_array($careerLevel->career_level_id, Request::get('career_level_id', array())))? 'checked="checked"':'';
+                $checked = ($unionValue === Request::get('union', '')) ? 'checked="checked"' : '';
                 @endphp
                 <li>
-                    <input type="checkbox" name="career_level_id[]" id="career_level_{{$careerLevel->career_level_id}}" value="{{$careerLevel->career_level_id}}" {{$checked}}>
-                    <label for="career_level_{{$careerLevel->career_level_id}}"></label>
-                    {{$careerLevel->career_level}} <span>{{App\Job::countNumJobs('career_level_id', $careerLevel->career_level_id)}}</span>
+                    <input type="checkbox" name="union" id="union_{{\Illuminate\Support\Str::slug($unionValue)}}" value="{{$unionValue}}" {{$checked}}>
+                    <label for="union_{{\Illuminate\Support\Str::slug($unionValue)}}"></label>
+                    {{$unionValue}}
                 </li>
-                @endif
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
-            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span>
         </div>
-        <!-- Jobs By Career Level end -->
+        <!-- Jobs By Union end -->
 
-        <!-- Freelance / Remote -->
+        <!-- Jobs By FTE -->
         <div class="widget">
-            <h4 class="widget-title">{{__('Freelance / Remote')}}</h4>
+            <h4 class="widget-title">{{__('FTE')}}</h4>
             <ul class="optionlist">
+                @if(isset($fteValuesArray) && count($fteValuesArray))
+                @foreach($fteValuesArray as $fteValue)
                 @php
-                $freelanceChecked = in_array('1', Request::get('is_freelance', array())) ? 'checked="checked"' : '';
+                $checked = ($fteValue === Request::get('fte', '')) ? 'checked="checked"' : '';
                 @endphp
                 <li>
-                    <input type="checkbox" name="is_freelance[]" id="is_freelance_1" value="1" {{$freelanceChecked}}>
-                    <label for="is_freelance_1"></label>
-                    {{__('Freelance / Remote')}}
+                    <input type="checkbox" name="fte" id="fte_{{\Illuminate\Support\Str::slug($fteValue)}}" value="{{$fteValue}}" {{$checked}}>
+                    <label for="fte_{{\Illuminate\Support\Str::slug($fteValue)}}"></label>
+                    {{$fteValue}}
                 </li>
-            </ul>
-        </div>
-        <!-- Freelance / Remote end --> 
-
-
-        <!-- Jobs By Degree Level -->
-        <div class="widget">
-            <h4 class="widget-title">{{__('Jobs By Degree Level')}}</h4>
-            <ul class="optionlist view_more_ul">
-                @if(isset($degreeLevelIdsArray) && count($degreeLevelIdsArray))
-                @foreach($degreeLevelIdsArray as $key=>$degree_level_id)
-                @php
-                $degreeLevel = App\DegreeLevel::where('degree_level_id','=',$degree_level_id)->lang()->active()->first();
-                @endphp
-                @if(null !== $degreeLevel)
-                @php
-                $checked = (in_array($degreeLevel->degree_level_id, Request::get('degree_level_id', array())))? 'checked="checked"':'';
-                @endphp
-                <li>
-                    <input type="checkbox" name="degree_level_id[]" id="degree_level_{{$degreeLevel->degree_level_id}}" value="{{$degreeLevel->degree_level_id}}" {{$checked}}>
-                    <label for="degree_level_{{$degreeLevel->degree_level_id}}"></label>
-                    {{$degreeLevel->degree_level}} <span>{{App\Job::countNumJobs('degree_level_id', $degreeLevel->degree_level_id)}}</span> </li>
-                @endif
                 @endforeach
                 @endif
             </ul>
-            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
-            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span> </div>
-        <!-- Jobs By Degree Level end --> 
+        </div>
+        <!-- Jobs By FTE end -->
+
+        <!-- Jobs By Hours Per Shift -->
+        <div class="widget">
+            <h4 class="widget-title">{{__('Hours Per Shift')}}</h4>
+            <ul class="optionlist">
+                @if(isset($hoursPerShiftValuesArray) && count($hoursPerShiftValuesArray))
+                @foreach($hoursPerShiftValuesArray as $hoursValue)
+                @php
+                $checked = ((string) $hoursValue === Request::get('hours_per_shift', '')) ? 'checked="checked"' : '';
+                @endphp
+                <li>
+                    <input type="checkbox" name="hours_per_shift" id="hours_per_shift_{{$hoursValue}}" value="{{$hoursValue}}" {{$checked}}>
+                    <label for="hours_per_shift_{{$hoursValue}}"></label>
+                    {{$hoursValue}}
+                </li>
+                @endforeach
+                @endif
+            </ul>
+        </div>
+        <!-- Jobs By Hours Per Shift end --> 
 
 
         <!-- Jobs By Gender -->
