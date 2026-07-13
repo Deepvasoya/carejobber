@@ -200,7 +200,47 @@
         <!-- Jobs By Job Shift end --> 
 
         <!-- Jobs By Career Level -->
-        <!-- Jobs By Career Level end --> 
+        <div class="widget">
+            <h4 class="widget-title">{{__('Jobs By Career Level')}}</h4>
+            <ul class="optionlist view_more_ul">
+                @if(isset($careerLevelIdsArray) && count($careerLevelIdsArray))
+                @foreach($careerLevelIdsArray as $key=>$career_level_id)
+                @php
+                $careerLevel = App\CareerLevel::where('career_level_id','=',$career_level_id)->lang()->active()->first();
+                @endphp
+                @if(null !== $careerLevel)
+                @php
+                $checked = (in_array($careerLevel->career_level_id, Request::get('career_level_id', array())))? 'checked="checked"':'';
+                @endphp
+                <li>
+                    <input type="checkbox" name="career_level_id[]" id="career_level_{{$careerLevel->career_level_id}}" value="{{$careerLevel->career_level_id}}" {{$checked}}>
+                    <label for="career_level_{{$careerLevel->career_level_id}}"></label>
+                    {{$careerLevel->career_level}} <span>{{App\Job::countNumJobs('career_level_id', $careerLevel->career_level_id)}}</span>
+                </li>
+                @endif
+                @endforeach
+                @endif
+            </ul>
+            <span class="text text-primary view_more hide_vm">{{__('View More')}}</span>
+            <span class="text text-primary view_less hide_vm">{{__('View Less')}}</span>
+        </div>
+        <!-- Jobs By Career Level end -->
+
+        <!-- Freelance / Remote -->
+        <div class="widget">
+            <h4 class="widget-title">{{__('Freelance / Remote')}}</h4>
+            <ul class="optionlist">
+                @php
+                $freelanceChecked = in_array('1', Request::get('is_freelance', array())) ? 'checked="checked"' : '';
+                @endphp
+                <li>
+                    <input type="checkbox" name="is_freelance[]" id="is_freelance_1" value="1" {{$freelanceChecked}}>
+                    <label for="is_freelance_1"></label>
+                    {{__('Freelance / Remote')}}
+                </li>
+            </ul>
+        </div>
+        <!-- Freelance / Remote end --> 
 
 
         <!-- Jobs By Degree Level -->

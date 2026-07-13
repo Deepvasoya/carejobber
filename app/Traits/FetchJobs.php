@@ -133,8 +133,8 @@ trait FetchJobs
         if (!empty($city_ids)) {
             $query->whereIn('jobs.city_id', $city_ids);
         }
-        if ($is_freelance == 1) {
-            $query->where('jobs.is_freelance', $is_freelance);
+        if (is_array($is_freelance) ? in_array(1, $is_freelance) : (int) $is_freelance === 1) {
+            $query->where('jobs.is_freelance', 1);
         }
         if (isset($career_level_ids[0])) {
             $query->whereIn('jobs.career_level_id', $career_level_ids);

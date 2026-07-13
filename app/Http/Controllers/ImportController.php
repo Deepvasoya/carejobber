@@ -124,10 +124,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $country->country_id = $country->id;
+                    $country->update();
                 }
-
-                $country->country_id = $country->id;
-                $country->update();
 
                 // Step 2: Create a new State object or retrieve an existing one
                 $stateName = $jobData['state_id'];
@@ -142,9 +141,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $state->state_id = $state->id;
+                    $state->update();
                 }
-                $state->state_id = $state->id;
-                $state->update();
 
                 // Step 3: Create a new City object or retrieve an existing one
                 $cityName = $jobData['city_id'];
@@ -159,9 +158,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $city->city_id = $city->id;
+                    $city->update();
                 }
-                $city->city_id = $city->id;
-                $city->update();
 
                 $careerLevelName = $jobData['career_level_id'];
                 $careerLevel = CareerLevel::where('career_level', $careerLevelName)->first();
@@ -174,9 +173,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $careerLevel->career_level_id = $careerLevel->id;
+                    $careerLevel->update();
                 }
-                $careerLevel->career_level_id = $careerLevel->id;
-                $careerLevel->update();
 
                 $salaryPeriodName = $jobData['salary_period_id'];
                 $salaryPeriod = SalaryPeriod::where('salary_period', $salaryPeriodName)->first();
@@ -189,9 +188,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $salaryPeriod->salary_period_id = $salaryPeriod->id;
+                    $salaryPeriod->update();
                 }
-                $salaryPeriod->salary_period_id = $salaryPeriod->id;
-                $salaryPeriod->update();
 
                 $functionalAreaName = $jobData['functional_area_id'];
                 $functionalArea = FunctionalArea::where('functional_area', $functionalAreaName)->first();
@@ -204,9 +203,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $functionalArea->functional_area_id = $functionalArea->id;
+                    $functionalArea->update();
                 }
-                $functionalArea->functional_area_id = $functionalArea->id;
-                $functionalArea->update();
 
                 $jobTypeName = $jobData['job_type_id'];
                 $jobType = JobType::where('job_type', $jobTypeName)->first();
@@ -219,9 +218,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $jobType->job_type_id = $jobType->id;
+                    $jobType->update();
                 }
-                $jobType->job_type_id = $jobType->id;
-                $jobType->update();
 
                 $jobShiftName = $jobData['job_shift_id'];
                 $jobShift = JobShift::where('job_shift', $jobShiftName)->first();
@@ -234,10 +233,9 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $jobShift->job_shift_id = $jobShift->id;
+                    $jobShift->update();
                 }
-
-                $jobShift->job_shift_id = $jobShift->id;
-                $jobShift->update();
 
                 $jobExperienceName = $jobData['job_experience_id'];
                 $jobExperience = JobExperience::where('job_experience', $jobExperienceName)->first();
@@ -250,11 +248,25 @@ class ImportController extends Controller
                         'is_active' => 1, // You can adjust this based on your requirements
                         'lang' => 'en', // Set lang to 'en'
                     ]);
+                    $jobExperience->job_experience_id = $jobExperience->id;
+                    $jobExperience->update();
                 }
-                $jobExperience->job_experience_id = $jobExperience->id;
-                $jobExperience->update();
 
-                $is_valid_date = strtotime(@$jobData['salary_from']) !== false;
+                $degreeLevelName = @$jobData['degree_level_id'];
+                $degreeLevel = null;
+                if ($degreeLevelName) {
+                    $degreeLevel = DegreeLevel::where('degree_level', $degreeLevelName)->first();
+                    if (!$degreeLevel) {
+                        $degreeLevel = DegreeLevel::create([
+                            'degree_level' => $degreeLevelName,
+                            'is_default' => 1,
+                            'is_active' => 1,
+                            'lang' => 'en',
+                        ]);
+                        $degreeLevel->degree_level_id = $degreeLevel->id;
+                        $degreeLevel->update();
+                    }
+                }
 
                 // Step 3: Create a new job object with the updated company_id
                 $job = new Job();
@@ -262,22 +274,23 @@ class ImportController extends Controller
                 $job->title = @$jobData['title'];
                 $job->description = @$jobData['description']?utf8_encode(@$jobData['description']):null;
                 $job->benefits = @$jobData['benefits'];
-                $job->country_id = $country->id;
-                $job->state_id = $state->id;
-                $job->city_id = $city->id;
+                $job->country_id = $country->country_id;
+                $job->state_id = $state->state_id;
+                $job->city_id = $city->city_id;
                 $job->is_freelance = @$jobData['is_freelance']?@$jobData['is_freelance']:0;
-                $job->career_level_id = $careerLevel->id;
+                $job->career_level_id = $careerLevel->career_level_id;
                 $job->salary_from = @$jobData['salary_from']?@$jobData['salary_from']:1;
                 $job->salary_to = @$jobData['salary_to']?@$jobData['salary_to']:1;
                 $job->hide_salary = @$jobData['hide_salary']?@$jobData['hide_salary']:0;
                 $job->salary_currency = @$jobData['salary_currency'];
-                $job->salary_period_id = $salaryPeriod->id;
-                $job->functional_area_id = $functionalArea->id;
-                $job->job_type_id = $jobType->id;
-                $job->job_shift_id = $jobShift->id;
+                $job->salary_period_id = $salaryPeriod->salary_period_id;
+                $job->functional_area_id = $functionalArea->functional_area_id;
+                $job->job_type_id = $jobType->job_type_id;
+                $job->job_shift_id = $jobShift->job_shift_id;
                 $job->num_of_positions = @$jobData['num_of_positions']?@$jobData['num_of_positions']:1;
                 $job->expiry_date = @$jobData['expiry_date']?date('Y-m-d H:i:s',strtotime(@$jobData['expiry_date'])):date('Y-m-d H:i:s', strtotime('+6 months'));
-                $job->job_experience_id = $jobExperience->id;
+                $job->job_experience_id = $jobExperience->job_experience_id;
+                $job->degree_level_id = $degreeLevel ? $degreeLevel->degree_level_id : null;
                 $job->is_active = @$jobData['is_active'];
                 $job->is_featured = @$jobData['is_featured'];
                 $job->search = @$jobData['search'];
@@ -290,7 +303,7 @@ class ImportController extends Controller
                 $job->job_advertiser = @$jobData['job_advertiser'];
                 $job->application_url = @$jobData['application_url'];
                 $job->json_object = @$jobData['json_object'];
-                $job->external_job = @$jobData['external_job']?@$jobData['external_job']:1;
+                $job->external_job = !empty($jobData['external_job']) ? 'yes' : 'no';
                 $job->job_link = @$jobData['job_link'];
 
 
